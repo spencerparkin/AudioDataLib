@@ -10,7 +10,7 @@ namespace AudioDataLib
 		WaveFormat();
 		virtual ~WaveFormat();
 
-		virtual bool ReadFromStream(std::istream& inputStream, AudioData*& audioData, std::string& error) override;
-		virtual bool WriteToStream(std::ostream& outputStream, const AudioData*& audioData, std::string& error) override;
+		virtual bool ReadFromStream(ByteStream& inputStream, AudioData*& audioData, std::string& error) override;
+		virtual bool WriteToStream(ByteStream& outputStream, const AudioData*& audioData, std::string& error) override;
 	};
 }

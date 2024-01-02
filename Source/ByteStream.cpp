@@ -12,6 +12,46 @@ ByteStream::ByteStream()
 {
 }
 
+//------------------------- FileInputStream -------------------------
+
+FileInputStream::FileInputStream(const char* filePath)
+{
+}
+
+/*virtual*/ FileInputStream::~FileInputStream()
+{
+}
+
+/*virtual*/ int FileInputStream::WriteBytesToStream(const char* buffer, int bufferSize)
+{
+	return 0;
+}
+
+/*virtual*/ int FileInputStream::ReadBytesFromStream(char* buffer, int bufferSize)
+{
+	return 0;
+}
+
+//------------------------- FileOutputStream -------------------------
+
+FileOutputStream::FileOutputStream(const char* filePath)
+{
+}
+
+/*virtual*/ FileOutputStream::~FileOutputStream()
+{
+}
+
+/*virtual*/ int FileOutputStream::WriteBytesToStream(const char* buffer, int bufferSize)
+{
+	return 0;
+}
+
+/*virtual*/ int FileOutputStream::ReadBytesFromStream(char* buffer, int bufferSize)
+{
+	return 0;
+}
+
 //------------------------- MemoryStream -------------------------
 
 MemoryStream::MemoryStream()
@@ -59,7 +99,7 @@ void MemoryStream::Clear()
 	return numBytesWritten;
 }
 
-/*virtual*/ int MemoryStream::ReadBytesFromString(char* buffer, int bufferSize)
+/*virtual*/ int MemoryStream::ReadBytesFromStream(char* buffer, int bufferSize)
 {
 	int numBytesRead = 0;
 
@@ -78,6 +118,16 @@ void MemoryStream::Clear()
 	}
 
 	return numBytesRead;
+}
+
+int MemoryStream::GetSize() const
+{
+	int totalSizeBytes = 0;
+
+	for (const Chunk* chunk : *this->chunkList)
+		totalSizeBytes += chunk->GetSize();
+
+	return totalSizeBytes;
 }
 
 //------------------------- MemoryStream::Chunk -------------------------
@@ -112,4 +162,9 @@ int MemoryStream::Chunk::ReadFromChunk(char* givenBuffer, int givenBufferSize)
 		givenBuffer[i++] = this->buffer[this->startOffset++];
 
 	return i;
+}
+
+int MemoryStream::Chunk::GetSize() const
+{
+	return this->endOffset - this->startOffset;
 }

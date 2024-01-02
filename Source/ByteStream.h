@@ -11,7 +11,27 @@ namespace AudioDataLib
 		virtual ~ByteStream();
 
 		virtual int WriteBytesToStream(const char* buffer, int bufferSize) = 0;
-		virtual int ReadBytesFromString(char* buffer, int bufferSize) = 0;
+		virtual int ReadBytesFromStream(char* buffer, int bufferSize) = 0;
+	};
+
+	class AUDIO_DATA_LIB_API FileInputStream : public ByteStream
+	{
+	public:
+		FileInputStream(const char* filePath);
+		virtual ~FileInputStream();
+
+		virtual int WriteBytesToStream(const char* buffer, int bufferSize) override;
+		virtual int ReadBytesFromStream(char* buffer, int bufferSize) override;
+	};
+
+	class AUDIO_DATA_LIB_API FileOutputStream : public ByteStream
+	{
+	public:
+		FileOutputStream(const char* filePath);
+		virtual ~FileOutputStream();
+
+		virtual int WriteBytesToStream(const char* buffer, int bufferSize) override;
+		virtual int ReadBytesFromStream(char* buffer, int bufferSize) override;
 	};
 
 	class AUDIO_DATA_LIB_API MemoryStream : public ByteStream
@@ -21,9 +41,10 @@ namespace AudioDataLib
 		virtual ~MemoryStream();
 
 		virtual int WriteBytesToStream(const char* buffer, int bufferSize) override;
-		virtual int ReadBytesFromString(char* buffer, int bufferSize) override;
+		virtual int ReadBytesFromStream(char* buffer, int bufferSize) override;
 
 		void Clear();
+		int GetSize() const;
 
 	protected:
 		class Chunk
@@ -34,6 +55,8 @@ namespace AudioDataLib
 
 			int WriteToChunk(const char* givenBuffer, int givenBufferSize);
 			int ReadFromChunk(char* givenBuffer, int givenBufferSize);
+
+			int GetSize() const;
 
 			char* buffer;
 			int bufferSize;

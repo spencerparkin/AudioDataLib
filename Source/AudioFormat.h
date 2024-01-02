@@ -5,6 +5,7 @@
 namespace AudioDataLib
 {
 	class AudioData;
+	class ByteStream;
 
 	class AUDIO_DATA_LIB_API AudioFormat
 	{
@@ -12,7 +13,7 @@ namespace AudioDataLib
 		AudioFormat();
 		virtual ~AudioFormat();
 
-		virtual bool ReadFromStream(std::istream& inputStream, AudioData*& audioData, std::string& error) = 0;
-		virtual bool WriteToStream(std::ostream& outputStream, const AudioData*& audioData, std::string& error) = 0;
+		virtual bool ReadFromStream(ByteStream& inputStream, AudioData*& audioData, std::string& error) = 0;
+		virtual bool WriteToStream(ByteStream& outputStream, const AudioData*& audioData, std::string& error) = 0;
 	};
 }

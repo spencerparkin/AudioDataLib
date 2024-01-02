@@ -8,6 +8,6 @@
 #	define AUDIO_DATA_LIB_API
 #endif
 
-#include <iostream>
+#include <string>
 #include <vector>
 #include <list>
