@@ -16,7 +16,7 @@ WaveFormat::WaveFormat()
 	return false;
 }
 
-/*virtual*/ bool WaveFormat::WriteToStream(ByteStream& outputStream, const AudioData*& audioData, std::string& error)
+/*virtual*/ bool WaveFormat::WriteToStream(ByteStream& outputStream, AudioData* audioData, std::string& error)
 {
 	return false;
 }

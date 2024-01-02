@@ -24,8 +24,3 @@ void AudioSink::AddAudioSource(AudioData* audioData)
 {
 	this->audioDataInArray->push_back(audioData);
 }
-
-AudioData& AudioSink::GetAudioOutput()
-{
-	return this->audioDataOut;
-}

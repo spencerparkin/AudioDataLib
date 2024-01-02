@@ -14,6 +14,6 @@ namespace AudioDataLib
 		virtual ~AudioFormat();
 
 		virtual bool ReadFromStream(ByteStream& inputStream, AudioData*& audioData, std::string& error) = 0;
-		virtual bool WriteToStream(ByteStream& outputStream, const AudioData*& audioData, std::string& error) = 0;
+		virtual bool WriteToStream(ByteStream& outputStream, AudioData* audioData, std::string& error) = 0;
 	};
 }
