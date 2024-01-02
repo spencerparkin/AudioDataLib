@@ -10,8 +10,8 @@ namespace AudioDataLib
 		ByteStream();
 		virtual ~ByteStream();
 
-		virtual int WriteBytesToStream(const char* buffer, int bufferSize) = 0;
-		virtual int ReadBytesFromStream(char* buffer, int bufferSize) = 0;
+		virtual uint64_t WriteBytesToStream(const uint8_t* buffer, uint64_t bufferSize) = 0;
+		virtual uint64_t ReadBytesFromStream(uint8_t* buffer, uint64_t bufferSize) = 0;
 
 		virtual bool CanRead() = 0;
 		virtual bool CanWrite() = 0;
@@ -35,13 +35,13 @@ namespace AudioDataLib
 		FileInputStream(const char* filePath);
 		virtual ~FileInputStream();
 
-		virtual int WriteBytesToStream(const char* buffer, int bufferSize) override;
-		virtual int ReadBytesFromStream(char* buffer, int bufferSize) override;
+		virtual uint64_t WriteBytesToStream(const uint8_t* buffer, uint64_t bufferSize) override;
+		virtual uint64_t ReadBytesFromStream(uint8_t* buffer, uint64_t bufferSize) override;
 
 		virtual bool CanRead() override;
 		virtual bool CanWrite() override;
 
-		int NumBytesLeft();
+		uint64_t NumBytesLeft();
 	};
 
 	class AUDIO_DATA_LIB_API FileOutputStream : public FileStream
@@ -50,8 +50,8 @@ namespace AudioDataLib
 		FileOutputStream(const char* filePath);
 		virtual ~FileOutputStream();
 
-		virtual int WriteBytesToStream(const char* buffer, int bufferSize) override;
-		virtual int ReadBytesFromStream(char* buffer, int bufferSize) override;
+		virtual uint64_t WriteBytesToStream(const uint8_t* buffer, uint64_t bufferSize) override;
+		virtual uint64_t ReadBytesFromStream(uint8_t* buffer, uint64_t bufferSize) override;
 
 		virtual bool CanRead() override;
 		virtual bool CanWrite() override;
@@ -65,36 +65,36 @@ namespace AudioDataLib
 		MemoryStream();
 		virtual ~MemoryStream();
 
-		virtual int WriteBytesToStream(const char* buffer, int bufferSize) override;
-		virtual int ReadBytesFromStream(char* buffer, int bufferSize) override;
+		virtual uint64_t WriteBytesToStream(const uint8_t* buffer, uint64_t bufferSize) override;
+		virtual uint64_t ReadBytesFromStream(uint8_t* buffer, uint64_t bufferSize) override;
 
 		virtual bool CanRead() override;
 		virtual bool CanWrite() override;
 
 		void Clear();
-		int GetSize() const;
+		uint64_t GetSize() const;
 
 	protected:
 		class Chunk
 		{
 		public:
-			Chunk(int bufferSize);
+			Chunk(uint64_t bufferSize);
 			virtual ~Chunk();
 
-			int WriteToChunk(const char* givenBuffer, int givenBufferSize);
-			int ReadFromChunk(char* givenBuffer, int givenBufferSize);
+			uint64_t WriteToChunk(const uint8_t* givenBuffer, uint64_t givenBufferSize);
+			uint64_t ReadFromChunk(uint8_t* givenBuffer, uint64_t givenBufferSize);
 
-			int GetSize() const;
+			uint64_t GetSize() const;
 
-			char* buffer;
-			int bufferSize;
-			int startOffset;
-			int endOffset;
+			uint8_t* buffer;
+			uint64_t bufferSize;
+			uint64_t startOffset;
+			uint64_t endOffset;
 		};
 
 		std::list<Chunk*>* chunkList;
-		int chunkSize;
-		mutable int readLockCount;
+		uint64_t chunkSize;
+		mutable uint32_t readLockCount;
 	};
 
 	// This stream lets you read bytes from a memory stream without modifying it.
@@ -104,8 +104,8 @@ namespace AudioDataLib
 		ReadOnlyMemStream(const MemoryStream* memoryStream);
 		virtual ~ReadOnlyMemStream();
 
-		virtual int WriteBytesToStream(const char* buffer, int bufferSize) override;
-		virtual int ReadBytesFromStream(char* buffer, int bufferSize) override;
+		virtual uint64_t WriteBytesToStream(const uint8_t* buffer, uint64_t bufferSize) override;
+		virtual uint64_t ReadBytesFromStream(uint8_t* buffer, uint64_t bufferSize) override;
 
 		virtual bool CanRead() override;
 		virtual bool CanWrite() override;
@@ -113,6 +113,6 @@ namespace AudioDataLib
 	protected:
 		const MemoryStream* memoryStream;
 		std::list<MemoryStream::Chunk*>::iterator* chunkIter;
-		int readOffset;
+		uint64_t readOffset;
 	};
 }

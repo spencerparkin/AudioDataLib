@@ -13,3 +13,4 @@
 #include <vector>
 #include <list>
 #include <assert.h>
+#include <stdint.h>

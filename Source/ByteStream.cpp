@@ -43,26 +43,26 @@ FileInputStream::FileInputStream(const char* filePath) : FileStream(filePath, "r
 {
 }
 
-/*virtual*/ int FileInputStream::WriteBytesToStream(const char* buffer, int bufferSize)
+/*virtual*/ uint64_t FileInputStream::WriteBytesToStream(const uint8_t* buffer, uint64_t bufferSize)
 {
 	return 0;
 }
 
-/*virtual*/ int FileInputStream::ReadBytesFromStream(char* buffer, int bufferSize)
+/*virtual*/ uint64_t FileInputStream::ReadBytesFromStream(uint8_t* buffer, uint64_t bufferSize)
 {
 	if (!this->fp)
 		return 0;
 
-	return (int)fread(buffer, 1, bufferSize, fp);
+	return (uint64_t)fread(buffer, 1, (size_t)bufferSize, fp);
 }
 
-int FileInputStream::NumBytesLeft()
+uint64_t FileInputStream::NumBytesLeft()
 {
-	int curPos = ftell(this->fp);
+	uint64_t curPos = ftell(this->fp);
 	fseek(this->fp, 0, SEEK_END);
-	int endPos = ftell(this->fp);
-	int numBytesLeft = endPos - curPos;
-	fseek(this->fp, curPos, SEEK_SET);
+	uint64_t endPos = ftell(this->fp);
+	uint64_t numBytesLeft = endPos - curPos;
+	fseek(this->fp, (long)curPos, SEEK_SET);
 	return numBytesLeft;
 }
 
@@ -86,15 +86,15 @@ FileOutputStream::FileOutputStream(const char* filePath) : FileStream(filePath, 
 {
 }
 
-/*virtual*/ int FileOutputStream::WriteBytesToStream(const char* buffer, int bufferSize)
+/*virtual*/ uint64_t FileOutputStream::WriteBytesToStream(const uint8_t* buffer, uint64_t bufferSize)
 {
 	if (!this->fp)
 		return 0;
 
-	return (int)fwrite(buffer, 1, bufferSize, fp);
+	return (uint64_t)fwrite(buffer, 1, (size_t)bufferSize, fp);
 }
 
-/*virtual*/ int FileOutputStream::ReadBytesFromStream(char* buffer, int bufferSize)
+/*virtual*/ uint64_t FileOutputStream::ReadBytesFromStream(uint8_t* buffer, uint64_t bufferSize)
 {
 	return 0;
 }
@@ -136,9 +136,9 @@ void MemoryStream::Clear()
 	}
 }
 
-/*virtual*/ int MemoryStream::WriteBytesToStream(const char* buffer, int bufferSize)
+/*virtual*/ uint64_t MemoryStream::WriteBytesToStream(const uint8_t* buffer, uint64_t bufferSize)
 {
-	int numBytesWritten = 0;
+	uint64_t numBytesWritten = 0;
 
 	if(this->chunkList->size() == 0)
 		this->chunkList->push_back(new Chunk(this->chunkSize));
@@ -147,7 +147,7 @@ void MemoryStream::Clear()
 	{
 		Chunk* chunk = this->chunkList->back();
 		
-		int numChunkBytesWritten = chunk->WriteToChunk(&buffer[numBytesWritten], bufferSize - numBytesWritten);
+		uint64_t numChunkBytesWritten = chunk->WriteToChunk(&buffer[numBytesWritten], bufferSize - numBytesWritten);
 		if (numChunkBytesWritten > 0)
 			numBytesWritten += numChunkBytesWritten;
 		else
@@ -157,18 +157,18 @@ void MemoryStream::Clear()
 	return numBytesWritten;
 }
 
-/*virtual*/ int MemoryStream::ReadBytesFromStream(char* buffer, int bufferSize)
+/*virtual*/ uint64_t MemoryStream::ReadBytesFromStream(uint8_t* buffer, uint64_t bufferSize)
 {
 	if (this->readLockCount > 0)
 		return 0;
 
-	int numBytesRead = 0;
+	uint64_t numBytesRead = 0;
 
 	while (numBytesRead < bufferSize && this->chunkList->size() > 0)
 	{
 		Chunk* chunk = *this->chunkList->begin();
 
-		int numChunkBytesRead = chunk->ReadFromChunk(&buffer[numBytesRead], bufferSize - numBytesRead);
+		uint64_t numChunkBytesRead = chunk->ReadFromChunk(&buffer[numBytesRead], bufferSize - numBytesRead);
 		if (numChunkBytesRead > 0)
 			numBytesRead += numChunkBytesRead;
 		else
@@ -181,9 +181,9 @@ void MemoryStream::Clear()
 	return numBytesRead;
 }
 
-int MemoryStream::GetSize() const
+uint64_t MemoryStream::GetSize() const
 {
-	int totalSizeBytes = 0;
+	uint64_t totalSizeBytes = 0;
 
 	for (const Chunk* chunk : *this->chunkList)
 		totalSizeBytes += chunk->GetSize();
@@ -203,11 +203,11 @@ int MemoryStream::GetSize() const
 
 //------------------------- MemoryStream::Chunk -------------------------
 
-MemoryStream::Chunk::Chunk(int bufferSize)
+MemoryStream::Chunk::Chunk(uint64_t bufferSize)
 {
 	this->bufferSize = bufferSize;
-	this->buffer = new char[this->bufferSize];
-	::memset(this->buffer, 0, this->bufferSize);
+	this->buffer = new uint8_t[(uint32_t)this->bufferSize];
+	::memset(this->buffer, 0, (uint32_t)this->bufferSize);
 	this->startOffset = 0;
 	this->endOffset = 0;
 }
@@ -217,25 +217,25 @@ MemoryStream::Chunk::Chunk(int bufferSize)
 	delete[] this->buffer;
 }
 
-int MemoryStream::Chunk::WriteToChunk(const char* givenBuffer, int givenBufferSize)
+uint64_t MemoryStream::Chunk::WriteToChunk(const uint8_t* givenBuffer, uint64_t givenBufferSize)
 {
-	int i = 0;
+	uint64_t i = 0;
 	while (this->endOffset < this->bufferSize && i < givenBufferSize)
 		this->buffer[this->endOffset++] = givenBuffer[i++];
 
 	return i;
 }
 
-int MemoryStream::Chunk::ReadFromChunk(char* givenBuffer, int givenBufferSize)
+uint64_t MemoryStream::Chunk::ReadFromChunk(uint8_t* givenBuffer, uint64_t givenBufferSize)
 {
-	int i = 0;
+	uint64_t i = 0;
 	while (this->startOffset < this->endOffset && i < givenBufferSize)
 		givenBuffer[i++] = this->buffer[this->startOffset++];
 
 	return i;
 }
 
-int MemoryStream::Chunk::GetSize() const
+uint64_t MemoryStream::Chunk::GetSize() const
 {
 	return this->endOffset - this->startOffset;
 }
@@ -257,20 +257,20 @@ ReadOnlyMemStream::ReadOnlyMemStream(const MemoryStream* memoryStream)
 	delete this->chunkIter;
 }
 
-/*virtual*/ int ReadOnlyMemStream::WriteBytesToStream(const char* buffer, int bufferSize)
+/*virtual*/ uint64_t ReadOnlyMemStream::WriteBytesToStream(const uint8_t* buffer, uint64_t bufferSize)
 {
 	return 0;
 }
 
-/*virtual*/ int ReadOnlyMemStream::ReadBytesFromStream(char* buffer, int bufferSize)
+/*virtual*/ uint64_t ReadOnlyMemStream::ReadBytesFromStream(uint8_t* buffer, uint64_t bufferSize)
 {
-	int numBytesRead = 0;
+	uint64_t numBytesRead = 0;
 
 	while (*this->chunkIter != this->memoryStream->chunkList->end())
 	{
 		const MemoryStream::Chunk* chunk = **this->chunkIter;
 
-		int i = chunk->startOffset + this->readOffset;
+		uint64_t i = chunk->startOffset + this->readOffset;
 		while (numBytesRead < bufferSize && i < chunk->endOffset)
 			buffer[numBytesRead++] = chunk->buffer[i++];
 

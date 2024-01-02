@@ -10,9 +10,9 @@ namespace AudioDataLib
 	public:
 		struct Format
 		{
-			int bitsPerSample;
-			int numChannels;
-			int sampleRateBitsPerSecond;
+			uint16_t bitsPerSample;
+			uint16_t numChannels;
+			uint32_t sampleRateBitsPerSecond;
 		};
 
 		AudioData();
