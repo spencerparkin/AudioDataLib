@@ -19,5 +19,18 @@ namespace AudioDataLib
 		double EvaluateAt(double timeSeconds) const;
 
 		void SumTogether(const std::list<WaveForm*>& waveFormList);
+
+		struct Sample
+		{
+			double timeSeconds;
+			double amplitude;
+		};
+
+		bool FindSampleBounds(double timeSeconds, const Sample*& minSample, const Sample*& maxSample) const;
+
+	protected:
+
+		// We assume the samples are all in order according to time.
+		std::vector<Sample>* sampleArray;
 	};
 }
