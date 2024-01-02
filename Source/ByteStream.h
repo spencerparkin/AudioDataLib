@@ -14,7 +14,19 @@ namespace AudioDataLib
 		virtual int ReadBytesFromStream(char* buffer, int bufferSize) = 0;
 	};
 
-	class AUDIO_DATA_LIB_API FileInputStream : public ByteStream
+	class AUDIO_DATA_LIB_API FileStream : public ByteStream
+	{
+	public:
+		FileStream(const char* filePath, const char* mode);
+		virtual ~FileStream();
+
+		bool IsOpen();
+
+	protected:
+		FILE* fp;
+	};
+
+	class AUDIO_DATA_LIB_API FileInputStream : public FileStream
 	{
 	public:
 		FileInputStream(const char* filePath);
@@ -22,9 +34,11 @@ namespace AudioDataLib
 
 		virtual int WriteBytesToStream(const char* buffer, int bufferSize) override;
 		virtual int ReadBytesFromStream(char* buffer, int bufferSize) override;
+
+		int NumBytesLeft();
 	};
 
-	class AUDIO_DATA_LIB_API FileOutputStream : public ByteStream
+	class AUDIO_DATA_LIB_API FileOutputStream : public FileStream
 	{
 	public:
 		FileOutputStream(const char* filePath);

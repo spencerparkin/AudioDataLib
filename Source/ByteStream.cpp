@@ -12,9 +12,30 @@ ByteStream::ByteStream()
 {
 }
 
+//------------------------- FileStream -------------------------
+
+FileStream::FileStream(const char* filePath, const char* mode)
+{
+	this->fp = fopen(filePath, mode);
+}
+
+/*virtual*/ FileStream::~FileStream()
+{
+	if (this->fp)
+	{
+		fclose(this->fp);
+		this->fp = nullptr;
+	}
+}
+
+bool FileStream::IsOpen()
+{
+	return this->fp != nullptr;
+}
+
 //------------------------- FileInputStream -------------------------
 
-FileInputStream::FileInputStream(const char* filePath)
+FileInputStream::FileInputStream(const char* filePath) : FileStream(filePath, "r")
 {
 }
 
@@ -29,12 +50,25 @@ FileInputStream::FileInputStream(const char* filePath)
 
 /*virtual*/ int FileInputStream::ReadBytesFromStream(char* buffer, int bufferSize)
 {
-	return 0;
+	if (!this->fp)
+		return 0;
+
+	return (int)fread(buffer, 1, bufferSize, fp);
+}
+
+int FileInputStream::NumBytesLeft()
+{
+	int curPos = ftell(this->fp);
+	fseek(this->fp, 0, SEEK_END);
+	int endPos = ftell(this->fp);
+	int numBytesLeft = endPos - curPos;
+	fseek(this->fp, curPos, SEEK_SET);
+	return numBytesLeft;
 }
 
 //------------------------- FileOutputStream -------------------------
 
-FileOutputStream::FileOutputStream(const char* filePath)
+FileOutputStream::FileOutputStream(const char* filePath) : FileStream(filePath, "w")
 {
 }
 
@@ -44,7 +78,10 @@ FileOutputStream::FileOutputStream(const char* filePath)
 
 /*virtual*/ int FileOutputStream::WriteBytesToStream(const char* buffer, int bufferSize)
 {
-	return 0;
+	if (!this->fp)
+		return 0;
+
+	return (int)fwrite(buffer, 1, bufferSize, fp);
 }
 
 /*virtual*/ int FileOutputStream::ReadBytesFromStream(char* buffer, int bufferSize)
@@ -58,13 +95,14 @@ MemoryStream::MemoryStream()
 {
 	this->chunkSize = 5 * 1024;
 	this->chunkList = new std::list<Chunk*>();
+	this->readLockCount = 0;
 }
 
 /*virtual*/ MemoryStream::~MemoryStream()
 {
 	this->Clear();
-
 	delete this->chunkList;
+	assert(this->readLockCount == 0);
 }
 
 void MemoryStream::Clear()

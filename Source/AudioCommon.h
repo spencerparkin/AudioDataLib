@@ -8,6 +8,8 @@
 #	define AUDIO_DATA_LIB_API
 #endif
 
+#include <stdlib.h>
 #include <string>
 #include <vector>
 #include <list>
+#include <assert.h>

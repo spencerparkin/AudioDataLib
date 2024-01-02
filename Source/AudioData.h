@@ -10,16 +10,19 @@ namespace AudioDataLib
 	public:
 		struct Format
 		{
-			int numFrames;
+			int bitsPerSample;
 			int numChannels;
-			int sampleSize;
-			int sampleRate;
+			int sampleRateBitsPerSecond;
 		};
 
 		AudioData();
 		AudioData(Format format, ByteStream* audioStream);
 		virtual ~AudioData();
 
+		Format& GetFormat() { return this->format; }
+		ByteStream* GetAudioStream() { return this->audioStream; }
+
+	protected:
 		Format format;
 		ByteStream* audioStream;
 	};
