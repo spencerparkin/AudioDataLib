@@ -6,20 +6,15 @@ WaveForm::WaveForm()
 {
 }
 
-WaveForm::WaveForm(double totalSecondsOfSilence)
-{
-	//...
-}
-
 /*virtual*/ WaveForm::~WaveForm()
 {
 }
 
-void WaveForm::ConvertFromAudioBuffer(const AudioData::Format& format, const uint8_t* audioBuffer, uint64_t audioBufferSize)
+void WaveForm::ConvertFromAudioBuffer(const AudioData::Format& format, const uint8_t* audioBuffer, uint64_t audioBufferSize, uint16_t channel)
 {
 }
 
-void WaveForm::ConvertToAudioBuffer(const AudioData::Format& format, uint8_t*& audioBuffer, uint64_t& audioBufferSize) const
+void WaveForm::ConvertToAudioBuffer(const AudioData::Format& format, uint8_t* audioBuffer, uint64_t audioBufferSize, uint16_t channel) const
 {
 }
 

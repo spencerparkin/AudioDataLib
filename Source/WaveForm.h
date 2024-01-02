@@ -8,11 +8,10 @@ namespace AudioDataLib
 	{
 	public:
 		WaveForm();
-		WaveForm(double totalSecondsOfSilence);
 		virtual ~WaveForm();
 
-		void ConvertFromAudioBuffer(const AudioData::Format& format, const uint8_t* audioBuffer, uint64_t audioBufferSize);
-		void ConvertToAudioBuffer(const AudioData::Format& format, uint8_t*& audioBuffer, uint64_t& audioBufferSize) const;
+		void ConvertFromAudioBuffer(const AudioData::Format& format, const uint8_t* audioBuffer, uint64_t audioBufferSize, uint16_t channel);
+		void ConvertToAudioBuffer(const AudioData::Format& format, uint8_t* audioBuffer, uint64_t audioBufferSize, uint16_t channel) const;
 
 		// If an index exists, it can speed up evaluation.
 		void GenerateIndex();
