@@ -36,6 +36,8 @@ namespace AudioDataLib
 
 	class AUDIO_DATA_LIB_API MemoryStream : public ByteStream
 	{
+		friend class ReadOnlyMemStream;
+
 	public:
 		MemoryStream();
 		virtual ~MemoryStream();
@@ -66,5 +68,22 @@ namespace AudioDataLib
 
 		std::list<Chunk*>* chunkList;
 		int chunkSize;
+		mutable int readLockCount;
+	};
+
+	// This stream lets you read bytes from a memory stream without modifying it.
+	class AUDIO_DATA_LIB_API ReadOnlyMemStream : public ByteStream
+	{
+	public:
+		ReadOnlyMemStream(const MemoryStream* memoryStream);
+		virtual ~ReadOnlyMemStream();
+
+		virtual int WriteBytesToStream(const char* buffer, int bufferSize) override;
+		virtual int ReadBytesFromStream(char* buffer, int bufferSize) override;
+
+	protected:
+		const MemoryStream* memoryStream;
+		std::list<MemoryStream::Chunk*>::iterator* chunkIter;
+		int readOffset;
 	};
 }

@@ -101,6 +101,9 @@ void MemoryStream::Clear()
 
 /*virtual*/ int MemoryStream::ReadBytesFromStream(char* buffer, int bufferSize)
 {
+	if (this->readLockCount > 0)
+		return 0;
+
 	int numBytesRead = 0;
 
 	while (numBytesRead < bufferSize && this->chunkList->size() > 0)
@@ -167,4 +170,48 @@ int MemoryStream::Chunk::ReadFromChunk(char* givenBuffer, int givenBufferSize)
 int MemoryStream::Chunk::GetSize() const
 {
 	return this->endOffset - this->startOffset;
+}
+
+//------------------------- ReadOnlyMemStream -------------------------
+
+ReadOnlyMemStream::ReadOnlyMemStream(const MemoryStream* memoryStream)
+{
+	this->memoryStream = memoryStream;
+	this->memoryStream->readLockCount++;
+	this->chunkIter = new std::list<MemoryStream::Chunk*>::iterator();
+	*this->chunkIter = this->memoryStream->chunkList->begin();
+	this->readOffset = 0;
+}
+
+/*virtual*/ ReadOnlyMemStream::~ReadOnlyMemStream()
+{
+	this->memoryStream->readLockCount--;
+	delete this->chunkIter;
+}
+
+/*virtual*/ int ReadOnlyMemStream::WriteBytesToStream(const char* buffer, int bufferSize)
+{
+	return 0;
+}
+
+/*virtual*/ int ReadOnlyMemStream::ReadBytesFromStream(char* buffer, int bufferSize)
+{
+	int numBytesRead = 0;
+
+	while (*this->chunkIter != this->memoryStream->chunkList->end())
+	{
+		const MemoryStream::Chunk* chunk = **this->chunkIter;
+
+		int i = chunk->startOffset + this->readOffset;
+		while (numBytesRead < bufferSize && i < chunk->endOffset)
+			buffer[numBytesRead++] = chunk->buffer[i++];
+
+		if (numBytesRead == bufferSize)
+			break;
+
+		this->readOffset = 0;
+		(*this->chunkIter)++;
+	}
+
+	return numBytesRead;
 }

@@ -8,11 +8,6 @@ namespace AudioDataLib
 	class AUDIO_DATA_LIB_API AudioData
 	{
 	public:
-		AudioData();
-		virtual ~AudioData();
-
-		AudioData* Clone() const;
-
 		struct Format
 		{
 			int numFrames;
@@ -21,7 +16,11 @@ namespace AudioDataLib
 			int sampleRate;
 		};
 
+		AudioData();
+		AudioData(Format format, ByteStream* audioStream);
+		virtual ~AudioData();
+
 		Format format;
-		MemoryStream audioStream;
+		ByteStream* audioStream;
 	};
 }
