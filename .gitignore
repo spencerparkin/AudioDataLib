@@ -30,3 +30,9 @@
 *.exe
 *.out
 *.app
+
+# Dev-Studio stuff
+.vs/
+Debug/
+Release/
+x64/
