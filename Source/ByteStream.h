@@ -12,6 +12,9 @@ namespace AudioDataLib
 
 		virtual int WriteBytesToStream(const char* buffer, int bufferSize) = 0;
 		virtual int ReadBytesFromStream(char* buffer, int bufferSize) = 0;
+
+		virtual bool CanRead() = 0;
+		virtual bool CanWrite() = 0;
 	};
 
 	class AUDIO_DATA_LIB_API FileStream : public ByteStream
@@ -35,6 +38,9 @@ namespace AudioDataLib
 		virtual int WriteBytesToStream(const char* buffer, int bufferSize) override;
 		virtual int ReadBytesFromStream(char* buffer, int bufferSize) override;
 
+		virtual bool CanRead() override;
+		virtual bool CanWrite() override;
+
 		int NumBytesLeft();
 	};
 
@@ -46,6 +52,9 @@ namespace AudioDataLib
 
 		virtual int WriteBytesToStream(const char* buffer, int bufferSize) override;
 		virtual int ReadBytesFromStream(char* buffer, int bufferSize) override;
+
+		virtual bool CanRead() override;
+		virtual bool CanWrite() override;
 	};
 
 	class AUDIO_DATA_LIB_API MemoryStream : public ByteStream
@@ -58,6 +67,9 @@ namespace AudioDataLib
 
 		virtual int WriteBytesToStream(const char* buffer, int bufferSize) override;
 		virtual int ReadBytesFromStream(char* buffer, int bufferSize) override;
+
+		virtual bool CanRead() override;
+		virtual bool CanWrite() override;
 
 		void Clear();
 		int GetSize() const;
@@ -94,6 +106,9 @@ namespace AudioDataLib
 
 		virtual int WriteBytesToStream(const char* buffer, int bufferSize) override;
 		virtual int ReadBytesFromStream(char* buffer, int bufferSize) override;
+
+		virtual bool CanRead() override;
+		virtual bool CanWrite() override;
 
 	protected:
 		const MemoryStream* memoryStream;

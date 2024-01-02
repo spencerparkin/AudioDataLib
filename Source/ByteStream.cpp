@@ -35,7 +35,7 @@ bool FileStream::IsOpen()
 
 //------------------------- FileInputStream -------------------------
 
-FileInputStream::FileInputStream(const char* filePath) : FileStream(filePath, "r")
+FileInputStream::FileInputStream(const char* filePath) : FileStream(filePath, "rb")
 {
 }
 
@@ -66,9 +66,19 @@ int FileInputStream::NumBytesLeft()
 	return numBytesLeft;
 }
 
+/*virtual*/ bool FileInputStream::CanRead()
+{
+	return this->NumBytesLeft() > 0;
+}
+
+/*virtual*/ bool FileInputStream::CanWrite()
+{
+	return false;
+}
+
 //------------------------- FileOutputStream -------------------------
 
-FileOutputStream::FileOutputStream(const char* filePath) : FileStream(filePath, "w")
+FileOutputStream::FileOutputStream(const char* filePath) : FileStream(filePath, "wb")
 {
 }
 
@@ -87,6 +97,16 @@ FileOutputStream::FileOutputStream(const char* filePath) : FileStream(filePath, 
 /*virtual*/ int FileOutputStream::ReadBytesFromStream(char* buffer, int bufferSize)
 {
 	return 0;
+}
+
+/*virtual*/ bool FileOutputStream::CanRead()
+{
+	return false;
+}
+
+/*virtual*/ bool FileOutputStream::CanWrite()
+{
+	return true;
 }
 
 //------------------------- MemoryStream -------------------------
@@ -171,6 +191,16 @@ int MemoryStream::GetSize() const
 	return totalSizeBytes;
 }
 
+/*virtual*/ bool MemoryStream::CanRead()
+{
+	return this->GetSize() > 0;
+}
+
+/*virtual*/ bool MemoryStream::CanWrite()
+{
+	return true;
+}
+
 //------------------------- MemoryStream::Chunk -------------------------
 
 MemoryStream::Chunk::Chunk(int bufferSize)
@@ -252,4 +282,21 @@ ReadOnlyMemStream::ReadOnlyMemStream(const MemoryStream* memoryStream)
 	}
 
 	return numBytesRead;
+}
+
+/*virtual*/ bool ReadOnlyMemStream::CanRead()
+{
+	if (!this->memoryStream)
+		return false;
+
+	if (*this->chunkIter == this->memoryStream->chunkList->end())
+		return false;
+
+	const MemoryStream::Chunk* chunk = **this->chunkIter;
+	return chunk->GetSize() > 0;
+}
+
+/*virtual*/ bool ReadOnlyMemStream::CanWrite()
+{
+	return false;
 }

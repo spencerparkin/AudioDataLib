@@ -14,6 +14,6 @@ namespace AudioDataLib
 		virtual bool WriteToStream(ByteStream& outputStream, AudioData* audioData, std::string& error) override;
 
 	protected:
-		bool ProcessChunk(ByteStream& inputStream, AudioData* audioData, bool& chunkProcessed, std::string& error);
+		bool ProcessChunk(ByteStream& inputStream, AudioData* audioData, std::string& error);
 	};
 }

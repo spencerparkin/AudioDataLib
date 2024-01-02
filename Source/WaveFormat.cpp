@@ -51,10 +51,9 @@ WaveFormat::WaveFormat()
 
 	audioData = new AudioData();
 
-	bool chunkProcessed = true;
-	while (chunkProcessed)
+	while (inputStream.CanRead())
 	{
-		if (!this->ProcessChunk(inputStream, audioData, chunkProcessed, error))
+		if (!this->ProcessChunk(inputStream, audioData, error))
 		{
 			delete audioData;
 			audioData = nullptr;
@@ -65,19 +64,10 @@ WaveFormat::WaveFormat()
 	return true;
 }
 
-bool WaveFormat::ProcessChunk(ByteStream& inputStream, AudioData* audioData, bool& chunkProcessed, std::string& error)
+bool WaveFormat::ProcessChunk(ByteStream& inputStream, AudioData* audioData, std::string& error)
 {
-	chunkProcessed = true;
-	
 	char chunkIdStr[5];
-	int numBytesRead = inputStream.ReadBytesFromStream(chunkIdStr, 4);
-	if (numBytesRead == 0)
-	{
-		chunkProcessed = false;
-		return true;
-	}
-
-	if (4 != numBytesRead)
+	if (4 != inputStream.ReadBytesFromStream(chunkIdStr, 4))
 	{
 		error = "Failed to read chunk ID string.";
 		return false;
@@ -156,6 +146,8 @@ bool WaveFormat::ProcessChunk(ByteStream& inputStream, AudioData* audioData, boo
 	}
 	else if (0 == strcmp(chunkIdStr, "data"))
 	{
+		int numBytesLeft = ((FileInputStream*)&inputStream)->NumBytesLeft();
+
 		char* waveDataBuffer = new char[chunkDataSize];
 		int numBytesRead = inputStream.ReadBytesFromStream(waveDataBuffer, chunkDataSize);
 		if (chunkDataSize != numBytesRead)
