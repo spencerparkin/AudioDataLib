@@ -56,7 +56,7 @@ FileInputStream::FileInputStream(const char* filePath) : FileStream(filePath, "r
 	return (uint64_t)fread(buffer, 1, (size_t)bufferSize, fp);
 }
 
-uint64_t FileInputStream::NumBytesLeft()
+/*virtual*/ uint64_t FileInputStream::GetSize() const
 {
 	uint64_t curPos = ftell(this->fp);
 	fseek(this->fp, 0, SEEK_END);
@@ -68,7 +68,7 @@ uint64_t FileInputStream::NumBytesLeft()
 
 /*virtual*/ bool FileInputStream::CanRead()
 {
-	return this->NumBytesLeft() > 0;
+	return this->GetSize() > 0;
 }
 
 /*virtual*/ bool FileInputStream::CanWrite()
@@ -95,6 +95,11 @@ FileOutputStream::FileOutputStream(const char* filePath) : FileStream(filePath, 
 }
 
 /*virtual*/ uint64_t FileOutputStream::ReadBytesFromStream(uint8_t* buffer, uint64_t bufferSize)
+{
+	return 0;
+}
+
+/*virtual*/ uint64_t FileOutputStream::GetSize() const
 {
 	return 0;
 }
@@ -181,7 +186,7 @@ void MemoryStream::Clear()
 	return numBytesRead;
 }
 
-uint64_t MemoryStream::GetSize() const
+/*virtual*/ uint64_t MemoryStream::GetSize() const
 {
 	uint64_t totalSizeBytes = 0;
 
@@ -284,6 +289,30 @@ ReadOnlyMemStream::ReadOnlyMemStream(const MemoryStream* memoryStream)
 	return numBytesRead;
 }
 
+/*virtual*/ uint64_t ReadOnlyMemStream::GetSize() const
+{
+	if (!this->memoryStream)
+		return 0;
+
+	if (*this->chunkIter == this->memoryStream->chunkList->end())
+		return 0;
+
+	uint64_t numAvailableBytes = 0;
+
+	const MemoryStream::Chunk* chunk = **this->chunkIter;
+	numAvailableBytes += chunk->endOffset - this->readOffset;
+
+	std::list<MemoryStream::Chunk*>::iterator iter = *this->chunkIter;
+	iter++;
+	while (iter != this->memoryStream->chunkList->end())
+	{
+		numAvailableBytes += (*iter)->GetSize();
+		iter++;
+	}
+
+	return numAvailableBytes;
+}
+
 /*virtual*/ bool ReadOnlyMemStream::CanRead()
 {
 	if (!this->memoryStream)
@@ -293,7 +322,15 @@ ReadOnlyMemStream::ReadOnlyMemStream(const MemoryStream* memoryStream)
 		return false;
 
 	const MemoryStream::Chunk* chunk = **this->chunkIter;
-	return chunk->GetSize() > 0;
+	if (chunk->startOffset <= this->readOffset && this->readOffset < chunk->endOffset)
+		return true;
+
+	std::list<MemoryStream::Chunk*>::iterator iter = *this->chunkIter;
+	iter++;
+	if (iter == this->memoryStream->chunkList->end())
+		return false;
+
+	return (*iter)->GetSize() > 0;
 }
 
 /*virtual*/ bool ReadOnlyMemStream::CanWrite()

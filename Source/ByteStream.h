@@ -13,6 +13,8 @@ namespace AudioDataLib
 		virtual uint64_t WriteBytesToStream(const uint8_t* buffer, uint64_t bufferSize) = 0;
 		virtual uint64_t ReadBytesFromStream(uint8_t* buffer, uint64_t bufferSize) = 0;
 
+		virtual uint64_t GetSize() const = 0;
+
 		virtual bool CanRead() = 0;
 		virtual bool CanWrite() = 0;
 	};
@@ -38,10 +40,10 @@ namespace AudioDataLib
 		virtual uint64_t WriteBytesToStream(const uint8_t* buffer, uint64_t bufferSize) override;
 		virtual uint64_t ReadBytesFromStream(uint8_t* buffer, uint64_t bufferSize) override;
 
+		virtual uint64_t GetSize() const override;
+
 		virtual bool CanRead() override;
 		virtual bool CanWrite() override;
-
-		uint64_t NumBytesLeft();
 	};
 
 	class AUDIO_DATA_LIB_API FileOutputStream : public FileStream
@@ -52,6 +54,8 @@ namespace AudioDataLib
 
 		virtual uint64_t WriteBytesToStream(const uint8_t* buffer, uint64_t bufferSize) override;
 		virtual uint64_t ReadBytesFromStream(uint8_t* buffer, uint64_t bufferSize) override;
+
+		virtual uint64_t GetSize() const override;
 
 		virtual bool CanRead() override;
 		virtual bool CanWrite() override;
@@ -68,11 +72,12 @@ namespace AudioDataLib
 		virtual uint64_t WriteBytesToStream(const uint8_t* buffer, uint64_t bufferSize) override;
 		virtual uint64_t ReadBytesFromStream(uint8_t* buffer, uint64_t bufferSize) override;
 
+		virtual uint64_t GetSize() const override;
+
 		virtual bool CanRead() override;
 		virtual bool CanWrite() override;
 
 		void Clear();
-		uint64_t GetSize() const;
 
 	protected:
 		class Chunk
@@ -106,6 +111,8 @@ namespace AudioDataLib
 
 		virtual uint64_t WriteBytesToStream(const uint8_t* buffer, uint64_t bufferSize) override;
 		virtual uint64_t ReadBytesFromStream(uint8_t* buffer, uint64_t bufferSize) override;
+
+		virtual uint64_t GetSize() const override;
 
 		virtual bool CanRead() override;
 		virtual bool CanWrite() override;

@@ -13,6 +13,10 @@ namespace AudioDataLib
 			uint16_t bitsPerSample;
 			uint16_t numChannels;
 			uint32_t sampleRateBitsPerSecond;
+
+			double BytesToSeconds(uint64_t numBytes) const;
+			uint64_t BytesFromSeconds(double seconds) const;
+			uint64_t RoundUpToNearestFrameMultiple(uint64_t numBytes) const;
 		};
 
 		AudioData();

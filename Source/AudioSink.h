@@ -5,16 +5,18 @@
 
 namespace AudioDataLib
 {
+	// Note that this class is not thread-safe.  If it is being used as a shared resource
+	// between threads, then a mutex should be used to protect access to it.
 	class AUDIO_DATA_LIB_API AudioSink
 	{
 	public:
 		AudioSink();
 		virtual ~AudioSink();
 
-		// Make sure that at least as much of the given number of bytes is available
-		// in the output audio data for the caller to be able to consume.
+		// Make sure that an amount of audio data equivilant to the given amount
+		// of time is available for consumption in our audio output stream.
 		// This will produce silence in the audio output if necessary.
-		void MixAudio(int numBytes);
+		void MixAudio(double desiredSecondsAvailable, double secondsAddedPerMix);
 	
 		// The memory for the given audio source is deleted once it has been depleted.
 		void AddAudioSource(AudioData* audioData);

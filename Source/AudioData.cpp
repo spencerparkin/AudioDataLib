@@ -19,3 +19,27 @@ AudioData::AudioData(Format format, ByteStream* audioStream)
 {
 	delete this->audioStream;
 }
+
+double AudioData::Format::BytesToSeconds(uint64_t numBytes) const
+{
+	uint64_t sampleRateBytesPerSecond = this->sampleRateBitsPerSecond / 8;
+	double seconds = double(sampleRateBytesPerSecond * numBytes);
+	return seconds;
+}
+
+uint64_t AudioData::Format::BytesFromSeconds(double seconds) const
+{
+	double sampleRateBytesPerSecond = double(this->sampleRateBitsPerSecond / 8);
+	uint64_t numBytes = uint64_t(seconds / sampleRateBytesPerSecond);
+	return numBytes;
+}
+
+uint64_t AudioData::Format::RoundUpToNearestFrameMultiple(uint64_t numBytes) const
+{
+	uint64_t bytesPerSample = this->bitsPerSample / 8;
+	uint64_t samplesPerFrame = this->numChannels;
+	uint64_t bytesPerFrame = bytesPerSample * samplesPerFrame;
+	uint64_t remainder = numBytes % bytesPerFrame;
+	numBytes += bytesPerFrame - remainder;
+	return numBytes;
+}

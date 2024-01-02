@@ -34,7 +34,7 @@ int main(int argc, char** argv)
 
 		while (audioSink.GetAudioInputCount() > 0)
 		{
-			audioSink.MixAudio(1024);
+			audioSink.MixAudio(1.0, 1.0);
 		}
 
 		if (!waveFormat.WriteToStream(outputStream, audioSink.GetAudioOutput(), error))
