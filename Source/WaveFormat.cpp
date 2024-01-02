@@ -91,6 +91,12 @@ bool WaveFormat::ProcessChunk(ByteStream& inputStream, AudioData* audioData, std
 			return false;
 		}
 
+		if (type != 1)
+		{
+			error = "Non-PCM data not yet supported.";
+			return false;
+		}
+
 		uint16_t numChannels = 0;
 		if (2 != inputStream.ReadBytesFromStream((uint8_t*)&numChannels, 2))
 		{
