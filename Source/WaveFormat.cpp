@@ -187,7 +187,7 @@ bool WaveFormat::ProcessChunk(ByteStream& inputStream, AudioData* audioData, std
 		return false;
 	}
 
-	uint32_t riffChunkSize = (uint32_t)audioData->GetAudioBufferSize() + 28;
+	uint32_t riffChunkSize = (uint32_t)audioData->GetAudioBufferSize() + 34;
 	if (4 != outputStream.WriteBytesToStream((const uint8_t*)&riffChunkSize, 4))
 	{
 		error = "Could not write RIFF chunk size.";

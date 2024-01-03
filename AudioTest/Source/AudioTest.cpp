@@ -114,6 +114,7 @@ bool TestWaveFormat()
 	AudioData* audioDataOut = new AudioData();
 	audioDataOut->SetAudioBufferSize(audioDataIn->GetAudioBufferSize());
 	::memcpy(audioDataOut->GetAudioBuffer(), audioDataIn->GetAudioBuffer(), (size_t)audioDataOut->GetAudioBufferSize());
+	audioDataOut->GetFormat() = audioDataIn->GetFormat();
 
 	FileOutputStream outputStream("TestData/TestAudio1_copy.wav");
 	bool savedWave = waveFormat.WriteToStream(outputStream, audioDataOut, error);
