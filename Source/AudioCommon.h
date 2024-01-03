@@ -8,6 +8,10 @@
 #	define AUDIO_DATA_LIB_API
 #endif
 
+#define ADL_SIGN(x)			((x) < 0.0 ? -1.0 : 1.0)
+#define ADL_MAX(x, y)		((x) > (y) ? (x) : (y))
+#define ADL_MIN(x, y)		((x) < (y) ? (x) : (y))
+
 #include <stdlib.h>
 #include <string>
 #include <vector>
