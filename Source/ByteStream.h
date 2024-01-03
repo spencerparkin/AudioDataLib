@@ -1,6 +1,7 @@
 #pragma once
 
 #include "AudioCommon.h"
+#include "AudioData.h"
 
 namespace AudioDataLib
 {
@@ -61,10 +62,53 @@ namespace AudioDataLib
 		virtual bool CanWrite() override;
 	};
 
+	class AUDIO_DATA_LIB_API BufferStream : public ByteStream
+	{
+	public:
+		BufferStream(const uint8_t* buffer, uint64_t bufferSize);
+		virtual ~BufferStream();
+
+		virtual uint64_t WriteBytesToStream(const uint8_t* buffer, uint64_t bufferSize) override;
+		virtual uint64_t ReadBytesFromStream(uint8_t* buffer, uint64_t bufferSize) override;
+
+		virtual uint64_t GetSize() const override;
+
+		virtual bool CanRead() override;
+		virtual bool CanWrite() override;
+
+		uint64_t GetReadOffset() const { return this->readOffset; }
+		bool SetReadOffset(uint64_t readOffset);
+
+	protected:
+		const uint8_t* readOnlyBuffer;
+		uint64_t readOnlyBufferSize;
+		uint64_t readOffset;
+	};
+
+	class AUDIO_DATA_LIB_API AudioStream : public ByteStream
+	{
+	public:
+		AudioStream(const AudioData::Format& format);
+		AudioStream(const AudioData* audioData);
+		virtual ~AudioStream();
+
+		virtual uint64_t WriteBytesToStream(const uint8_t* buffer, uint64_t bufferSize) override;
+		virtual uint64_t ReadBytesFromStream(uint8_t* buffer, uint64_t bufferSize) override;
+
+		virtual uint64_t GetSize() const override;
+
+		virtual bool CanRead() override;
+		virtual bool CanWrite() override;
+
+		const AudioData::Format& GetFormat() { return this->format; }
+
+	protected:
+		AudioData::Format format;
+		ByteStream* byteStream;
+	};
+
 	class AUDIO_DATA_LIB_API MemoryStream : public ByteStream
 	{
-		friend class ReadOnlyMemStream;
-
 	public:
 		MemoryStream();
 		virtual ~MemoryStream();
@@ -100,26 +144,5 @@ namespace AudioDataLib
 		std::list<Chunk*>* chunkList;
 		uint64_t chunkSize;
 		mutable uint32_t readLockCount;
-	};
-
-	// This stream lets you read bytes from a memory stream without modifying it.
-	class AUDIO_DATA_LIB_API ReadOnlyMemStream : public ByteStream
-	{
-	public:
-		ReadOnlyMemStream(const MemoryStream* memoryStream);
-		virtual ~ReadOnlyMemStream();
-
-		virtual uint64_t WriteBytesToStream(const uint8_t* buffer, uint64_t bufferSize) override;
-		virtual uint64_t ReadBytesFromStream(uint8_t* buffer, uint64_t bufferSize) override;
-
-		virtual uint64_t GetSize() const override;
-
-		virtual bool CanRead() override;
-		virtual bool CanWrite() override;
-
-	protected:
-		const MemoryStream* memoryStream;
-		std::list<MemoryStream::Chunk*>::iterator* chunkIter;
-		uint64_t readOffset;
 	};
 }

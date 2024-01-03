@@ -1,37 +1,39 @@
 #include "AudioData.h"
-#include "ByteStream.h"
 
 using namespace AudioDataLib;
 
 AudioData::AudioData()
 {
 	::memset(&this->format, 0, sizeof(Format));
-	this->audioStream = new MemoryStream();
-}
-
-AudioData::AudioData(Format format, ByteStream* audioStream)
-{
-	this->format = format;
-	this->audioStream = audioStream;
+	this->audioBuffer = nullptr;
+	this->audioBufferSize = 0;
 }
 
 /*virtual*/ AudioData::~AudioData()
 {
-	delete this->audioStream;
+	this->SetAudioBufferSize(0);
+}
+
+void AudioData::SetAudioBufferSize(uint64_t audioBufferSize)
+{
+	delete[] this->audioBuffer;
+	this->audioBuffer = nullptr;
+	this->audioBufferSize = audioBufferSize;
+	if (this->audioBufferSize > 0)
+	{
+		this->audioBuffer = new uint8_t[(uint32_t)this->audioBufferSize];
+		::memset(this->audioBuffer, 0, (size_t)this->audioBufferSize);
+	}
 }
 
 double AudioData::Format::BytesToSeconds(uint64_t numBytes) const
 {
-	uint64_t sampleRateBytesPerSecond = this->sampleRateBitsPerSecond / 8;
-	double seconds = double(sampleRateBytesPerSecond * numBytes);
-	return seconds;
+	return double(this->BytesPerSecond() * numBytes);
 }
 
 uint64_t AudioData::Format::BytesFromSeconds(double seconds) const
 {
-	double sampleRateBytesPerSecond = double(this->sampleRateBitsPerSecond / 8);
-	uint64_t numBytes = uint64_t(seconds / sampleRateBytesPerSecond);
-	return numBytes;
+	return uint64_t(seconds / double(this->BytesPerSecond()));
 }
 
 uint64_t AudioData::Format::RoundUpToNearestFrameMultiple(uint64_t numBytes) const
@@ -52,13 +54,25 @@ uint64_t AudioData::Format::RoundDownToNearestFrameMultiple(uint64_t numBytes) c
 
 uint64_t AudioData::Format::BytesPerFrame() const
 {
-	uint64_t bytesPerSample = this->BytesPerSample();
-	uint64_t samplesPerFrame = this->numChannels;
-	uint64_t bytesPerFrame = bytesPerSample * samplesPerFrame;
-	return bytesPerFrame;
+	return this->BytesPerSample() * this->SamplesPerFrame();
 }
 
 uint64_t AudioData::Format::BytesPerSample() const
 {
 	return this->bitsPerSample / 8;
+}
+
+uint64_t AudioData::Format::SamplesPerFrame() const
+{
+	return this->numChannels;
+}
+
+uint64_t AudioData::Format::FramesPerSecond() const
+{
+	return this->samplesPerSecond / this->SamplesPerFrame();
+}
+
+uint64_t AudioData::Format::BytesPerSecond() const
+{
+	return this->samplesPerSecond * this->BytesPerSample();
 }

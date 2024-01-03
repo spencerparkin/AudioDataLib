@@ -104,8 +104,8 @@ bool WaveFormat::ProcessChunk(ByteStream& inputStream, AudioData* audioData, std
 			return false;
 		}
 
-		uint32_t sampleRateBitsPerSecond = 0;
-		if (4 != inputStream.ReadBytesFromStream((uint8_t*)&sampleRateBitsPerSecond, 4))
+		uint32_t sampleRateSamplesPerSecond = 0;
+		if (4 != inputStream.ReadBytesFromStream((uint8_t*)&sampleRateSamplesPerSecond, 4))
 		{
 			error = "Failed to read sample rate.";
 			return false;
@@ -134,7 +134,7 @@ bool WaveFormat::ProcessChunk(ByteStream& inputStream, AudioData* audioData, std
 
 		AudioData::Format& format = audioData->GetFormat();
 		format.numChannels = numChannels;
-		format.sampleRateBitsPerSecond = sampleRateBitsPerSecond;
+		format.samplesPerSecond = sampleRateSamplesPerSecond;
 		format.bitsPerSample = bitsPerSample;
 
 		chunkDataSize -= 16;
@@ -152,25 +152,13 @@ bool WaveFormat::ProcessChunk(ByteStream& inputStream, AudioData* audioData, std
 	}
 	else if (0 == strcmp(chunkIdStr, "data"))
 	{
-		uint8_t* waveDataBuffer = new uint8_t[chunkDataSize];
-		uint64_t numBytesRead = inputStream.ReadBytesFromStream(waveDataBuffer, chunkDataSize);
+		audioData->SetAudioBufferSize(chunkDataSize);
+		uint64_t numBytesRead = inputStream.ReadBytesFromStream(audioData->GetAudioBuffer(), chunkDataSize);
 		if (chunkDataSize != numBytesRead)
 		{
 			error = "Failed to read wave data buffer from data chunk.";
-			delete[] waveDataBuffer;
 			return false;
 		}
-
-		ByteStream* audioStream = audioData->GetAudioStream();
-		uint64_t numBytesWritten = audioStream->WriteBytesToStream(waveDataBuffer, chunkDataSize);
-		if (chunkDataSize != numBytesWritten)
-		{
-			error = "Failed to write wave data buffer to audio stream.";
-			delete[] waveDataBuffer;
-			return false;
-		}
-
-		delete[] waveDataBuffer;
 	}
 	else
 	{
@@ -193,5 +181,100 @@ bool WaveFormat::ProcessChunk(ByteStream& inputStream, AudioData* audioData, std
 
 /*virtual*/ bool WaveFormat::WriteToStream(ByteStream& outputStream, AudioData* audioData, std::string& error)
 {
-	return false;
+	if (4 != outputStream.WriteBytesToStream((const uint8_t*)"RIFF", 4))
+	{
+		error = "Could not write RIFF.";
+		return false;
+	}
+
+	uint32_t riffChunkSize = (uint32_t)audioData->GetAudioBufferSize() + 28;
+	if (4 != outputStream.WriteBytesToStream((const uint8_t*)&riffChunkSize, 4))
+	{
+		error = "Could not write RIFF chunk size.";
+		return false;
+	}
+
+	if (4 != outputStream.WriteBytesToStream((const uint8_t*)"WAVE", 4))
+	{
+		error = "Could not write WAVE.";
+		return false;
+	}
+
+	if (4 != outputStream.WriteBytesToStream((const uint8_t*)"fmt ", 4))
+	{
+		error = "Could not write \"fmt \" chunk header ID.";
+		return false;
+	}
+
+	uint32_t fmtChunkSize = 16;
+	if (4 != outputStream.WriteBytesToStream((const uint8_t*)&fmtChunkSize, 4))
+	{
+		error = "Could not write format chunk size.";
+		return false;
+	}
+
+	uint16_t type = 1;		// This means PCM data.
+	if (2 != outputStream.WriteBytesToStream((const uint8_t*)&type, 2))
+	{
+		error = "Could not write PCM type.";
+		return false;
+	}
+
+	uint16_t numChannels = uint16_t(audioData->GetFormat().numChannels);
+	if (2 != outputStream.WriteBytesToStream((const uint8_t*)&numChannels, 2))
+	{
+		error = "Could not write number of channels.";
+		return false;
+	}
+
+	uint32_t sampleRate = uint32_t(audioData->GetFormat().samplesPerSecond);
+	if (4 != outputStream.WriteBytesToStream((const uint8_t*)&sampleRate, 4))
+	{
+		error = "Could not write sample rate.";
+		return false;
+	}
+
+	uint32_t averageBytesPerSecond = uint32_t(audioData->GetFormat().BytesPerSecond() * audioData->GetFormat().numChannels);
+	if (4 != outputStream.WriteBytesToStream((const uint8_t*)&averageBytesPerSecond, 4))
+	{
+		error = "Could not write average bytes per second.";
+		return false;
+	}
+
+	// Samples need to be aligned on an address divisible by this value?
+	uint16_t blockAlign = audioData->GetFormat().bitsPerSample * audioData->GetFormat().numChannels;
+	if (2 != outputStream.WriteBytesToStream((const uint8_t*)&blockAlign, 2))
+	{
+		error = "Could not write block align.";
+		return false;
+	}
+
+	uint16_t bitsPerSample = audioData->GetFormat().bitsPerSample;
+	if (2 != outputStream.WriteBytesToStream((const uint8_t*)&bitsPerSample, 2))
+	{
+		error = "Could not write bits per sample.";
+		return false;
+	}
+
+	if (4 != outputStream.WriteBytesToStream((const uint8_t*)"data", 4))
+	{
+		error = "Could not write \"data\" chunk header ID.";
+		return false;
+	}
+
+	uint32_t audioBufferSize = (uint32_t)audioData->GetAudioBufferSize();
+	if (4 != outputStream.WriteBytesToStream((const uint8_t*)&audioBufferSize, 4))
+	{
+		error = "Could not write audio buffer size.";
+		return false;
+	}
+
+	uint64_t numBytesWritten = outputStream.WriteBytesToStream(audioData->GetAudioBuffer(), audioBufferSize);
+	if (numBytesWritten != audioData->GetAudioBufferSize())
+	{
+		error = "Could not write audio buffer.";
+		return false;
+	}
+
+	return true;
 }

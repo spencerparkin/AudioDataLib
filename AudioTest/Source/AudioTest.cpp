@@ -40,15 +40,22 @@ bool TestAudioSink()
 
 		AudioSink audioSink;
 
-		audioSink.AddAudioSource(audioDataA);
-		audioSink.AddAudioSource(audioDataB);
+		auto audioStreamA = new AudioStream(audioDataA);
+		auto audioStreamB = new AudioStream(audioDataB);
+
+		audioSink.AddAudioInput(audioStreamA);
+		audioSink.AddAudioInput(audioStreamB);
 
 		while (audioSink.GetAudioInputCount() > 0)
 		{
 			audioSink.MixAudio(1.0, 1.0);
 		}
 
-		if (!waveFormat.WriteToStream(outputStream, audioSink.GetAudioOutput(), error))
+		AudioData generatedAudioData;
+		generatedAudioData.SetAudioBufferSize(audioSink.GetAudioOutput()->GetSize());
+		audioSink.GetAudioOutput()->ReadBytesFromStream(generatedAudioData.GetAudioBuffer(), generatedAudioData.GetAudioBufferSize());
+
+		if (!waveFormat.WriteToStream(outputStream, &generatedAudioData, error))
 			break;
 
 		success = true;
@@ -75,21 +82,13 @@ bool TestWaveForm()
 	bool loadedWave = waveFormat.ReadFromStream(inputStream, audioDataIn, error);
 	assert(loadedWave);
 
-	uint64_t audioBufferSize = audioDataIn->GetAudioStream()->GetSize();
-	uint8_t* audioBuffer = new uint8_t[(uint32_t)audioBufferSize];
-	uint64_t numBytesRead = audioDataIn->GetAudioStream()->ReadBytesFromStream(audioBuffer, audioBufferSize);
-	assert(numBytesRead == audioBufferSize);
-
 	WaveForm waveForm;
-	waveForm.ConvertFromAudioBuffer(audioDataIn->GetFormat(), audioBuffer, audioBufferSize, 0);
-
-	::memcpy(audioBuffer, 0, (size_t)audioBufferSize);
-
-	waveForm.ConvertToAudioBuffer(audioDataIn->GetFormat(), audioBuffer, audioBufferSize, 0);
+	waveForm.ConvertFromAudioBuffer(audioDataIn->GetFormat(), audioDataIn->GetAudioBuffer(), audioDataIn->GetAudioBufferSize(), 0);
 
 	AudioData* audioDataOut = new AudioData();
-	uint64_t numBytesWritten = audioDataOut->GetAudioStream()->WriteBytesToStream(audioBuffer, audioBufferSize);
-	assert(numBytesWritten == audioBufferSize);
+	audioDataOut->SetAudioBufferSize(audioDataIn->GetAudioBufferSize());
+
+	waveForm.ConvertToAudioBuffer(audioDataIn->GetFormat(), audioDataOut->GetAudioBuffer(), audioDataOut->GetAudioBufferSize(), 0);
 
 	FileOutputStream outputStream("TestData/TestAudio1_copy.wav");
 	bool savedWave = waveFormat.WriteToStream(outputStream, audioDataOut, error);
@@ -97,7 +96,6 @@ bool TestWaveForm()
 
 	delete audioDataIn;
 	delete audioDataOut;
-	delete[] audioBuffer;
 
 	return true;
 }
@@ -114,12 +112,8 @@ bool TestWaveFormat()
 	assert(loadedWave);
 
 	AudioData* audioDataOut = new AudioData();
-	while (audioDataIn->GetAudioStream()->CanRead())
-	{
-		uint8_t byte = 0;
-		audioDataIn->GetAudioStream()->ReadBytesFromStream(&byte, 1);
-		audioDataOut->GetAudioStream()->WriteBytesToStream(&byte, 1);
-	}
+	audioDataOut->SetAudioBufferSize(audioDataIn->GetAudioBufferSize());
+	::memcpy(audioDataOut->GetAudioBuffer(), audioDataIn->GetAudioBuffer(), (size_t)audioDataOut->GetAudioBufferSize());
 
 	FileOutputStream outputStream("TestData/TestAudio1_copy.wav");
 	bool savedWave = waveFormat.WriteToStream(outputStream, audioDataOut, error);

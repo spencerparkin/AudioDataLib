@@ -114,6 +114,101 @@ FileOutputStream::FileOutputStream(const char* filePath) : FileStream(filePath, 
 	return true;
 }
 
+//------------------------- BufferStream -------------------------
+
+BufferStream::BufferStream(const uint8_t* buffer, uint64_t bufferSize)
+{
+	this->readOnlyBuffer = buffer;
+	this->readOnlyBufferSize = bufferSize;
+	this->readOffset = 0;
+}
+
+/*virtual*/ BufferStream::~BufferStream()
+{
+}
+
+/*virtual*/ uint64_t BufferStream::WriteBytesToStream(const uint8_t* buffer, uint64_t bufferSize)
+{
+	return 0;
+}
+
+/*virtual*/ uint64_t BufferStream::ReadBytesFromStream(uint8_t* buffer, uint64_t bufferSize)
+{
+	uint64_t numBytesRead = 0;
+	while (numBytesRead < bufferSize && this->readOffset < this->readOnlyBufferSize)
+		buffer[numBytesRead++] = this->readOnlyBuffer[this->readOffset++];
+
+	return numBytesRead;
+}
+
+/*virtual*/ uint64_t BufferStream::GetSize() const
+{
+	return this->readOnlyBufferSize - this->readOffset;
+}
+
+/*virtual*/ bool BufferStream::CanRead()
+{
+	return this->GetSize() > 0;
+}
+
+/*virtual*/ bool BufferStream::CanWrite()
+{
+	return false;
+}
+
+bool BufferStream::SetReadOffset(uint64_t readOffset)
+{
+	if (readOffset > this->readOnlyBufferSize)
+		return false;
+
+	this->readOffset = readOffset;
+	return true;
+}
+
+//------------------------- AudioStream -------------------------
+
+AudioStream::AudioStream(const AudioData::Format& format)
+{
+	this->format = format;
+	this->byteStream = new MemoryStream();
+}
+
+AudioStream::AudioStream(const AudioData* audioData)
+{
+	this->format = audioData->GetFormat();
+	this->byteStream = new BufferStream(audioData->GetAudioBuffer(), audioData->GetAudioBufferSize());
+}
+
+/*virtual*/ AudioStream::~AudioStream()
+{
+	delete this->byteStream;
+}
+
+/*virtual*/ uint64_t AudioStream::WriteBytesToStream(const uint8_t* buffer, uint64_t bufferSize)
+{
+	return this->byteStream->WriteBytesToStream(buffer, bufferSize);
+}
+
+/*virtual*/ uint64_t AudioStream::ReadBytesFromStream(uint8_t* buffer, uint64_t bufferSize)
+{
+	return this->byteStream->ReadBytesFromStream(buffer, bufferSize);
+}
+
+/*virtual*/ uint64_t AudioStream::GetSize() const
+{
+	return this->byteStream->GetSize();
+}
+
+/*virtual*/ bool AudioStream::CanRead()
+{
+	return this->byteStream->CanRead();
+}
+
+/*virtual*/ bool AudioStream::CanWrite()
+{
+	return this->byteStream->CanWrite();
+}
+
 //------------------------- MemoryStream -------------------------
 
 MemoryStream::MemoryStream()
@@ -243,97 +338,4 @@ uint64_t MemoryStream::Chunk::ReadFromChunk(uint8_t* givenBuffer, uint64_t given
 uint64_t MemoryStream::Chunk::GetSize() const
 {
 	return this->endOffset - this->startOffset;
-}
-
-//------------------------- ReadOnlyMemStream -------------------------
-
-ReadOnlyMemStream::ReadOnlyMemStream(const MemoryStream* memoryStream)
-{
-	this->memoryStream = memoryStream;
-	this->memoryStream->readLockCount++;
-	this->chunkIter = new std::list<MemoryStream::Chunk*>::iterator();
-	*this->chunkIter = this->memoryStream->chunkList->begin();
-	this->readOffset = 0;
-}
-
-/*virtual*/ ReadOnlyMemStream::~ReadOnlyMemStream()
-{
-	this->memoryStream->readLockCount--;
-	delete this->chunkIter;
-}
-
-/*virtual*/ uint64_t ReadOnlyMemStream::WriteBytesToStream(const uint8_t* buffer, uint64_t bufferSize)
-{
-	return 0;
-}
-
-/*virtual*/ uint64_t ReadOnlyMemStream::ReadBytesFromStream(uint8_t* buffer, uint64_t bufferSize)
-{
-	uint64_t numBytesRead = 0;
-
-	while (*this->chunkIter != this->memoryStream->chunkList->end())
-	{
-		const MemoryStream::Chunk* chunk = **this->chunkIter;
-
-		uint64_t i = chunk->startOffset + this->readOffset;
-		while (numBytesRead < bufferSize && i < chunk->endOffset)
-			buffer[numBytesRead++] = chunk->buffer[i++];
-
-		if (numBytesRead == bufferSize)
-			break;
-
-		this->readOffset = 0;
-		(*this->chunkIter)++;
-	}
-
-	return numBytesRead;
-}
-
-/*virtual*/ uint64_t ReadOnlyMemStream::GetSize() const
-{
-	if (!this->memoryStream)
-		return 0;
-
-	if (*this->chunkIter == this->memoryStream->chunkList->end())
-		return 0;
-
-	uint64_t numAvailableBytes = 0;
-
-	const MemoryStream::Chunk* chunk = **this->chunkIter;
-	numAvailableBytes += chunk->endOffset - this->readOffset;
-
-	std::list<MemoryStream::Chunk*>::iterator iter = *this->chunkIter;
-	iter++;
-	while (iter != this->memoryStream->chunkList->end())
-	{
-		numAvailableBytes += (*iter)->GetSize();
-		iter++;
-	}
-
-	return numAvailableBytes;
-}
-
-/*virtual*/ bool ReadOnlyMemStream::CanRead()
-{
-	if (!this->memoryStream)
-		return false;
-
-	if (*this->chunkIter == this->memoryStream->chunkList->end())
-		return false;
-
-	const MemoryStream::Chunk* chunk = **this->chunkIter;
-	if (chunk->startOffset <= this->readOffset && this->readOffset < chunk->endOffset)
-		return true;
-
-	std::list<MemoryStream::Chunk*>::iterator iter = *this->chunkIter;
-	iter++;
-	if (iter == this->memoryStream->chunkList->end())
-		return false;
-
-	return (*iter)->GetSize() > 0;
-}
-
-/*virtual*/ bool ReadOnlyMemStream::CanWrite()
-{
-	return false;
 }
