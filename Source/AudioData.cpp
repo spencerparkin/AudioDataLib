@@ -28,12 +28,12 @@ void AudioData::SetAudioBufferSize(uint64_t audioBufferSize)
 
 double AudioData::Format::BytesToSeconds(uint64_t numBytes) const
 {
-	return double(this->BytesPerSecond() * numBytes);
+	return double(numBytes) / double(this->BytesPerSecond());
 }
 
 uint64_t AudioData::Format::BytesFromSeconds(double seconds) const
 {
-	return uint64_t(seconds / double(this->BytesPerSecond()));
+	return uint64_t(seconds * double(this->BytesPerSecond()));
 }
 
 uint64_t AudioData::Format::RoundUpToNearestFrameMultiple(uint64_t numBytes) const

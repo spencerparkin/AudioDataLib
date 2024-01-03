@@ -9,8 +9,8 @@ using namespace AudioDataLib;
 
 int main(int argc, char** argv)
 {
-	TestWaveFormat();
-	//TestWaveForm();
+	//TestWaveFormat();
+	TestWaveForm();
 	//TestAudioSink();
 
 	return 0;
@@ -87,8 +87,9 @@ bool TestWaveForm()
 
 	AudioData* audioDataOut = new AudioData();
 	audioDataOut->SetAudioBufferSize(audioDataIn->GetAudioBufferSize());
+	audioDataOut->GetFormat() = audioDataIn->GetFormat();
 
-	waveForm.ConvertToAudioBuffer(audioDataIn->GetFormat(), audioDataOut->GetAudioBuffer(), audioDataOut->GetAudioBufferSize(), 0);
+	waveForm.ConvertToAudioBuffer(audioDataOut->GetFormat(), audioDataOut->GetAudioBuffer(), audioDataOut->GetAudioBufferSize(), 0);
 
 	FileOutputStream outputStream("TestData/TestAudio1_copy.wav");
 	bool savedWave = waveFormat.WriteToStream(outputStream, audioDataOut, error);

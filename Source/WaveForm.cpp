@@ -73,7 +73,7 @@ void WaveForm::ConvertToAudioBuffer(const AudioData::Format& format, uint8_t* au
 		uint64_t byteOffset = format.BytesFromSeconds(sample.timeSeconds);
 		byteOffset = format.RoundDownToNearestFrameMultiple(byteOffset);
 		byteOffset += bytesPerSample * channel;
-		assert(byteOffset + bytesPerSample < audioBufferSize);
+		assert(byteOffset + bytesPerSample <= audioBufferSize);
 
 		// TODO: What about endianness?
 		switch (format.bitsPerSample)
