@@ -16,6 +16,7 @@ AudioSink::AudioSink()
 	delete this->audioDataInArray;
 }
 
+// I wonder if this is going to be really, really slow.
 void AudioSink::MixAudio(double desiredSecondsAvailable, double secondsAddedPerMix)
 {
 	// Early out here if there is already enough data available.
@@ -64,6 +65,7 @@ void AudioSink::MixAudio(double desiredSecondsAvailable, double secondsAddedPerM
 
 	// Allocate space for the audio data we're going to geneate.
 	uint8_t* mixedAudioBuffer = new uint8_t[(uint32_t)numBytesNeeded];
+	::memset(mixedAudioBuffer, 0, (size_t)numBytesNeeded);
 
 	// Build each channel in the audio output stream.
 	for (uint32_t i = 0; i < this->audioDataOut.GetFormat().numChannels; i++)

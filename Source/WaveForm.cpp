@@ -24,10 +24,80 @@ void WaveForm::Clear()
 
 void WaveForm::ConvertFromAudioBuffer(const AudioData::Format& format, const uint8_t* audioBuffer, uint64_t audioBufferSize, uint16_t channel)
 {
+	this->Clear();
+
+	uint64_t bytesPerSample = format.BytesPerSample();
+	uint64_t samplesPerFrame = format.numChannels;
+	uint64_t bytesPerFrame = bytesPerSample * samplesPerFrame;
+
+	uint64_t i = 0;
+	while (i < audioBufferSize)
+	{
+		Sample sample;
+		sample.timeSeconds = format.BytesToSeconds(i);
+
+		const uint8_t* frameBuf = &audioBuffer[i];
+		const uint8_t* sampleBuf = &frameBuf[bytesPerSample * channel];
+
+		// TODO: What about endianness?
+		switch (format.bitsPerSample)
+		{
+			case 8:
+			{
+				sample.amplitude = double(*reinterpret_cast<const int8_t*>(sampleBuf)) / 128.0;
+				break;
+			}
+			case 16:
+			{
+				sample.amplitude = double(*reinterpret_cast<const int16_t*>(sampleBuf)) / 32768.0;
+				break;
+			}
+			case 32:
+			{
+				sample.amplitude = *reinterpret_cast<const float*>(sampleBuf) / std::numeric_limits<float>::max();
+				break;
+			}
+		}
+
+		this->sampleArray->push_back(sample);
+		i += bytesPerFrame;
+	}
 }
 
 void WaveForm::ConvertToAudioBuffer(const AudioData::Format& format, uint8_t* audioBuffer, uint64_t audioBufferSize, uint16_t channel) const
 {
+	uint64_t bytesPerSample = format.BytesPerSample();
+
+	for (const Sample& sample : *this->sampleArray)
+	{
+		uint64_t byteOffset = format.BytesFromSeconds(sample.timeSeconds);
+		byteOffset = format.RoundDownToNearestFrameMultiple(byteOffset);
+		byteOffset += bytesPerSample * channel;
+		assert(byteOffset + bytesPerSample < audioBufferSize);
+
+		// TODO: What about endianness?
+		switch (format.bitsPerSample)
+		{
+			case 8:
+			{
+				int8_t sampleData = int8_t(sample.amplitude * 128.0);
+				::memcpy(&audioBuffer[byteOffset], &sampleData, (size_t)bytesPerSample);
+				break;
+			}
+			case 16:
+			{
+				int16_t sampleData = int16_t(sample.amplitude * 32768.0);
+				::memcpy(&audioBuffer[byteOffset], &sampleData, (size_t)bytesPerSample);
+				break;
+			}
+			case 32:
+			{
+				float sampleData = float(sample.amplitude * std::numeric_limits<double>::max());
+				::memcpy(&audioBuffer[byteOffset], &sampleData, (size_t)bytesPerSample);
+				break;
+			}
+		}
+	}
 }
 
 double WaveForm::EvaluateAt(double timeSeconds) const

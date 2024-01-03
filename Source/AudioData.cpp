@@ -36,10 +36,29 @@ uint64_t AudioData::Format::BytesFromSeconds(double seconds) const
 
 uint64_t AudioData::Format::RoundUpToNearestFrameMultiple(uint64_t numBytes) const
 {
-	uint64_t bytesPerSample = this->bitsPerSample / 8;
-	uint64_t samplesPerFrame = this->numChannels;
-	uint64_t bytesPerFrame = bytesPerSample * samplesPerFrame;
+	uint64_t bytesPerFrame = this->BytesPerFrame();
 	uint64_t remainder = numBytes % bytesPerFrame;
 	numBytes += bytesPerFrame - remainder;
 	return numBytes;
+}
+
+uint64_t AudioData::Format::RoundDownToNearestFrameMultiple(uint64_t numBytes) const
+{
+	uint64_t bytesPerFrame = this->BytesPerFrame();
+	uint64_t remainder = numBytes % bytesPerFrame;
+	numBytes -= remainder;
+	return numBytes;
+}
+
+uint64_t AudioData::Format::BytesPerFrame() const
+{
+	uint64_t bytesPerSample = this->BytesPerSample();
+	uint64_t samplesPerFrame = this->numChannels;
+	uint64_t bytesPerFrame = bytesPerSample * samplesPerFrame;
+	return bytesPerFrame;
+}
+
+uint64_t AudioData::Format::BytesPerSample() const
+{
+	return this->bitsPerSample / 8;
 }
