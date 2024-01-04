@@ -208,12 +208,12 @@ void WaveForm::SumTogether(const std::list<WaveForm*>& waveFormList)
 
 	double minStartTime = std::numeric_limits<double>::max();
 	double maxEndTime = std::numeric_limits<double>::min();
-	double minAvgSamplesPerSecond = std::numeric_limits<double>::max();
+	double maxAvgSamplesPerSecond = std::numeric_limits<double>::min();
 	for (const WaveForm* waveForm : waveFormList)
 	{
 		double avgSamplesPerSecond = waveForm->AverageSampleRate();
-		if (avgSamplesPerSecond < minAvgSamplesPerSecond)
-			minAvgSamplesPerSecond = avgSamplesPerSecond;
+		if (avgSamplesPerSecond > maxAvgSamplesPerSecond)
+			maxAvgSamplesPerSecond = avgSamplesPerSecond;
 
 		double startTime = waveForm->GetStartTime();
 		if (startTime < minStartTime)
@@ -225,7 +225,7 @@ void WaveForm::SumTogether(const std::list<WaveForm*>& waveFormList)
 	}
 
 	double timeSpanSeconds = maxEndTime - minStartTime;
-	uint32_t numSamples = uint32_t(timeSpanSeconds * minAvgSamplesPerSecond);
+	uint32_t numSamples = uint32_t(timeSpanSeconds * maxAvgSamplesPerSecond);
 	for (uint32_t i = 0; i < numSamples; i++)
 	{
 		Sample sample;
