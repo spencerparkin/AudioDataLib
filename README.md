@@ -160,13 +160,13 @@ void MyAudioSubSystem::GrabAudio(uint8_t* audioBuffer, uint64_t audioBufferSize)
 ```
 
 In order to keep up with demand, you would need to pump the audio somewhere in the main
-loop of your program.  That would something like the following.
+loop of your program.  That would be something like the following.
 
 ```
 void MyAudioSubSystem::PumpAudio()
 {
     // Make sure we have 4 future seconds of audio ready to be consumed by the audio device.
-    // If our future reserves dips below 4 seconds, add at least 2 seconds more of audio to
+    // If our future reserve dips below 4 seconds, add at least 2 seconds more of audio to
     // the generated output audio stream.
     this->audioSink.GenerateAudio(4.0, 2.0);
 }
@@ -205,7 +205,7 @@ public:
 ## Plans
 
 I'd like to add support for more file formats and stream formats other than just PCM at some point.
-Some synthasis support would be good at add.  Being able to add an echo, for example, might be
-interesting.  Support for some signal analysis suing FFTs would be interesting too.
+Some synthasis support would be good to add.  Being able to add an echo, for example, might be
+interesting.  Support for some signal analysis using FFTs would be interesting too.
 This is all pie-in-the-ski right now as I'm sure the library in its current form is,
 admittedly, mediocre at best.
