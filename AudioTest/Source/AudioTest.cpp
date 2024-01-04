@@ -12,7 +12,8 @@ int main(int argc, char** argv)
 	//TestWaveFormat();
 	//TestWaveForm();
 	//TestWaveFormAdd();
-	TestAudioSink();
+	//TestAudioSink();
+	TestAudioConvertFormat();
 
 	return 0;
 }
@@ -41,7 +42,7 @@ bool TestAudioSink()
 
 		assert(audioDataA->GetFormat() == audioDataB->GetFormat());
 
-		AudioSink audioSink;
+		AudioSink audioSink(true);
 		audioSink.SetAudioOutput(new AudioStream(audioDataA->GetFormat()));
 
 		auto audioStreamA = new AudioStream(audioDataA);
@@ -54,7 +55,7 @@ bool TestAudioSink()
 
 		while (audioSink.GetAudioInputCount() > 0)
 		{
-			audioSink.MixAudio(1.0, 1.0);
+			audioSink.GenerateAudio(1.0, 1.0);
 
 			// Artificially drain the audio from the sink.  In practice, this
 			// would be done by a callback for the audio device.
@@ -178,6 +179,46 @@ bool TestWaveFormAdd()
 
 	delete audioDataA;
 	delete audioDataB;
+	delete audioDataOut;
+
+	return true;
+}
+
+bool TestAudioConvertFormat()
+{
+	WaveFormat waveFormat;
+
+	AudioData* audioDataIn = nullptr;
+	FileInputStream inputStream("TestData/TestAudio1.wav");
+
+	std::string error;
+	bool loadedWave = waveFormat.ReadFromStream(inputStream, audioDataIn, error);
+	assert(loadedWave);
+
+	double clipLengthSeconds = audioDataIn->GetTimeSeconds();
+
+	AudioData* audioDataOut = new AudioData();
+	AudioData::Format& format = audioDataOut->GetFormat();
+	format.bitsPerSample = 32;
+	format.numChannels = 1;
+	format.framesPerSecond = audioDataIn->GetFormat().framesPerSecond;		// TODO: Test outputing at a different sample rate.
+
+	uint64_t numBytes = format.BytesFromSeconds(clipLengthSeconds);
+	audioDataOut->SetAudioBufferSize(numBytes);
+
+	AudioSink audioSink(true);
+	audioSink.AddAudioInput(new AudioStream(audioDataIn));
+	audioSink.SetAudioOutput(new AudioStream(audioDataOut->GetFormat()));
+	audioSink.GenerateAudio(clipLengthSeconds, 0.0);
+
+	audioSink.GetAudioOutput()->ReadBytesFromStream(audioDataOut->GetAudioBuffer(), audioDataOut->GetAudioBufferSize());
+
+	// TODO: All we did was try to change the bit-depth, and the result has some weird fuzzy noise in it.  What are we doing wrong?
+	FileOutputStream outputStream("TestData/TestAudio1_converted.wav");
+	bool savedWave = waveFormat.WriteToStream(outputStream, audioDataOut, error);
+	assert(savedWave);
+
+	delete audioDataIn;
 	delete audioDataOut;
 
 	return true;

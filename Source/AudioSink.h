@@ -12,7 +12,7 @@ namespace AudioDataLib
 	class AUDIO_DATA_LIB_API AudioSink
 	{
 	public:
-		AudioSink();
+		AudioSink(bool takeOwnershipOfStreamMembory);
 		virtual ~AudioSink();
 
 		void Clear();
@@ -20,7 +20,7 @@ namespace AudioDataLib
 		// Make sure that an amount of audio data equivilant to the given amount
 		// of time is available for consumption in our audio output stream.
 		// This will produce silence in the audio output if necessary.
-		void MixAudio(double desiredSecondsAvailable, double minSecondsAddedPerMix);
+		void GenerateAudio(double desiredSecondsAvailable, double minSecondsAddedPerMix);
 	
 		// The memory for the given audio stream is deleted once it has been depleted.
 		void AddAudioInput(AudioStream* audioStream);
@@ -60,5 +60,6 @@ namespace AudioDataLib
 
 		std::vector<AudioStream*>* audioStreamInArray;
 		AudioStream* audioStreamOut;
+		bool ownsStreamMemory;
 	};
 }

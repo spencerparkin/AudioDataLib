@@ -2,6 +2,8 @@
 
 using namespace AudioDataLib;
 
+//----------------------------- AudioData -----------------------------
+
 AudioData::AudioData()
 {
 	::memset(&this->format, 0, sizeof(Format));
@@ -36,14 +38,21 @@ uint64_t AudioData::GetNumSamplesPerChannel() const
 	return this->GetNumSamples() / this->format.numChannels;
 }
 
+double AudioData::GetTimeSeconds() const
+{
+	return this->format.BytesToSeconds(this->format.BytesPerChannel(this->audioBufferSize));
+}
+
+//----------------------------- AudioData::Format -----------------------------
+
 double AudioData::Format::BytesToSeconds(uint64_t numBytes) const
 {
-	return double(numBytes) / double(this->BytesPerSecond());
+	return double(numBytes) / double(this->BytesPerSecondPerChannel());
 }
 
 uint64_t AudioData::Format::BytesFromSeconds(double seconds) const
 {
-	return uint64_t(seconds * double(this->BytesPerSecond()));
+	return uint64_t(seconds * double(this->BytesPerSecondPerChannel()));
 }
 
 uint64_t AudioData::Format::RoundUpToNearestFrameMultiple(uint64_t numBytes) const
@@ -68,6 +77,11 @@ uint64_t AudioData::Format::BytesPerFrame() const
 	return this->BytesPerSample() * this->SamplesPerFrame();
 }
 
+uint64_t AudioData::Format::BytesPerChannel(uint64_t audioBufferSize) const
+{
+	return audioBufferSize / this->numChannels;
+}
+
 uint64_t AudioData::Format::BytesPerSample() const
 {
 	return this->bitsPerSample / 8;
@@ -78,21 +92,31 @@ uint64_t AudioData::Format::SamplesPerFrame() const
 	return this->numChannels;
 }
 
-uint64_t AudioData::Format::FramesPerSecond() const
+uint64_t AudioData::Format::SamplesPerSecond() const
 {
-	return this->samplesPerSecond / this->SamplesPerFrame();
+	return this->framesPerSecond * this->SamplesPerFrame();
+}
+
+uint64_t AudioData::Format::SamplesPerSecondPerChannel() const
+{
+	return this->framesPerSecond;
 }
 
 uint64_t AudioData::Format::BytesPerSecond() const
 {
-	return this->samplesPerSecond * this->BytesPerSample();
+	return this->framesPerSecond * this->BytesPerFrame();
+}
+
+uint64_t AudioData::Format::BytesPerSecondPerChannel() const
+{
+	return this->framesPerSecond * this->BytesPerSample();
 }
 
 bool AudioData::Format::operator==(const Format& format) const
 {
 	return this->bitsPerSample == format.bitsPerSample &&
 		this->numChannels == format.numChannels &&
-		this->samplesPerSecond == format.samplesPerSecond;
+		this->framesPerSecond == format.framesPerSecond;
 }
 
 bool AudioData::Format::operator!=(const Format& format) const

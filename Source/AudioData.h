@@ -11,7 +11,7 @@ namespace AudioDataLib
 		{
 			uint16_t bitsPerSample;
 			uint16_t numChannels;
-			uint32_t samplesPerSecond;
+			uint32_t framesPerSecond;
 
 			double BytesToSeconds(uint64_t numBytes) const;
 			uint64_t BytesFromSeconds(double seconds) const;
@@ -21,9 +21,12 @@ namespace AudioDataLib
 
 			uint64_t BytesPerFrame() const;
 			uint64_t SamplesPerFrame() const;
+			uint64_t BytesPerChannel(uint64_t audioBufferSize) const;
 			uint64_t BytesPerSample() const;
-			uint64_t FramesPerSecond() const;
+			uint64_t SamplesPerSecond() const;
+			uint64_t SamplesPerSecondPerChannel() const;
 			uint64_t BytesPerSecond() const;
+			uint64_t BytesPerSecondPerChannel() const;
 
 			bool operator==(const Format& format) const;
 			bool operator!=(const Format& format) const;
@@ -43,6 +46,8 @@ namespace AudioDataLib
 
 		uint64_t GetNumSamples() const;
 		uint64_t GetNumSamplesPerChannel() const;
+
+		double GetTimeSeconds() const;
 
 	protected:
 		Format format;

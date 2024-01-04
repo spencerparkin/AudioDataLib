@@ -104,8 +104,8 @@ bool WaveFormat::ProcessChunk(ByteStream& inputStream, AudioData* audioData, std
 			return false;
 		}
 
-		uint32_t sampleRateSamplesPerSecond = 0;
-		if (4 != inputStream.ReadBytesFromStream((uint8_t*)&sampleRateSamplesPerSecond, 4))
+		uint32_t sampleRateSamplesPerSecondPerChannel = 0;
+		if (4 != inputStream.ReadBytesFromStream((uint8_t*)&sampleRateSamplesPerSecondPerChannel, 4))
 		{
 			error = "Failed to read sample rate.";
 			return false;
@@ -134,7 +134,7 @@ bool WaveFormat::ProcessChunk(ByteStream& inputStream, AudioData* audioData, std
 
 		AudioData::Format& format = audioData->GetFormat();
 		format.numChannels = numChannels;
-		format.samplesPerSecond = sampleRateSamplesPerSecond;
+		format.framesPerSecond = sampleRateSamplesPerSecondPerChannel;
 		format.bitsPerSample = bitsPerSample;
 
 		chunkDataSize -= 16;
@@ -227,17 +227,17 @@ bool WaveFormat::ProcessChunk(ByteStream& inputStream, AudioData* audioData, std
 		return false;
 	}
 
-	uint32_t sampleRate = uint32_t(audioData->GetFormat().samplesPerSecond);
+	uint32_t sampleRate = uint32_t(audioData->GetFormat().framesPerSecond);
 	if (4 != outputStream.WriteBytesToStream((const uint8_t*)&sampleRate, 4))
 	{
 		error = "Could not write sample rate.";
 		return false;
 	}
 
-	uint32_t averageBytesPerSecond = uint32_t(audioData->GetFormat().BytesPerSecond() * audioData->GetFormat().numChannels);
-	if (4 != outputStream.WriteBytesToStream((const uint8_t*)&averageBytesPerSecond, 4))
+	uint32_t bytesPerSecond = uint32_t(audioData->GetFormat().BytesPerSecond());
+	if (4 != outputStream.WriteBytesToStream((const uint8_t*)&bytesPerSecond, 4))
 	{
-		error = "Could not write average bytes per second.";
+		error = "Could not write bytes per second.";
 		return false;
 	}
 

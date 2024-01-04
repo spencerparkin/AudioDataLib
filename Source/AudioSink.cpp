@@ -3,8 +3,9 @@
 
 using namespace AudioDataLib;
 
-AudioSink::AudioSink()
+AudioSink::AudioSink(bool takeOwnershipOfStreamMembory)
 {
+	this->ownsStreamMemory = takeOwnershipOfStreamMembory;
 	this->audioStreamInArray = new std::vector<AudioStream*>();
 	this->audioStreamOut = nullptr;
 }
@@ -18,8 +19,9 @@ AudioSink::AudioSink()
 
 void AudioSink::Clear()
 {
-	for (AudioStream* audioStream : *this->audioStreamInArray)
-		delete audioStream;
+	if (this->ownsStreamMemory)
+		for (AudioStream* audioStream : *this->audioStreamInArray)
+			delete audioStream;
 
 	this->audioStreamInArray->clear();
 
@@ -29,13 +31,15 @@ void AudioSink::Clear()
 void AudioSink::SetAudioOutput(AudioStream* audioStreamOut)
 {
 	if (this->audioStreamOut)
-		delete this->audioStreamOut;
+	{
+		if (this->ownsStreamMemory)
+			delete this->audioStreamOut;
+	}
 	
 	this->audioStreamOut = audioStreamOut;
 }
 
-// I wonder if this is going to be really, really slow.
-void AudioSink::MixAudio(double desiredSecondsAvailable, double minSecondsAddedPerMix)
+void AudioSink::GenerateAudio(double desiredSecondsAvailable, double minSecondsAddedPerMix)
 {
 	// There's nothing for us to do if we don't have a place to put generated audio.
 	if (!this->audioStreamOut)
@@ -168,7 +172,8 @@ void AudioSink::MixAudio(double desiredSecondsAvailable, double minSecondsAddedP
 			i++;
 		else
 		{
-			delete audioStreamIn;
+			if (this->ownsStreamMemory)
+				delete audioStreamIn;
 			uint32_t j = this->audioStreamInArray->size() - 1;
 			if (i != j)
 				(*this->audioStreamInArray)[i] = (*this->audioStreamInArray)[j];

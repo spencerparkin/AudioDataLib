@@ -212,14 +212,16 @@ AudioStream::AudioStream(const AudioData* audioData)
 
 //------------------------- ThreadSafeAudioStream -------------------------
 
-ThreadSafeAudioStream::ThreadSafeAudioStream(const AudioData::Format& format, Mutex* mutex) : AudioStream(format)
+ThreadSafeAudioStream::ThreadSafeAudioStream(const AudioData::Format& format, Mutex* mutex, bool ownsMutexMemory) : AudioStream(format)
 {
 	this->mutex = mutex;
+	this->ownsMutexMemory = ownsMutexMemory;
 }
 
 /*virtual*/ ThreadSafeAudioStream::~ThreadSafeAudioStream()
 {
-	delete this->mutex;
+	if (this->ownsMutexMemory)
+		delete this->mutex;
 }
 
 /*virtual*/ uint64_t ThreadSafeAudioStream::WriteBytesToStream(const uint8_t* buffer, uint64_t bufferSize)
