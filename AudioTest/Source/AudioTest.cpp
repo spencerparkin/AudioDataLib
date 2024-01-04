@@ -11,8 +11,8 @@ int main(int argc, char** argv)
 {
 	//TestWaveFormat();
 	//TestWaveForm();
-	//TestWaveFormAdd();
-	TestWaveAddManual();
+	TestWaveFormAdd();
+	//TestWaveAddManual();
 	//TestAudioSink();
 
 	return 0;

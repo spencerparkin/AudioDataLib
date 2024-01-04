@@ -56,6 +56,39 @@ namespace AudioDataLib
 
 	protected:
 
+		// TODO: Add byte-swapping here.
+		template<typename T>
+		void CopySampleToBuffer(uint8_t* sampleBuffer, double sampleNormalized) const
+		{
+			constexpr int64_t minSample = std::numeric_limits<T>::min();
+			constexpr int64_t maxSample = std::numeric_limits<T>::max();
+
+			int64_t sampleWide = int64_t(sampleNormalized * double(maxSample));
+
+			int64_t sampleWideClamped = sampleWide;
+			if (sampleWideClamped > maxSample)
+				sampleWideClamped = maxSample;
+			if (sampleWideClamped < minSample)
+				sampleWideClamped = minSample;
+
+			T sampleNarrow = T(sampleWideClamped);
+			::memcpy(sampleBuffer, (const void*)&sampleNarrow, sizeof(T));
+		}
+
+		// TODO: Add byte-swapping here.
+		template<typename T>
+		double CopySampleFromBuffer(const uint8_t* sampleBuffer)
+		{
+			constexpr int64_t maxSample = std::numeric_limits<T>::max();
+
+			T sampleNarrow = 0;
+			::memcpy(&sampleNarrow, sampleBuffer, sizeof(T));
+
+			double sampleFloat = double(sampleNarrow);
+			double sampleNormalized = sampleFloat / double(maxSample);
+			return sampleNormalized;
+		}
+
 		class Index
 		{
 		public:

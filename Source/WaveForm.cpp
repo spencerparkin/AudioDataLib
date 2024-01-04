@@ -61,22 +61,21 @@ bool WaveForm::ConvertFromAudioBuffer(const AudioData::Format& format, const uin
 		const uint8_t* frameBuf = &audioBuffer[i];
 		const uint8_t* sampleBuf = &frameBuf[bytesPerSample * channel];
 
-		// TODO: What about endianness?
 		switch (format.bitsPerSample)
 		{
 			case 8:
 			{
-				sample.amplitude = double(*reinterpret_cast<const int8_t*>(sampleBuf)) / 128.0;
+				sample.amplitude = this->CopySampleFromBuffer<int8_t>(sampleBuf);
 				break;
 			}
 			case 16:
 			{
-				sample.amplitude = double(*reinterpret_cast<const int16_t*>(sampleBuf)) / 32768.0;
+				sample.amplitude = this->CopySampleFromBuffer<int16_t>(sampleBuf);
 				break;
 			}
 			case 32:
 			{
-				sample.amplitude = *reinterpret_cast<const float*>(sampleBuf) / std::numeric_limits<float>::max();
+				sample.amplitude = this->CopySampleFromBuffer<int32_t>(sampleBuf);
 				break;
 			}
 		}
@@ -109,25 +108,23 @@ bool WaveForm::ConvertToAudioBuffer(const AudioData::Format& format, uint8_t* au
 			return false;
 		}
 
-		// TODO: What about endianness?
+		uint8_t* sampleBuffer = &audioBuffer[byteOffset];
+
 		switch (format.bitsPerSample)
 		{
 			case 8:
 			{
-				int8_t sampleData = int8_t(sample.amplitude * 128.0);
-				::memcpy(&audioBuffer[byteOffset], &sampleData, (size_t)bytesPerSample);
+				this->CopySampleToBuffer<int8_t>(sampleBuffer, sample.amplitude);
 				break;
 			}
 			case 16:
 			{
-				int16_t sampleData = int16_t(sample.amplitude * 32768.0);
-				::memcpy(&audioBuffer[byteOffset], &sampleData, (size_t)bytesPerSample);
+				this->CopySampleToBuffer<int16_t>(sampleBuffer, sample.amplitude);
 				break;
 			}
 			case 32:
 			{
-				float sampleData = float(sample.amplitude * std::numeric_limits<double>::max());
-				::memcpy(&audioBuffer[byteOffset], &sampleData, (size_t)bytesPerSample);
+				this->CopySampleToBuffer<int32_t>(sampleBuffer, sample.amplitude);
 				break;
 			}
 		}
@@ -212,8 +209,6 @@ void WaveForm::SumTogether(const std::list<WaveForm*>& waveFormList)
 			sample.amplitude += waveForm->EvaluateAt(sample.timeSeconds);
 		this->sampleArray->push_back(sample);
 	}
-
-	this->Clamp(-1.0, 1.0);
 }
 
 void WaveForm::Clamp(double minAmplitude, double maxAmplitude)
