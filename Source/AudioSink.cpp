@@ -116,8 +116,6 @@ void AudioSink::GenerateAudio(double desiredSecondsAvailable, double minSecondsA
 	}
 	else
 	{
-		// NOTE: The code below hasn't been tested yet, and it certainly doesn't work yet.
-
 		// Grab audio buffers from all the inputs and transform them into wave form space.
 		std::string error;
 		double secondsNeeded = this->audioStreamOut->GetFormat().BytesToSeconds(numBytesNeeded);
