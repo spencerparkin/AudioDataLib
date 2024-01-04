@@ -24,6 +24,7 @@
     <ClInclude Include="Source\AudioFormat.h" />
     <ClInclude Include="Source\AudioSink.h" />
     <ClInclude Include="Source\ByteStream.h" />
+    <ClInclude Include="Source\Mutex.h" />
     <ClInclude Include="Source\WaveForm.h" />
     <ClInclude Include="Source\WaveFormat.h" />
   </ItemGroup>
@@ -32,6 +33,7 @@
     <ClCompile Include="Source\AudioFormat.cpp" />
     <ClCompile Include="Source\AudioSink.cpp" />
     <ClCompile Include="Source\ByteStream.cpp" />
+    <ClCompile Include="Source\Mutex.cpp" />
     <ClCompile Include="Source\WaveForm.cpp" />
     <ClCompile Include="Source\WaveFormat.cpp" />
   </ItemGroup>

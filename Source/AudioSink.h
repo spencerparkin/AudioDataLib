@@ -6,9 +6,9 @@
 namespace AudioDataLib
 {
 	// What this class is trying to be is a general purpose way of mixing and/or converting audio.
-	// It can be used for synthesis or real-time purposes.
-	// TODO: Add locking support.  It's best to add locking support at this level, because we can
-	//       make the mutex locks as tight as possible.
+	// It can be used for synthesis or real-time purposes.  Note that to use this class in a
+	// thread-safe manner, you should use the ThreadSafeAudioStream class instead of just the
+	// regular AudioStream class for the audio output.
 	class AUDIO_DATA_LIB_API AudioSink
 	{
 	public:

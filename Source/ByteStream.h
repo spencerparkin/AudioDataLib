@@ -5,6 +5,8 @@
 
 namespace AudioDataLib
 {
+	class Mutex;
+
 	class AUDIO_DATA_LIB_API ByteStream
 	{
 	public:
@@ -119,6 +121,24 @@ namespace AudioDataLib
 	protected:
 		AudioData::Format format;
 		ByteStream* byteStream;
+	};
+
+	class AUDIO_DATA_LIB_API ThreadSafeAudioStream : public AudioStream
+	{
+	public:
+		ThreadSafeAudioStream(const AudioData::Format& format, Mutex* mutex);
+		virtual ~ThreadSafeAudioStream();
+
+		virtual uint64_t WriteBytesToStream(const uint8_t* buffer, uint64_t bufferSize) override;
+		virtual uint64_t ReadBytesFromStream(uint8_t* buffer, uint64_t bufferSize) override;
+
+		virtual uint64_t GetSize() const override;
+
+		virtual bool CanRead() override;
+		virtual bool CanWrite() override;
+
+	protected:
+		Mutex* mutex;
 	};
 
 	class AUDIO_DATA_LIB_API MemoryStream : public ByteStream

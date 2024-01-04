@@ -1,4 +1,5 @@
 #include "ByteStream.h"
+#include "Mutex.h"
 
 using namespace AudioDataLib;
 
@@ -207,6 +208,48 @@ AudioStream::AudioStream(const AudioData* audioData)
 /*virtual*/ bool AudioStream::CanWrite()
 {
 	return this->byteStream->CanWrite();
+}
+
+//------------------------- ThreadSafeAudioStream -------------------------
+
+ThreadSafeAudioStream::ThreadSafeAudioStream(const AudioData::Format& format, Mutex* mutex) : AudioStream(format)
+{
+	this->mutex = mutex;
+}
+
+/*virtual*/ ThreadSafeAudioStream::~ThreadSafeAudioStream()
+{
+	delete this->mutex;
+}
+
+/*virtual*/ uint64_t ThreadSafeAudioStream::WriteBytesToStream(const uint8_t* buffer, uint64_t bufferSize)
+{
+	MutexScopeLock scopeLock(this->mutex);
+	return AudioStream::WriteBytesToStream(buffer, bufferSize);
+}
+
+/*virtual*/ uint64_t ThreadSafeAudioStream::ReadBytesFromStream(uint8_t* buffer, uint64_t bufferSize)
+{
+	MutexScopeLock scopeLock(this->mutex);
+	return AudioStream::ReadBytesFromStream(buffer, bufferSize);
+}
+
+/*virtual*/ uint64_t ThreadSafeAudioStream::GetSize() const
+{
+	MutexScopeLock scopeLock(this->mutex);
+	return AudioStream::GetSize();
+}
+
+/*virtual*/ bool ThreadSafeAudioStream::CanRead()
+{
+	MutexScopeLock scopeLock(this->mutex);
+	return AudioStream::CanRead();
+}
+
+/*virtual*/ bool ThreadSafeAudioStream::CanWrite()
+{
+	MutexScopeLock scopeLock(this->mutex);
+	return AudioStream::CanWrite();
 }
 
 //------------------------- MemoryStream -------------------------
