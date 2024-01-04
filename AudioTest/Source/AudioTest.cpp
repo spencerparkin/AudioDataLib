@@ -12,8 +12,8 @@ int main(int argc, char** argv)
 	//TestWaveFormat();
 	//TestWaveForm();
 	//TestWaveFormAdd();
-	//TestAudioSink();
-	TestAudioConvertFormat();
+	TestAudioSink();
+	//TestAudioConvertFormat();
 
 	return 0;
 }
@@ -28,7 +28,7 @@ bool TestAudioSink()
 	AudioData* audioDataA = nullptr;
 	AudioData* audioDataB = nullptr;
 
-	FileInputStream inputStreamA("TestData/TestAudio1.wav");
+	FileInputStream inputStreamA("TestData/TestAudio1_converted.wav");
 	FileInputStream inputStreamB("TestData/TestAudio2.wav");
 	FileOutputStream outputStream("TestData/TestAudioResult.wav");
 
@@ -39,8 +39,6 @@ bool TestAudioSink()
 
 		if (!waveFormat.ReadFromStream(inputStreamB, audioDataB, error))
 			break;
-
-		assert(audioDataA->GetFormat() == audioDataB->GetFormat());
 
 		AudioSink audioSink(true);
 		audioSink.SetAudioOutput(new AudioStream(audioDataA->GetFormat()));
