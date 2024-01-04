@@ -16,6 +16,8 @@ actually trying to use it.  I have one application in mind, and will report back
 the library into that project.  If it works great and reliably, then I'll cite that here as a sign of at least
 some maturity or reliability in the software.
 
+The programmer for the library (me) lacks a great deal of maturity.  Sorry.
+
 ## Usage
 
 For all use-cases, we assume we're in the `ParseDataLib` namespace, and have the following headers.
