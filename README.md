@@ -2,7 +2,7 @@
 
 This is a C++ library that helps you work with audio data and audio files.  It does not provide access to
 audio hardware, but it can help you feed audio to and consume audio from an audio device using some other
-audio API, such as SDL, for example.
+audio API, such as SDL or DirectSound, for example.
 
 ## Dependencies
 
