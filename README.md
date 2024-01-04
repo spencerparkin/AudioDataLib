@@ -20,7 +20,7 @@ The programmer for the library (me) lacks a great deal of maturity.  Sorry.
 
 ## Usage
 
-For all use-cases, we assume we're in the `ParseDataLib` namespace, and have the following headers.
+For all use-cases, we assume we're in the `AudioDataLib` namespace, and have the following headers.
 
 ```
 #include <WaveFormat.h>
@@ -29,7 +29,7 @@ For all use-cases, we assume we're in the `ParseDataLib` namespace, and have the
 #include <ByteStream.h>
 #include <Mutex.h>
 
-using namespace ParseDataLib;
+using namespace AudioDataLib;
 ```
 
 ### Opening a WAV File
