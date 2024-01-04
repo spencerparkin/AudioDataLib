@@ -177,6 +177,5 @@ namespace AudioDataLib
 
 		std::list<Chunk*>* chunkList;
 		uint64_t chunkSize;
-		mutable uint32_t readLockCount;
 	};
 }

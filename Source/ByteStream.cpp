@@ -258,14 +258,12 @@ MemoryStream::MemoryStream()
 {
 	this->chunkSize = 5 * 1024;
 	this->chunkList = new std::list<Chunk*>();
-	this->readLockCount = 0;
 }
 
 /*virtual*/ MemoryStream::~MemoryStream()
 {
 	this->Clear();
 	delete this->chunkList;
-	assert(this->readLockCount == 0);
 }
 
 void MemoryStream::Clear()
@@ -302,9 +300,6 @@ void MemoryStream::Clear()
 
 /*virtual*/ uint64_t MemoryStream::ReadBytesFromStream(uint8_t* buffer, uint64_t bufferSize)
 {
-	if (this->readLockCount > 0)
-		return 0;
-
 	uint64_t numBytesRead = 0;
 
 	while (numBytesRead < bufferSize && this->chunkList->size() > 0)
