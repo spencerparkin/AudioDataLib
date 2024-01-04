@@ -5,10 +5,10 @@
 
 namespace AudioDataLib
 {
-	// Note that this class is not thread-safe.  If it is being used as a shared resource
-	// between threads, then a mutex should be used to protect access to it.  What this class
-	// is trying to be is a general purpose way of mixing and converting audio.  It can be
-	// used for synthesis or real-time purposes.
+	// What this class is trying to be is a general purpose way of mixing and/or converting audio.
+	// It can be used for synthesis or real-time purposes.
+	// TODO: Add locking support.  It's best to add locking support at this level, because we can
+	//       make the mutex locks as tight as possible.
 	class AUDIO_DATA_LIB_API AudioSink
 	{
 	public:
