@@ -127,7 +127,7 @@ audioSink.GenerateAudio(clipLengthSeconds, 0.0);
 As you can see, the `AudioSink` class is a mechanism for converting and/or mixing audio, but it is
 also designed to pump audio to an audio output device in real-time.  The typical use-case is that
 you've opened such a device (using some other library like SDL or DirectSound), you've setup your
-instances of the `AudioSink` class, and now you occationally want to play sound effects.  Your
+instance of the `AudioSink` class, and now you occationally want to play sound effects.  Your
 function to play a sound effect might look as follows.
 
 ```C++
