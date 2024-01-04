@@ -11,7 +11,8 @@ int main(int argc, char** argv)
 {
 	//TestWaveFormat();
 	//TestWaveForm();
-	TestWaveFormAdd();
+	//TestWaveFormAdd();
+	TestWaveAddManual();
 	//TestAudioSink();
 
 	return 0;
@@ -157,6 +158,62 @@ bool TestWaveFormAdd()
 
 	audioDataOut->SetAudioBufferSize(waveFormSum.GetSizeBytes(format, true));
 	waveFormSum.ConvertToAudioBuffer(audioDataOut->GetFormat(), audioDataOut->GetAudioBuffer(), audioDataOut->GetAudioBufferSize(), 0, error);
+
+	FileOutputStream outputStream("TestData/TestAudioMixed.wav");
+	waveFormat.WriteToStream(outputStream, audioDataOut, error);
+
+	delete audioDataA;
+	delete audioDataB;
+	delete audioDataOut;
+
+	return true;
+}
+
+bool TestWaveAddManual()
+{
+	WaveFormat waveFormat;
+
+	AudioData* audioDataA = nullptr;
+	AudioData* audioDataB = nullptr;
+
+	FileInputStream inputStreamA("TestData/TestAudio1.wav");
+	FileInputStream inputStreamB("TestData/TestAudio2.wav");
+
+	std::string error;
+
+	waveFormat.ReadFromStream(inputStreamA, audioDataA, error);
+	waveFormat.ReadFromStream(inputStreamB, audioDataB, error);
+
+	AudioData* audioDataOut = new AudioData();
+	audioDataOut->GetFormat() = audioDataA->GetFormat();	// We're assuming both formats are the same, 16-bit mono.
+	audioDataOut->SetAudioBufferSize(ADL_MAX(audioDataA->GetAudioBufferSize(), audioDataB->GetAudioBufferSize()));
+	
+	uint64_t numSamplesA = audioDataA->GetAudioBufferSize() / audioDataA->GetFormat().BytesPerSample();
+	uint64_t numSamplesB = audioDataB->GetAudioBufferSize() / audioDataB->GetFormat().BytesPerSample();
+
+	int16_t* sampleBufA = reinterpret_cast<int16_t*>(audioDataA->GetAudioBuffer());
+	int16_t* sampleBufB = reinterpret_cast<int16_t*>(audioDataB->GetAudioBuffer());
+
+	uint64_t numSamples = audioDataOut->GetAudioBufferSize() / audioDataOut->GetFormat().BytesPerSample();
+	int16_t* sampleBuf = reinterpret_cast<int16_t*>(audioDataOut->GetAudioBuffer());
+
+	constexpr int32_t maxInt = std::numeric_limits<int16_t>::max();
+	constexpr int32_t minInt = std::numeric_limits<int16_t>::min();
+
+	for (uint64_t i = 0; i < numSamples; i++)
+	{
+		int16_t sampleA = (i < numSamplesA) ? sampleBufA[i] : 0;
+		int16_t sampleB = (i < numSamplesB) ? sampleBufB[i] : 0;
+
+		int32_t sample = int32_t(sampleA) + int32_t(sampleB);
+
+		if (sample < minInt)
+			sample = minInt;
+		if (sample > maxInt)
+			sample = maxInt;
+
+		sampleBuf[i] = int16_t(sample);
+	}
 
 	FileOutputStream outputStream("TestData/TestAudioMixed.wav");
 	waveFormat.WriteToStream(outputStream, audioDataOut, error);

@@ -7,7 +7,7 @@ namespace AudioDataLib
 	class AUDIO_DATA_LIB_API AudioData
 	{
 	public:
-		struct Format
+		struct AUDIO_DATA_LIB_API Format
 		{
 			uint16_t bitsPerSample;
 			uint16_t numChannels;
