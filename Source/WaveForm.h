@@ -19,6 +19,7 @@ namespace AudioDataLib
 		bool ConvertToAudioBuffer(const AudioData::Format& format, uint8_t* audioBuffer, uint64_t audioBufferSize, uint16_t channel, std::string& error) const;
 
 		void Clear();
+		void Copy(const WaveForm* waveForm);
 
 		// If an index exists, it can speed up evaluation.
 		void GenerateIndex() const;

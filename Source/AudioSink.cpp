@@ -143,14 +143,23 @@ void AudioSink::GenerateAudio(double desiredSecondsAvailable, double minSecondsA
 		// Build each channel in the audio output stream.
 		for (uint32_t i = 0; i < this->audioStreamOut->GetFormat().numChannels; i++)
 		{
-			// Add all the wave forms up into a single wave form for the channel.
-			WaveForm mixedWave;
-			mixedWave.SumTogether(waveFormListArray[i]);
-			for (WaveForm* waveForm : waveFormListArray[i])
-				delete waveForm;
+			// If we're not mixing audio, just convert/resample.
+			if (waveFormListArray[i].size() == 1)
+			{
+				const WaveForm* waveForm = *waveFormListArray[i].begin();
+				waveForm->ConvertToAudioBuffer(this->audioStreamOut->GetFormat(), mixedAudioBuffer, numBytesNeeded, i, error);
+			}
+			else
+			{
+				// Add all the wave forms up into a single wave form for the channel.
+				WaveForm mixedWave;
+				mixedWave.SumTogether(waveFormListArray[i]);
+				for (WaveForm* waveForm : waveFormListArray[i])
+					delete waveForm;
 
-			// Convert the aggregated wave form into audio data in the target format.
-			mixedWave.ConvertToAudioBuffer(this->audioStreamOut->GetFormat(), mixedAudioBuffer, numBytesNeeded, i, error);
+				// Convert the aggregated wave form into audio data in the target format.
+				mixedWave.ConvertToAudioBuffer(this->audioStreamOut->GetFormat(), mixedAudioBuffer, numBytesNeeded, i, error);
+			}
 		}
 
 		delete[] waveFormListArray;

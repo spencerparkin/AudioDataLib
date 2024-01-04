@@ -201,7 +201,7 @@ bool TestAudioConvertFormat()
 	AudioData::Format& format = audioDataOut->GetFormat();
 	format.bitsPerSample = 32;
 	format.numChannels = 1;
-	format.framesPerSecond = audioDataIn->GetFormat().framesPerSecond;		// TODO: Test outputing at a different sample rate.
+	format.framesPerSecond = 96000;
 
 	uint64_t numBytes = format.BytesFromSeconds(clipLengthSeconds);
 	audioDataOut->SetAudioBufferSize(numBytes);
@@ -213,7 +213,6 @@ bool TestAudioConvertFormat()
 
 	audioSink.GetAudioOutput()->ReadBytesFromStream(audioDataOut->GetAudioBuffer(), audioDataOut->GetAudioBufferSize());
 
-	// TODO: All we did was try to change the bit-depth, and the result has some weird fuzzy noise in it.  What are we doing wrong?
 	FileOutputStream outputStream("TestData/TestAudio1_converted.wav");
 	bool savedWave = waveFormat.WriteToStream(outputStream, audioDataOut, error);
 	assert(savedWave);
