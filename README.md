@@ -22,7 +22,7 @@ The programmer for the library (me) lacks a great deal of maturity.  Sorry.
 
 For all use-cases, we assume we're in the `AudioDataLib` namespace, and have the following headers.
 
-```
+```C++
 #include <WaveFormat.h>
 #include <AudioData.h>
 #include <AudioSink.h>
@@ -36,7 +36,7 @@ using namespace AudioDataLib;
 
 Opening a WAV can be done as follows.  Don't forget to free the returned audio data.  Error-handling is omitted.
 
-```
+```C++
 FileInputStream inputStream("path/to/myaudio.wav");
 
 std::string error;
@@ -55,7 +55,7 @@ delete audioData;
 
 Saving a WAV file is very similar.
 
-```
+```C++
 FileOutputStream outputStream("path/to/myaudio.wav");
 
 std::string error;
@@ -69,7 +69,7 @@ waveFormat.WriteToStream(outputStream, audioData, error);
 
 To convert some audio data from one format to another, you can use the `AudioSink` class as follows.
 
-```
+```C++
 // Again, pretend this is non-null, and that you got it from somewhere cool.
 AudioData* audioDataIn = nullptr;
 
@@ -104,7 +104,7 @@ delete audioDataOut;
 
 The same class (`AudioSink`) used to convert audio can also be used to mix it.
 
-```
+```C++
 // Yet again, pretend you got some way-cool audio from somewhere dope, yo.  (Pretend these are non-null.)
 AudioData* audioDataInA = nullptr;
 AudioData* audioDataInB = nullptr;
@@ -130,7 +130,7 @@ you've opened such a device (using some other library like SDL or DirectSound), 
 instances of the `AudioSink` class, and now you occationally want to play sound effects.  Your
 function to play a sound effect might look as follows.
 
-```
+```C++
 void MyAudioSubSystem::PlaySoundFX(const AudioData* soundFXData)
 {
     this->audioSink.AddAudioInput(new AudioStream(soundFXData));
@@ -143,7 +143,7 @@ implement a callback function.  This function is called by the underlying audio 
 audio device wants more audio.  It is up to you to give it something to render as actual sound.
 It might look like something as follows.
 
-```
+```C++
 /*static*/ void MyAudioSubSystem::AudioCallback(char* audioBuffer, int audioBufferSize, void* userData)
 {
     auto audioSystem = static_cast<MyAudioSubSystem*>(userData);
@@ -164,7 +164,7 @@ void MyAudioSubSystem::GrabAudio(uint8_t* audioBuffer, uint64_t audioBufferSize)
 In order to keep up with demand, you would need to pump the audio somewhere in the main
 loop of your program.  That would be something like the following.
 
-```
+```C++
 void MyAudioSubSystem::PumpAudio()
 {
     // Make sure we have 4 future seconds of audio ready to be consumed by the audio device.
@@ -178,7 +178,7 @@ It's important to note that pumping audio and feeding audio are almost certainly
 be happening on *different* threads!  To account for that, you can provide a thread-safe
 audio stream when configuring your `AudioSink` class instance.
 
-```
+```C++
 void MyAudioSubSystem::Initialize()
 {
     // Among other initialization needs, we do this.
@@ -192,7 +192,7 @@ want the audio data library to depend on any platform-specific thing, like a mut
 (I think standard C++ has some mutex stuff in it, so I might try defaulting to that at some point.)
 In any case, you might do the following.
 
-```
+```C++
 class MyAudioMutex : public AudioDataLib::Mutex
 {
 public:
