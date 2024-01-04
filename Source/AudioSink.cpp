@@ -65,6 +65,7 @@ void AudioSink::MixAudio(double desiredSecondsAvailable, double secondsAddedPerM
 	}
 
 	// Grab audio buffers from all the inputs and transform them into wave form space.
+	std::string error;
 	double secondsNeeded = this->audioStreamOut->GetFormat().BytesToSeconds(numBytesNeeded);
 	auto waveFormListArray = new std::list<WaveForm*>[this->audioStreamOut->GetFormat().numChannels];
 	for (uint32_t i = 0; i < this->audioStreamOut->GetFormat().numChannels; i++)
@@ -79,7 +80,7 @@ void AudioSink::MixAudio(double desiredSecondsAvailable, double secondsAddedPerM
 				buffer[i] = 0;
 
 			WaveForm* waveForm = new WaveForm();
-			waveForm->ConvertFromAudioBuffer(audioStreamIn->GetFormat(), buffer, bufferSize, i);
+			waveForm->ConvertFromAudioBuffer(audioStreamIn->GetFormat(), buffer, bufferSize, i, error);
 			waveFormListArray[i].push_back(waveForm);
 			delete[] buffer;
 		}
@@ -99,7 +100,7 @@ void AudioSink::MixAudio(double desiredSecondsAvailable, double secondsAddedPerM
 			delete waveForm;
 
 		// Convert the aggregated wave form into audio data in the target format.
-		mixedWave.ConvertToAudioBuffer(this->audioStreamOut->GetFormat(), mixedAudioBuffer, numBytesNeeded, i);
+		mixedWave.ConvertToAudioBuffer(this->audioStreamOut->GetFormat(), mixedAudioBuffer, numBytesNeeded, i, error);
 	}
 
 	// Lastly, write the generated audio data to the output stream.

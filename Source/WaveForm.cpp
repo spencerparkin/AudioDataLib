@@ -22,8 +22,28 @@ void WaveForm::Clear()
 	this->index = nullptr;
 }
 
-void WaveForm::ConvertFromAudioBuffer(const AudioData::Format& format, const uint8_t* audioBuffer, uint64_t audioBufferSize, uint16_t channel)
+uint64_t WaveForm::GetSizeBytes(const AudioData::Format& format, bool allChannels) const
 {
+	if (this->sampleArray->size() == 0)
+		return 0;
+
+	uint64_t numBytes = format.BytesFromSeconds(this->GetTimespan());
+	numBytes += format.BytesPerSample();
+
+	if (allChannels)
+		numBytes *= format.numChannels;
+
+	return numBytes;
+}
+
+bool WaveForm::ConvertFromAudioBuffer(const AudioData::Format& format, const uint8_t* audioBuffer, uint64_t audioBufferSize, uint16_t channel, std::string& error)
+{
+	if (channel >= format.numChannels)
+	{
+		error = "Invalid channel.";
+		return false;
+	}
+
 	this->Clear();
 
 	uint64_t bytesPerSample = format.BytesPerSample();
@@ -31,10 +51,12 @@ void WaveForm::ConvertFromAudioBuffer(const AudioData::Format& format, const uin
 	uint64_t bytesPerFrame = bytesPerSample * samplesPerFrame;
 
 	uint64_t i = 0;
+	uint32_t number = 0;
 	while (i < audioBufferSize)
 	{
 		Sample sample;
 		sample.timeSeconds = format.BytesToSeconds(i);
+		sample.number = number++;
 
 		const uint8_t* frameBuf = &audioBuffer[i];
 		const uint8_t* sampleBuf = &frameBuf[bytesPerSample * channel];
@@ -62,10 +84,18 @@ void WaveForm::ConvertFromAudioBuffer(const AudioData::Format& format, const uin
 		this->sampleArray->push_back(sample);
 		i += bytesPerFrame;
 	}
+
+	return true;
 }
 
-void WaveForm::ConvertToAudioBuffer(const AudioData::Format& format, uint8_t* audioBuffer, uint64_t audioBufferSize, uint16_t channel) const
+bool WaveForm::ConvertToAudioBuffer(const AudioData::Format& format, uint8_t* audioBuffer, uint64_t audioBufferSize, uint16_t channel, std::string& error) const
 {
+	if (channel >= format.numChannels)
+	{
+		error = "Invalid channel.";
+		return false;
+	}
+
 	uint64_t bytesPerSample = format.BytesPerSample();
 
 	for (const Sample& sample : *this->sampleArray)
@@ -73,7 +103,11 @@ void WaveForm::ConvertToAudioBuffer(const AudioData::Format& format, uint8_t* au
 		uint64_t byteOffset = format.BytesFromSeconds(sample.timeSeconds);
 		byteOffset = format.RoundDownToNearestFrameMultiple(byteOffset);
 		byteOffset += bytesPerSample * channel;
-		assert(byteOffset + bytesPerSample <= audioBufferSize);
+		if (byteOffset + bytesPerSample > audioBufferSize)
+		{
+			error = "Sample-write out of buffer range.";
+			return false;
+		}
 
 		// TODO: What about endianness?
 		switch (format.bitsPerSample)
@@ -98,6 +132,8 @@ void WaveForm::ConvertToAudioBuffer(const AudioData::Format& format, uint8_t* au
 			}
 		}
 	}
+
+	return true;
 }
 
 double WaveForm::EvaluateAt(double timeSeconds) const
@@ -106,6 +142,9 @@ double WaveForm::EvaluateAt(double timeSeconds) const
 
 	if (!this->FindSampleBounds(timeSeconds, sampleBounds))
 		return 0.0;
+
+	assert(sampleBounds.minSample->number + 1 == sampleBounds.maxSample->number);
+	assert(sampleBounds.minSample->timeSeconds <= timeSeconds && timeSeconds <= sampleBounds.maxSample->timeSeconds);
 
 	double lerpAlpha = (timeSeconds - sampleBounds.minSample->timeSeconds) / (sampleBounds.maxSample->timeSeconds - sampleBounds.minSample->timeSeconds);
 	double interpolatedAmplitude = sampleBounds.minSample->amplitude + lerpAlpha * (sampleBounds.maxSample->amplitude - sampleBounds.minSample->amplitude);
@@ -163,7 +202,7 @@ void WaveForm::SumTogether(const std::list<WaveForm*>& waveFormList)
 	this->Clear();
 
 	double timeSpanSeconds = maxEndTime - minStartTime;
-	uint32_t numSamples = uint32_t(timeSpanSeconds / minAvgSamplesPerSecond);
+	uint32_t numSamples = uint32_t(timeSpanSeconds * minAvgSamplesPerSecond);
 	for (uint32_t i = 0; i < numSamples; i++)
 	{
 		Sample sample;
@@ -172,6 +211,19 @@ void WaveForm::SumTogether(const std::list<WaveForm*>& waveFormList)
 		for (const WaveForm* waveForm : waveFormList)
 			sample.amplitude += waveForm->EvaluateAt(sample.timeSeconds);
 		this->sampleArray->push_back(sample);
+	}
+
+	this->Clamp(-1.0, 1.0);
+}
+
+void WaveForm::Clamp(double minAmplitude, double maxAmplitude)
+{
+	for (Sample& sample : *this->sampleArray)
+	{
+		if (sample.amplitude < minAmplitude)
+			sample.amplitude = minAmplitude;
+		if (sample.amplitude > maxAmplitude)
+			sample.amplitude = maxAmplitude;
 	}
 }
 
@@ -209,6 +261,48 @@ double WaveForm::GetTimespan() const
 uint64_t WaveForm::GetNumSamples() const
 {
 	return this->sampleArray->size();
+}
+
+double WaveForm::GetMaxAmplitude() const
+{
+	double maxAmplitude = std::numeric_limits<double>::min();
+	for (const Sample& sample : *this->sampleArray)
+		if (sample.amplitude > maxAmplitude)
+			maxAmplitude = sample.amplitude;
+
+	return maxAmplitude;
+}
+
+double WaveForm::GetMinAmplitude() const
+{
+	double minAmplitude = std::numeric_limits<double>::max();
+	for (const Sample& sample : *this->sampleArray)
+		if (sample.amplitude < minAmplitude)
+			minAmplitude = sample.amplitude;
+
+	return minAmplitude;
+}
+
+bool WaveForm::Renormalize()
+{
+	double minAmplitude = this->GetMinAmplitude();
+	double maxAmplitude = this->GetMaxAmplitude();
+	double absAmplitude = ADL_MAX(ADL_ABS(minAmplitude), ADL_ABS(maxAmplitude));
+	if (absAmplitude == 0.0)
+		return false;
+
+	double scale = 1.0 / absAmplitude;
+	if (::isinf(scale) || ::isnan(scale))
+		return false;
+
+	this->Scale(scale);
+	return true;
+}
+
+void WaveForm::Scale(double scale)
+{
+	for (Sample& sample : *this->sampleArray)
+		sample.amplitude *= scale;
 }
 
 //---------------------------------- WaveForm::Index ----------------------------------
@@ -376,7 +470,7 @@ WaveForm::Index::LeafNode::LeafNode(Sample* sample)
 
 /*virtual*/ bool WaveForm::Index::LeafNode::FindTightestSampleBounds(double timeSeconds, SampleBounds& sampleBounds)
 {
-	if (this->sample->timeSeconds < timeSeconds)
+	if (this->sample->timeSeconds <= timeSeconds)
 	{
 		sampleBounds.minSample = this->sample;
 		sampleBounds.maxSample = nullptr;

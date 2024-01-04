@@ -10,7 +10,8 @@ using namespace AudioDataLib;
 int main(int argc, char** argv)
 {
 	//TestWaveFormat();
-	TestWaveForm();
+	//TestWaveForm();
+	TestWaveFormAdd();
 	//TestAudioSink();
 
 	return 0;
@@ -83,13 +84,13 @@ bool TestWaveForm()
 	assert(loadedWave);
 
 	WaveForm waveForm;
-	waveForm.ConvertFromAudioBuffer(audioDataIn->GetFormat(), audioDataIn->GetAudioBuffer(), audioDataIn->GetAudioBufferSize(), 0);
+	waveForm.ConvertFromAudioBuffer(audioDataIn->GetFormat(), audioDataIn->GetAudioBuffer(), audioDataIn->GetAudioBufferSize(), 0, error);
 
 	AudioData* audioDataOut = new AudioData();
 	audioDataOut->SetAudioBufferSize(audioDataIn->GetAudioBufferSize());
 	audioDataOut->GetFormat() = audioDataIn->GetFormat();
 
-	waveForm.ConvertToAudioBuffer(audioDataOut->GetFormat(), audioDataOut->GetAudioBuffer(), audioDataOut->GetAudioBufferSize(), 0);
+	waveForm.ConvertToAudioBuffer(audioDataOut->GetFormat(), audioDataOut->GetAudioBuffer(), audioDataOut->GetAudioBufferSize(), 0, error);
 
 	FileOutputStream outputStream("TestData/TestAudio1_copy.wav");
 	bool savedWave = waveFormat.WriteToStream(outputStream, audioDataOut, error);
@@ -122,6 +123,46 @@ bool TestWaveFormat()
 	assert(savedWave);
 
 	delete audioDataIn;
+	delete audioDataOut;
+
+	return true;
+}
+
+bool TestWaveFormAdd()
+{
+	WaveFormat waveFormat;
+
+	AudioData* audioDataA = nullptr;
+	AudioData* audioDataB = nullptr;
+
+	FileInputStream inputStreamA("TestData/TestAudio1.wav");
+	FileInputStream inputStreamB("TestData/TestAudio2.wav");
+
+	std::string error;
+
+	waveFormat.ReadFromStream(inputStreamA, audioDataA, error);
+	waveFormat.ReadFromStream(inputStreamB, audioDataB, error);
+
+	WaveForm waveFormA, waveFormB;
+
+	waveFormA.ConvertFromAudioBuffer(audioDataA->GetFormat(), audioDataA->GetAudioBuffer(), audioDataA->GetAudioBufferSize(), 0, error);
+	waveFormB.ConvertFromAudioBuffer(audioDataB->GetFormat(), audioDataB->GetAudioBuffer(), audioDataB->GetAudioBufferSize(), 0, error);
+
+	WaveForm waveFormSum;
+	waveFormSum.SumTogether({ &waveFormA, &waveFormB });
+
+	AudioData* audioDataOut = new AudioData();
+	AudioData::Format& format = audioDataOut->GetFormat();
+	format = audioDataA->GetFormat();	// TODO: Maybe choose a different format altogether.  Just choose this one for now.
+
+	audioDataOut->SetAudioBufferSize(waveFormSum.GetSizeBytes(format, true));
+	waveFormSum.ConvertToAudioBuffer(audioDataOut->GetFormat(), audioDataOut->GetAudioBuffer(), audioDataOut->GetAudioBufferSize(), 0, error);
+
+	FileOutputStream outputStream("TestData/TestAudioMixed.wav");
+	waveFormat.WriteToStream(outputStream, audioDataOut, error);
+
+	delete audioDataA;
+	delete audioDataB;
 	delete audioDataOut;
 
 	return true;

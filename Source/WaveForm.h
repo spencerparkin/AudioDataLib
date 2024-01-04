@@ -13,8 +13,10 @@ namespace AudioDataLib
 		WaveForm();
 		virtual ~WaveForm();
 
-		void ConvertFromAudioBuffer(const AudioData::Format& format, const uint8_t* audioBuffer, uint64_t audioBufferSize, uint16_t channel);
-		void ConvertToAudioBuffer(const AudioData::Format& format, uint8_t* audioBuffer, uint64_t audioBufferSize, uint16_t channel) const;
+		uint64_t GetSizeBytes(const AudioData::Format& format, bool allChannels) const;
+
+		bool ConvertFromAudioBuffer(const AudioData::Format& format, const uint8_t* audioBuffer, uint64_t audioBufferSize, uint16_t channel, std::string& error);
+		bool ConvertToAudioBuffer(const AudioData::Format& format, uint8_t* audioBuffer, uint64_t audioBufferSize, uint16_t channel, std::string& error) const;
 
 		void Clear();
 
@@ -29,7 +31,7 @@ namespace AudioDataLib
 		{
 			double timeSeconds;
 			double amplitude;
-			//uint32_t i;
+			uint32_t number;
 		};
 
 		struct SampleBounds
@@ -45,6 +47,12 @@ namespace AudioDataLib
 		double GetEndTime() const;
 		double GetTimespan() const;
 		uint64_t GetNumSamples() const;
+		double GetMaxAmplitude() const;
+		double GetMinAmplitude() const;
+
+		bool Renormalize();
+		void Scale(double scale);
+		void Clamp(double minAmplitude, double maxAmplitude);
 
 	protected:
 
