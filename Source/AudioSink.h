@@ -6,7 +6,9 @@
 namespace AudioDataLib
 {
 	// Note that this class is not thread-safe.  If it is being used as a shared resource
-	// between threads, then a mutex should be used to protect access to it.
+	// between threads, then a mutex should be used to protect access to it.  What this class
+	// is trying to be is a general purpose way of mixing and converting audio.  It can be
+	// used for synthesis or real-time purposes.
 	class AUDIO_DATA_LIB_API AudioSink
 	{
 	public:
@@ -18,7 +20,7 @@ namespace AudioDataLib
 		// Make sure that an amount of audio data equivilant to the given amount
 		// of time is available for consumption in our audio output stream.
 		// This will produce silence in the audio output if necessary.
-		void MixAudio(double desiredSecondsAvailable, double secondsAddedPerMix);
+		void MixAudio(double desiredSecondsAvailable, double minSecondsAddedPerMix);
 	
 		// The memory for the given audio stream is deleted once it has been depleted.
 		void AddAudioInput(AudioStream* audioStream);
@@ -31,6 +33,31 @@ namespace AudioDataLib
 		int GetAudioInputCount() const { return this->audioStreamInArray->size(); }
 
 	protected:
+
+		template<typename T>
+		T CalcNetSample()
+		{
+			int64_t netSampleWide = 0;
+
+			for (AudioStream* audioStreamIn : *this->audioStreamInArray)
+			{
+				T sampleNarrow = 0;
+				if (audioStreamIn->ReadType<T>(&sampleNarrow))
+					netSampleWide += int64_t(sampleNarrow);
+			}
+
+			constexpr int64_t minSample = std::numeric_limits<T>::min();
+			constexpr int64_t maxSample = std::numeric_limits<T>::max();
+			
+			if (netSampleWide > maxSample)
+				netSampleWide = maxSample;
+			if (netSampleWide < minSample)
+				netSampleWide = minSample;
+
+			T netSampleNarrow = T(netSampleWide);
+			return netSampleNarrow;
+		}
+
 		std::vector<AudioStream*>* audioStreamInArray;
 		AudioStream* audioStreamOut;
 	};

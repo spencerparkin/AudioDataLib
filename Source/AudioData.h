@@ -24,6 +24,9 @@ namespace AudioDataLib
 			uint64_t BytesPerSample() const;
 			uint64_t FramesPerSecond() const;
 			uint64_t BytesPerSecond() const;
+
+			bool operator==(const Format& format) const;
+			bool operator!=(const Format& format) const;
 		};
 
 		AudioData();
@@ -37,6 +40,9 @@ namespace AudioDataLib
 
 		uint64_t GetAudioBufferSize() const { return this->audioBufferSize; }
 		void SetAudioBufferSize(uint64_t audioBufferSize);
+
+		uint64_t GetNumSamples() const;
+		uint64_t GetNumSamplesPerChannel() const;
 
 	protected:
 		Format format;

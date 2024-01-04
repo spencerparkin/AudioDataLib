@@ -35,7 +35,7 @@ void AudioSink::SetAudioOutput(AudioStream* audioStreamOut)
 }
 
 // I wonder if this is going to be really, really slow.
-void AudioSink::MixAudio(double desiredSecondsAvailable, double secondsAddedPerMix)
+void AudioSink::MixAudio(double desiredSecondsAvailable, double minSecondsAddedPerMix)
 {
 	// There's nothing for us to do if we don't have a place to put generated audio.
 	if (!this->audioStreamOut)
@@ -49,12 +49,12 @@ void AudioSink::MixAudio(double desiredSecondsAvailable, double secondsAddedPerM
 
 	// How much data do we need to add to the output stream?
 	uint64_t numBytesNeeded = numDesiredBytesAvailable - numActualBytesAvailable;
-	uint64_t numBytesAddedPerMix = this->audioStreamOut->GetFormat().BytesFromSeconds(secondsAddedPerMix);
-	if (numBytesNeeded < numBytesAddedPerMix)
-		numBytesNeeded = numBytesAddedPerMix;
+	uint64_t minBytesAddedPerMix = this->audioStreamOut->GetFormat().BytesFromSeconds(minSecondsAddedPerMix);
+	if (numBytesNeeded < minBytesAddedPerMix)
+		numBytesNeeded = minBytesAddedPerMix;
 	numBytesNeeded = this->audioStreamOut->GetFormat().RoundUpToNearestFrameMultiple(numBytesNeeded);
 
-	// In the trivial case, don't use the wave form stuff.
+	// In the trivial case, we need only write a bunch of silence to the stream.
 	if (this->audioStreamInArray->size() == 0)
 	{
 		uint8_t silenceByte = 0;
@@ -64,25 +64,14 @@ void AudioSink::MixAudio(double desiredSecondsAvailable, double secondsAddedPerM
 		return;
 	}
 
-	// Grab audio buffers from all the inputs and transform them into wave form space.
-	std::string error;
-	double secondsNeeded = this->audioStreamOut->GetFormat().BytesToSeconds(numBytesNeeded);
-	auto waveFormListArray = new std::list<WaveForm*>[this->audioStreamOut->GetFormat().numChannels];
-	for (uint32_t i = 0; i < this->audioStreamOut->GetFormat().numChannels; i++)
+	// Are all the formats the same?
+	bool allSameFormat = true;
+	for (AudioStream* audioStreamIn : *this->audioStreamInArray)
 	{
-		for (AudioStream* audioStreamIn : *this->audioStreamInArray)
+		if (audioStreamIn->GetFormat() != this->audioStreamOut->GetFormat())
 		{
-			uint64_t bufferSize = audioStreamIn->GetFormat().BytesFromSeconds(secondsNeeded);
-			bufferSize = audioStreamIn->GetFormat().RoundUpToNearestFrameMultiple(bufferSize);
-			uint8_t* buffer = new uint8_t[(uint32_t)bufferSize];
-			uint64_t numBytesRead = audioStreamIn->ReadBytesFromStream(buffer, bufferSize);
-			for (uint64_t i = numBytesRead; i < bufferSize; i++)
-				buffer[i] = 0;
-
-			WaveForm* waveForm = new WaveForm();
-			waveForm->ConvertFromAudioBuffer(audioStreamIn->GetFormat(), buffer, bufferSize, i, error);
-			waveFormListArray[i].push_back(waveForm);
-			delete[] buffer;
+			allSameFormat = false;
+			break;
 		}
 	}
 
@@ -90,25 +79,102 @@ void AudioSink::MixAudio(double desiredSecondsAvailable, double secondsAddedPerM
 	uint8_t* mixedAudioBuffer = new uint8_t[(uint32_t)numBytesNeeded];
 	::memset(mixedAudioBuffer, 0, (size_t)numBytesNeeded);
 
-	// Build each channel in the audio output stream.
-	for (uint32_t i = 0; i < this->audioStreamOut->GetFormat().numChannels; i++)
+	// Handle this case specifically, because it's easy and fast.
+	if (allSameFormat)
 	{
-		// Add all the wave forms up into a single wave form for the channel.
-		WaveForm mixedWave;
-		mixedWave.SumTogether(waveFormListArray[i]);
-		for (WaveForm* waveForm : waveFormListArray[i])
-			delete waveForm;
+		uint64_t numSamples = numBytesNeeded / this->audioStreamOut->GetFormat().BytesPerSample();
+		uint64_t bytesPerSample = this->audioStreamOut->GetFormat().BytesPerSample();
+		for (uint64_t i = 0; i < numSamples; i++)
+		{
+			uint8_t* sampleBuffer = &mixedAudioBuffer[i * bytesPerSample];
+			switch (this->audioStreamOut->GetFormat().bitsPerSample)
+			{
+				case 8:
+				{
+					int8_t netSample = this->CalcNetSample<int8_t>();
+					::memcpy(sampleBuffer, (const void*)&netSample, sizeof(int8_t));
+					break;
+				}
+				case 16:
+				{
+					int16_t netSample = this->CalcNetSample<int16_t>();
+					::memcpy(sampleBuffer, (const void*)&netSample, sizeof(int16_t));
+					break;
+				}
+				case 32:
+				{
+					int32_t netSample = this->CalcNetSample<int32_t>();
+					::memcpy(sampleBuffer, (const void*)&netSample, sizeof(int32_t));
+					break;
+				}
+			}
+		}
+	}
+	else
+	{
+		// NOTE: The code below hasn't been tested yet, and it certainly doesn't work yet.
 
-		// Convert the aggregated wave form into audio data in the target format.
-		mixedWave.ConvertToAudioBuffer(this->audioStreamOut->GetFormat(), mixedAudioBuffer, numBytesNeeded, i, error);
+		// Grab audio buffers from all the inputs and transform them into wave form space.
+		std::string error;
+		double secondsNeeded = this->audioStreamOut->GetFormat().BytesToSeconds(numBytesNeeded);
+		auto waveFormListArray = new std::list<WaveForm*>[this->audioStreamOut->GetFormat().numChannels];
+		for (uint32_t i = 0; i < this->audioStreamOut->GetFormat().numChannels; i++)
+		{
+			for (AudioStream* audioStreamIn : *this->audioStreamInArray)
+			{
+				uint64_t bufferSize = audioStreamIn->GetFormat().BytesFromSeconds(secondsNeeded);
+				bufferSize = audioStreamIn->GetFormat().RoundUpToNearestFrameMultiple(bufferSize);
+				uint8_t* buffer = new uint8_t[(uint32_t)bufferSize];
+				uint64_t numBytesRead = audioStreamIn->ReadBytesFromStream(buffer, bufferSize);
+				for (uint64_t i = numBytesRead; i < bufferSize; i++)
+					buffer[i] = 0;
+
+				WaveForm* waveForm = new WaveForm();
+				waveForm->ConvertFromAudioBuffer(audioStreamIn->GetFormat(), buffer, bufferSize, i, error);
+				waveFormListArray[i].push_back(waveForm);
+				delete[] buffer;
+			}
+		}
+
+		// Build each channel in the audio output stream.
+		for (uint32_t i = 0; i < this->audioStreamOut->GetFormat().numChannels; i++)
+		{
+			// Add all the wave forms up into a single wave form for the channel.
+			WaveForm mixedWave;
+			mixedWave.SumTogether(waveFormListArray[i]);
+			for (WaveForm* waveForm : waveFormListArray[i])
+				delete waveForm;
+
+			// Convert the aggregated wave form into audio data in the target format.
+			mixedWave.ConvertToAudioBuffer(this->audioStreamOut->GetFormat(), mixedAudioBuffer, numBytesNeeded, i, error);
+		}
+
+		delete[] waveFormListArray;
 	}
 
-	// Lastly, write the generated audio data to the output stream.
+	// Write the generated audio data to the output stream.
 	this->audioStreamOut->WriteBytesToStream(mixedAudioBuffer, numBytesNeeded);
 
 	// Free any remaining memory we used.
-	delete[] waveFormListArray;
 	delete[] mixedAudioBuffer;
+
+	// Lastly, cull any input audio streams that have been depleted.
+	uint32_t i = 0;
+	while (i < this->audioStreamInArray->size())
+	{
+		AudioStream* audioStreamIn = (*this->audioStreamInArray)[i];
+		uint64_t audioStreamInSize = audioStreamIn->GetSize();
+		if (audioStreamInSize > 0)
+			i++;
+		else
+		{
+			delete audioStreamIn;
+			uint32_t j = this->audioStreamInArray->size() - 1;
+			if (i != j)
+				(*this->audioStreamInArray)[i] = (*this->audioStreamInArray)[j];
+			this->audioStreamInArray->pop_back();
+		}
+	}
 }
 
 void AudioSink::AddAudioInput(AudioStream* AudioStream)

@@ -26,6 +26,16 @@ void AudioData::SetAudioBufferSize(uint64_t audioBufferSize)
 	}
 }
 
+uint64_t AudioData::GetNumSamples() const
+{
+	return this->GetAudioBufferSize() / this->format.BytesPerSample();
+}
+
+uint64_t AudioData::GetNumSamplesPerChannel() const
+{
+	return this->GetNumSamples() / this->format.numChannels;
+}
+
 double AudioData::Format::BytesToSeconds(uint64_t numBytes) const
 {
 	return double(numBytes) / double(this->BytesPerSecond());
@@ -40,7 +50,8 @@ uint64_t AudioData::Format::RoundUpToNearestFrameMultiple(uint64_t numBytes) con
 {
 	uint64_t bytesPerFrame = this->BytesPerFrame();
 	uint64_t remainder = numBytes % bytesPerFrame;
-	numBytes += bytesPerFrame - remainder;
+	if (remainder > 0)
+		numBytes += bytesPerFrame - remainder;
 	return numBytes;
 }
 
@@ -75,4 +86,16 @@ uint64_t AudioData::Format::FramesPerSecond() const
 uint64_t AudioData::Format::BytesPerSecond() const
 {
 	return this->samplesPerSecond * this->BytesPerSample();
+}
+
+bool AudioData::Format::operator==(const Format& format) const
+{
+	return this->bitsPerSample == format.bitsPerSample &&
+		this->numChannels == format.numChannels &&
+		this->samplesPerSecond == format.samplesPerSecond;
+}
+
+bool AudioData::Format::operator!=(const Format& format) const
+{
+	return !(*this == format);
 }

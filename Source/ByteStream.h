@@ -18,6 +18,20 @@ namespace AudioDataLib
 
 		virtual bool CanRead() = 0;
 		virtual bool CanWrite() = 0;
+
+		template<typename T>
+		bool ReadType(T* value)
+		{
+			uint64_t numBytesRead = this->ReadBytesFromStream((uint8_t*)value, sizeof(T));
+			return numBytesRead == sizeof(T);
+		}
+
+		template<typename T>
+		bool WriteType(const T* value)
+		{
+			uint64_t numBytesWritten = this->WriteBytesToStream((const uint8_t*)value, sizeof(T));
+			return numBytesWritten == sizeof(T);
+		}
 	};
 
 	class AUDIO_DATA_LIB_API FileStream : public ByteStream
