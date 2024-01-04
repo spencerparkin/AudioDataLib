@@ -7,7 +7,6 @@ using namespace AudioDataLib;
 WaveForm::WaveForm()
 {
 	this->sampleArray = new std::vector<Sample>();
-	this->index = nullptr;
 }
 
 /*virtual*/ WaveForm::~WaveForm()
@@ -18,8 +17,6 @@ WaveForm::WaveForm()
 void WaveForm::Clear()
 {
 	this->sampleArray->clear();
-	delete this->index;
-	this->index = nullptr;
 }
 
 uint64_t WaveForm::GetSizeBytes(const AudioData::Format& format, bool allChannels) const
@@ -56,7 +53,6 @@ bool WaveForm::ConvertFromAudioBuffer(const AudioData::Format& format, const uin
 	{
 		Sample sample;
 		sample.timeSeconds = format.BytesToSeconds(i);
-		sample.number = number++;
 
 		const uint8_t* frameBuf = &audioBuffer[i];
 		const uint8_t* sampleBuf = &frameBuf[bytesPerSample * channel];
@@ -94,8 +90,6 @@ bool WaveForm::ConvertToAudioBuffer(const AudioData::Format& format, uint8_t* au
 		error = "Invalid channel.";
 		return false;
 	}
-
-	this->GenerateIndex();
 
 	uint64_t bytesPerSample = format.BytesPerSample();
 	uint64_t samplesPerFrame = format.SamplesPerFrame();
@@ -138,44 +132,57 @@ bool WaveForm::ConvertToAudioBuffer(const AudioData::Format& format, uint8_t* au
 
 double WaveForm::EvaluateAt(double timeSeconds) const
 {
-	SampleBounds sampleBounds;
-
-	if (!this->FindSampleBounds(timeSeconds, sampleBounds))
+	SampleBounds sampleBounds{ nullptr, nullptr };
+	if (!this->FindTightestSampleBounds(timeSeconds, sampleBounds))
 		return 0.0;
 
-	assert(sampleBounds.minSample->number + 1 == sampleBounds.maxSample->number);
-	assert(sampleBounds.minSample->timeSeconds <= timeSeconds && timeSeconds <= sampleBounds.maxSample->timeSeconds);
-
-	// TODO: Do a cubic interpolation instead?
+	// TODO: Do a cubic interpolation instead?  Doing so isn't that hard.  You just have to invert a Vandermonde matrix.
 	double lerpAlpha = (timeSeconds - sampleBounds.minSample->timeSeconds) / (sampleBounds.maxSample->timeSeconds - sampleBounds.minSample->timeSeconds);
 	double interpolatedAmplitude = sampleBounds.minSample->amplitude + lerpAlpha * (sampleBounds.maxSample->amplitude - sampleBounds.minSample->amplitude);
 	return interpolatedAmplitude;
 }
 
-bool WaveForm::FindSampleBounds(double timeSeconds, SampleBounds& sampleBounds) const
+bool WaveForm::SampleBounds::ContainsTime(double timeSeconds) const
 {
-	if (this->index)
-		return this->index->FindSampleBounds(timeSeconds, sampleBounds);
-
-	for (uint32_t i = 0; i < this->sampleArray->size() - 1; i++)
-	{
-		sampleBounds.minSample = &(*this->sampleArray)[i];
-		sampleBounds.maxSample = &(*this->sampleArray)[i + 1];
-
-		if (sampleBounds.minSample->timeSeconds <= timeSeconds && timeSeconds <= sampleBounds.maxSample->timeSeconds)
-			return true;
-	}
-
-	return false;
+	return this->minSample->timeSeconds <= timeSeconds && timeSeconds <= this->maxSample->timeSeconds;
 }
 
-void WaveForm::GenerateIndex() const
+bool WaveForm::FindTightestSampleBounds(double timeSeconds, SampleBounds& sampleBounds) const
 {
-	if (this->index)
-		delete this->index;
+	if (this->sampleArray->size() == 0)
+		return false;
 
-	this->index = new Index();
-	this->index->Build(*this);
+	uint32_t i = 0;
+	uint32_t j = (uint32_t)this->sampleArray->size() - 1;
+
+	sampleBounds.minSample = &(*this->sampleArray)[i];
+	sampleBounds.maxSample = &(*this->sampleArray)[j];
+
+	if (!sampleBounds.ContainsTime(timeSeconds))
+		return false;
+
+	while (i + 1 < j)
+	{
+		uint32_t k = (i + j) / 2;
+		assert(i < k && k < j);
+
+		SampleBounds leftSampleBounds{ sampleBounds.minSample, &(*this->sampleArray)[k] };
+		SampleBounds rightSampleBounds{ &(*this->sampleArray)[k], sampleBounds.maxSample };
+
+		if (leftSampleBounds.ContainsTime(timeSeconds))
+		{
+			sampleBounds = leftSampleBounds;
+			j = k;
+		}
+		else
+		{
+			sampleBounds = rightSampleBounds;
+			i = k;
+			assert(sampleBounds.ContainsTime(timeSeconds));
+		}
+	}
+
+	return true;
 }
 
 void WaveForm::Copy(const WaveForm* waveForm)
@@ -215,8 +222,6 @@ void WaveForm::SumTogether(const std::list<WaveForm*>& waveFormList)
 		double endTime = waveForm->GetEndTime();
 		if (endTime > maxEndTime)
 			maxEndTime = endTime;
-
-		waveForm->GenerateIndex();
 	}
 
 	double timeSpanSeconds = maxEndTime - minStartTime;
@@ -319,183 +324,4 @@ void WaveForm::Scale(double scale)
 {
 	for (Sample& sample : *this->sampleArray)
 		sample.amplitude *= scale;
-}
-
-//---------------------------------- WaveForm::Index ----------------------------------
-
-WaveForm::Index::Index()
-{
-	this->rootNode = nullptr;
-}
-
-/*virtual*/ WaveForm::Index::~Index()
-{
-	this->Clear();
-}
-
-void WaveForm::Index::Clear()
-{
-	delete this->rootNode;
-	this->rootNode = nullptr;
-}
-
-void WaveForm::Index::Build(const WaveForm& waveForm)
-{
-	this->Clear();
-
-	if (waveForm.GetNumSamples() == 0)
-		return;
-
-	std::vector<Sample*> sampleArray;
-	for (Sample& sample : *waveForm.sampleArray)
-		sampleArray.push_back(&sample);
-
-	this->rootNode = this->GenerateNode(sampleArray);
-}
-
-WaveForm::Index::Node* WaveForm::Index::GenerateNode(const std::vector<Sample*>& sampleArray)
-{
-	double startTime = sampleArray[0]->timeSeconds;
-	double endTime = sampleArray[sampleArray.size() - 1]->timeSeconds;
-	double midTime = (startTime + endTime) / 2.0;
-
-	std::vector<Sample*> leftSampleArray, rightSampleArray;
-
-	for (Sample* sample : sampleArray)
-	{
-		if (sample->timeSeconds < midTime)
-			leftSampleArray.push_back(sample);
-		else
-			rightSampleArray.push_back(sample);
-	}
-
-	InternalNode* internalNode = new InternalNode(midTime);
-
-	if (leftSampleArray.size() > 1)
-		internalNode->leftNode = this->GenerateNode(leftSampleArray);
-	else if(leftSampleArray.size() == 1)
-		internalNode->leftNode = new LeafNode(leftSampleArray[0]);
-
-	if (rightSampleArray.size() > 1)
-		internalNode->rightNode = this->GenerateNode(rightSampleArray);
-	else if (rightSampleArray.size() == 1)
-		internalNode->rightNode = new LeafNode(rightSampleArray[0]);
-
-	return internalNode;
-}
-
-bool WaveForm::Index::FindSampleBounds(double timeSeconds, SampleBounds& sampleBounds) const
-{
-	if (!this->rootNode)
-		return false;
-
-	return this->rootNode->FindTightestSampleBounds(timeSeconds, sampleBounds);
-}
-
-//---------------------------------- WaveForm::Index::Node ----------------------------------
-
-WaveForm::Index::Node::Node()
-{
-}
-
-/*virtual*/ WaveForm::Index::Node::~Node()
-{
-}
-
-//---------------------------------- WaveForm::Index::InternalNode ----------------------------------
-
-WaveForm::Index::InternalNode::InternalNode(double partition)
-{
-	this->leftNode = nullptr;
-	this->rightNode = nullptr;
-	this->partition = partition;
-}
-
-/*virtual*/ WaveForm::Index::InternalNode::~InternalNode()
-{
-	delete this->leftNode;
-	delete this->rightNode;
-}
-
-/*virtual*/ bool WaveForm::Index::InternalNode::FindTightestSampleBounds(double timeSeconds, SampleBounds& sampleBounds)
-{
-	SampleBounds sampleBoundsLeft{ nullptr, nullptr }, sampleBoundsRight{ nullptr, nullptr };
-
-	if (timeSeconds < this->partition)
-	{
-		if (this->leftNode && this->leftNode->FindTightestSampleBounds(timeSeconds, sampleBoundsLeft))
-		{
-			sampleBounds = sampleBoundsLeft;
-			return true;
-		}
-	
-		if (sampleBoundsLeft.minSample)
-		{
-			if (this->rightNode)
-			{
-				bool found = this->rightNode->FindTightestSampleBounds(timeSeconds, sampleBoundsRight);
-				assert(!found);
-			}
-
-			if (sampleBoundsRight.maxSample)
-			{
-				sampleBounds.minSample = sampleBoundsLeft.minSample;
-				sampleBounds.maxSample = sampleBoundsRight.maxSample;
-				return true;
-			}
-		}
-	}
-	else
-	{
-		if (this->rightNode && this->rightNode->FindTightestSampleBounds(timeSeconds, sampleBoundsRight))
-		{
-			sampleBounds = sampleBoundsRight;
-			return true;
-		}
-
-		if (sampleBoundsRight.maxSample)
-		{
-			if (this->leftNode)
-			{
-				bool found = this->leftNode->FindTightestSampleBounds(timeSeconds, sampleBoundsLeft);
-				assert(!found);
-			}
-
-			if (sampleBoundsLeft.minSample)
-			{
-				sampleBounds.minSample = sampleBoundsLeft.minSample;
-				sampleBounds.maxSample = sampleBoundsRight.maxSample;
-				return true;
-			}
-		}
-	}
-
-	return false;
-}
-
-//---------------------------------- WaveForm::Index::LeafNode ----------------------------------
-
-WaveForm::Index::LeafNode::LeafNode(Sample* sample)
-{
-	this->sample = sample;
-}
-
-/*virtual*/ WaveForm::Index::LeafNode::~LeafNode()
-{
-}
-
-/*virtual*/ bool WaveForm::Index::LeafNode::FindTightestSampleBounds(double timeSeconds, SampleBounds& sampleBounds)
-{
-	if (this->sample->timeSeconds <= timeSeconds)
-	{
-		sampleBounds.minSample = this->sample;
-		sampleBounds.maxSample = nullptr;
-	}
-	else
-	{
-		sampleBounds.minSample = nullptr;
-		sampleBounds.maxSample = this->sample;
-	}
-
-	return false;
 }

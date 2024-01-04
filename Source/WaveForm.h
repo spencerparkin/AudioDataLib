@@ -18,31 +18,28 @@ namespace AudioDataLib
 		bool ConvertFromAudioBuffer(const AudioData::Format& format, const uint8_t* audioBuffer, uint64_t audioBufferSize, uint16_t channel, std::string& error);
 		bool ConvertToAudioBuffer(const AudioData::Format& format, uint8_t* audioBuffer, uint64_t audioBufferSize, uint16_t channel, std::string& error) const;
 
-		void Clear();
-		void Copy(const WaveForm* waveForm);
-
-		// If an index exists, it can speed up evaluation.
-		void GenerateIndex() const;
-
-		double EvaluateAt(double timeSeconds) const;
-
-		void SumTogether(const std::list<WaveForm*>& waveFormList);
-
 		struct Sample
 		{
 			double timeSeconds;
 			double amplitude;
-			uint32_t number;
 		};
 
 		struct SampleBounds
 		{
 			const Sample* minSample;
 			const Sample* maxSample;
+			
+			bool ContainsTime(double timeSeconds) const;
 		};
 
-		bool FindSampleBounds(double timeSeconds, SampleBounds& sampleBounds) const;
-
+		void Clear();
+		void Copy(const WaveForm* waveForm);
+		double EvaluateAt(double timeSeconds) const;
+		void SumTogether(const std::list<WaveForm*>& waveFormList);
+		bool FindTightestSampleBounds(double timeSeconds, SampleBounds& sampleBounds) const;
+		bool Renormalize();
+		void Scale(double scale);
+		void Clamp(double minAmplitude, double maxAmplitude);
 		double AverageSampleRate() const;
 		double GetStartTime() const;
 		double GetEndTime() const;
@@ -50,10 +47,6 @@ namespace AudioDataLib
 		uint64_t GetNumSamples() const;
 		double GetMaxAmplitude() const;
 		double GetMinAmplitude() const;
-
-		bool Renormalize();
-		void Scale(double scale);
-		void Clamp(double minAmplitude, double maxAmplitude);
 
 	protected:
 
@@ -89,57 +82,6 @@ namespace AudioDataLib
 			double sampleNormalized = sampleFloat / double(maxSample);
 			return sampleNormalized;
 		}
-
-		class Index
-		{
-		public:
-			Index();
-			virtual ~Index();
-
-			void Build(const WaveForm& waveForm);
-			void Clear();
-			bool FindSampleBounds(double timeSeconds, SampleBounds& sampleBounds) const;
-
-		private:
-			class Node
-			{
-			public:
-				Node();
-				virtual ~Node();
-
-				virtual bool FindTightestSampleBounds(double timeSeconds, SampleBounds& sampleBounds) = 0;
-			};
-
-			class InternalNode : public Node
-			{
-			public:
-				InternalNode(double partition);
-				virtual ~InternalNode();
-
-				virtual bool FindTightestSampleBounds(double timeSeconds, SampleBounds& sampleBounds) override;
-
-				Node* leftNode;
-				Node* rightNode;
-				double partition;
-			};
-
-			class LeafNode : public Node
-			{
-			public:
-				LeafNode(Sample* sample);
-				virtual ~LeafNode();
-
-				virtual bool FindTightestSampleBounds(double timeSeconds, SampleBounds& sampleBounds) override;
-
-				Sample* sample;
-			};
-
-			Node* GenerateNode(const std::vector<Sample*>& sampleArray);
-
-			Node* rootNode;
-		};
-
-		mutable Index* index;
 
 		// We assume the samples are all in order according to time.
 		std::vector<Sample>* sampleArray;
