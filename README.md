@@ -167,10 +167,11 @@ loop of your program.  That would be something like the following.
 ```C++
 void MyAudioSubSystem::PumpAudio()
 {
-    // Make sure we have 4 future seconds of audio ready to be consumed by the audio device.
-    // If our future reserve dips below 4 seconds, add at least 2 seconds more of audio to
-    // the generated output audio stream.
-    this->audioSink.GenerateAudio(4.0, 2.0);
+    // Make sure we have 0.01 future seconds of audio ready to be consumed by the audio device.
+    // If our future reserve dips below 0.01 seconds, add at least 0.005 seconds more of audio to
+    // the generated output audio stream.  I should probably add an overload that works with bytes
+    // instead of seconds.
+    this->audioSink.GenerateAudio(0.01, 0.005);
 }
 ```
 
