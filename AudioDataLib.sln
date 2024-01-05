@@ -11,6 +11,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AudioTest", "AudioTest\Audi
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AudioTool", "AudioTool\AudioTool.vcxproj", "{8987D719-3CAD-4C2D-B725-867074BD09AB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D9ED440E-A81E-4AA7-83D8-BE1B7F0FD4DE} = {D9ED440E-A81E-4AA7-83D8-BE1B7F0FD4DE}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

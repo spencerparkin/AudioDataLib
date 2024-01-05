@@ -1,5 +1,6 @@
 #include "AudioToolApp.h"
 #include "AudioToolFrame.h"
+#include <wx/image.h>
 
 wxIMPLEMENT_APP(AudioToolApp);
 
@@ -16,6 +17,8 @@ AudioToolApp::AudioToolApp()
 {
 	if (!wxApp::OnInit())
 		return false;
+
+	wxInitAllImageHandlers();
 
 	this->frame = new AudioToolFrame(wxDefaultPosition, wxSize(800, 600));
 	this->frame->Show();
