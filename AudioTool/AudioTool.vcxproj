@@ -21,10 +21,12 @@
   <ItemGroup>
     <ClInclude Include="Source\AudioToolApp.h" />
     <ClInclude Include="Source\AudioToolFrame.h" />
+    <ClInclude Include="Source\AudioTrackControl.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\AudioToolApp.cpp" />
     <ClCompile Include="Source\AudioToolFrame.cpp" />
+    <ClCompile Include="Source\AudioTrackControl.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

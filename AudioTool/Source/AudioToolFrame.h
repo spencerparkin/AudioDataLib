@@ -1,6 +1,9 @@
 #pragma once
 
 #include <wx/frame.h>
+#include <wx/sizer.h>
+
+class AudioTrackControl;
 
 class AudioToolFrame : public wxFrame
 {
@@ -29,4 +32,6 @@ public:
 	void OnPause(wxCommandEvent& event);
 	void OnAbout(wxCommandEvent& event);
 	void OnExit(wxCommandEvent& event);
+
+	wxBoxSizer* trackSizer;
 };

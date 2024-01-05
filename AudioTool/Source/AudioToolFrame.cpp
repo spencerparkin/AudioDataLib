@@ -1,7 +1,9 @@
 #include "AudioToolFrame.h"
+#include "AudioTrackControl.h"
 #include <wx/aboutdlg.h>
 #include <wx/menu.h>
 #include <wx/toolbar.h>
+#include <wx/panel.h>
 
 AudioToolFrame::AudioToolFrame(const wxPoint& pos, const wxSize& size) : wxFrame(nullptr, wxID_ANY, "Audio Tool", pos, size)
 {
@@ -48,6 +50,15 @@ AudioToolFrame::AudioToolFrame(const wxPoint& pos, const wxSize& size) : wxFrame
 	toolBar->AddTool(ID_Play, "Play", playBitmap, "Play!");
 	toolBar->AddTool(ID_Pause, "Pause", pauseBitmap, "Pause.");
 	toolBar->Realize();
+
+	AudioTrackControl* trackControl1 = new AudioTrackControl(this, wxID_ANY, "Track1");
+	AudioTrackControl* trackControl2 = new AudioTrackControl(this, wxID_ANY, "Track2");
+
+	// TODO: Add the track sizer to a scrollable control at some point?
+	this->trackSizer = new wxBoxSizer(wxVERTICAL);
+	this->trackSizer->Add(trackControl1, 1, wxALL | wxGROW, 0);
+	this->trackSizer->Add(trackControl2, 1, wxALL | wxGROW, 0);
+	this->SetSizer(this->trackSizer);
 }
 
 /*virtual*/ AudioToolFrame::~AudioToolFrame()

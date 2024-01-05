@@ -13,12 +13,18 @@
     <ClInclude Include="Source\AudioToolFrame.h">
       <Filter>Source</Filter>
     </ClInclude>
+    <ClInclude Include="Source\AudioTrackControl.h">
+      <Filter>Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\AudioToolApp.cpp">
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="Source\AudioToolFrame.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\AudioTrackControl.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
