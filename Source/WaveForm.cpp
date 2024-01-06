@@ -57,23 +57,36 @@ bool WaveForm::ConvertFromAudioBuffer(const AudioData::Format& format, const uin
 		const uint8_t* frameBuf = &audioBuffer[i];
 		const uint8_t* sampleBuf = &frameBuf[bytesPerSample * channel];
 
-		switch (format.bitsPerSample)
+		if (format.sampleType == AudioData::Format::SIGNED_INTEGER)
 		{
-			case 8:
+			switch (format.bitsPerSample)
 			{
-				sample.amplitude = this->CopySampleFromBuffer<int8_t>(sampleBuf);
-				break;
+				case 8:
+				{
+					sample.amplitude = this->CopySampleFromBuffer<int8_t>(sampleBuf);
+					break;
+				}
+				case 16:
+				{
+					sample.amplitude = this->CopySampleFromBuffer<int16_t>(sampleBuf);
+					break;
+				}
+				case 32:
+				{
+					sample.amplitude = this->CopySampleFromBuffer<int32_t>(sampleBuf);
+					break;
+				}
 			}
-			case 16:
-			{
-				sample.amplitude = this->CopySampleFromBuffer<int16_t>(sampleBuf);
-				break;
-			}
-			case 32:
-			{
-				sample.amplitude = this->CopySampleFromBuffer<int32_t>(sampleBuf);
-				break;
-			}
+		}
+		else if (format.sampleType == AudioData::Format::FLOAT)
+		{
+			assert(format.bitsPerSample == 32);
+			sample.amplitude = this->CopyFloatSampleFromBuffer(sampleBuf);
+		}
+		else
+		{
+			error = "Unknown sample type encountered.";
+			return false;
 		}
 
 		this->sampleArray->push_back(sample);
@@ -105,23 +118,36 @@ bool WaveForm::ConvertToAudioBuffer(const AudioData::Format& format, uint8_t* au
 		double timeSeconds = format.BytesToSeconds(i);
 		double amplitude = this->EvaluateAt(timeSeconds);
 		
-		switch (format.bitsPerSample)
+		if (format.sampleType == AudioData::Format::SIGNED_INTEGER)
 		{
-			case 8:
+			switch (format.bitsPerSample)
 			{
-				this->CopySampleToBuffer<int8_t>(sampleBuf, amplitude);
-				break;
+				case 8:
+				{
+					this->CopySampleToBuffer<int8_t>(sampleBuf, amplitude);
+					break;
+				}
+				case 16:
+				{
+					this->CopySampleToBuffer<int16_t>(sampleBuf, amplitude);
+					break;
+				}
+				case 32:
+				{
+					this->CopySampleToBuffer<int32_t>(sampleBuf, amplitude);
+					break;
+				}
 			}
-			case 16:
-			{
-				this->CopySampleToBuffer<int16_t>(sampleBuf, amplitude);
-				break;
-			}
-			case 32:
-			{
-				this->CopySampleToBuffer<int32_t>(sampleBuf, amplitude);
-				break;
-			}
+		}
+		else if (format.sampleType == AudioData::Format::FLOAT)
+		{
+			assert(format.bitsPerSample == 32);
+			this->CopyFloatSampleToBuffer(sampleBuf, amplitude);
+		}
+		else
+		{
+			error = "Unknown sample type encountered.";
+			return false;
 		}
 
 		i += bytesPerFrame;

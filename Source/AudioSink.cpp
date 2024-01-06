@@ -97,26 +97,36 @@ void AudioSink::GenerateAudio(double desiredSecondsAvailable, double minSecondsA
 		for (uint64_t i = 0; i < numSamples; i++)
 		{
 			uint8_t* sampleBuffer = &mixedAudioBuffer[i * bytesPerSample];
-			switch (this->audioStreamOut->GetFormat().bitsPerSample)
+
+			if (this->audioStreamOut->GetFormat().sampleType == AudioData::Format::SIGNED_INTEGER)
 			{
-				case 8:
+				switch (this->audioStreamOut->GetFormat().bitsPerSample)
 				{
-					int8_t netSample = this->CalcNetSample<int8_t>();
-					::memcpy(sampleBuffer, (const void*)&netSample, sizeof(int8_t));
-					break;
+					case 8:
+					{
+						int8_t netSample = this->CalcNetSample<int8_t>();
+						::memcpy(sampleBuffer, (const void*)&netSample, sizeof(int8_t));
+						break;
+					}
+					case 16:
+					{
+						int16_t netSample = this->CalcNetSample<int16_t>();
+						::memcpy(sampleBuffer, (const void*)&netSample, sizeof(int16_t));
+						break;
+					}
+					case 32:
+					{
+						int32_t netSample = this->CalcNetSample<int32_t>();
+						::memcpy(sampleBuffer, (const void*)&netSample, sizeof(int32_t));
+						break;
+					}
 				}
-				case 16:
-				{
-					int16_t netSample = this->CalcNetSample<int16_t>();
-					::memcpy(sampleBuffer, (const void*)&netSample, sizeof(int16_t));
-					break;
-				}
-				case 32:
-				{
-					int32_t netSample = this->CalcNetSample<int32_t>();
-					::memcpy(sampleBuffer, (const void*)&netSample, sizeof(int32_t));
-					break;
-				}
+			}
+			else if (this->audioStreamOut->GetFormat().sampleType == AudioData::Format::FLOAT)
+			{
+				assert(this->audioStreamOut->GetFormat().bitsPerSample == 32);
+				float netSample = this->CalcNetSample<float>();
+				::memcpy(sampleBuffer, (const void*)&netSample, sizeof(float));
 			}
 		}
 	}

@@ -69,6 +69,24 @@ namespace AudioDataLib
 			::memcpy(sampleBuffer, (const void*)&sampleNarrow, sizeof(T));
 		}
 
+		// TODO: Byte-swapping?
+		void CopyFloatSampleToBuffer(uint8_t* sampleBuffer, double sampleNormalized) const
+		{
+			constexpr double minSample = (double)std::numeric_limits<float>::min();
+			constexpr double maxSample = (double)std::numeric_limits<float>::max();
+
+			double sampleWide = sampleNormalized * maxSample;
+
+			double sampleWideClamped = sampleWide;
+			if (sampleWideClamped > maxSample)
+				sampleWideClamped = maxSample;
+			if (sampleWideClamped < minSample)
+				sampleWideClamped = minSample;
+
+			float sampleNarrow = float(sampleWideClamped);
+			::memcpy(sampleBuffer, (const void*)&sampleNarrow, sizeof(float));
+		}
+
 		// TODO: Add byte-swapping here.
 		template<typename T>
 		double CopySampleFromBuffer(const uint8_t* sampleBuffer)
@@ -80,6 +98,15 @@ namespace AudioDataLib
 
 			double sampleFloat = double(sampleNarrow);
 			double sampleNormalized = sampleFloat / double(maxSample);
+			return sampleNormalized;
+		}
+
+		// TODO: Byte-swapping?
+		double CopyFloatSampleFromBuffer(const uint8_t* sampleBuffer)
+		{
+			float sampleFloat = 0.0;
+			::memcpy(&sampleFloat, sampleBuffer, sizeof(float));
+			double sampleNormalized = double(sampleFloat) / double(std::numeric_limits<float>::max());
 			return sampleNormalized;
 		}
 

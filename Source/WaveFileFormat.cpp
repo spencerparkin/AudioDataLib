@@ -91,12 +91,6 @@ bool WaveFileFormat::ProcessChunk(ByteStream& inputStream, AudioData* audioData,
 			return false;
 		}
 
-		if (type != 1)
-		{
-			error = "Non-PCM data not yet supported.";
-			return false;
-		}
-
 		uint16_t numChannels = 0;
 		if (2 != inputStream.ReadBytesFromStream((uint8_t*)&numChannels, 2))
 		{
@@ -136,6 +130,34 @@ bool WaveFileFormat::ProcessChunk(ByteStream& inputStream, AudioData* audioData,
 		format.numChannels = numChannels;
 		format.framesPerSecond = sampleRateSamplesPerSecondPerChannel;
 		format.bitsPerSample = bitsPerSample;
+
+		switch (type)
+		{
+			case SampleFormat::PCM:
+			{
+				format.sampleType = AudioData::Format::SIGNED_INTEGER;
+				break;
+			}
+			case SampleFormat::IEEE_FLOAT:
+			{
+				format.sampleType = AudioData::Format::FLOAT;
+
+				if (format.bitsPerSample != 32)
+				{
+					error = "Don't yet know how to support floating-point samples if they're not 32-bit.";
+					return false;
+				}
+
+				break;
+			}
+			default:
+			{
+				char errorBuf[128];
+				sprintf(errorBuf, "Format type %d not supported.", type);
+				error = errorBuf;
+				return false;
+			}
+		}
 
 		chunkDataSize -= 16;
 		while (chunkDataSize > 0)
@@ -213,7 +235,26 @@ bool WaveFileFormat::ProcessChunk(ByteStream& inputStream, AudioData* audioData,
 		return false;
 	}
 
-	uint16_t type = 1;		// This means PCM data.
+	uint16_t type = 0;
+	switch (audioData->GetFormat().sampleType)
+	{
+		case AudioData::Format::SIGNED_INTEGER:
+		{
+			type = SampleFormat::PCM;
+			break;
+		}
+		case AudioData::Format::FLOAT:
+		{
+			type = SampleFormat::IEEE_FLOAT;
+			break;
+		}
+		default:
+		{
+			error = "Could not write sample format type.";
+			break;
+		}
+	}
+
 	if (2 != outputStream.WriteBytesToStream((const uint8_t*)&type, 2))
 	{
 		error = "Could not write PCM type.";

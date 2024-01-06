@@ -34,6 +34,7 @@ namespace AudioDataLib
 
 	protected:
 
+		// TODO: Byte swapping?
 		template<typename T>
 		T CalcNetSample()
 		{
@@ -55,6 +56,31 @@ namespace AudioDataLib
 				netSampleWide = minSample;
 
 			T netSampleNarrow = T(netSampleWide);
+			return netSampleNarrow;
+		}
+
+		// TODO: Byte swapping?
+		template<>
+		float CalcNetSample()
+		{
+			double netSampleWide = 0.0;
+
+			for (AudioStream* audioStreamIn : *this->audioStreamInArray)
+			{
+				float sampleNarrow = 0.0f;
+				if (audioStreamIn->ReadType<float>(&sampleNarrow))
+					netSampleWide += double(sampleNarrow);
+			}
+
+			constexpr double minSample = std::numeric_limits<float>::min();
+			constexpr double maxSample = std::numeric_limits<float>::max();
+
+			if (netSampleWide > maxSample)
+				netSampleWide = maxSample;
+			if (netSampleWide < minSample)
+				netSampleWide = minSample;
+
+			float netSampleNarrow = float(netSampleWide);
 			return netSampleNarrow;
 		}
 

@@ -9,9 +9,16 @@ namespace AudioDataLib
 	public:
 		struct AUDIO_DATA_LIB_API Format
 		{
+			enum SampleType
+			{
+				SIGNED_INTEGER,
+				FLOAT
+			};
+
 			uint16_t bitsPerSample;
 			uint16_t numChannels;
 			uint32_t framesPerSecond;
+			SampleType sampleType;
 
 			double BytesToSeconds(uint64_t numBytes) const;
 			uint64_t BytesFromSeconds(double seconds) const;
@@ -42,6 +49,7 @@ namespace AudioDataLib
 
 		Format& GetFormat() { return this->format; }
 		const Format& GetFormat() const { return this->format; }
+		void SetFormat(const Format& format) { this->format = format; }
 		
 		uint8_t* GetAudioBuffer() { return this->audioBuffer; }
 		const uint8_t* GetAudioBuffer() const { return this->audioBuffer; }
