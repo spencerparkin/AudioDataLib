@@ -23,6 +23,9 @@ namespace AudioDataLib
 			double BytesToSeconds(uint64_t numBytes) const;
 			uint64_t BytesFromSeconds(double seconds) const;
 
+			double BytesPerChannelToSeconds(uint64_t numBytes) const;
+			uint64_t BytesPerChannelFromSeconds(double seconds) const;
+
 			uint64_t RoundUpToNearestFrameMultiple(uint64_t numBytes) const;
 			uint64_t RoundDownToNearestFrameMultiple(uint64_t numBytes) const;
 

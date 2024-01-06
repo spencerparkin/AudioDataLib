@@ -50,17 +50,30 @@ uint64_t AudioData::GetNumSamplesPerChannel() const
 
 double AudioData::GetTimeSeconds() const
 {
-	return this->format.BytesToSeconds(this->format.BytesPerChannel(this->audioBufferSize));
+	return this->format.BytesPerChannelToSeconds(this->format.BytesPerChannel(this->audioBufferSize));
 }
 
 //----------------------------- AudioData::Format -----------------------------
 
 double AudioData::Format::BytesToSeconds(uint64_t numBytes) const
 {
-	return double(numBytes) / double(this->BytesPerSecondPerChannel());
+	numBytes = this->RoundDownToNearestFrameMultiple(numBytes);
+	return double(numBytes) / double(this->BytesPerSecond());
 }
 
 uint64_t AudioData::Format::BytesFromSeconds(double seconds) const
+{
+	uint64_t numBytes = uint64_t(seconds * double(this->BytesPerSecond()));
+	numBytes = this->RoundDownToNearestFrameMultiple(numBytes);
+	return numBytes;
+}
+
+double AudioData::Format::BytesPerChannelToSeconds(uint64_t numBytes) const
+{
+	return double(numBytes) / double(this->BytesPerSecondPerChannel());
+}
+
+uint64_t AudioData::Format::BytesPerChannelFromSeconds(double seconds) const
 {
 	return uint64_t(seconds * double(this->BytesPerSecondPerChannel()));
 }

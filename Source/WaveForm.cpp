@@ -38,7 +38,7 @@ uint64_t WaveForm::GetSizeBytes(const AudioData::Format& format, bool allChannel
 	if (this->sampleArray->size() == 0)
 		return 0;
 
-	uint64_t numBytes = format.BytesFromSeconds(this->GetTimespan());
+	uint64_t numBytes = format.BytesPerChannelFromSeconds(this->GetTimespan());
 	numBytes += format.BytesPerSample();
 
 	if (allChannels)
