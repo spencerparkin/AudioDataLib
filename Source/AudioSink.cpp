@@ -66,8 +66,8 @@ void AudioSink::GenerateAudio(double desiredSecondsAvailable, double minSecondsA
         // lock occurring on the stream if it is a thread-safe stream.
         if(numBytesNeeded > 0)
         {
-            uint8_t* silenceBuffer = new uint8_t[numBytesNeeded];
-            ::memset(silenceBuffer, 0, numBytesNeeded);
+            uint8_t* silenceBuffer = new uint8_t[(uint32_t)numBytesNeeded];
+            ::memset(silenceBuffer, 0, (size_t)numBytesNeeded);
             this->audioStreamOut->WriteBytesToStream(silenceBuffer, numBytesNeeded);
             delete[] silenceBuffer;
         }

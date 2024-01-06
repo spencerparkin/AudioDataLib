@@ -5,12 +5,12 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="Source\AudioFormats">
+    <Filter Include="Source\AudioFileFormats">
       <UniqueIdentifier>{2cdc7017-16b5-4b65-b379-4385a5417439}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\AudioFormat.h">
+    <ClInclude Include="Source\AudioFileFormat.h">
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="Source\AudioData.h">
@@ -19,8 +19,8 @@
     <ClInclude Include="Source\AudioCommon.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="Source\WaveFormat.h">
-      <Filter>Source\AudioFormats</Filter>
+    <ClInclude Include="Source\WaveFileFormat.h">
+      <Filter>Source\AudioFileFormats</Filter>
     </ClInclude>
     <ClInclude Include="Source\ByteStream.h">
       <Filter>Source</Filter>
@@ -36,14 +36,14 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\AudioFormat.cpp">
+    <ClCompile Include="Source\AudioFileFormat.cpp">
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="Source\AudioData.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="Source\WaveFormat.cpp">
-      <Filter>Source\AudioFormats</Filter>
+    <ClCompile Include="Source\WaveFileFormat.cpp">
+      <Filter>Source\AudioFileFormats</Filter>
     </ClCompile>
     <ClCompile Include="Source\ByteStream.cpp">
       <Filter>Source</Filter>

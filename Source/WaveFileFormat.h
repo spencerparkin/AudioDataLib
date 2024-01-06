@@ -1,14 +1,14 @@
 #pragma once
 
-#include "AudioFormat.h"
+#include "AudioFileFormat.h"
 
 namespace AudioDataLib
 {
-	class AUDIO_DATA_LIB_API WaveFormat : public AudioFormat
+	class AUDIO_DATA_LIB_API WaveFileFormat : public AudioFileFormat
 	{
 	public:
-		WaveFormat();
-		virtual ~WaveFormat();
+		WaveFileFormat();
+		virtual ~WaveFileFormat();
 
 		virtual bool ReadFromStream(ByteStream& inputStream, AudioData*& audioData, std::string& error) override;
 		virtual bool WriteToStream(ByteStream& outputStream, AudioData* audioData, std::string& error) override;

@@ -1,18 +1,18 @@
-#include "WaveFormat.h"
+#include "WaveFileFormat.h"
 #include "ByteStream.h"
 #include "AudioData.h"
 
 using namespace AudioDataLib;
 
-WaveFormat::WaveFormat()
+WaveFileFormat::WaveFileFormat()
 {
 }
 
-/*virtual*/ WaveFormat::~WaveFormat()
+/*virtual*/ WaveFileFormat::~WaveFileFormat()
 {
 }
 
-/*virtual*/ bool WaveFormat::ReadFromStream(ByteStream& inputStream, AudioData*& audioData, std::string& error)
+/*virtual*/ bool WaveFileFormat::ReadFromStream(ByteStream& inputStream, AudioData*& audioData, std::string& error)
 {
 	char riffStr[5];
 	if (4 != inputStream.ReadBytesFromStream((uint8_t*)riffStr, 4))
@@ -64,7 +64,7 @@ WaveFormat::WaveFormat()
 	return true;
 }
 
-bool WaveFormat::ProcessChunk(ByteStream& inputStream, AudioData* audioData, std::string& error)
+bool WaveFileFormat::ProcessChunk(ByteStream& inputStream, AudioData* audioData, std::string& error)
 {
 	char chunkIdStr[5];
 	if (4 != inputStream.ReadBytesFromStream((uint8_t*)chunkIdStr, 4))
@@ -179,7 +179,7 @@ bool WaveFormat::ProcessChunk(ByteStream& inputStream, AudioData* audioData, std
 	return true;
 }
 
-/*virtual*/ bool WaveFormat::WriteToStream(ByteStream& outputStream, AudioData* audioData, std::string& error)
+/*virtual*/ bool WaveFileFormat::WriteToStream(ByteStream& outputStream, AudioData* audioData, std::string& error)
 {
 	if (4 != outputStream.WriteBytesToStream((const uint8_t*)"RIFF", 4))
 	{

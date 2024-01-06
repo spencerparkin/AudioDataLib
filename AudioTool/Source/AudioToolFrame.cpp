@@ -1,6 +1,6 @@
 #include "AudioToolFrame.h"
 #include "AudioTrackControl.h"
-#include "AudioFormat.h"
+#include "AudioFileFormat.h"
 #include "ByteStream.h"
 #include "AudioToolApp.h"
 #include <wx/aboutdlg.h>
@@ -112,8 +112,8 @@ void AudioToolFrame::OnImportAudio(wxCommandEvent& event)
 
 	for(const wxString& filePath : filePathArray)
 	{
-		AudioFormat* audioFormat = AudioFormat::CreateForFile((const char*)filePath.c_str());
-		if (!audioFormat)
+		AudioFileFormat* audioFileFormat = AudioFileFormat::CreateForFile((const char*)filePath.c_str());
+		if (!audioFileFormat)
 		{
 			errorArray.push_back(wxString::Format("Support loading files of type (%s) does not yet exist.", filePath.c_str()));
 			continue;
@@ -123,7 +123,7 @@ void AudioToolFrame::OnImportAudio(wxCommandEvent& event)
 
 		AudioData* audioData = nullptr;
 		std::string error;
-		if (!audioFormat->ReadFromStream(inputStream, audioData, error))
+		if (!audioFileFormat->ReadFromStream(inputStream, audioData, error))
 			errorArray.push_back(wxString::Format("Failed to load file %s: %s", filePath.c_str(), error.c_str()));
 		else
 		{
@@ -140,7 +140,7 @@ void AudioToolFrame::OnImportAudio(wxCommandEvent& event)
 			this->trackSizer->Add(trackControl, 1, wxALL | wxGROW, 0);
 		}
 
-		AudioFormat::Destroy(audioFormat);
+		AudioFileFormat::Destroy(audioFileFormat);
 	}
 
 	if (errorArray.size() > 0)

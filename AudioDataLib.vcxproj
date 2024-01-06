@@ -21,21 +21,21 @@
   <ItemGroup>
     <ClInclude Include="Source\AudioCommon.h" />
     <ClInclude Include="Source\AudioData.h" />
-    <ClInclude Include="Source\AudioFormat.h" />
+    <ClInclude Include="Source\AudioFileFormat.h" />
     <ClInclude Include="Source\AudioSink.h" />
     <ClInclude Include="Source\ByteStream.h" />
     <ClInclude Include="Source\Mutex.h" />
     <ClInclude Include="Source\WaveForm.h" />
-    <ClInclude Include="Source\WaveFormat.h" />
+    <ClInclude Include="Source\WaveFileFormat.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\AudioData.cpp" />
-    <ClCompile Include="Source\AudioFormat.cpp" />
+    <ClCompile Include="Source\AudioFileFormat.cpp" />
     <ClCompile Include="Source\AudioSink.cpp" />
     <ClCompile Include="Source\ByteStream.cpp" />
     <ClCompile Include="Source\Mutex.cpp" />
     <ClCompile Include="Source\WaveForm.cpp" />
-    <ClCompile Include="Source\WaveFormat.cpp" />
+    <ClCompile Include="Source\WaveFileFormat.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

@@ -1,4 +1,4 @@
-#include "WaveFormat.h"
+#include "WaveFileFormat.h"
 #include "ByteStream.h"
 #include "AudioSink.h"
 #include "WaveForm.h"
@@ -23,7 +23,7 @@ bool TestAudioSink()
 	bool success = false;
 	std::string error;
 
-	WaveFormat waveFormat;
+	WaveFileFormat waveFileFormat;
 
 	AudioData* audioDataA = nullptr;
 	AudioData* audioDataB = nullptr;
@@ -34,10 +34,10 @@ bool TestAudioSink()
 
 	do
 	{
-		if (!waveFormat.ReadFromStream(inputStreamA, audioDataA, error))
+		if (!waveFileFormat.ReadFromStream(inputStreamA, audioDataA, error))
 			break;
 
-		if (!waveFormat.ReadFromStream(inputStreamB, audioDataB, error))
+		if (!waveFileFormat.ReadFromStream(inputStreamB, audioDataB, error))
 			break;
 
 		AudioSink audioSink(true);
@@ -70,7 +70,7 @@ bool TestAudioSink()
 		generatedAudioData.SetAudioBufferSize(mixedAudioStream.GetSize());
 		mixedAudioStream.ReadBytesFromStream(generatedAudioData.GetAudioBuffer(), generatedAudioData.GetAudioBufferSize());
 
-		if (!waveFormat.WriteToStream(outputStream, &generatedAudioData, error))
+		if (!waveFileFormat.WriteToStream(outputStream, &generatedAudioData, error))
 			break;
 
 		success = true;
@@ -88,13 +88,13 @@ bool TestAudioSink()
 
 bool TestWaveForm()
 {
-	WaveFormat waveFormat;
+	WaveFileFormat waveFileFormat;
 
 	AudioData* audioDataIn = nullptr;
 	FileInputStream inputStream("TestData/TestAudio1.wav");
 
 	std::string error;
-	bool loadedWave = waveFormat.ReadFromStream(inputStream, audioDataIn, error);
+	bool loadedWave = waveFileFormat.ReadFromStream(inputStream, audioDataIn, error);
 	assert(loadedWave);
 
 	WaveForm waveForm;
@@ -107,7 +107,7 @@ bool TestWaveForm()
 	waveForm.ConvertToAudioBuffer(audioDataOut->GetFormat(), audioDataOut->GetAudioBuffer(), audioDataOut->GetAudioBufferSize(), 0, error);
 
 	FileOutputStream outputStream("TestData/TestAudio1_copy.wav");
-	bool savedWave = waveFormat.WriteToStream(outputStream, audioDataOut, error);
+	bool savedWave = waveFileFormat.WriteToStream(outputStream, audioDataOut, error);
 	assert(savedWave);
 
 	delete audioDataIn;
@@ -118,13 +118,13 @@ bool TestWaveForm()
 
 bool TestWaveFormat()
 {
-	WaveFormat waveFormat;
+	WaveFileFormat waveFileFormat;
 
 	AudioData* audioDataIn = nullptr;
 	FileInputStream inputStream("TestData/TestAudio1.wav");
 
 	std::string error;
-	bool loadedWave = waveFormat.ReadFromStream(inputStream, audioDataIn, error);
+	bool loadedWave = waveFileFormat.ReadFromStream(inputStream, audioDataIn, error);
 	assert(loadedWave);
 
 	AudioData* audioDataOut = new AudioData();
@@ -133,7 +133,7 @@ bool TestWaveFormat()
 	audioDataOut->GetFormat() = audioDataIn->GetFormat();
 
 	FileOutputStream outputStream("TestData/TestAudio1_copy.wav");
-	bool savedWave = waveFormat.WriteToStream(outputStream, audioDataOut, error);
+	bool savedWave = waveFileFormat.WriteToStream(outputStream, audioDataOut, error);
 	assert(savedWave);
 
 	delete audioDataIn;
@@ -144,7 +144,7 @@ bool TestWaveFormat()
 
 bool TestWaveFormAdd()
 {
-	WaveFormat waveFormat;
+	WaveFileFormat waveFileFormat;
 
 	AudioData* audioDataA = nullptr;
 	AudioData* audioDataB = nullptr;
@@ -154,8 +154,8 @@ bool TestWaveFormAdd()
 
 	std::string error;
 
-	waveFormat.ReadFromStream(inputStreamA, audioDataA, error);
-	waveFormat.ReadFromStream(inputStreamB, audioDataB, error);
+	waveFileFormat.ReadFromStream(inputStreamA, audioDataA, error);
+	waveFileFormat.ReadFromStream(inputStreamB, audioDataB, error);
 
 	WaveForm waveFormA, waveFormB;
 
@@ -173,7 +173,7 @@ bool TestWaveFormAdd()
 	waveFormSum.ConvertToAudioBuffer(audioDataOut->GetFormat(), audioDataOut->GetAudioBuffer(), audioDataOut->GetAudioBufferSize(), 0, error);
 
 	FileOutputStream outputStream("TestData/TestAudioMixed.wav");
-	waveFormat.WriteToStream(outputStream, audioDataOut, error);
+	waveFileFormat.WriteToStream(outputStream, audioDataOut, error);
 
 	delete audioDataA;
 	delete audioDataB;
@@ -184,13 +184,13 @@ bool TestWaveFormAdd()
 
 bool TestAudioConvertFormat()
 {
-	WaveFormat waveFormat;
+	WaveFileFormat waveFileFormat;
 
 	AudioData* audioDataIn = nullptr;
 	FileInputStream inputStream("TestData/TestAudio1.wav");
 
 	std::string error;
-	bool loadedWave = waveFormat.ReadFromStream(inputStream, audioDataIn, error);
+	bool loadedWave = waveFileFormat.ReadFromStream(inputStream, audioDataIn, error);
 	assert(loadedWave);
 
 	double clipLengthSeconds = audioDataIn->GetTimeSeconds();
@@ -212,7 +212,7 @@ bool TestAudioConvertFormat()
 	audioSink.GetAudioOutput()->ReadBytesFromStream(audioDataOut->GetAudioBuffer(), audioDataOut->GetAudioBufferSize());
 
 	FileOutputStream outputStream("TestData/TestAudio1_converted.wav");
-	bool savedWave = waveFormat.WriteToStream(outputStream, audioDataOut, error);
+	bool savedWave = waveFileFormat.WriteToStream(outputStream, audioDataOut, error);
 	assert(savedWave);
 
 	delete audioDataIn;
