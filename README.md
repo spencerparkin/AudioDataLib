@@ -48,7 +48,7 @@ waveFormat.ReadFromStream(inputStream, audioData, error);
 double clipLengthSeconds = audioData->GetTimeSeconds();
 printf("Clip length is %f seconds.\n", clipLengthSeconds);
 
-delete audioData;
+AudioData::Destroy(audioData);
 ```
 
 ### Saving a WAV File
@@ -97,7 +97,7 @@ audioSink.GetAudioOutput()->ReadBytesFromStream(audioDataOut->GetAudioBuffer(), 
 // Do something snazzy with the converted audio data here.
 
 // Don't forget to clean-up the memory.
-delete audioDataOut;
+AudioData::Destroy(audioDataOut);
 ```
 
 ### Mixing Audio
