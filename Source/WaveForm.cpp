@@ -19,6 +19,20 @@ void WaveForm::Clear()
 	this->sampleArray->clear();
 }
 
+void WaveForm::MakeSilence(double samplesPerSecond, double totalSeconds)
+{
+	this->Clear();
+
+	uint64_t numSamples = uint64_t(samplesPerSecond * totalSeconds);
+	for (uint64_t i = 0; i < numSamples; i++)
+	{
+		Sample sample;
+		sample.amplitude = 0.0;
+		sample.timeSeconds = (double(i) / double(numSamples - 1)) * totalSeconds;
+		this->sampleArray->push_back(sample);
+	}
+}
+
 uint64_t WaveForm::GetSizeBytes(const AudioData::Format& format, bool allChannels) const
 {
 	if (this->sampleArray->size() == 0)

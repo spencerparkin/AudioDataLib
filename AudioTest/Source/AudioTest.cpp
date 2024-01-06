@@ -12,8 +12,8 @@ int main(int argc, char** argv)
 	//TestWaveFormat();
 	//TestWaveForm();
 	//TestWaveFormAdd();
-	TestAudioSink();
-	//TestAudioConvertFormat();
+	//TestAudioSink();
+	TestAudioConvertFormat();
 
 	return 0;
 }
@@ -198,8 +198,9 @@ bool TestAudioConvertFormat()
 	AudioData* audioDataOut = new AudioData();
 	AudioData::Format& format = audioDataOut->GetFormat();
 	format.bitsPerSample = 32;
-	format.numChannels = 1;
-	format.framesPerSecond = 96000;
+	format.numChannels = 2;
+	format.framesPerSecond = 48000;
+	format.sampleType = AudioData::Format::FLOAT;
 
 	uint64_t numBytes = format.BytesFromSeconds(clipLengthSeconds);
 	audioDataOut->SetAudioBufferSize(numBytes);
