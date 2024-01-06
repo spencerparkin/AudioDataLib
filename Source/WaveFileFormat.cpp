@@ -142,9 +142,9 @@ bool WaveFileFormat::ProcessChunk(ByteStream& inputStream, AudioData* audioData,
 			{
 				format.sampleType = AudioData::Format::FLOAT;
 
-				if (format.bitsPerSample != 32)
+				if (format.bitsPerSample != 32 && format.bitsPerSample != 64)
 				{
-					error = "Don't yet know how to support floating-point samples if they're not 32-bit.";
+					error = "Don't yet know how to support floating-point samples if they're not 32-bit or 64-bit.";
 					return false;
 				}
 

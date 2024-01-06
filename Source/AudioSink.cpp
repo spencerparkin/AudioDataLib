@@ -124,9 +124,22 @@ void AudioSink::GenerateAudio(double desiredSecondsAvailable, double minSecondsA
 			}
 			else if (this->audioStreamOut->GetFormat().sampleType == AudioData::Format::FLOAT)
 			{
-				assert(this->audioStreamOut->GetFormat().bitsPerSample == 32);
-				float netSample = this->CalcNetSample<float>();
-				::memcpy(sampleBuffer, (const void*)&netSample, sizeof(float));
+				switch (this->audioStreamOut->GetFormat().bitsPerSample)
+				{
+					case 32:
+					{
+						float netSample = this->CalcNetSample<float>();
+						::memcpy(sampleBuffer, (const void*)&netSample, sizeof(float));
+						break;
+					}
+					case 64:
+					{
+						double netSample = this->CalcNetSample<double>();
+						::memcpy(sampleBuffer, (const void*)&netSample, sizeof(double));
+						break;
+					}
+				}
+				
 			}
 		}
 	}

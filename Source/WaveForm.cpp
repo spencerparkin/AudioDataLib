@@ -77,25 +77,46 @@ bool WaveForm::ConvertFromAudioBuffer(const AudioData::Format& format, const uin
 			{
 				case 8:
 				{
-					sample.amplitude = this->CopySampleFromBuffer<int8_t>(sampleBuf);
+					sample.amplitude = this->CopyIntSampleFromBuffer<int8_t>(sampleBuf);
 					break;
 				}
 				case 16:
 				{
-					sample.amplitude = this->CopySampleFromBuffer<int16_t>(sampleBuf);
+					sample.amplitude = this->CopyIntSampleFromBuffer<int16_t>(sampleBuf);
 					break;
 				}
 				case 32:
 				{
-					sample.amplitude = this->CopySampleFromBuffer<int32_t>(sampleBuf);
+					sample.amplitude = this->CopyIntSampleFromBuffer<int32_t>(sampleBuf);
+					break;
+				}
+				default:
+				{
+					error = "Bad bit-depth for integers.";
 					break;
 				}
 			}
 		}
 		else if (format.sampleType == AudioData::Format::FLOAT)
 		{
-			assert(format.bitsPerSample == 32);
-			sample.amplitude = this->CopyFloatSampleFromBuffer(sampleBuf);
+			switch (format.bitsPerSample)
+			{
+				case 32:
+				{
+					sample.amplitude = this->CopyFloatSampleFromBuffer<float>(sampleBuf);
+					break;
+				}
+				case 64:
+				{
+					sample.amplitude = this->CopyFloatSampleFromBuffer<double>(sampleBuf);
+					break;
+				}
+				default:
+				{
+					error = "Bad bit-depth for floats.";
+					break;
+				}
+			}
 		}
 		else
 		{
@@ -138,25 +159,46 @@ bool WaveForm::ConvertToAudioBuffer(const AudioData::Format& format, uint8_t* au
 			{
 				case 8:
 				{
-					this->CopySampleToBuffer<int8_t>(sampleBuf, amplitude);
+					this->CopyIntSampleToBuffer<int8_t>(sampleBuf, amplitude);
 					break;
 				}
 				case 16:
 				{
-					this->CopySampleToBuffer<int16_t>(sampleBuf, amplitude);
+					this->CopyIntSampleToBuffer<int16_t>(sampleBuf, amplitude);
 					break;
 				}
 				case 32:
 				{
-					this->CopySampleToBuffer<int32_t>(sampleBuf, amplitude);
+					this->CopyIntSampleToBuffer<int32_t>(sampleBuf, amplitude);
 					break;
+				}
+				default:
+				{
+					error = "Bad bit-depth for integers.";
+					return false;
 				}
 			}
 		}
 		else if (format.sampleType == AudioData::Format::FLOAT)
 		{
-			assert(format.bitsPerSample == 32);
-			this->CopyFloatSampleToBuffer(sampleBuf, amplitude);
+			switch (format.bitsPerSample)
+			{
+				case 32:
+				{
+					this->CopyFloatSampleToBuffer<float>(sampleBuf, amplitude);
+					break;
+				}
+				case 64:
+				{
+					this->CopyFloatSampleToBuffer<double>(sampleBuf, amplitude);
+					break;
+				}
+				default:
+				{
+					error = "Bad bit-depth for floats.";
+					return false;
+				}
+			}
 		}
 		else
 		{

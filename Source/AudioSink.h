@@ -72,16 +72,23 @@ namespace AudioDataLib
 					netSampleWide += double(sampleNarrow);
 			}
 
-			constexpr double minSample = std::numeric_limits<float>::min();
-			constexpr double maxSample = std::numeric_limits<float>::max();
-
-			if (netSampleWide > maxSample)
-				netSampleWide = maxSample;
-			if (netSampleWide < minSample)
-				netSampleWide = minSample;
-
+			netSampleWide = ADL_CLAMP(netSampleWide, -1.0, 1.0);
 			float netSampleNarrow = float(netSampleWide);
 			return netSampleNarrow;
+		}
+
+		// TODO: Byte swapping?
+		template<>
+		double CalcNetSample()
+		{
+			double netSample = 0.0;
+			double sample = 0.0;
+			for(AudioStream* audioStreamIn : *this->audioStreamInArray)
+				if (audioStreamIn->ReadType<double>(&sample))
+					netSample += sample;
+
+			netSample = ADL_CLAMP(netSample, -1.0, 1.0);
+			return netSample;
 		}
 
 		std::vector<AudioStream*>* audioStreamInArray;
