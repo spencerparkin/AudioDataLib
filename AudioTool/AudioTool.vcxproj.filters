@@ -16,6 +16,9 @@
     <ClInclude Include="Source\AudioTrackControl.h">
       <Filter>Source</Filter>
     </ClInclude>
+    <ClInclude Include="Source\TrackData.h">
+      <Filter>Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\AudioToolApp.cpp">
@@ -25,6 +28,9 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="Source\AudioTrackControl.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\TrackData.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>

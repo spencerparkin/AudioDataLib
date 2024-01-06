@@ -1,6 +1,8 @@
 #pragma once
 
 #include <wx/control.h>
+#include <memory>
+#include "TrackData.h"
 
 #define ATC_IDEAL_CONTROL_HEIGHT		100
 
@@ -34,6 +36,12 @@ public:
 		const wxValidator& validator = wxDefaultValidator,
 		const wxString& name = "AudioTrackControlWidget");
 
+	void SetTrackName(const wxString& trackName) { this->trackName = trackName; }
+	const wxString& GetTrackName() const { return this->trackName; }
+
+	TrackData* GetTrackData();
+	const TrackData* GetTrackData() const;
+
 protected:
 
 	void Init();
@@ -45,6 +53,8 @@ protected:
 	void OnSize(wxSizeEvent& event);
 
 private:
+	wxString trackName;
+
 	wxDECLARE_DYNAMIC_CLASS(AudioTrackControl);
 	wxDECLARE_EVENT_TABLE();
 };

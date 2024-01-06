@@ -35,6 +35,11 @@ namespace AudioDataLib
 		AudioData();
 		virtual ~AudioData();
 
+		// The main purpose of these is to make sure that memory is created or freed in the proper heap.
+		// They can also be useful when writing template functions.
+		static AudioData* Create();
+		static void Destroy(AudioData* audioData);
+
 		Format& GetFormat() { return this->format; }
 		const Format& GetFormat() const { return this->format; }
 		

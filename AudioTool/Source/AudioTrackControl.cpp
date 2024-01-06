@@ -1,4 +1,6 @@
 #include "AudioTrackControl.h"
+#include "AudioToolApp.h"
+#include "TrackData.h"
 #include <wx/dcclient.h>
 
 wxIMPLEMENT_DYNAMIC_CLASS(AudioTrackControl, wxControl);
@@ -69,6 +71,12 @@ void AudioTrackControl::Init()
 void AudioTrackControl::OnPaint(wxPaintEvent& event)
 {
 	wxPaintDC paintDC(this);
+
+	const TrackData* trackData = wxGetApp().FindTrackData(this->trackName);
+	if (trackData)
+	{
+		//...
+	}
 
 	wxSize clientAreaSize = paintDC.GetSize();
 

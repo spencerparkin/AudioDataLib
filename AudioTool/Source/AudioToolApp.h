@@ -1,6 +1,9 @@
 #pragma once
 
 #include <wx/app.h>
+#include <vector>
+#include <memory>
+#include "TrackData.h"
 
 class AudioToolFrame;
 
@@ -14,8 +17,19 @@ public:
 	virtual int OnExit(void) override;
 
 	AudioToolFrame* GetFrame() { return this->frame; }
+	int GetNumTracks() { return this->trackDataArray.size(); }
+	TrackData* GetTrackData(int i);
+	void AddTrackData(TrackData* trackData);
+	void RemoveTrackData(int i);
+	TrackData* FindTrackData(const wxString& name);
+	void ClearAllTrackData();
+
+	void ShowErrorDialog(const wxArrayString& errorArray);
 
 private:
+
+	std::vector<TrackData*> trackDataArray;
+
 	AudioToolFrame* frame;
 };
 

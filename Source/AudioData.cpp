@@ -16,6 +16,16 @@ AudioData::AudioData()
 	this->SetAudioBufferSize(0);
 }
 
+/*static*/ AudioData* AudioData::Create()
+{
+	return new AudioData();
+}
+
+/*static*/ void AudioData::Destroy(AudioData* audioData)
+{
+	delete audioData;
+}
+
 void AudioData::SetAudioBufferSize(uint64_t audioBufferSize)
 {
 	delete[] this->audioBuffer;
