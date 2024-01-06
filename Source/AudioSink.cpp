@@ -61,10 +61,16 @@ void AudioSink::GenerateAudio(double desiredSecondsAvailable, double minSecondsA
 	// In the trivial case, we need only write a bunch of silence to the stream.
 	if (this->audioStreamInArray->size() == 0)
 	{
-		uint8_t silenceByte = 0;
-		while (numBytesNeeded-- > 0)
-			this->audioStreamOut->WriteBytesToStream(&silenceByte, 1);
-		
+        // Note that rather than write one byte of silence at a time, we want to
+        // write all the silence at once to avoid thrashing a potential mutex
+        // lock occurring on the stream if it is a thread-safe stream.
+        if(numBytesNeeded > 0)
+        {
+            uint8_t* silenceBuffer = new uint8_t[numBytesNeeded];
+            ::memset(silenceBuffer, 0, numBytesNeeded);
+            this->audioStreamOut->WriteBytesToStream(silenceBuffer, numBytesNeeded);
+            delete[] silenceBuffer;
+        }
 		return;
 	}
 
