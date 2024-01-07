@@ -1,6 +1,7 @@
 #pragma once
 
 #include "AudioFileFormat.h"
+#include "ChunkParser.h"
 
 namespace AudioDataLib
 {
@@ -20,6 +21,13 @@ namespace AudioDataLib
 		virtual bool WriteToStream(ByteStream& outputStream, AudioData* audioData, std::string& error) override;
 
 	protected:
-		bool ProcessChunk(ByteStream& inputStream, AudioData* audioData, std::string& error);
+		class WaveChunkParser : public ChunkParser
+		{
+		public:
+			WaveChunkParser();
+			virtual ~WaveChunkParser();
+
+			virtual bool ParseChunkData(BufferStream& inputStream, Chunk* chunk, std::string& error) override;
+		};
 	};
 }

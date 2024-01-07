@@ -14,189 +14,104 @@ WaveFileFormat::WaveFileFormat()
 
 /*virtual*/ bool WaveFileFormat::ReadFromStream(ByteStream& inputStream, AudioData*& audioData, std::string& error)
 {
-	char riffStr[5];
-	if (4 != inputStream.ReadBytesFromStream((uint8_t*)riffStr, 4))
+	WaveChunkParser parser;
+	if (!parser.ParseStream(inputStream, error))
+		return false;
+
+	const WaveChunkParser::Chunk* fmtChunk = parser.FindChunk("fmt ");
+	if (!fmtChunk)
 	{
-		error = "Failed to read RIFF.";
+		error = "Failed to find format chunk.";
 		return false;
 	}
 
-	riffStr[4] = '\0';
-	if (0 != strcmp(riffStr, "RIFF"))
+	const WaveChunkParser::Chunk* dataChunk = parser.FindChunk("data");
+	if (!dataChunk)
 	{
-		error = "RIFF not found as initial 4 bytes of file.";
+		error = "Failed to find data chunk.";
 		return false;
 	}
 
-	uint32_t fileSize = 0;
-	if (4 != inputStream.ReadBytesFromStream((uint8_t*)&fileSize, 4))
+	BufferStream formatStream(fmtChunk->GetBuffer(), fmtChunk->GetBufferSize());
+
+	uint16_t type = 0;
+	if (2 != formatStream.ReadBytesFromStream((uint8_t*)&type, 2))
 	{
-		error = "Failed to read file size.";
+		error = "Failed to read format type.";
 		return false;
 	}
 
-	char waveStr[5];
-	if (4 != inputStream.ReadBytesFromStream((uint8_t*)waveStr, 4))
+	uint16_t numChannels = 0;
+	if (2 != formatStream.ReadBytesFromStream((uint8_t*)&numChannels, 2))
 	{
-		error = "Failed to read WAVE.";
+		error = "Failed to read number of channels.";
 		return false;
 	}
 
-	waveStr[4] = '\0';
-	if (0 != strcmp(waveStr, "WAVE"))
+	uint32_t sampleRateSamplesPerSecondPerChannel = 0;
+	if (4 != formatStream.ReadBytesFromStream((uint8_t*)&sampleRateSamplesPerSecondPerChannel, 4))
 	{
-		error = "WAVE string not found in file.";
+		error = "Failed to read sample rate.";
+		return false;
+	}
+
+	uint32_t redundantData = 0;
+	if (4 != formatStream.ReadBytesFromStream((uint8_t*)&redundantData, 4))
+	{
+		error = "Failed to read redundant data.";
+		return false;
+	}
+
+	uint16_t moreRedundantData = 0;
+	if (2 != formatStream.ReadBytesFromStream((uint8_t*)&moreRedundantData, 2))
+	{
+		error = "Failed to read more redundant data.";
+		return false;
+	}
+
+	uint16_t bitsPerSample = 0;
+	if (2 != formatStream.ReadBytesFromStream((uint8_t*)&bitsPerSample, 2))
+	{
+		error = "Failed to read bits per sample.";
 		return false;
 	}
 
 	audioData = new AudioData();
+	AudioData::Format& format = audioData->GetFormat();
+	format.numChannels = numChannels;
+	format.framesPerSecond = sampleRateSamplesPerSecondPerChannel;
+	format.bitsPerSample = bitsPerSample;
 
-	while (inputStream.CanRead())
+	switch (type)
 	{
-		if (!this->ProcessChunk(inputStream, audioData, error))
+		case SampleFormat::PCM:
 		{
-			delete audioData;
-			audioData = nullptr;
-			return false;
+			format.sampleType = AudioData::Format::SIGNED_INTEGER;
+			break;
 		}
-	}
-
-	return true;
-}
-
-bool WaveFileFormat::ProcessChunk(ByteStream& inputStream, AudioData* audioData, std::string& error)
-{
-	char chunkIdStr[5];
-	if (4 != inputStream.ReadBytesFromStream((uint8_t*)chunkIdStr, 4))
-	{
-		error = "Failed to read chunk ID string.";
-		return false;
-	}
-
-	chunkIdStr[4] = '\0';
-
-	uint32_t chunkDataSize = 0;
-	if (4 != inputStream.ReadBytesFromStream((uint8_t*)&chunkDataSize, 4))
-	{
-		error = "Failed to read chunk data size.";
-		return false;
-	}
-
-	if (0 == strcmp(chunkIdStr, "fmt "))
-	{
-		uint16_t type = 0;
-		if (2 != inputStream.ReadBytesFromStream((uint8_t*)&type, 2))
+		case SampleFormat::IEEE_FLOAT:
 		{
-			error = "Failed to read format type.";
-			return false;
-		}
+			format.sampleType = AudioData::Format::FLOAT;
 
-		uint16_t numChannels = 0;
-		if (2 != inputStream.ReadBytesFromStream((uint8_t*)&numChannels, 2))
-		{
-			error = "Failed to read number of channels.";
-			return false;
-		}
-
-		uint32_t sampleRateSamplesPerSecondPerChannel = 0;
-		if (4 != inputStream.ReadBytesFromStream((uint8_t*)&sampleRateSamplesPerSecondPerChannel, 4))
-		{
-			error = "Failed to read sample rate.";
-			return false;
-		}
-
-		uint32_t redundantData = 0;
-		if (4 != inputStream.ReadBytesFromStream((uint8_t*)&redundantData, 4))
-		{
-			error = "Failed to read redundant data.";
-			return false;
-		}
-
-		uint16_t moreRedundantData = 0;
-		if (2 != inputStream.ReadBytesFromStream((uint8_t*)&moreRedundantData, 2))
-		{
-			error = "Failed to read more redundant data.";
-			return false;
-		}
-
-		uint16_t bitsPerSample = 0;
-		if (2 != inputStream.ReadBytesFromStream((uint8_t*)&bitsPerSample, 2))
-		{
-			error = "Failed to read bits per sample.";
-			return false;
-		}
-
-		AudioData::Format& format = audioData->GetFormat();
-		format.numChannels = numChannels;
-		format.framesPerSecond = sampleRateSamplesPerSecondPerChannel;
-		format.bitsPerSample = bitsPerSample;
-
-		switch (type)
-		{
-			case SampleFormat::PCM:
+			if (format.bitsPerSample != 32 && format.bitsPerSample != 64)
 			{
-				format.sampleType = AudioData::Format::SIGNED_INTEGER;
-				break;
-			}
-			case SampleFormat::IEEE_FLOAT:
-			{
-				format.sampleType = AudioData::Format::FLOAT;
-
-				if (format.bitsPerSample != 32 && format.bitsPerSample != 64)
-				{
-					error = "Don't yet know how to support floating-point samples if they're not 32-bit or 64-bit.";
-					return false;
-				}
-
-				break;
-			}
-			default:
-			{
-				char errorBuf[128];
-				sprintf(errorBuf, "Format type %d not supported.", type);
-				error = errorBuf;
-				return false;
-			}
-		}
-
-		chunkDataSize -= 16;
-		while (chunkDataSize > 0)
-		{
-			uint8_t byte = 0;
-			if (1 != inputStream.ReadBytesFromStream(&byte, 1))
-			{
-				error = "Failed to read pad bytes from format chunk.";
+				error = "Don't yet know how to support floating-point samples if they're not 32-bit or 64-bit.";
 				return false;
 			}
 
-			chunkDataSize--;
+			break;
 		}
-	}
-	else if (0 == strcmp(chunkIdStr, "data"))
-	{
-		audioData->SetAudioBufferSize(chunkDataSize);
-		uint64_t numBytesRead = inputStream.ReadBytesFromStream(audioData->GetAudioBuffer(), chunkDataSize);
-		if (chunkDataSize != numBytesRead)
+		default:
 		{
-			error = "Failed to read wave data buffer from data chunk.";
+			char errorBuf[128];
+			sprintf(errorBuf, "Format type %d not supported.", type);
+			error = errorBuf;
 			return false;
 		}
 	}
-	else
-	{
-		// We don't recognize the chunk.  Just try to skip it.
-		while (chunkDataSize > 0)
-		{
-			uint8_t byte = 0;
-			if (1 != inputStream.ReadBytesFromStream(&byte, 1))
-			{
-				error = "Failed to read byte from stream in unknown chunk.";
-				return false;
-			}
 
-			chunkDataSize--;
-		}
-	}
+	audioData->SetAudioBufferSize(dataChunk->GetBufferSize());
+	::memcpy(audioData->GetAudioBuffer(), dataChunk->GetBuffer(), dataChunk->GetBufferSize());
 
 	return true;
 }
@@ -315,6 +230,49 @@ bool WaveFileFormat::ProcessChunk(ByteStream& inputStream, AudioData* audioData,
 	{
 		error = "Could not write audio buffer.";
 		return false;
+	}
+
+	return true;
+}
+
+//------------------------------- WaveFileFormat::WaveChunkParser -------------------------------
+
+WaveFileFormat::WaveChunkParser::WaveChunkParser()
+{
+}
+
+/*virtual*/ WaveFileFormat::WaveChunkParser::~WaveChunkParser()
+{
+}
+
+/*virtual*/ bool WaveFileFormat::WaveChunkParser::ParseChunkData(BufferStream& inputStream, Chunk* chunk, std::string& error)
+{
+	if (chunk->GetName() == "RIFF")
+	{
+		char formType[5];
+		if (4 != inputStream.ReadBytesFromStream((uint8_t*)formType, 4))
+		{
+			error = "Could not read form type of RIFF.";
+			return false;
+		}
+
+		formType[4] = '\0';
+		if (0 != strcmp(formType, "WAVE"))
+		{
+			error = "RIFF file does not appears to be a WAVE file.";
+			return false;
+		}
+
+		if (!chunk->ParseSubChunks(inputStream, this, error))
+			return false;
+	}
+	else
+	{
+		if (!inputStream.SetReadOffset(inputStream.GetReadOffset() + chunk->GetBufferSize()))
+		{
+			error = "Could not skip over chunk data.";
+			return false;
+		}
 	}
 
 	return true;
