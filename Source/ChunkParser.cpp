@@ -48,7 +48,8 @@ bool ChunkParser::ParseStream(ByteStream& inputStream, std::string& error)
 	BufferStream bufferStream(this->buffer, this->bufferSize);
 
 	this->rootChunk = new Chunk();
-	if (!this->rootChunk->ParseStream(bufferStream, this, error))
+	*this->rootChunk->name = "root";
+	if (!this->rootChunk->ParseSubChunks(bufferStream, this, error))
 		return false;
 
 	return true;
