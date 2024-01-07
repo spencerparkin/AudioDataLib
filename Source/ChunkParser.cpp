@@ -134,8 +134,12 @@ bool ChunkParser::Chunk::ParseStream(BufferStream& inputStream, ChunkParser* chu
 
 	this->buffer = inputStream.GetBuffer() + inputStream.GetReadOffset();
 
-	if (!chunkParser->ParseChunkData(inputStream, this, error))
+	BufferStream subInputStream(this->buffer, this->bufferSize);
+
+	if (!chunkParser->ParseChunkData(subInputStream, this, error))
 		return false;
+
+	inputStream.SetReadOffset(inputStream.GetReadOffset() + this->bufferSize);
 
 	return true;
 }
