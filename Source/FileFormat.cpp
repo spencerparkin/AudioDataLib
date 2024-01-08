@@ -14,10 +14,10 @@ FileFormat::FileFormat()
 
 /*static*/ FileFormat* FileFormat::CreateForFile(const std::string& filePath)
 {
-	if (filePath.find(".wav", 0) > 0 || filePath.find(".WAV", 0) > 0)
+	if (filePath.find(".wav") != std::string::npos || filePath.find(".WAV") != std::string::npos)
 		return new WaveFileFormat();
 
-	if (filePath.find(".midi", 0) > 0 || filePath.find(".MIDI", 0) > 0)
+	if (filePath.find(".mid") != std::string::npos || filePath.find(".MID") != std::string::npos)
 		return new MidiFileFormat();
 
 	return nullptr;
