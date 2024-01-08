@@ -118,12 +118,6 @@ bool ChunkParser::Chunk::ParseStream(BufferStream& inputStream, ChunkParser* chu
 	}
 
 	nameBuf[4] = '\0';
-	if (chunkParser->rootChunk == this && 0 != strcmp(nameBuf, "RIFF"))
-	{
-		error = "Does not appear to be a RIFF file.";
-		return false;
-	}
-
 	*this->name = nameBuf;
 
 	if (4 != inputStream.ReadBytesFromStream((uint8_t*)&this->bufferSize, sizeof(uint32_t)))
