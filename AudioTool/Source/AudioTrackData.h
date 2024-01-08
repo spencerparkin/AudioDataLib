@@ -15,6 +15,12 @@ public:
 	void SetAudioData(AudioDataLib::AudioData* audioData);
 
 	virtual void Render(wxPaintDC& paintDC) const override;
+	virtual bool Process(std::string& error) override;
+	virtual bool BeginPlayback(std::string& error) override;
+	virtual bool StopPlayback(std::string& error) override;
+	virtual bool BeginRecording(std::string& error) override;
+	virtual bool StopRecording(std::string& error) override;
+	virtual State GetState() const override;
 
 private:
 	AudioDataLib::AudioData* audioData;

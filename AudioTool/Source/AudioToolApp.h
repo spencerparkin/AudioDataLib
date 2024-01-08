@@ -23,6 +23,8 @@ public:
 	void RemoveTrackData(int i);
 	TrackData* FindTrackData(const wxString& name);
 	void ClearAllTrackData();
+	void GetAllTracks(std::vector<TrackData*>& selectedTracksArray, bool thatAreSelected);
+	void ClearAllTrackSelection();
 
 	void ShowErrorDialog(const wxArrayString& errorArray);
 

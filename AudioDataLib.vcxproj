@@ -30,6 +30,7 @@
     <ClInclude Include="Source\MidiData.h" />
     <ClInclude Include="Source\MidiFileFormat.h" />
     <ClInclude Include="Source\MidiPlayer.h" />
+    <ClInclude Include="Source\MidiRecorder.h" />
     <ClInclude Include="Source\Mutex.h" />
     <ClInclude Include="Source\WaveForm.h" />
     <ClInclude Include="Source\WaveFileFormat.h" />
@@ -45,6 +46,7 @@
     <ClCompile Include="Source\MidiData.cpp" />
     <ClCompile Include="Source\MidiFileFormat.cpp" />
     <ClCompile Include="Source\MidiPlayer.cpp" />
+    <ClCompile Include="Source\MidiRecorder.cpp" />
     <ClCompile Include="Source\Mutex.cpp" />
     <ClCompile Include="Source\WaveForm.cpp" />
     <ClCompile Include="Source\WaveFileFormat.cpp" />

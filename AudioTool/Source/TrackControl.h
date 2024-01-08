@@ -51,6 +51,7 @@ protected:
 	
 	void OnPaint(wxPaintEvent& event);
 	void OnSize(wxSizeEvent& event);
+	void OnLeftMouseButtonDown(wxMouseEvent& event);
 
 private:
 	wxString trackName;

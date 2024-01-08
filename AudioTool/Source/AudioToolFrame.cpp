@@ -147,8 +147,7 @@ void AudioToolFrame::OnImportAudio(wxCommandEvent& event)
 		FileFormat::Destroy(fileFormat);
 	}
 
-	if (errorArray.size() > 0)
-		wxGetApp().ShowErrorDialog(errorArray);
+	wxGetApp().ShowErrorDialog(errorArray);
 
 	this->Layout();
 	this->Refresh();
@@ -165,10 +164,40 @@ void AudioToolFrame::OnSkip(wxCommandEvent& event)
 
 void AudioToolFrame::OnStop(wxCommandEvent& event)
 {
+	wxArrayString errorArray;
+
+	std::vector<TrackData*> trackDataArray;
+	wxGetApp().GetAllTracks(trackDataArray, false);
+	for (TrackData* trackData : trackDataArray)
+	{
+		if (trackData->GetState() == TrackData::State::PLAYING)
+		{
+			std::string error;
+			if (!trackData->StopPlayback(error))
+				errorArray.push_back(trackData->GetName() + ": " + error.c_str());
+		}
+	}
+
+	wxGetApp().ShowErrorDialog(errorArray);
 }
 
 void AudioToolFrame::OnPlay(wxCommandEvent& event)
 {
+	wxArrayString errorArray;
+
+	std::vector<TrackData*> trackDataArray;
+	wxGetApp().GetAllTracks(trackDataArray, true);
+	for (TrackData* trackData : trackDataArray)
+	{
+		if (trackData->GetState() == TrackData::State::HAPPY)
+		{
+			std::string error;
+			if (!trackData->BeginPlayback(error))
+				errorArray.push_back(trackData->GetName() + ": " + error.c_str());
+		}
+	}
+
+	wxGetApp().ShowErrorDialog(errorArray);
 }
 
 void AudioToolFrame::OnPause(wxCommandEvent& event)

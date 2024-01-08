@@ -59,7 +59,9 @@ namespace AudioDataLib
 
 		// Encoding/decoding of events seems like it's something that should only
 		// be part of the MidiFileFormat class, but we may need to encode an event
-		// before we send it down to the MIDI device on a MIDI port for synthesis.
+		// before we send it down to the MIDI device on a MIDI port for synthesis,
+		// and similarly, we also need to be able to decode a MIDI message that we
+		// receive from a MIDI port for storage.
 
 		class AUDIO_DATA_LIB_API Event
 		{

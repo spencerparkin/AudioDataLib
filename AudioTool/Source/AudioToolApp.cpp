@@ -69,11 +69,27 @@ TrackData* AudioToolApp::FindTrackData(const wxString& name)
 	return nullptr;
 }
 
+void AudioToolApp::GetAllTracks(std::vector<TrackData*>& selectedTracksArray, bool thatAreSelected)
+{
+	for (TrackData* trackData : this->trackDataArray)
+		if (!thatAreSelected || trackData->GetSelected())
+			selectedTracksArray.push_back(trackData);
+}
+
+void AudioToolApp::ClearAllTrackSelection()
+{
+	for (TrackData* trackData : this->trackDataArray)
+		trackData->SetSelected(false);
+}
+
 void AudioToolApp::ShowErrorDialog(const wxArrayString& errorArray)
 {
-	wxString errorMsg = wxString::Format("%d error encountered...\n\n", errorArray.size());
-	for (int i = 0; i < (signed)errorArray.size(); i++)
-		errorMsg += errorArray[i] + "\n";
+	if (errorArray.size() > 0)
+	{
+		wxString errorMsg = wxString::Format("%d error encountered...\n\n", errorArray.size());
+		for (int i = 0; i < (signed)errorArray.size(); i++)
+			errorMsg += errorArray[i] + "\n";
 
-	wxMessageBox(errorMsg, "Error!", wxICON_ERROR | wxOK, this->frame);
+		wxMessageBox(errorMsg, "Error!", wxICON_ERROR | wxOK, this->frame);
+	}
 }

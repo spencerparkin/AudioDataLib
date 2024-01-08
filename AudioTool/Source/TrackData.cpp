@@ -9,6 +9,8 @@ using namespace AudioDataLib;
 TrackData::TrackData()
 {
 	this->name = "unnamed";
+	this->timeSeconds = 0.0;
+	this->selected = false;
 }
 
 /*virtual*/ TrackData::~TrackData()

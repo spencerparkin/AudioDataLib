@@ -55,6 +55,9 @@
     <ClInclude Include="Source\ByteSwapper.h">
       <Filter>Source</Filter>
     </ClInclude>
+    <ClInclude Include="Source\MidiRecorder.h">
+      <Filter>Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\FileFormat.cpp">
@@ -94,6 +97,9 @@
       <Filter>Source\FileFormats</Filter>
     </ClCompile>
     <ClCompile Include="Source\ByteSwapper.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\MidiRecorder.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>

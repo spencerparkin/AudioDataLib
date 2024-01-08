@@ -8,6 +8,12 @@
     <Filter Include="Source\TrackDataTypes">
       <UniqueIdentifier>{2b44e614-b3b5-42f7-87e5-aec66d00f40a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ThirdParty">
+      <UniqueIdentifier>{56aee4f2-8ca1-47c4-b780-e0b4a9aa19e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\RtMidi">
+      <UniqueIdentifier>{4ad8c5ee-83ff-4c75-b9a7-2027c8d754df}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\AudioToolApp.h">
@@ -28,6 +34,9 @@
     <ClInclude Include="Source\MidiTrackData.h">
       <Filter>Source\TrackDataTypes</Filter>
     </ClInclude>
+    <ClInclude Include="ThirdParty\RtMidi\RtMidi.h">
+      <Filter>ThirdParty\RtMidi</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\AudioToolApp.cpp">
@@ -47,6 +56,9 @@
     </ClCompile>
     <ClCompile Include="Source\MidiTrackData.cpp">
       <Filter>Source\TrackDataTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\RtMidi\RtMidi.cpp">
+      <Filter>ThirdParty\RtMidi</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

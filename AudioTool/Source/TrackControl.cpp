@@ -47,6 +47,7 @@ void TrackControl::Init()
 {
 	this->Bind(wxEVT_PAINT, &TrackControl::OnPaint, this);
 	this->Bind(wxEVT_SIZE, &TrackControl::OnSize, this);
+	this->Bind(wxEVT_LEFT_DOWN, &TrackControl::OnLeftMouseButtonDown, this);
 
 	this->SetMaxClientSize(wxSize(-1, TC_IDEAL_CONTROL_HEIGHT));
 }
@@ -74,7 +75,11 @@ void TrackControl::OnPaint(wxPaintEvent& event)
 
 	const TrackData* trackData = this->GetTrackData();
 	if (trackData)
+	{
 		trackData->Render(paintDC);
+
+		// TODO: Render border or something if we're selected?
+	}
 
 	wxSize clientAreaSize = paintDC.GetSize();
 
@@ -91,6 +96,18 @@ void TrackControl::OnPaint(wxPaintEvent& event)
 void TrackControl::OnSize(wxSizeEvent& event)
 {
 	this->Refresh();
+}
+
+void TrackControl::OnLeftMouseButtonDown(wxMouseEvent& event)
+{
+	TrackData* trackData = this->GetTrackData();
+	if (trackData)
+	{
+		if (!event.ShiftDown())
+			wxGetApp().ClearAllTrackSelection();
+
+		trackData->SetSelected(true);
+	}
 }
 
 TrackData* TrackControl::GetTrackData()

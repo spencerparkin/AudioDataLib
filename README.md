@@ -1,8 +1,12 @@
 # AudioDataLib
 
-This is a C++ library that helps you work with audio data and audio files.  Presently, this includes WAV files and MIDI files.
-It does not provide access to audio hardware, but it can help you feed audio to, and consume audio from, an audio device using
-some other audio API, such as SDL or DirectSound.
+When working with audio libraries (e.g., DirectSound, Oboe, SDL, etc.) that sit between you and the hardware, what they *do*
+for you is provide a way to send or receive an audio stream to or from the hardware.  What they typically do *not do*
+is provide a way to load or save such audio data, convert it, mix it, or buffer it for real-time consumption.  *That*,
+however, is what this *this* library *does*.
+
+Written in C++, this library presently supports WAV and MIDI files.  For real-time playback, it can stream encoded
+wave-form data to an audio device, and it can send appropriately timed MIDI messages to a MIDI device on a port.
 
 ## Dependencies
 
@@ -209,6 +213,10 @@ found in practice is that a regular mutex seems to work just fine.  The mutex pr
 the library is only ever locked long enough to copy a buffer, and that's it.  That's as
 tight as I can make the lock/unlock pair.
 
+### Streaming MIDI message to a MIDI Device
+
+TODO: Write this.
+
 ## Plans
 
 I'd like to add support for more file formats and stream formats other than just PCM at some point.
@@ -216,3 +224,5 @@ Some synthasis support would be good to add.  Being able to add an echo, for exa
 interesting.  Support for some signal analysis using FFTs would be interesting too.
 This is all pie-in-the-ski right now as I'm sure the library in its current form is,
 admittedly, mediocre at best.
+
+I should at some point support the ability to capture MIDI data into a MIDI file.
