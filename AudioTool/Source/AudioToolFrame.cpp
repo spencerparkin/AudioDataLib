@@ -13,7 +13,7 @@
 
 using namespace AudioDataLib;
 
-AudioToolFrame::AudioToolFrame(const wxPoint& pos, const wxSize& size) : wxFrame(nullptr, wxID_ANY, "Audio Tool", pos, size)
+AudioToolFrame::AudioToolFrame(const wxPoint& pos, const wxSize& size) : wxFrame(nullptr, wxID_ANY, "Audio Tool", pos, size), timer(this, ID_Timer)
 {
 	wxMenu* fileMenu = new wxMenu();
 	fileMenu->Append(new wxMenuItem(fileMenu, ID_ImportAudio, "Import Audio", "Import audio from a file on disk."));
@@ -44,6 +44,7 @@ AudioToolFrame::AudioToolFrame(const wxPoint& pos, const wxSize& size) : wxFrame
 	this->Bind(wxEVT_MENU, &AudioToolFrame::OnRecord, this, ID_Record);
 	this->Bind(wxEVT_MENU, &AudioToolFrame::OnAbout, this, ID_About);
 	this->Bind(wxEVT_MENU, &AudioToolFrame::OnExit, this, ID_Exit);
+	this->Bind(wxEVT_TIMER, &AudioToolFrame::OnTimer, this, ID_Timer);
 
 	wxBitmap skipBackwardBitmap, skipForwardBitmap;
 	wxBitmap stopBitmap, playBitmap, pauseBitmap, recordBitmap;
@@ -68,10 +69,40 @@ AudioToolFrame::AudioToolFrame(const wxPoint& pos, const wxSize& size) : wxFrame
 	// TODO: Add the track sizer to a scrollable control at some point?
 	this->trackSizer = new wxBoxSizer(wxVERTICAL);
 	this->SetSizer(this->trackSizer);
+
+	this->inTimer = false;
+	this->timer.Start(0);
 }
 
 /*virtual*/ AudioToolFrame::~AudioToolFrame()
 {
+}
+
+void AudioToolFrame::OnTimer(wxTimerEvent& event)
+{
+	if (this->inTimer)
+		return;
+
+	this->inTimer = true;
+
+	wxArrayString errorArray;
+
+	std::vector<TrackData*> tracksArray;
+	wxGetApp().GetAllTracks(tracksArray, false);
+	for (TrackData* trackData : tracksArray)
+	{
+		std::string error;
+		if (!trackData->Process(error))
+			errorArray.push_back(error);
+	}
+
+	if (errorArray.size() > 0)
+	{
+		wxGetApp().ShowErrorDialog(errorArray);
+		this->timer.Stop();
+	}
+
+	this->inTimer = false;
 }
 
 void AudioToolFrame::OnClearAll(wxCommandEvent& event)

@@ -137,6 +137,9 @@ MidiTrackData::MidiPlayer::MidiPlayer()
 			// TODO: Maybe if there is more than one port, let the user pick which one???
 			this->midiOut->openPort(0);
 		}
+
+		if (!AudioDataLib::MidiPlayer::BeginPlayback(error))
+			success = false;
 	}
 	catch (RtMidiError& midiError)
 	{
@@ -163,6 +166,9 @@ MidiTrackData::MidiPlayer::MidiPlayer()
 
 	bool success = true;
 
+	if (!AudioDataLib::MidiPlayer::EndPlayback(error))
+		success = false;
+
 	try
 	{
 		this->midiOut->closePort();
@@ -183,13 +189,13 @@ MidiTrackData::MidiPlayer::MidiPlayer()
 {
 	if (this->midiOut)
 	{
-		try
-		{
+		//try
+		//{
 			this->midiOut->sendMessage(message, (size_t)messageSize);
-		}
-		catch (RtMidiError& midiError)
-		{
-			// TODO: Handle this.
-		}
+		//}
+		//catch (RtMidiError& midiError)
+		//{
+		//	// TODO: Handle this.
+		//}
 	}
 }

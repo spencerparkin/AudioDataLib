@@ -2,6 +2,7 @@
 
 #include <wx/frame.h>
 #include <wx/sizer.h>
+#include <wx/timer.h>
 
 class AudioTrackControl;
 
@@ -23,7 +24,8 @@ public:
 		ID_Pause,
 		ID_Record,
 		ID_About,
-		ID_Exit
+		ID_Exit,
+		ID_Timer
 	};
 
 	void OnImportAudio(wxCommandEvent& event);
@@ -36,6 +38,9 @@ public:
 	void OnRecord(wxCommandEvent& event);
 	void OnAbout(wxCommandEvent& event);
 	void OnExit(wxCommandEvent& event);
+	void OnTimer(wxTimerEvent& event);
 
 	wxBoxSizer* trackSizer;
+	wxTimer timer;
+	bool inTimer;
 };
