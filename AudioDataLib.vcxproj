@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\ByteSwapper.h" />
     <ClInclude Include="Source\Common.h" />
     <ClInclude Include="Source\AudioData.h" />
     <ClInclude Include="Source\FileData.h" />
@@ -35,6 +36,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\AudioData.cpp" />
+    <ClCompile Include="Source\ByteSwapper.cpp" />
     <ClCompile Include="Source\FileData.cpp" />
     <ClCompile Include="Source\FileFormat.cpp" />
     <ClCompile Include="Source\AudioSink.cpp" />

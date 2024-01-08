@@ -100,7 +100,7 @@ void AudioToolFrame::OnClearAll(wxCommandEvent& event)
 
 void AudioToolFrame::OnImportAudio(wxCommandEvent& event)
 {
-	wxFileDialog openFileDialog(this, "Open audio file.", wxEmptyString, wxEmptyString, "(*.wav)|*.wav|(*.mid)|*.mid", wxFD_OPEN | wxFD_FILE_MUST_EXIST | wxFD_MULTIPLE);
+	wxFileDialog openFileDialog(this, "Open audio file.", wxEmptyString, wxEmptyString, "Wave Files (*.wav)|*.wav|Midi Files (*.mid)|*.mid", wxFD_OPEN | wxFD_FILE_MUST_EXIST | wxFD_MULTIPLE);
 	if (openFileDialog.ShowModal() != wxID_OK)
 		return;
 			

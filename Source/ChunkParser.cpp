@@ -126,6 +126,7 @@ bool ChunkParser::Chunk::ParseStream(BufferStream& inputStream, ChunkParser* chu
 		return false;
 	}
 
+	this->bufferSize = chunkParser->byteSwapper.Resolve(this->bufferSize);
 	this->buffer = inputStream.GetBuffer() + inputStream.GetReadOffset();
 
 	BufferStream subInputStream(this->buffer, this->bufferSize);

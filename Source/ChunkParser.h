@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ByteStream.h"
+#include "ByteSwapper.h"
 
 namespace AudioDataLib
 {
@@ -44,6 +45,8 @@ namespace AudioDataLib
 			uint32_t bufferSize;
 			std::vector<Chunk*>* subChunkArray;
 		};
+
+		ByteSwapper byteSwapper;
 
 	protected:
 		uint8_t* buffer;
