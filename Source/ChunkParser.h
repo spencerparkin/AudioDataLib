@@ -18,6 +18,7 @@ namespace AudioDataLib
 		void Clear();
 		bool ParseStream(ByteStream& inputStream, std::string& error);
 		const Chunk* FindChunk(const std::string& chunkName) const;
+		void FindAllChunks(const std::string& chunkName, std::vector<const Chunk*>& chunkArray) const;
 
 		class AUDIO_DATA_LIB_API Chunk
 		{
@@ -29,7 +30,9 @@ namespace AudioDataLib
 
 			bool ParseStream(BufferStream& inputStream, ChunkParser* chunkParser, std::string& error);
 			bool ParseSubChunks(BufferStream& inputStream, ChunkParser* chunkParser, std::string& error);
+
 			const Chunk* FindChunk(const std::string& chunkName) const;
+			void FindAllChunks(const std::string& chunkName, std::vector<const Chunk*>& chunkArray) const;
 
 			uint32_t GetNumSubChunks() const { return this->subChunkArray->size(); }
 			const std::vector<Chunk*>& GetSubChunkArray() const { return *this->subChunkArray; }

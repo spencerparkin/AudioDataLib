@@ -73,6 +73,15 @@ const ChunkParser::Chunk* ChunkParser::FindChunk(const std::string& chunkName) c
 	return this->rootChunk->FindChunk(chunkName);
 }
 
+void ChunkParser::FindAllChunks(const std::string& chunkName, std::vector<const Chunk*>& chunkArray) const
+{
+	chunkArray.clear();
+	if (!this->rootChunk)
+		return;
+
+	this->rootChunk->FindAllChunks(chunkName, chunkArray);
+}
+
 //------------------------------ ChunkParser::Chunk ------------------------------
 
 ChunkParser::Chunk::Chunk()
@@ -106,6 +115,15 @@ const ChunkParser::Chunk* ChunkParser::Chunk::FindChunk(const std::string& chunk
 	}
 
 	return nullptr;
+}
+
+void ChunkParser::Chunk::FindAllChunks(const std::string& chunkName, std::vector<const Chunk*>& chunkArray) const
+{
+	if (*this->name == chunkName)
+		chunkArray.push_back(this);
+
+	for (const Chunk* subChunk : *this->subChunkArray)
+		subChunk->FindAllChunks(chunkName, chunkArray);
 }
 
 bool ChunkParser::Chunk::ParseStream(BufferStream& inputStream, ChunkParser* chunkParser, std::string& error)
