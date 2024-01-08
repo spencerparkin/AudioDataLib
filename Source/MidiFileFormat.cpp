@@ -80,7 +80,32 @@ MidiFileFormat::MidiFileFormat()
 			midiData->timing.ticksPerFrame = (timingDivision & 0x00FF);
 		}
 
-		// TODO: Internalize the tracks here.
+		bool decodeFailureOccurred = false;
+
+		for (const ChunkParser::Chunk* chunk : trackChunkArray)
+		{
+			auto track = new MidiData::Track();
+			midiData->trackArray->push_back(track);
+
+			BufferStream bufferStream(chunk->GetBuffer(), chunk->GetBufferSize());
+			while (bufferStream.CanRead())
+			{
+				MidiData::Event* event = nullptr;
+				if (!DecodeEvent(bufferStream, event, error))
+				{
+					decodeFailureOccurred = true;
+					break;
+				}
+
+				track->eventArray->push_back(event);
+			}
+
+			if (decodeFailureOccurred)
+				break;
+		}
+
+		if (decodeFailureOccurred)
+			break;
 
 		success = true;
 		fileData = midiData;
@@ -97,23 +122,28 @@ MidiFileFormat::MidiFileFormat()
 	return true;
 }
 
-void MidiFileFormat::EncodeVariableLengthValue(uint64_t value, uint8_t* buffer)
-{
-	// TODO: Write this once you need it.
-}
-
-void MidiFileFormat::DecodeVariableLengthValue(uint64_t& value, const uint8_t* buffer)
+/*static*/ bool MidiFileFormat::DecodeVariableLengthValue(uint64_t& value, ByteStream& inputStream, std::string& error)
 {
 	std::vector<uint8_t> componentsArray;
-	for(uint32_t i = 0; i < 4; i++)
+	uint8_t byte = 0;
+	do
 	{
-		uint8_t byte = buffer[i];
+		if (1 != inputStream.ReadBytesFromStream(&byte, 1))
+		{
+			error = "Failed to read byte for variable-length value.";
+			return false;
+		}
+
 		componentsArray.push_back(byte & 0x7F);
-		if ((byte & 0x80) == 0)
-			break;
+	} while ((byte & 0x80) != 0);
+
+	if (componentsArray.size() > 4)
+	{
+		error = "Variable-length value won't fit in 64-bits.";
+		return false;
 	}
 
-	value = 0ULL;
+	value = 0;
 	uint64_t shift = 0;
 	while (componentsArray.size() > 0)
 	{
@@ -122,4 +152,108 @@ void MidiFileFormat::DecodeVariableLengthValue(uint64_t& value, const uint8_t* b
 		value |= (component << shift);
 		shift += 7;
 	}
+
+	return true;
+}
+
+/*static*/ bool MidiFileFormat::EncodeVariableLengthValue(uint64_t value, ByteStream& outputStream, std::string& error)
+{
+	std::vector<uint8_t> componentsArray;
+	do
+	{
+		uint8_t component = uint8_t(value & 0x7F);
+		componentsArray.push_back(component);
+		value >>= 7;
+	} while (value != 0);
+
+	while (componentsArray.size() > 0)
+	{
+		uint8_t component = componentsArray.back();
+		componentsArray.pop_back();
+		uint8_t byte = component;
+		if (componentsArray.size() > 0)
+			byte |= 0x80;
+
+		if (1 != outputStream.WriteBytesToStream(&byte, 1))
+		{
+			error = "Failed to write byte for variable-length value.";
+			return false;
+		}
+	}
+
+	return true;
+}
+
+/*static*/ bool MidiFileFormat::DecodeEvent(ByteStream& inputStream, MidiData::Event*& event, std::string& error)
+{
+	uint64_t deltaTime = 0;
+	event = nullptr;
+
+	if (!DecodeVariableLengthValue(deltaTime, inputStream, error))
+	{
+		error += "  Could not decode delta-time.";
+		return false;
+	}
+
+	uint8_t eventType = 0;
+	if (1 != inputStream.PeekBytesFromStream(&eventType, 1))
+	{
+		error = "Could not peek event type.";
+		return false;
+	}
+	
+	eventType = (eventType & 0xF0) >> 4;
+
+	if (0x8 <= eventType && eventType <= 0xE)
+	{
+		auto channelEvent = new MidiData::ChannelEvent();
+		if (!channelEvent->Decode(inputStream, error))
+		{
+			delete channelEvent;
+			channelEvent = nullptr;
+		}
+
+		event = channelEvent;
+	}
+	else if (eventType == 0xF)
+	{
+		inputStream.PeekBytesFromStream(&eventType, 1);
+
+		if (eventType == 0xFF)
+		{
+			auto metaEvent = new MidiData::MetaEvent();
+			if (!metaEvent->Decode(inputStream, error))
+			{
+				delete metaEvent;
+				metaEvent = nullptr;
+			}
+
+			event = metaEvent;
+		}
+		else if (eventType == 0xF0 || eventType == 0xF7)
+		{
+			auto sysExEvent = new MidiData::SystemExclusiveEvent();
+			if (!sysExEvent->Decode(inputStream, error))
+			{
+				delete sysExEvent;
+				sysExEvent = nullptr;
+			}
+
+			event = sysExEvent;
+		}
+	}
+
+	if (!event)
+	{
+		error = "Could not resolve event type.";
+		return false;
+	}
+	
+	event->deltaTime = deltaTime;
+	return true;
+}
+
+/*static*/ bool MidiFileFormat::EncodeEvent(ByteStream& outputStream, const MidiData::Event* event, std::string& error)
+{
+	return false;
 }

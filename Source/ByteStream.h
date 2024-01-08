@@ -16,6 +16,8 @@ namespace AudioDataLib
 		virtual uint64_t WriteBytesToStream(const uint8_t* buffer, uint64_t bufferSize) = 0;
 		virtual uint64_t ReadBytesFromStream(uint8_t* buffer, uint64_t bufferSize) = 0;
 
+		virtual uint64_t PeekBytesFromStream(uint8_t* buffer, uint64_t bufferSize);
+
 		virtual uint64_t GetSize() const = 0;
 
 		virtual bool CanRead() = 0;
@@ -86,6 +88,8 @@ namespace AudioDataLib
 
 		virtual uint64_t WriteBytesToStream(const uint8_t* buffer, uint64_t bufferSize) override;
 		virtual uint64_t ReadBytesFromStream(uint8_t* buffer, uint64_t bufferSize) override;
+
+		virtual uint64_t PeekBytesFromStream(uint8_t* buffer, uint64_t bufferSize) override;
 
 		virtual uint64_t GetSize() const override;
 

@@ -13,6 +13,11 @@ ByteStream::ByteStream()
 {
 }
 
+/*virtual*/ uint64_t ByteStream::PeekBytesFromStream(uint8_t* buffer, uint64_t bufferSize)
+{
+	return 0;
+}
+
 //------------------------- FileStream -------------------------
 
 FileStream::FileStream(const char* filePath, const char* mode)
@@ -140,6 +145,16 @@ BufferStream::BufferStream(const uint8_t* buffer, uint64_t bufferSize)
 		buffer[numBytesRead++] = this->readOnlyBuffer[this->readOffset++];
 
 	return numBytesRead;
+}
+
+/*virtual*/ uint64_t BufferStream::PeekBytesFromStream(uint8_t* buffer, uint64_t bufferSize)
+{
+	uint64_t numBytesPeeked = 0;
+	uint64_t i = this->readOffset;
+	while (numBytesPeeked < bufferSize && i < this->readOnlyBufferSize)
+		buffer[numBytesPeeked++] = this->readOnlyBuffer[i++];
+
+	return numBytesPeeked;
 }
 
 /*virtual*/ uint64_t BufferStream::GetSize() const
