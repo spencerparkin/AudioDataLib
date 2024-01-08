@@ -21,13 +21,17 @@
   <ItemGroup>
     <ClInclude Include="Source\AudioToolApp.h" />
     <ClInclude Include="Source\AudioToolFrame.h" />
-    <ClInclude Include="Source\AudioTrackControl.h" />
+    <ClInclude Include="Source\MidiTrackData.h" />
+    <ClInclude Include="Source\TrackControl.h" />
+    <ClInclude Include="Source\AudioTrackData.h" />
     <ClInclude Include="Source\TrackData.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\AudioToolApp.cpp" />
     <ClCompile Include="Source\AudioToolFrame.cpp" />
-    <ClCompile Include="Source\AudioTrackControl.cpp" />
+    <ClCompile Include="Source\MidiTrackData.cpp" />
+    <ClCompile Include="Source\TrackControl.cpp" />
+    <ClCompile Include="Source\AudioTrackData.cpp" />
     <ClCompile Include="Source\TrackData.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

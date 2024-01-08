@@ -10,13 +10,12 @@ MidiData::MidiData()
 {
 }
 
-bool MidiData::Load(const std::string& filePath)
+/*static*/ MidiData* MidiData::Create()
 {
-	// TODO: Write this.  See: https://github.com/colxi/midi-parser-js/wiki/MIDI-File-Format-Specifications
-	return false;
+	return new MidiData();
 }
 
-bool MidiData::Save(const std::string& filePath)
+/*static*/ void MidiData::Destroy(MidiData* midiData)
 {
-	return false;
+	delete midiData;
 }

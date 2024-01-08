@@ -1,6 +1,7 @@
 #include "AudioToolFrame.h"
-#include "AudioTrackControl.h"
-#include "AudioFileFormat.h"
+#include "TrackControl.h"
+#include "FileFormat.h"
+#include "AudioTrackData.h"
 #include "ByteStream.h"
 #include "AudioToolApp.h"
 #include <wx/aboutdlg.h>
@@ -99,7 +100,7 @@ void AudioToolFrame::OnClearAll(wxCommandEvent& event)
 
 void AudioToolFrame::OnImportAudio(wxCommandEvent& event)
 {
-	wxFileDialog openFileDialog(this, "Open audio file.", wxEmptyString, wxEmptyString, "(*.wav)|*.wav", wxFD_OPEN | wxFD_FILE_MUST_EXIST | wxFD_MULTIPLE);
+	wxFileDialog openFileDialog(this, "Open audio file.", wxEmptyString, wxEmptyString, "(*.wav)|*.wav|(*.midi)|*.midi", wxFD_OPEN | wxFD_FILE_MUST_EXIST | wxFD_MULTIPLE);
 	if (openFileDialog.ShowModal() != wxID_OK)
 		return;
 			
@@ -112,35 +113,38 @@ void AudioToolFrame::OnImportAudio(wxCommandEvent& event)
 
 	for(const wxString& filePath : filePathArray)
 	{
-		AudioFileFormat* audioFileFormat = AudioFileFormat::CreateForFile((const char*)filePath.c_str());
-		if (!audioFileFormat)
+		FileFormat* fileFormat = FileFormat::CreateForFile((const char*)filePath.c_str());
+		if (!fileFormat)
 		{
 			errorArray.push_back(wxString::Format("Support loading files of type (%s) does not yet exist.", filePath.c_str()));
 			continue;
 		}
 		
-		FileInputStream inputStream(filePath.c_str());
-
-		AudioData* audioData = nullptr;
 		std::string error;
-		if (!audioFileFormat->ReadFromStream(inputStream, audioData, error))
+		FileData* fileData = nullptr;
+		FileInputStream inputStream(filePath.c_str());
+		if (!inputStream.IsOpen())
+			errorArray.push_back("Failed to open file: " + filePath);
+		else if(!fileFormat->ReadFromStream(inputStream, fileData, error))
 			errorArray.push_back(wxString::Format("Failed to load file %s: %s", filePath.c_str(), error.c_str()));
+
+		TrackData* trackData = TrackData::MakeTrackDataFor(fileData);
+		if (!trackData)
+		{
+			delete fileData;
+			errorArray.push_back("Can't create track for file data.");
+		}
 		else
 		{
-			int trackNumber = wxGetApp().GetNumTracks();
-
-			TrackData* trackData = new TrackData();
-			trackData->SetName(wxString::Format("Track%d", trackNumber));
-			trackData->SetAudioData(audioData);
+			static int trackNumber = 1;
+			trackData->SetName(wxString::Format("Track %d", trackNumber++));
 			wxGetApp().AddTrackData(trackData);
-
-			AudioTrackControl* trackControl = new AudioTrackControl(this, wxID_ANY, trackData->GetName());
+			TrackControl* trackControl = new TrackControl(this, wxID_ANY, trackData->GetName());
 			trackControl->SetTrackName(trackData->GetName());
-
 			this->trackSizer->Add(trackControl, 1, wxALL | wxGROW, 0);
 		}
 
-		AudioFileFormat::Destroy(audioFileFormat);
+		FileFormat::Destroy(fileFormat);
 	}
 
 	if (errorArray.size() > 0)

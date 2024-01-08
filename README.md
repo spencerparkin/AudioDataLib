@@ -1,22 +1,19 @@
 # AudioDataLib
 
-This is a C++ library that helps you work with audio data and audio files.  It does not provide access to
-audio hardware, but it can help you feed audio to and consume audio from an audio device using some other
-audio API, such as SDL or DirectSound, for example.
+This is a C++ library that helps you work with audio data and audio files.  Presently, this includes WAV files and MIDI files.
+It does not provide access to audio hardware, but it can help you feed audio to, and consume audio from, an audio device using
+some other audio API, such as SDL or DirectSound.
 
 ## Dependencies
 
-There are none.  You just need to be able to compile it.  I've only tried to compile it using Visual Studio,
-but there's no reason it couldn't be ported to some other tool-chain or non-Windows platform.
+There are none, unless you count the standard C++ library.  You just need to be able to compile it.  I've compiled it on
+Windows using Visual Studio, and it's also been compiled using Android Studio's tool-chain for mobile.
 
 ## Maturity
 
-This library is quite new, and at the time of this writing, needs to be battle tested before I recommend anyone
-actually trying to use it.  I have one application in mind, and will report back here once I've encorporated
-the library into that project.  If it works great and reliably, then I'll cite that here as a sign of at least
-some maturity or reliability in the software.
-
-The programmer for the library (me) lacks a great deal of maturity.  Sorry.
+This library is quite new, and at the time of this writing, needs to be battle-tested before I would recommend anyone
+actually trying to use it.  I currently have one application for it in an Android mobile app, and it seems to be working
+quite well for me there.
 
 ## Usage
 
@@ -40,10 +37,11 @@ Opening a WAV can be done as follows.  Don't forget to free the returned audio d
 FileInputStream inputStream("path/to/myaudio.wav");
 
 std::string error;
-AudioData* audioData = nullptr;
-
+FileData* fileData = nullptr;
 WaveFormat waveFormat;
-waveFormat.ReadFromStream(inputStream, audioData, error);
+waveFormat.ReadFromStream(inputStream, fileData, error);
+
+auto audioData = dynamic_cast<AudioData*>(fileData);
 
 double clipLengthSeconds = audioData->GetTimeSeconds();
 printf("Clip length is %f seconds.\n", clipLengthSeconds);
@@ -191,7 +189,7 @@ void MyAudioSubSystem::Initialize()
 The class `MyAudioMutex` is a derivative of the `AudioDataLib::Mutex` class, because I didn't
 want the audio data library to depend on any platform-specific thing, like a mutex.
 (I think standard C++ has some mutex stuff in it, so I might try defaulting to that at some point.)
-In any case, you might do the following.
+In any case, you would need the following.
 
 ```C++
 class MyAudioMutex : public AudioDataLib::Mutex
@@ -204,6 +202,12 @@ public:
     virtual void Unlock() override { /* Write your mutex unlock code here. */ }
 };
 ```
+
+Note that if a mutex has to block, it could pre-empt the thread for an unbounded amount
+of time.  You might consider using a lock-free spin-wait or something like that.  What I've
+found in practice is that a regular mutex seems to work just fine.  The mutex provided to
+the library is only ever locked long enough to copy a buffer, and that's it.  That's as
+tight as I can make the lock/unlock pair.
 
 ## Plans
 

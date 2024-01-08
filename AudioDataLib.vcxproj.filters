@@ -5,25 +5,22 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="Source\AudioFileFormats">
-      <UniqueIdentifier>{2cdc7017-16b5-4b65-b379-4385a5417439}</UniqueIdentifier>
+    <Filter Include="Source\FileDatas">
+      <UniqueIdentifier>{84d8f175-f6f8-427a-9ccf-992e6e037cbb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\MIDI">
-      <UniqueIdentifier>{05f2316e-00b1-437a-9b76-e8046142e27b}</UniqueIdentifier>
+    <Filter Include="Source\FileFormats">
+      <UniqueIdentifier>{2cdc7017-16b5-4b65-b379-4385a5417439}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\AudioFileFormat.h">
+    <ClInclude Include="Source\FileFormat.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="Source\AudioData.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\AudioCommon.h">
+    <ClInclude Include="Source\Common.h">
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="Source\WaveFileFormat.h">
-      <Filter>Source\AudioFileFormats</Filter>
+      <Filter>Source\FileFormats</Filter>
     </ClInclude>
     <ClInclude Include="Source\ByteStream.h">
       <Filter>Source</Filter>
@@ -40,22 +37,28 @@
     <ClInclude Include="Source\ChunkParser.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="Source\MidiPlayer.h">
-      <Filter>Source\MIDI</Filter>
+    <ClInclude Include="Source\AudioData.h">
+      <Filter>Source\FileDatas</Filter>
     </ClInclude>
     <ClInclude Include="Source\MidiData.h">
-      <Filter>Source\MIDI</Filter>
+      <Filter>Source\FileDatas</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\MidiPlayer.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\FileData.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\MidiFileFormat.h">
+      <Filter>Source\FileFormats</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\AudioFileFormat.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\AudioData.cpp">
+    <ClCompile Include="Source\FileFormat.cpp">
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="Source\WaveFileFormat.cpp">
-      <Filter>Source\AudioFileFormats</Filter>
+      <Filter>Source\FileFormats</Filter>
     </ClCompile>
     <ClCompile Include="Source\ByteStream.cpp">
       <Filter>Source</Filter>
@@ -72,11 +75,20 @@
     <ClCompile Include="Source\ChunkParser.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="Source\AudioData.cpp">
+      <Filter>Source\FileDatas</Filter>
+    </ClCompile>
     <ClCompile Include="Source\MidiData.cpp">
-      <Filter>Source\MIDI</Filter>
+      <Filter>Source\FileDatas</Filter>
     </ClCompile>
     <ClCompile Include="Source\MidiPlayer.cpp">
-      <Filter>Source\MIDI</Filter>
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\FileData.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\MidiFileFormat.cpp">
+      <Filter>Source\FileFormats</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

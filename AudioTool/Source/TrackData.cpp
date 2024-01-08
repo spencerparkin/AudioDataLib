@@ -1,22 +1,36 @@
 #include "TrackData.h"
 #include "AudioData.h"
+#include "MidiData.h"
+#include "AudioTrackData.h"
+#include "MidiTrackData.h"
 
 using namespace AudioDataLib;
 
 TrackData::TrackData()
 {
-	this->audioData = nullptr;
+	this->name = "unnamed";
 }
 
 /*virtual*/ TrackData::~TrackData()
 {
-	AudioData::Destroy(this->audioData);
 }
 
-void TrackData::SetAudioData(AudioDataLib::AudioData* audioData)
+/*static*/ TrackData* TrackData::MakeTrackDataFor(AudioDataLib::FileData* fileData)
 {
-	if (this->audioData)
-		AudioData::Destroy(this->audioData);
-	
-	this->audioData = audioData;
+	TrackData* trackData = nullptr;
+
+	if (dynamic_cast<AudioData*>(fileData))
+	{
+		auto audioTrackData = new AudioTrackData();
+		audioTrackData->SetAudioData(dynamic_cast<AudioData*>(fileData));
+		trackData = audioTrackData;
+	}
+	else if (dynamic_cast<MidiData*>(fileData))
+	{
+		auto midiTrackData = new MidiTrackData();
+		midiTrackData->SetMidiData(dynamic_cast<MidiData*>(fileData));
+		return midiTrackData;
+	}
+
+	return trackData;
 }

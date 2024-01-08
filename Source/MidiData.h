@@ -1,17 +1,17 @@
 #pragma once
 
-#include "AudioCommon.h"
+#include "FileData.h"
 
 namespace AudioDataLib
 {
-	class AUDIO_DATA_LIB_API MidiData
+	class AUDIO_DATA_LIB_API MidiData : public FileData
 	{
 	public:
 		MidiData();
 		virtual ~MidiData();
 
-		bool Load(const std::string& filePath);
-		bool Save(const std::string& filePath);
+		static MidiData* Create();
+		static void Destroy(MidiData* midiData);
 
 		//...
 	};

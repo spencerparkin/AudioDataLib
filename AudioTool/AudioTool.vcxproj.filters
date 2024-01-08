@@ -5,6 +5,9 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
+    <Filter Include="Source\TrackDataTypes">
+      <UniqueIdentifier>{2b44e614-b3b5-42f7-87e5-aec66d00f40a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\AudioToolApp.h">
@@ -13,11 +16,17 @@
     <ClInclude Include="Source\AudioToolFrame.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="Source\AudioTrackControl.h">
+    <ClInclude Include="Source\TrackControl.h">
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="Source\TrackData.h">
       <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\AudioTrackData.h">
+      <Filter>Source\TrackDataTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\MidiTrackData.h">
+      <Filter>Source\TrackDataTypes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -27,11 +36,17 @@
     <ClCompile Include="Source\AudioToolFrame.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="Source\AudioTrackControl.cpp">
+    <ClCompile Include="Source\TrackControl.cpp">
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="Source\TrackData.cpp">
       <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\AudioTrackData.cpp">
+      <Filter>Source\TrackDataTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\MidiTrackData.cpp">
+      <Filter>Source\TrackDataTypes</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

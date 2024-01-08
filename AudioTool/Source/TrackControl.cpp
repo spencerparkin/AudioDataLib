@@ -1,19 +1,19 @@
-#include "AudioTrackControl.h"
+#include "TrackControl.h"
 #include "AudioToolApp.h"
 #include "TrackData.h"
 #include <wx/dcclient.h>
 
-wxIMPLEMENT_DYNAMIC_CLASS(AudioTrackControl, wxControl);
+wxIMPLEMENT_DYNAMIC_CLASS(TrackControl, wxControl);
 
-wxBEGIN_EVENT_TABLE(AudioTrackControl, wxControl)
+wxBEGIN_EVENT_TABLE(TrackControl, wxControl)
 wxEND_EVENT_TABLE()
 
-AudioTrackControl::AudioTrackControl()
+TrackControl::TrackControl()
 {
 	this->Init();
 }
 
-AudioTrackControl::AudioTrackControl(
+TrackControl::TrackControl(
 	wxWindow* parent,
 	wxWindowID winId,
 	const wxString& label,
@@ -28,7 +28,7 @@ AudioTrackControl::AudioTrackControl(
 	this->Create(parent, winId, label, pos, size, style, validator, name);
 }
 
-bool AudioTrackControl::Create(
+bool TrackControl::Create(
 	wxWindow* parent,
 	wxWindowID winId,
 	const wxString& label,
@@ -43,40 +43,38 @@ bool AudioTrackControl::Create(
 	return wxControl::Create(parent, winId, pos, size, style, validator, name);
 }
 
-void AudioTrackControl::Init()
+void TrackControl::Init()
 {
-	this->Bind(wxEVT_PAINT, &AudioTrackControl::OnPaint, this);
-	this->Bind(wxEVT_SIZE, &AudioTrackControl::OnSize, this);
+	this->Bind(wxEVT_PAINT, &TrackControl::OnPaint, this);
+	this->Bind(wxEVT_SIZE, &TrackControl::OnSize, this);
 
-	this->SetMaxClientSize(wxSize(-1, ATC_IDEAL_CONTROL_HEIGHT));
+	this->SetMaxClientSize(wxSize(-1, TC_IDEAL_CONTROL_HEIGHT));
 }
 
-/*virtual*/ wxSize AudioTrackControl::DoGetBestSize() const
+/*virtual*/ wxSize TrackControl::DoGetBestSize() const
 {
 	return wxControl::DoGetBestSize();
 }
 
-/*virtual*/ wxSize AudioTrackControl::DoGetBestClientSize() const
+/*virtual*/ wxSize TrackControl::DoGetBestClientSize() const
 {
 	wxSize size = wxControl::DoGetBestClientSize();
 
 	int width = this->GetParent()->GetSize().GetWidth();
 	size.SetWidth(width);
 
-	size.SetHeight(ATC_IDEAL_CONTROL_HEIGHT);
+	size.SetHeight(TC_IDEAL_CONTROL_HEIGHT);
 
 	return size;
 }
 
-void AudioTrackControl::OnPaint(wxPaintEvent& event)
+void TrackControl::OnPaint(wxPaintEvent& event)
 {
 	wxPaintDC paintDC(this);
 
-	const TrackData* trackData = wxGetApp().FindTrackData(this->trackName);
+	const TrackData* trackData = this->GetTrackData();
 	if (trackData)
-	{
-		//...
-	}
+		trackData->Render(paintDC);
 
 	wxSize clientAreaSize = paintDC.GetSize();
 
@@ -90,7 +88,17 @@ void AudioTrackControl::OnPaint(wxPaintEvent& event)
 	paintDC.DrawLine(pointA, pointB);
 }
 
-void AudioTrackControl::OnSize(wxSizeEvent& event)
+void TrackControl::OnSize(wxSizeEvent& event)
 {
 	this->Refresh();
+}
+
+TrackData* TrackControl::GetTrackData()
+{
+	return wxGetApp().FindTrackData(this->trackName);
+}
+
+const TrackData* TrackControl::GetTrackData() const
+{
+	return wxGetApp().FindTrackData(this->trackName);
 }

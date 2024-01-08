@@ -1,11 +1,11 @@
 #pragma once
 
-#include "AudioFileFormat.h"
+#include "FileFormat.h"
 #include "ChunkParser.h"
 
 namespace AudioDataLib
 {
-	class AUDIO_DATA_LIB_API WaveFileFormat : public AudioFileFormat
+	class AUDIO_DATA_LIB_API WaveFileFormat : public FileFormat
 	{
 	public:
 		WaveFileFormat();
@@ -17,8 +17,8 @@ namespace AudioDataLib
 			IEEE_FLOAT = 3
 		};
 
-		virtual bool ReadFromStream(ByteStream& inputStream, AudioData*& audioData, std::string& error) override;
-		virtual bool WriteToStream(ByteStream& outputStream, AudioData* audioData, std::string& error) override;
+		virtual bool ReadFromStream(ByteStream& inputStream, FileData*& fileData, std::string& error) override;
+		virtual bool WriteToStream(ByteStream& outputStream, FileData* fileData, std::string& error) override;
 
 	protected:
 		class WaveChunkParser : public ChunkParser

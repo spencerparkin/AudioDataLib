@@ -1,6 +1,6 @@
 #pragma once
 
-#include "AudioCommon.h"
+#include "Common.h"
 
 namespace AudioDataLib
 {

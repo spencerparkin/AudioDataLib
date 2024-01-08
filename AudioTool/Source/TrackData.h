@@ -1,7 +1,8 @@
 #pragma once
 
-#include "AudioData.h"
 #include <wx/string.h>
+#include <wx/dcclient.h>
+#include "FileData.h"
 
 class TrackData
 {
@@ -12,12 +13,10 @@ public:
 	const wxString& GetName() const { return this->name; }
 	void SetName(const wxString& name) { this->name = name; }
 
-	AudioDataLib::AudioData* GetAudioData() { return this->audioData; }
-	const AudioDataLib::AudioData* GetAudioData() const { return this->audioData; }
+	static TrackData* MakeTrackDataFor(AudioDataLib::FileData* fileData);
 
-	void SetAudioData(AudioDataLib::AudioData* audioData);
+	virtual void Render(wxPaintDC& paintDC) const = 0;
 
-private:
+protected:
 	wxString name;
-	AudioDataLib::AudioData* audioData;
 };

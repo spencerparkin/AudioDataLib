@@ -19,13 +19,15 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\AudioCommon.h" />
+    <ClInclude Include="Source\Common.h" />
     <ClInclude Include="Source\AudioData.h" />
-    <ClInclude Include="Source\AudioFileFormat.h" />
+    <ClInclude Include="Source\FileData.h" />
+    <ClInclude Include="Source\FileFormat.h" />
     <ClInclude Include="Source\AudioSink.h" />
     <ClInclude Include="Source\ByteStream.h" />
     <ClInclude Include="Source\ChunkParser.h" />
     <ClInclude Include="Source\MidiData.h" />
+    <ClInclude Include="Source\MidiFileFormat.h" />
     <ClInclude Include="Source\MidiPlayer.h" />
     <ClInclude Include="Source\Mutex.h" />
     <ClInclude Include="Source\WaveForm.h" />
@@ -33,11 +35,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\AudioData.cpp" />
-    <ClCompile Include="Source\AudioFileFormat.cpp" />
+    <ClCompile Include="Source\FileData.cpp" />
+    <ClCompile Include="Source\FileFormat.cpp" />
     <ClCompile Include="Source\AudioSink.cpp" />
     <ClCompile Include="Source\ByteStream.cpp" />
     <ClCompile Include="Source\ChunkParser.cpp" />
     <ClCompile Include="Source\MidiData.cpp" />
+    <ClCompile Include="Source\MidiFileFormat.cpp" />
     <ClCompile Include="Source\MidiPlayer.cpp" />
     <ClCompile Include="Source\Mutex.cpp" />
     <ClCompile Include="Source\WaveForm.cpp" />

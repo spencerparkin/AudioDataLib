@@ -20,3 +20,4 @@
 #include <list>
 #include <assert.h>
 #include <stdint.h>
+#include <memory>

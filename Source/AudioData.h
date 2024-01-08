@@ -1,10 +1,10 @@
 #pragma once
 
-#include "AudioCommon.h"
+#include "FileData.h"
 
 namespace AudioDataLib
 {
-	class AUDIO_DATA_LIB_API AudioData
+	class AUDIO_DATA_LIB_API AudioData : public FileData
 	{
 	public:
 		struct AUDIO_DATA_LIB_API Format

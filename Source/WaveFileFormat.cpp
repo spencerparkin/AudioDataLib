@@ -12,8 +12,10 @@ WaveFileFormat::WaveFileFormat()
 {
 }
 
-/*virtual*/ bool WaveFileFormat::ReadFromStream(ByteStream& inputStream, AudioData*& audioData, std::string& error)
+/*virtual*/ bool WaveFileFormat::ReadFromStream(ByteStream& inputStream, FileData*& fileData, std::string& error)
 {
+	fileData = nullptr;
+
 	WaveChunkParser parser;
 	if (!parser.ParseStream(inputStream, error))
 		return false;
@@ -76,8 +78,7 @@ WaveFileFormat::WaveFileFormat()
 		return false;
 	}
 
-	audioData = new AudioData();
-	AudioData::Format& format = audioData->GetFormat();
+	AudioData::Format format;
 	format.numChannels = numChannels;
 	format.framesPerSecond = sampleRateSamplesPerSecondPerChannel;
 	format.bitsPerSample = bitsPerSample;
@@ -110,14 +111,23 @@ WaveFileFormat::WaveFileFormat()
 		}
 	}
 
+	auto audioData = new AudioData();
+	audioData->SetFormat(format);
 	audioData->SetAudioBufferSize(dataChunk->GetBufferSize());
 	::memcpy(audioData->GetAudioBuffer(), dataChunk->GetBuffer(), dataChunk->GetBufferSize());
-
+	fileData = audioData;
 	return true;
 }
 
-/*virtual*/ bool WaveFileFormat::WriteToStream(ByteStream& outputStream, AudioData* audioData, std::string& error)
+/*virtual*/ bool WaveFileFormat::WriteToStream(ByteStream& outputStream, FileData* fileData, std::string& error)
 {
+	AudioData* audioData = dynamic_cast<AudioData*>(fileData);
+	if (!audioData)
+	{
+		error = "Can't make a WAV file with something other than AudioData.";
+		return false;
+	}
+
 	if (4 != outputStream.WriteBytesToStream((const uint8_t*)"RIFF", 4))
 	{
 		error = "Could not write RIFF.";

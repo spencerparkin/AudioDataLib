@@ -4,27 +4,27 @@
 #include <memory>
 #include "TrackData.h"
 
-#define ATC_IDEAL_CONTROL_HEIGHT		100
+#define TC_IDEAL_CONTROL_HEIGHT		100
 
-enum AudioTrackControlStyles
+enum TrackControlStyles
 {
-	ATC_DEFAULT_STYLE = 1
+	TC_DEFAULT_STYLE = 1
 };
 
 // This custom control provides an interface to a single chunk of audio data.
-class AudioTrackControl : public wxControl
+class TrackControl : public wxControl
 {
 public:
-	AudioTrackControl();
-	AudioTrackControl(
+	TrackControl();
+	TrackControl(
 		wxWindow* parent,
 		wxWindowID winId,
 		const wxString& label,
 		const wxPoint& pos = wxDefaultPosition,
 		const wxSize& size = wxDefaultSize,
-		long style = ATC_DEFAULT_STYLE,
+		long style = TC_DEFAULT_STYLE,
 		const wxValidator& validator = wxDefaultValidator,
-		const wxString& name = "AudioTrackControlWidget");
+		const wxString& name = "TrackControlWidget");
 
 	bool Create(
 		wxWindow* parent,
@@ -32,9 +32,9 @@ public:
 		const wxString& label,
 		const wxPoint& pos = wxDefaultPosition,
 		const wxSize& size = wxDefaultSize,
-		long style = ATC_DEFAULT_STYLE,
+		long style = TC_DEFAULT_STYLE,
 		const wxValidator& validator = wxDefaultValidator,
-		const wxString& name = "AudioTrackControlWidget");
+		const wxString& name = "TrackControlWidget");
 
 	void SetTrackName(const wxString& trackName) { this->trackName = trackName; }
 	const wxString& GetTrackName() const { return this->trackName; }
@@ -55,6 +55,6 @@ protected:
 private:
 	wxString trackName;
 
-	wxDECLARE_DYNAMIC_CLASS(AudioTrackControl);
+	wxDECLARE_DYNAMIC_CLASS(TrackControl);
 	wxDECLARE_EVENT_TABLE();
 };
