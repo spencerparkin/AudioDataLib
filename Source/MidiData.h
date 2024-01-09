@@ -13,6 +13,8 @@ namespace AudioDataLib
 
 		void Clear();
 
+		void CalculateTrackLengthsInSeconds(std::vector<double>& trackLengthsArray) const;
+
 		static MidiData* Create();
 		static void Destroy(MidiData* midiData);
 

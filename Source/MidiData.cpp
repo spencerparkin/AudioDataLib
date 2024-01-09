@@ -37,6 +37,12 @@ void MidiData::Clear()
 	this->trackArray->clear();
 }
 
+void MidiData::CalculateTrackLengthsInSeconds(std::vector<double>& trackLengthsArray) const
+{
+	// TODO: Write this.We'll need the tempo, the time signature, some info from the header,
+	//       and to add up all the delta times in each track!!
+}
+
 //------------------------------- MidiData::Event -------------------------------
 
 MidiData::Track::Track()
