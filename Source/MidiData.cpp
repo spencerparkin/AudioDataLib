@@ -271,13 +271,20 @@ MidiData::MetaEvent::MetaEvent()
 				return false;
 			}
 
-			auto setTempo = new SetTempo;
-			this->data = setTempo;
-			if (3 != inputStream.ReadBytesFromStream((uint8_t*)&setTempo->microsecondsPerQuarterNote, 3))
+			uint8_t msb = 0, nmsb = 0, lsb = 0;
+
+			if (1 != inputStream.ReadBytesFromStream((uint8_t*)&msb, 1))
 				return false;
 
-			// TODO: I think this value is still wrong.
-			setTempo->microsecondsPerQuarterNote &= 0x00FFFFFF;
+			if (1 != inputStream.ReadBytesFromStream((uint8_t*)&nmsb, 1))
+				return false;
+
+			if (1 != inputStream.ReadBytesFromStream((uint8_t*)&lsb, 1))
+				return false;
+
+			auto setTempo = new SetTempo;
+			setTempo->microsecondsPerQuarterNote = (uint32_t(msb) << 16) | (uint32_t(nmsb) << 8) | uint32_t(lsb);
+			this->data = setTempo;
 
 			break;
 		}
