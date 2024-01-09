@@ -38,7 +38,7 @@ void MidiTrackData::SetMidiData(MidiData* midiData)
 /*virtual*/ bool MidiTrackData::Process(std::string& error)
 {
 	if (this->midiPlayer)
-		this->midiPlayer->Play();
+		this->midiPlayer->ManagePlayback();
 
 	return true;
 }

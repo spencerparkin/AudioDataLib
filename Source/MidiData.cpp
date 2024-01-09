@@ -276,7 +276,8 @@ MidiData::MetaEvent::MetaEvent()
 			if (3 != inputStream.ReadBytesFromStream((uint8_t*)&setTempo->microsecondsPerQuarterNote, 3))
 				return false;
 
-			setTempo->microsecondsPerQuarterNote >>= 8;
+			// TODO: I think this value is still wrong.
+			setTempo->microsecondsPerQuarterNote &= 0x00FFFFFF;
 
 			break;
 		}

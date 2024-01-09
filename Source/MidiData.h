@@ -134,7 +134,7 @@ namespace AudioDataLib
 
 			struct SetTempo
 			{
-				uint64_t microsecondsPerQuarterNote;
+				uint32_t microsecondsPerQuarterNote;
 			};
 
 			struct SMPTEOffset

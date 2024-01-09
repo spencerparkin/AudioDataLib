@@ -22,7 +22,7 @@ MidiPlayer::MidiPlayer()
 	return false;
 }
 
-/*virtual*/ void MidiPlayer::Play()
+/*virtual*/ void MidiPlayer::ManagePlayback()
 {
 	// TODO: Write this.
 }

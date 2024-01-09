@@ -68,7 +68,7 @@ MidiFileFormat::MidiFileFormat()
 			break;
 
 		timingDivision = chunkParser.byteSwapper.Resolve(timingDivision);
-		if ((timingDivision & 0x8000) != 0)
+		if ((timingDivision & 0x8000) == 0)
 		{
 			midiData->timing.type = MidiData::Timing::Type::TICKS_PER_BEAT;
 			midiData->timing.ticksPerBeat = (timingDivision & 0x7FFF);

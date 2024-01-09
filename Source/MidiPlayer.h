@@ -28,7 +28,7 @@ namespace AudioDataLib
 		// This gets called every iteration of the user's main program loop.  This class
 		// keeps time and knows when to fire the SendMessage() method and with what data.
 		// If this method is not called often enough, it can result in faulty play-back.
-		virtual void Play();
+		virtual void ManagePlayback();
 
 		// This should get implemented by a user-drived class to send the
 		// given message to the MIDI device.
