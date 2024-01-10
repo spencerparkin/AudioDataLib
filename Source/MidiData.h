@@ -7,13 +7,15 @@ namespace AudioDataLib
 {
 	class AUDIO_DATA_LIB_API MidiData : public FileData
 	{
+		friend class MidiFileFormat;
+
 	public:
 		MidiData();
 		virtual ~MidiData();
 
 		void Clear();
 
-		void CalculateTrackLengthsInSeconds(std::vector<double>& trackLengthsArray) const;
+		double CalculateTrackLengthInSeconds(int i) const;
 
 		static MidiData* Create();
 		static void Destroy(MidiData* midiData);
@@ -196,6 +198,16 @@ namespace AudioDataLib
 			uint8_t param1, param2;
 		};
 
+		FormatType GetFormatType() const { return this->formatType; }
+		const Timing& GetTiming() const { return this->timing; }
+		void SetTiming(Timing timing) { this->timing = timing; }
+		const Track* GetTrack(uint32_t i) const;
+		Track* GetTrack(uint32_t i);
+		void AddTrack(Track* track);
+		bool RemoveTrack(uint32_t i);
+		uint32_t GetNumTracks() const { return this->trackArray->size(); }
+
+	protected:
 		FormatType formatType;
 		Timing timing;
 		std::vector<Track*>* trackArray;

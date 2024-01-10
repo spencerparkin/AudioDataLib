@@ -37,10 +37,46 @@ void MidiData::Clear()
 	this->trackArray->clear();
 }
 
-void MidiData::CalculateTrackLengthsInSeconds(std::vector<double>& trackLengthsArray) const
+const MidiData::Track* MidiData::GetTrack(uint32_t i) const
+{
+	return const_cast<MidiData*>(this)->GetTrack(i);
+}
+
+MidiData::Track* MidiData::GetTrack(uint32_t i)
+{
+	if (0 <= i && i < this->GetNumTracks())
+		return (*this->trackArray)[i];
+
+	return nullptr;
+}
+
+void MidiData::AddTrack(Track* track)
+{
+	this->trackArray->push_back(track);
+}
+
+bool MidiData::RemoveTrack(uint32_t i)
+{
+	if (0 <= i && i < this->GetNumTracks())
+	{
+		Track* track = (*this->trackArray)[i];
+		delete track;
+		if (i != this->GetNumTracks() - 1)
+			(*this->trackArray)[i] = (*this->trackArray)[this->GetNumTracks() - 1];
+		this->trackArray->pop_back();
+		return true;
+	}
+
+	return false;
+}
+
+double MidiData::CalculateTrackLengthInSeconds(int i) const
 {
 	// TODO: Write this.  We'll need the tempo, the time signature, some info from the header,
 	//       and to add up all the delta times in each track!!
+	//       Will probably need a function that can convert from ticks to seconds and seconds to ticks.
+
+	return 0.0;
 }
 
 //------------------------------- MidiData::Event -------------------------------
