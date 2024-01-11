@@ -109,7 +109,7 @@ bool MidiData::CalculateTrackLengthInSeconds(uint32_t i, double& totalTimeSecond
 		if (tempoEvent)
 			currentTempo = *tempoEvent->GetData<MetaEvent::Tempo>();
 
-		const MetaEvent* timeSigEvent = track->FindMetaEventOfType(MetaEvent::Type::TIME_SIGNATURE);
+		const MetaEvent* timeSigEvent = infoTrack->FindMetaEventOfType(MetaEvent::Type::TIME_SIGNATURE);
 		if (timeSigEvent)
 			currentTimeSig = *timeSigEvent->GetData<MetaEvent::TimeSignature>();
 	}
