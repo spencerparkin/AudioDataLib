@@ -158,9 +158,6 @@ namespace AudioDataLib
 			struct Tempo
 			{
 				uint32_t microsecondsPerQuarterNote;
-
-				void ToBeatsPerMinute(double& beatsPerMinute, double beatsPerQuarterNote) const;
-				void FromBestPerMinute(double beatsPerMinute, double beatsPerQuarterNote);
 			};
 
 			struct SMPTEOffset
@@ -178,8 +175,6 @@ namespace AudioDataLib
 				uint8_t denominator;
 				uint8_t metro;
 				uint8_t __32nds;
-
-				double BeatsPerQuarterNote() const;
 			};
 
 			struct KeySignature

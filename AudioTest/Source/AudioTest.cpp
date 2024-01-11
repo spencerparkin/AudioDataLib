@@ -36,7 +36,6 @@ bool TestMidiSongLength()
 		double timeSeconds = 0.0;
 		midiData->CalculateTrackLengthInSeconds(1, timeSeconds, error);
 		printf("Track %d: %f seconds\n", i, timeSeconds);
-		// TODO: Should be about 87 seconds.  Where am I going wrong?  :(
 	}
 
 	MidiData::Destroy(midiData);

@@ -8,7 +8,8 @@ using namespace AudioDataLib;
 MidiData::MidiData()
 {
 	this->formatType = FormatType::MULTI_TRACK;
-	::memset(&this->timing, 0, sizeof(this->timing));
+	this->timing.ticksPerQuarterNote = 48;
+	this->timing.type = Timing::Type::TICKS_PER_QUARTER_NOTE;
 	this->trackArray = new std::vector<Track*>();
 }
 
@@ -88,7 +89,7 @@ bool MidiData::CalculateTrackLengthInSeconds(uint32_t i, double& totalTimeSecond
 	currentTimeSig.__32nds = 8;
 
 	MetaEvent::Tempo currentTempo;
-	currentTempo.FromBestPerMinute(120.0, currentTimeSig.BeatsPerQuarterNote());
+	currentTempo.microsecondsPerQuarterNote = 500000;
 
 	if (this->formatType == FormatType::MULTI_TRACK)
 	{
@@ -138,24 +139,18 @@ bool MidiData::CalculateTrackLengthInSeconds(uint32_t i, double& totalTimeSecond
 		else if (channelEvent)
 		{
 			double deltaTimeSeconds = 0.0;
-
-			double beatsPerMinute = 0.0;
-			currentTempo.ToBeatsPerMinute(beatsPerMinute, currentTimeSig.BeatsPerQuarterNote());
-
-			double beatsPerSecond = beatsPerMinute / 60.0;
+			double microsecondsPerTick = double(currentTempo.microsecondsPerQuarterNote) / double(this->timing.ticksPerQuarterNote);
 
 			if (this->timing.type == Timing::Type::TICKS_PER_QUARTER_NOTE)
 			{
-				double ticksPerQuarterNote = double(this->timing.ticksPerQuarterNote);
-				double numQuarterNotes = double(channelEvent->deltaTimeTicks) / ticksPerQuarterNote;
-				double beatsPerQuarterNote = currentTimeSig.BeatsPerQuarterNote();
-				double numBeats = beatsPerQuarterNote * numQuarterNotes;
-
-				deltaTimeSeconds = numBeats * beatsPerSecond;
+				double deltaTimeMicroseconds = double(channelEvent->deltaTimeTicks) * microsecondsPerTick;
+				double microsecondsPerSecond = 1000000.0;
+				deltaTimeSeconds = deltaTimeMicroseconds / microsecondsPerSecond;
 			}
 			else if (this->timing.type == Timing::FRAMES_PER_SECOND)
 			{
-				// TODO: Write this.
+				error = "Calculating time with FPS is not yet supported.";
+				return false;
 			}
 
 			totalTimeSeconds += deltaTimeSeconds;
@@ -517,33 +512,6 @@ MidiData::MetaEvent::MetaEvent()
 /*virtual*/ bool MidiData::MetaEvent::Encode(ByteStream& outputStream, std::string& error) const
 {
 	return false;
-}
-
-void MidiData::MetaEvent::Tempo::ToBeatsPerMinute(double& beatsPerMinute, double beatsPerQuarterNote) const
-{
-	double microsecondsPerMinute = 6e+7;
-	double quarterNotesPerMinute = microsecondsPerMinute / double(this->microsecondsPerQuarterNote);
-	beatsPerMinute = beatsPerQuarterNote * quarterNotesPerMinute;
-}
-
-void MidiData::MetaEvent::Tempo::FromBestPerMinute(double beatsPerMinute, double beatsPerQuarterNote)
-{
-	double microsecondsPerMinute = 6e+7;
-	double quarterNotesPerMinute = beatsPerMinute / beatsPerQuarterNote;
-	this->microsecondsPerQuarterNote = uint32_t(microsecondsPerMinute / quarterNotesPerMinute);
-}
-
-double MidiData::MetaEvent::TimeSignature::BeatsPerQuarterNote() const
-{
-	uint32_t actualDenominator = 1 << this->denominator;
-	switch (actualDenominator)
-	{
-		case 4: return 1.0;
-		case 8: return 2.0;
-	}
-
-	// Oh hell, I have no idea.
-	return 1.0;
 }
 
 //------------------------------- MidiData::ChannelEvent -------------------------------
