@@ -14,6 +14,7 @@ MidiFileFormat::MidiFileFormat()
 /*virtual*/ bool MidiFileFormat::ReadFromStream(ByteStream& inputStream, FileData*& fileData, std::string& error)
 {
 	// See: https://github.com/colxi/midi-parser-js/wiki/MIDI-File-Format-Specifications
+	//      https://majicdesigns.github.io/MD_MIDIFile/page_timing.html
 
 	bool success = false;
 	fileData = nullptr;
