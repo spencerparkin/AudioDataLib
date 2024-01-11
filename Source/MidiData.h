@@ -31,17 +31,17 @@ namespace AudioDataLib
 		{
 			union
 			{
-				uint32_t ticksPerBeat;
+				uint32_t ticksPerQuarterNote;
 				struct
 				{
-					uint16_t framesPerSecond;
+					int16_t framesPerSecond;
 					uint16_t ticksPerFrame;
 				};
 			};
 
 			enum Type
 			{
-				TICKS_PER_BEAT,
+				TICKS_PER_QUARTER_NOTE,
 				FRAMES_PER_SECOND
 			};
 

@@ -70,8 +70,8 @@ MidiFileFormat::MidiFileFormat()
 		timingDivision = chunkParser.byteSwapper.Resolve(timingDivision);
 		if ((timingDivision & 0x8000) == 0)
 		{
-			midiData->timing.type = MidiData::Timing::Type::TICKS_PER_BEAT;
-			midiData->timing.ticksPerBeat = (timingDivision & 0x7FFF);
+			midiData->timing.type = MidiData::Timing::Type::TICKS_PER_QUARTER_NOTE;
+			midiData->timing.ticksPerQuarterNote = (timingDivision & 0x7FFF);
 		}
 		else
 		{

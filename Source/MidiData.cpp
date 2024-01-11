@@ -144,10 +144,13 @@ bool MidiData::CalculateTrackLengthInSeconds(uint32_t i, double& totalTimeSecond
 
 			double beatsPerSecond = beatsPerMinute / 60.0;
 
-			if (this->timing.type == Timing::Type::TICKS_PER_BEAT)
+			if (this->timing.type == Timing::Type::TICKS_PER_QUARTER_NOTE)
 			{
-				double ticksPerBeat = double(this->timing.ticksPerBeat);
-				double numBeats = double(channelEvent->deltaTimeTicks) * ticksPerBeat;
+				double ticksPerQuarterNote = double(this->timing.ticksPerQuarterNote);
+				double numQuarterNotes = double(channelEvent->deltaTimeTicks) / ticksPerQuarterNote;
+				double beatsPerQuarterNote = currentTimeSig.BeatsPerQuarterNote();
+				double numBeats = beatsPerQuarterNote * numQuarterNotes;
+
 				deltaTimeSeconds = numBeats * beatsPerSecond;
 			}
 			else if (this->timing.type == Timing::FRAMES_PER_SECOND)
