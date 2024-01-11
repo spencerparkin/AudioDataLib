@@ -186,10 +186,10 @@ MidiFileFormat::MidiFileFormat()
 
 /*static*/ bool MidiFileFormat::DecodeEvent(ByteStream& inputStream, MidiData::Event*& event, std::string& error)
 {
-	uint64_t deltaTime = 0;
+	uint64_t deltaTimeTicks = 0;
 	event = nullptr;
 
-	if (!DecodeVariableLengthValue(deltaTime, inputStream, error))
+	if (!DecodeVariableLengthValue(deltaTimeTicks, inputStream, error))
 	{
 		error += "  Could not decode delta-time.";
 		return false;
@@ -249,7 +249,7 @@ MidiFileFormat::MidiFileFormat()
 		return false;
 	}
 	
-	event->deltaTime = deltaTime;
+	event->deltaTimeTicks = deltaTimeTicks;
 	return true;
 }
 

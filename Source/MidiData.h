@@ -15,7 +15,7 @@ namespace AudioDataLib
 
 		void Clear();
 
-		double CalculateTrackLengthInSeconds(int i) const;
+		bool CalculateTrackLengthInSeconds(uint32_t i, double& totalTimeSeconds, std::string& error) const;
 
 		static MidiData* Create();
 		static void Destroy(MidiData* midiData);
@@ -49,6 +49,7 @@ namespace AudioDataLib
 		};
 
 		class Event;
+		class MetaEvent;
 
 		class AUDIO_DATA_LIB_API Track
 		{
@@ -57,6 +58,24 @@ namespace AudioDataLib
 			virtual ~Track();
 
 			void Clear();
+
+			template<typename T>
+			const T* FindEvent(std::function<bool(T*)> matchFunc) const
+			{
+				for (Event* event : *this->eventArray)
+				{
+					T* eventT = dynamic_cast<T*>(event);
+					if (eventT && matchFunc(eventT))
+						return eventT;
+				}
+
+				return nullptr;
+			}
+
+			const MetaEvent* FindMetaEventOfType(uint8_t type) const
+			{
+				return this->FindEvent<MetaEvent>([=](MetaEvent* event) -> bool { return event->type == type; });
+			}
 
 			std::vector<Event*>* eventArray;
 		};
@@ -76,7 +95,7 @@ namespace AudioDataLib
 			virtual bool Decode(ByteStream& inputStream, std::string& error) = 0;
 			virtual bool Encode(ByteStream& outputStream, std::string& error) const = 0;
 
-			uint64_t deltaTime;
+			uint64_t deltaTimeTicks;
 		};
 
 		class AUDIO_DATA_LIB_API SystemExclusiveEvent : public Event
@@ -136,9 +155,12 @@ namespace AudioDataLib
 				uint8_t channel;
 			};
 
-			struct SetTempo
+			struct Tempo
 			{
 				uint32_t microsecondsPerQuarterNote;
+
+				void ToBeatsPerMinute(double& beatsPerMinute, double beatsPerQuarterNote) const;
+				void FromBestPerMinute(double beatsPerMinute, double beatsPerQuarterNote);
 			};
 
 			struct SMPTEOffset
@@ -156,6 +178,8 @@ namespace AudioDataLib
 				uint8_t denominator;
 				uint8_t metro;
 				uint8_t __32nds;
+
+				double BeatsPerQuarterNote() const;
 			};
 
 			struct KeySignature
@@ -169,6 +193,74 @@ namespace AudioDataLib
 				uint8_t* buffer;
 				uint64_t bufferSize;
 			};
+
+			template<typename T>
+			const T* GetData() const
+			{
+				return nullptr;
+			}
+
+			template<>
+			const char* GetData() const
+			{
+				switch (this->type)
+				{
+					case Type::TEXT_EVENT:
+					case Type::COPYRIGHT_NOTICE:
+					case Type::TRACK_NAME:
+					case Type::INSTRUMENT_NAME:
+					case Type::LYRICS:
+					case Type::MARKER:
+					case Type::CUE_POINT:
+					{
+						return ((const Text*)this->data)->buffer;
+					}
+				}
+
+				return nullptr;
+			}
+
+			template<>
+			const SequenceNumber* GetData() const
+			{
+				return (this->type == Type::SEQUENCE_NUMBER) ? static_cast<const SequenceNumber*>(this->data) : nullptr;
+			}
+
+			template<>
+			const ChannelPrefix* GetData() const
+			{
+				return (this->type == Type::CHANNEL_PREFIX) ? static_cast<const ChannelPrefix*>(this->data) : nullptr;
+			}
+
+			template<>
+			const Tempo* GetData() const
+			{
+				return (this->type == Type::SET_TEMPO) ? static_cast<const Tempo*>(this->data) : nullptr;
+			}
+
+			template<>
+			const SMPTEOffset* GetData() const
+			{
+				return (this->type == Type::SMPTE_OFFSET) ? static_cast<const SMPTEOffset*>(this->data) : nullptr;
+			}
+
+			template<>
+			const TimeSignature* GetData() const
+			{
+				return (this->type == Type::TIME_SIGNATURE) ? static_cast<const TimeSignature*>(this->data) : nullptr;
+			}
+
+			template<>
+			const KeySignature* GetData() const
+			{
+				return (this->type == Type::KEY_SIGNATURE) ? static_cast<const KeySignature*>(this->data) : nullptr;
+			}
+
+			template<>
+			const Opaque* GetData() const
+			{
+				return (this->type == Type::SEQUENCER_SPECIFIC) ? static_cast<const Opaque*>(this->data) : nullptr;
+			}
 		};
 
 		class AUDIO_DATA_LIB_API ChannelEvent : public Event

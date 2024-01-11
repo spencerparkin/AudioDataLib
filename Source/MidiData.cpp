@@ -70,13 +70,96 @@ bool MidiData::RemoveTrack(uint32_t i)
 	return false;
 }
 
-double MidiData::CalculateTrackLengthInSeconds(int i) const
+bool MidiData::CalculateTrackLengthInSeconds(uint32_t i, double& totalTimeSeconds, std::string& error) const
 {
-	// TODO: Write this.  We'll need the tempo, the time signature, some info from the header,
-	//       and to add up all the delta times in each track!!
-	//       Will probably need a function that can convert from ticks to seconds and seconds to ticks.
+	totalTimeSeconds = 0.0;
 
-	return 0.0;
+	const Track* track = this->GetTrack(i);
+	if (!track)
+	{
+		error = "Track not found.";
+		return false;
+	}
+	
+	MetaEvent::TimeSignature currentTimeSig;
+	currentTimeSig.numerator = 4;
+	currentTimeSig.denominator = 2;
+	currentTimeSig.metro = 24;
+	currentTimeSig.__32nds = 8;
+
+	MetaEvent::Tempo currentTempo;
+	currentTempo.FromBestPerMinute(120.0, currentTimeSig.BeatsPerQuarterNote());
+
+	if (this->formatType == FormatType::MULTI_TRACK)
+	{
+		if (i == 0)
+		{
+			error = "Doesn't make sense to measure length of the info track.";
+			return false;
+		}
+
+		const Track* infoTrack = this->GetTrack(0);
+		if (!infoTrack)
+		{
+			error = "Info track not found.";
+			return false;
+		}
+
+		const MetaEvent* tempoEvent = infoTrack->FindMetaEventOfType(MetaEvent::Type::SET_TEMPO);
+		if (tempoEvent)
+			currentTempo = *tempoEvent->GetData<MetaEvent::Tempo>();
+
+		const MetaEvent* timeSigEvent = track->FindMetaEventOfType(MetaEvent::Type::TIME_SIGNATURE);
+		if (timeSigEvent)
+			currentTimeSig = *timeSigEvent->GetData<MetaEvent::TimeSignature>();
+	}
+
+	for (const Event* event : *track->eventArray)
+	{
+		const MetaEvent* metaEvent = dynamic_cast<const MetaEvent*>(event);
+		const ChannelEvent* channelEvent = dynamic_cast<const ChannelEvent*>(event);
+
+		if (metaEvent)
+		{
+			switch (metaEvent->type)
+			{
+				case MetaEvent::Type::SET_TEMPO:
+				{
+					currentTempo = *metaEvent->GetData<MetaEvent::Tempo>();
+					break;
+				}
+				case MetaEvent::Type::TIME_SIGNATURE:
+				{
+					currentTimeSig = *metaEvent->GetData<MetaEvent::TimeSignature>();
+					break;
+				}
+			}
+		}
+		else if (channelEvent)
+		{
+			double deltaTimeSeconds = 0.0;
+
+			double beatsPerMinute = 0.0;
+			currentTempo.ToBeatsPerMinute(beatsPerMinute, currentTimeSig.BeatsPerQuarterNote());
+
+			double beatsPerSecond = beatsPerMinute / 60.0;
+
+			if (this->timing.type == Timing::Type::TICKS_PER_BEAT)
+			{
+				double ticksPerBeat = double(this->timing.ticksPerBeat);
+				double numBeats = double(channelEvent->deltaTimeTicks) * ticksPerBeat;
+				deltaTimeSeconds = numBeats * beatsPerSecond;
+			}
+			else if (this->timing.type == Timing::FRAMES_PER_SECOND)
+			{
+				// TODO: Write this.
+			}
+
+			totalTimeSeconds += deltaTimeSeconds;
+		}
+	}
+
+	return true;
 }
 
 //------------------------------- MidiData::Event -------------------------------
@@ -105,7 +188,7 @@ void MidiData::Track::Clear()
 
 MidiData::Event::Event()
 {
-	this->deltaTime = 0;
+	this->deltaTimeTicks = 0;
 }
 
 /*virtual*/ MidiData::Event::~Event()
@@ -171,8 +254,8 @@ MidiData::MetaEvent::MetaEvent()
 		}
 		case Type::SET_TEMPO:
 		{
-			auto setTempo = static_cast<SetTempo*>(this->data);
-			delete setTempo;
+			auto tempo = static_cast<Tempo*>(this->data);
+			delete tempo;
 			break;
 		}
 		case Type::SMPTE_OFFSET:
@@ -324,9 +407,9 @@ MidiData::MetaEvent::MetaEvent()
 			if (1 != inputStream.ReadBytesFromStream((uint8_t*)&lsb, 1))
 				return false;
 
-			auto setTempo = new SetTempo;
-			setTempo->microsecondsPerQuarterNote = (uint32_t(msb) << 16) | (uint32_t(nmsb) << 8) | uint32_t(lsb);
-			this->data = setTempo;
+			auto tempo = new Tempo;
+			tempo->microsecondsPerQuarterNote = (uint32_t(msb) << 16) | (uint32_t(nmsb) << 8) | uint32_t(lsb);
+			this->data = tempo;
 
 			break;
 		}
@@ -431,6 +514,33 @@ MidiData::MetaEvent::MetaEvent()
 /*virtual*/ bool MidiData::MetaEvent::Encode(ByteStream& outputStream, std::string& error) const
 {
 	return false;
+}
+
+void MidiData::MetaEvent::Tempo::ToBeatsPerMinute(double& beatsPerMinute, double beatsPerQuarterNote) const
+{
+	double microsecondsPerMinute = 6e+7;
+	double quarterNotesPerMinute = microsecondsPerMinute / double(this->microsecondsPerQuarterNote);
+	beatsPerMinute = beatsPerQuarterNote * quarterNotesPerMinute;
+}
+
+void MidiData::MetaEvent::Tempo::FromBestPerMinute(double beatsPerMinute, double beatsPerQuarterNote)
+{
+	double microsecondsPerMinute = 6e+7;
+	double quarterNotesPerMinute = beatsPerMinute / beatsPerQuarterNote;
+	this->microsecondsPerQuarterNote = uint32_t(microsecondsPerMinute / quarterNotesPerMinute);
+}
+
+double MidiData::MetaEvent::TimeSignature::BeatsPerQuarterNote() const
+{
+	uint32_t actualDenominator = 1 << this->denominator;
+	switch (actualDenominator)
+	{
+		case 4: return 1.0;
+		case 8: return 2.0;
+	}
+
+	// Oh hell, I have no idea.
+	return 1.0;
 }
 
 //------------------------------- MidiData::ChannelEvent -------------------------------

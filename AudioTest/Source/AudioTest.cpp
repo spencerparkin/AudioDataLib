@@ -1,4 +1,5 @@
 #include "WaveFileFormat.h"
+#include "MidiFileFormat.h"
 #include "ByteStream.h"
 #include "AudioSink.h"
 #include "WaveForm.h"
@@ -13,9 +14,33 @@ int main(int argc, char** argv)
 	//TestWaveForm();
 	//TestWaveFormAdd();
 	//TestAudioSink();
-	TestAudioConvertFormat();
+	//TestAudioConvertFormat();
+	TestMidiSongLength();
 
 	return 0;
+}
+
+bool TestMidiSongLength()
+{
+	FileInputStream inputStream("TestData/GGMOZH.MID");
+
+	FileData* fileData = nullptr;
+	std::string error;
+	MidiFileFormat midiFileFormat;
+	midiFileFormat.ReadFromStream(inputStream, fileData, error);
+
+	MidiData* midiData = dynamic_cast<MidiData*>(fileData);
+
+	for (uint32_t i = 1; i < midiData->GetNumTracks(); i++)
+	{
+		double timeSeconds = 0.0;
+		midiData->CalculateTrackLengthInSeconds(1, timeSeconds, error);
+		printf("Track %d: %f seconds\n", i, timeSeconds);
+		// TODO: Should be about 87 seconds.  Where am I going wrong?  :(
+	}
+
+	MidiData::Destroy(midiData);
+	return true;
 }
 
 bool TestAudioSink()
