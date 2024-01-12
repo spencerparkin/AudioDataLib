@@ -58,6 +58,9 @@
     <ClInclude Include="Source\MidiRecorder.h">
       <Filter>Source</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Error.h">
+      <Filter>Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\FileFormat.cpp">
@@ -100,6 +103,9 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="Source\MidiRecorder.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Error.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>

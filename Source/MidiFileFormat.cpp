@@ -1,5 +1,6 @@
 #include "MidiFileFormat.h"
 #include "MidiData.h"
+#include "Error.h"
 
 using namespace AudioDataLib;
 
@@ -11,7 +12,7 @@ MidiFileFormat::MidiFileFormat()
 {
 }
 
-/*virtual*/ bool MidiFileFormat::ReadFromStream(ByteStream& inputStream, FileData*& fileData, std::string& error)
+/*virtual*/ bool MidiFileFormat::ReadFromStream(ByteStream& inputStream, FileData*& fileData, Error& error)
 {
 	// See: https://github.com/colxi/midi-parser-js/wiki/MIDI-File-Format-Specifications
 	//      https://majicdesigns.github.io/MD_MIDIFile/page_timing.html
@@ -30,7 +31,7 @@ MidiFileFormat::MidiFileFormat()
 		const ChunkParser::Chunk* headerChunk = chunkParser.FindChunk("MThd");
 		if (!headerChunk)
 		{
-			error = "Failed to find MIDI header chunk.";
+			error.Add("Failed to find MIDI header chunk.");
 			break;
 		}
 
@@ -38,7 +39,7 @@ MidiFileFormat::MidiFileFormat()
 		chunkParser.FindAllChunks("MTrk", trackChunkArray);
 		if (trackChunkArray.size() == 0)
 		{
-			error = "Didn't find any MIDI track chunks.";
+			error.Add("Didn't find any MIDI track chunks.");
 			break;
 		}
 
@@ -60,7 +61,7 @@ MidiFileFormat::MidiFileFormat()
 		numTracks = chunkParser.byteSwapper.Resolve(numTracks);
 		if (numTracks != trackChunkArray.size())
 		{
-			error = "Number of tracks specified in header does not match actual number of tracks.";
+			error.Add(FormatString("Number of tracks specified in header (%d) does not match actual number of tracks (%d).", numTracks, trackChunkArray.size()));
 			break;
 		}
 
@@ -118,12 +119,12 @@ MidiFileFormat::MidiFileFormat()
 	return success;
 }
 
-/*virtual*/ bool MidiFileFormat::WriteToStream(ByteStream& outputStream, FileData* fileData, std::string& error)
+/*virtual*/ bool MidiFileFormat::WriteToStream(ByteStream& outputStream, FileData* fileData, Error& error)
 {
 	return true;
 }
 
-/*static*/ bool MidiFileFormat::DecodeVariableLengthValue(uint64_t& value, ByteStream& inputStream, std::string& error)
+/*static*/ bool MidiFileFormat::DecodeVariableLengthValue(uint64_t& value, ByteStream& inputStream, Error& error)
 {
 	std::vector<uint8_t> componentsArray;
 	uint8_t byte = 0;
@@ -131,7 +132,7 @@ MidiFileFormat::MidiFileFormat()
 	{
 		if (1 != inputStream.ReadBytesFromStream(&byte, 1))
 		{
-			error = "Failed to read byte for variable-length value.";
+			error.Add("Failed to read byte for variable-length value.");
 			return false;
 		}
 
@@ -140,7 +141,7 @@ MidiFileFormat::MidiFileFormat()
 
 	if (componentsArray.size() > 4)
 	{
-		error = "Variable-length value won't fit in 64-bits.";
+		error.Add("Variable-length value won't fit in 64-bits.");
 		return false;
 	}
 
@@ -157,7 +158,7 @@ MidiFileFormat::MidiFileFormat()
 	return true;
 }
 
-/*static*/ bool MidiFileFormat::EncodeVariableLengthValue(uint64_t value, ByteStream& outputStream, std::string& error)
+/*static*/ bool MidiFileFormat::EncodeVariableLengthValue(uint64_t value, ByteStream& outputStream, Error& error)
 {
 	std::vector<uint8_t> componentsArray;
 	do
@@ -177,7 +178,7 @@ MidiFileFormat::MidiFileFormat()
 
 		if (1 != outputStream.WriteBytesToStream(&byte, 1))
 		{
-			error = "Failed to write byte for variable-length value.";
+			error.Add("Failed to write byte for variable-length value.");
 			return false;
 		}
 	}
@@ -185,21 +186,21 @@ MidiFileFormat::MidiFileFormat()
 	return true;
 }
 
-/*static*/ bool MidiFileFormat::DecodeEvent(ByteStream& inputStream, MidiData::Event*& event, std::string& error)
+/*static*/ bool MidiFileFormat::DecodeEvent(ByteStream& inputStream, MidiData::Event*& event, Error& error)
 {
 	uint64_t deltaTimeTicks = 0;
 	event = nullptr;
 
 	if (!DecodeVariableLengthValue(deltaTimeTicks, inputStream, error))
 	{
-		error += "  Could not decode delta-time.";
+		error.Add("Could not decode delta-time.");
 		return false;
 	}
 
 	uint8_t eventType = 0;
 	if (1 != inputStream.PeekBytesFromStream(&eventType, 1))
 	{
-		error = "Could not peek event type.";
+		error.Add("Could not peek event type.");
 		return false;
 	}
 	
@@ -246,7 +247,7 @@ MidiFileFormat::MidiFileFormat()
 
 	if (!event)
 	{
-		error = "Could not resolve event type.";
+		error.Add("Could not resolve event type.");
 		return false;
 	}
 	
@@ -254,7 +255,7 @@ MidiFileFormat::MidiFileFormat()
 	return true;
 }
 
-/*static*/ bool MidiFileFormat::EncodeEvent(ByteStream& outputStream, const MidiData::Event* event, std::string& error)
+/*static*/ bool MidiFileFormat::EncodeEvent(ByteStream& outputStream, const MidiData::Event* event, Error& error)
 {
 	return false;
 }

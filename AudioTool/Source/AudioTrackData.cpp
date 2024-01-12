@@ -25,27 +25,27 @@ void AudioTrackData::SetAudioData(AudioDataLib::AudioData* audioData)
 	//...
 }
 
-/*virtual*/ bool AudioTrackData::Process(std::string& error)
+/*virtual*/ bool AudioTrackData::Process(Error& error)
 {
 	return true;
 }
 
-/*virtual*/ bool AudioTrackData::BeginPlayback(std::string& error)
+/*virtual*/ bool AudioTrackData::BeginPlayback(Error& error)
 {
 	return false;
 }
 
-/*virtual*/ bool AudioTrackData::StopPlayback(std::string& error)
+/*virtual*/ bool AudioTrackData::StopPlayback(Error& error)
 {
 	return false;
 }
 
-/*virtual*/ bool AudioTrackData::BeginRecording(std::string& error)
+/*virtual*/ bool AudioTrackData::BeginRecording(Error& error)
 {
 	return false;
 }
 
-/*virtual*/ bool AudioTrackData::StopRecording(std::string& error)
+/*virtual*/ bool AudioTrackData::StopRecording(Error& error)
 {
 	return false;
 }

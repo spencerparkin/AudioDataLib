@@ -1,4 +1,5 @@
 #include "WaveForm.h"
+#include "Error.h"
 
 using namespace AudioDataLib;
 
@@ -7,6 +8,7 @@ using namespace AudioDataLib;
 WaveForm::WaveForm()
 {
 	this->sampleArray = new std::vector<Sample>();
+	this->interpMethod = InterpolationMethod::LINEAR;
 }
 
 /*virtual*/ WaveForm::~WaveForm()
@@ -47,11 +49,11 @@ uint64_t WaveForm::GetSizeBytes(const AudioData::Format& format, bool allChannel
 	return numBytes;
 }
 
-bool WaveForm::ConvertFromAudioBuffer(const AudioData::Format& format, const uint8_t* audioBuffer, uint64_t audioBufferSize, uint16_t channel, std::string& error)
+bool WaveForm::ConvertFromAudioBuffer(const AudioData::Format& format, const uint8_t* audioBuffer, uint64_t audioBufferSize, uint16_t channel, Error& error)
 {
 	if (channel >= format.numChannels)
 	{
-		error = "Invalid channel.";
+		error.Add(FormatString("Invalid channel: %d.", channel));
 		return false;
 	}
 
@@ -92,7 +94,7 @@ bool WaveForm::ConvertFromAudioBuffer(const AudioData::Format& format, const uin
 				}
 				default:
 				{
-					error = "Bad bit-depth for integers.";
+					error.Add(FormatString("Bad bit-depth (%d) for integers.", format.bitsPerSample));
 					break;
 				}
 			}
@@ -113,14 +115,14 @@ bool WaveForm::ConvertFromAudioBuffer(const AudioData::Format& format, const uin
 				}
 				default:
 				{
-					error = "Bad bit-depth for floats.";
+					error.Add(FormatString("Bad bit-depth (%d) for floats.", format.bitsPerSample));
 					break;
 				}
 			}
 		}
 		else
 		{
-			error = "Unknown sample type encountered.";
+			error.Add(FormatString("Unknown sample type (%d) encountered.", format.sampleType));
 			return false;
 		}
 
@@ -131,11 +133,11 @@ bool WaveForm::ConvertFromAudioBuffer(const AudioData::Format& format, const uin
 	return true;
 }
 
-bool WaveForm::ConvertToAudioBuffer(const AudioData::Format& format, uint8_t* audioBuffer, uint64_t audioBufferSize, uint16_t channel, std::string& error) const
+bool WaveForm::ConvertToAudioBuffer(const AudioData::Format& format, uint8_t* audioBuffer, uint64_t audioBufferSize, uint16_t channel, Error& error) const
 {
 	if (channel >= format.numChannels)
 	{
-		error = "Invalid channel.";
+		error.Add(FormatString("Invalid channel: %d", channel));
 		return false;
 	}
 
@@ -174,7 +176,7 @@ bool WaveForm::ConvertToAudioBuffer(const AudioData::Format& format, uint8_t* au
 				}
 				default:
 				{
-					error = "Bad bit-depth for integers.";
+					error.Add(FormatString("Bad bit-depth (%d) for integers.", format.bitsPerSample));
 					return false;
 				}
 			}
@@ -195,14 +197,14 @@ bool WaveForm::ConvertToAudioBuffer(const AudioData::Format& format, uint8_t* au
 				}
 				default:
 				{
-					error = "Bad bit-depth for floats.";
+					error.Add(FormatString("Bad bit-depth (%d) for floats.", format.bitsPerSample));
 					return false;
 				}
 			}
 		}
 		else
 		{
-			error = "Unknown sample type encountered.";
+			error.Add(FormatString("Unknown sample type (%d) encountered.", format.sampleType));
 			return false;
 		}
 
@@ -218,9 +220,23 @@ double WaveForm::EvaluateAt(double timeSeconds) const
 	if (!this->FindTightestSampleBounds(timeSeconds, sampleBounds))
 		return 0.0;
 
-	// TODO: Do a cubic interpolation instead?  Doing so isn't that hard.  You just have to invert a Vandermonde matrix.
-	double lerpAlpha = (timeSeconds - sampleBounds.minSample->timeSeconds) / (sampleBounds.maxSample->timeSeconds - sampleBounds.minSample->timeSeconds);
-	double interpolatedAmplitude = sampleBounds.minSample->amplitude + lerpAlpha * (sampleBounds.maxSample->amplitude - sampleBounds.minSample->amplitude);
+	double interpolatedAmplitude = 0.0;
+
+	switch (this->interpMethod)
+	{
+		case InterpolationMethod::LINEAR:
+		{
+			double lerpAlpha = (timeSeconds - sampleBounds.minSample->timeSeconds) / (sampleBounds.maxSample->timeSeconds - sampleBounds.minSample->timeSeconds);
+			interpolatedAmplitude = sampleBounds.minSample->amplitude + lerpAlpha * (sampleBounds.maxSample->amplitude - sampleBounds.minSample->amplitude);
+			break;
+		}
+		case InterpolationMethod::CUBIC:
+		{
+			// TODO: Write this.  Extend given sample bounds left/right until we have 4 samples across which we can interpolate.  Invert Vandermonde matrix.
+			break;
+		}
+	}
+	
 	return interpolatedAmplitude;
 }
 

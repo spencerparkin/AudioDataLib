@@ -81,15 +81,3 @@ void AudioToolApp::ClearAllTrackSelection()
 	for (TrackData* trackData : this->trackDataArray)
 		trackData->SetSelected(false);
 }
-
-void AudioToolApp::ShowErrorDialog(const wxArrayString& errorArray)
-{
-	if (errorArray.size() > 0)
-	{
-		wxString errorMsg = wxString::Format("%d error encountered...\n\n", errorArray.size());
-		for (int i = 0; i < (signed)errorArray.size(); i++)
-			errorMsg += errorArray[i] + "\n";
-
-		wxMessageBox(errorMsg, "Error!", wxICON_ERROR | wxOK, this->frame);
-	}
-}

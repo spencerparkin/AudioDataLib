@@ -5,6 +5,8 @@
 
 namespace AudioDataLib
 {
+	class Error;
+
 	class AUDIO_DATA_LIB_API WaveFileFormat : public FileFormat
 	{
 	public:
@@ -17,8 +19,8 @@ namespace AudioDataLib
 			IEEE_FLOAT = 3
 		};
 
-		virtual bool ReadFromStream(ByteStream& inputStream, FileData*& fileData, std::string& error) override;
-		virtual bool WriteToStream(ByteStream& outputStream, FileData* fileData, std::string& error) override;
+		virtual bool ReadFromStream(ByteStream& inputStream, FileData*& fileData, Error& error) override;
+		virtual bool WriteToStream(ByteStream& outputStream, FileData* fileData, Error& error) override;
 
 	protected:
 		class WaveChunkParser : public ChunkParser
@@ -27,7 +29,7 @@ namespace AudioDataLib
 			WaveChunkParser();
 			virtual ~WaveChunkParser();
 
-			virtual bool ParseChunkData(ReadOnlyBufferStream& inputStream, Chunk* chunk, std::string& error) override;
+			virtual bool ParseChunkData(ReadOnlyBufferStream& inputStream, Chunk* chunk, Error& error) override;
 		};
 	};
 }

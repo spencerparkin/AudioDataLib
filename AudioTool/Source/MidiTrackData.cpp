@@ -14,7 +14,7 @@ MidiTrackData::MidiTrackData()
 {
 	if (this->midiPlayer)
 	{
-		std::string error;
+		Error error;
 		this->midiPlayer->EndPlayback(error);
 		delete this->midiPlayer;
 	}
@@ -35,7 +35,7 @@ void MidiTrackData::SetMidiData(MidiData* midiData)
 	this->midiData = midiData;
 }
 
-/*virtual*/ bool MidiTrackData::Process(std::string& error)
+/*virtual*/ bool MidiTrackData::Process(Error& error)
 {
 	if (this->midiPlayer)
 	{
@@ -52,11 +52,11 @@ void MidiTrackData::SetMidiData(MidiData* midiData)
 	return true;
 }
 
-/*virtual*/ bool MidiTrackData::BeginPlayback(std::string& error)
+/*virtual*/ bool MidiTrackData::BeginPlayback(Error& error)
 {
 	if (this->GetState() != State::HAPPY)
 	{
-		error = "Can't start playing track unless it's in the happy state.";
+		error.Add("Can't start playing track unless it's in the happy state.");
 		return false;
 	}
 
@@ -77,11 +77,11 @@ void MidiTrackData::SetMidiData(MidiData* midiData)
 	return true;
 }
 
-/*virtual*/ bool MidiTrackData::StopPlayback(std::string& error)
+/*virtual*/ bool MidiTrackData::StopPlayback(Error& error)
 {
 	if (this->GetState() != State::PLAYING)
 	{
-		error = "Can't stop playback if we're not already playing.";
+		error.Add("Can't stop playback if we're not already playing.");
 		return false;
 	}
 
@@ -93,15 +93,15 @@ void MidiTrackData::SetMidiData(MidiData* midiData)
 	return success;
 }
 
-/*virtual*/ bool MidiTrackData::BeginRecording(std::string& error)
+/*virtual*/ bool MidiTrackData::BeginRecording(Error& error)
 {
-	error = "Not yet supported.";
+	error.Add("Not yet supported.");
 	return false;
 }
 
-/*virtual*/ bool MidiTrackData::StopRecording(std::string& error)
+/*virtual*/ bool MidiTrackData::StopRecording(Error& error)
 {
-	error = "No yet supported.";
+	error.Add("No yet supported.");
 	return false;
 }
 
@@ -139,11 +139,11 @@ MidiTrackData::MidiPlayer::MidiPlayer() : AudioDataLib::MidiPlayer(nullptr)
 	delete this->midiOut;
 }
 
-/*virtual*/ bool MidiTrackData::MidiPlayer::BeginPlayback(const std::set<uint32_t>& tracksToPlaySet, std::string& error)
+/*virtual*/ bool MidiTrackData::MidiPlayer::BeginPlayback(const std::set<uint32_t>& tracksToPlaySet, Error& error)
 {
 	if (this->midiOut)
 	{
-		error = "MIDI out already initialized!";
+		error.Add("MIDI out already initialized!");
 		return false;
 	}
 
@@ -156,7 +156,7 @@ MidiTrackData::MidiPlayer::MidiPlayer() : AudioDataLib::MidiPlayer(nullptr)
 		uint32_t numPorts = this->midiOut->getPortCount();
 		if (numPorts == 0)
 		{
-			error = "No output MIDI ports detected.";
+			error.Add("No output MIDI ports detected.");
 			success = false;
 		}
 		else
@@ -170,7 +170,7 @@ MidiTrackData::MidiPlayer::MidiPlayer() : AudioDataLib::MidiPlayer(nullptr)
 	}
 	catch (RtMidiError& midiError)
 	{
-		error = midiError.getMessage();
+		error.Add(midiError.getMessage());
 		success = false;
 	}
 
@@ -183,11 +183,11 @@ MidiTrackData::MidiPlayer::MidiPlayer() : AudioDataLib::MidiPlayer(nullptr)
 	return success;
 }
 
-/*virtual*/ bool MidiTrackData::MidiPlayer::EndPlayback(std::string& error)
+/*virtual*/ bool MidiTrackData::MidiPlayer::EndPlayback(Error& error)
 {
 	if (!this->midiOut)
 	{
-		error = "MIDI out not initialized!";
+		error.Add("MIDI out not initialized!");
 		return false;
 	}
 
@@ -202,7 +202,7 @@ MidiTrackData::MidiPlayer::MidiPlayer() : AudioDataLib::MidiPlayer(nullptr)
 	}
 	catch (RtMidiError& midiError)
 	{
-		error = midiError.getMessage();
+		error.Add(midiError.getMessage());
 		success = false;
 	}
 

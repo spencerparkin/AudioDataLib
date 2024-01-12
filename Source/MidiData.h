@@ -5,6 +5,8 @@
 
 namespace AudioDataLib
 {
+	class Error;
+
 	class AUDIO_DATA_LIB_API MidiData : public FileData
 	{
 		friend class MidiFileFormat;
@@ -15,7 +17,7 @@ namespace AudioDataLib
 
 		void Clear();
 
-		bool CalculateTrackLengthInSeconds(uint32_t i, double& totalTimeSeconds, std::string& error) const;
+		bool CalculateTrackLengthInSeconds(uint32_t i, double& totalTimeSeconds, Error& error) const;
 
 		static MidiData* Create();
 		static void Destroy(MidiData* midiData);
@@ -97,8 +99,8 @@ namespace AudioDataLib
 			Event();
 			virtual ~Event();
 
-			virtual bool Decode(ByteStream& inputStream, std::string& error) = 0;
-			virtual bool Encode(ByteStream& outputStream, std::string& error) const = 0;
+			virtual bool Decode(ByteStream& inputStream, Error& error) = 0;
+			virtual bool Encode(ByteStream& outputStream, Error& error) const = 0;
 
 			uint64_t deltaTimeTicks;
 		};
@@ -109,8 +111,8 @@ namespace AudioDataLib
 			SystemExclusiveEvent();
 			virtual ~SystemExclusiveEvent();
 
-			virtual bool Decode(ByteStream& inputStream, std::string& error) override;
-			virtual bool Encode(ByteStream& outputStream, std::string& error) const override;
+			virtual bool Decode(ByteStream& inputStream, Error& error) override;
+			virtual bool Encode(ByteStream& outputStream, Error& error) const override;
 		};
 
 		class AUDIO_DATA_LIB_API MetaEvent : public Event
@@ -119,8 +121,8 @@ namespace AudioDataLib
 			MetaEvent();
 			virtual ~MetaEvent();
 
-			virtual bool Decode(ByteStream& inputStream, std::string& error) override;
-			virtual bool Encode(ByteStream& outputStream, std::string& error) const override;
+			virtual bool Decode(ByteStream& inputStream, Error& error) override;
+			virtual bool Encode(ByteStream& outputStream, Error& error) const override;
 
 			enum Type : uint8_t
 			{
@@ -269,8 +271,8 @@ namespace AudioDataLib
 			ChannelEvent();
 			virtual ~ChannelEvent();
 
-			virtual bool Decode(ByteStream& inputStream, std::string& error) override;
-			virtual bool Encode(ByteStream& outputStream, std::string& error) const override;
+			virtual bool Decode(ByteStream& inputStream, Error& error) override;
+			virtual bool Encode(ByteStream& outputStream, Error& error) const override;
 
 			enum Type : uint8_t
 			{

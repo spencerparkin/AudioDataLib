@@ -3,6 +3,7 @@
 #include <wx/string.h>
 #include <wx/dcclient.h>
 #include "FileData.h"
+#include "Error.h"
 
 class TrackData
 {
@@ -22,11 +23,11 @@ public:
 	static TrackData* MakeTrackDataFor(AudioDataLib::FileData* fileData);
 
 	virtual void Render(wxPaintDC& paintDC) const = 0;
-	virtual bool Process(std::string& error) = 0;
-	virtual bool BeginPlayback(std::string& error) = 0;
-	virtual bool StopPlayback(std::string& error) = 0;
-	virtual bool BeginRecording(std::string& error) = 0;
-	virtual bool StopRecording(std::string& error) = 0;
+	virtual bool Process(AudioDataLib::Error& error) = 0;
+	virtual bool BeginPlayback(AudioDataLib::Error& error) = 0;
+	virtual bool StopPlayback(AudioDataLib::Error& error) = 0;
+	virtual bool BeginRecording(AudioDataLib::Error& error) = 0;
+	virtual bool StopRecording(AudioDataLib::Error& error) = 0;
 	virtual bool GetStatusMessage(std::string& statusMsg) const = 0;
 
 	enum State

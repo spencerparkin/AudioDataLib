@@ -5,6 +5,8 @@
 
 namespace AudioDataLib
 {
+	class Error;
+
 	class AUDIO_DATA_LIB_API ChunkParser
 	{
 	public:
@@ -13,10 +15,10 @@ namespace AudioDataLib
 		ChunkParser();
 		virtual ~ChunkParser();
 
-		virtual bool ParseChunkData(ReadOnlyBufferStream& inputStream, Chunk* chunk, std::string& error);
+		virtual bool ParseChunkData(ReadOnlyBufferStream& inputStream, Chunk* chunk, Error& error);
 
 		void Clear();
-		bool ParseStream(ByteStream& inputStream, std::string& error);
+		bool ParseStream(ByteStream& inputStream, Error& error);
 		const Chunk* FindChunk(const std::string& chunkName) const;
 		void FindAllChunks(const std::string& chunkName, std::vector<const Chunk*>& chunkArray) const;
 
@@ -28,8 +30,8 @@ namespace AudioDataLib
 			Chunk();
 			virtual ~Chunk();
 
-			bool ParseStream(ReadOnlyBufferStream& inputStream, ChunkParser* chunkParser, std::string& error);
-			bool ParseSubChunks(ReadOnlyBufferStream& inputStream, ChunkParser* chunkParser, std::string& error);
+			bool ParseStream(ReadOnlyBufferStream& inputStream, ChunkParser* chunkParser, Error& error);
+			bool ParseSubChunks(ReadOnlyBufferStream& inputStream, ChunkParser* chunkParser, Error& error);
 
 			const Chunk* FindChunk(const std::string& chunkName) const;
 			void FindAllChunks(const std::string& chunkName, std::vector<const Chunk*>& chunkArray) const;

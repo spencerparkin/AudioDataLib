@@ -4,6 +4,8 @@
 
 namespace AudioDataLib
 {
+	class Error;
+
 	// TODO: Might be interesting to one day be able to convert to/from another form using FFT.
 	class AUDIO_DATA_LIB_API WaveForm
 	{
@@ -15,8 +17,8 @@ namespace AudioDataLib
 
 		uint64_t GetSizeBytes(const AudioData::Format& format, bool allChannels) const;
 
-		bool ConvertFromAudioBuffer(const AudioData::Format& format, const uint8_t* audioBuffer, uint64_t audioBufferSize, uint16_t channel, std::string& error);
-		bool ConvertToAudioBuffer(const AudioData::Format& format, uint8_t* audioBuffer, uint64_t audioBufferSize, uint16_t channel, std::string& error) const;
+		bool ConvertFromAudioBuffer(const AudioData::Format& format, const uint8_t* audioBuffer, uint64_t audioBufferSize, uint16_t channel, Error& error);
+		bool ConvertToAudioBuffer(const AudioData::Format& format, uint8_t* audioBuffer, uint64_t audioBufferSize, uint16_t channel, Error& error) const;
 
 		struct Sample
 		{
@@ -30,6 +32,12 @@ namespace AudioDataLib
 			const Sample* maxSample;
 			
 			bool ContainsTime(double timeSeconds) const;
+		};
+
+		enum InterpolationMethod
+		{
+			LINEAR,
+			CUBIC
 		};
 
 		void Clear();
@@ -48,6 +56,8 @@ namespace AudioDataLib
 		uint64_t GetNumSamples() const;
 		double GetMaxAmplitude() const;
 		double GetMinAmplitude() const;
+		InterpolationMethod GetInterpolationMethod() const { return this->interpMethod; }
+		void SetInterpolateionMethod(InterpolationMethod interpMethod) { this->interpMethod = interpMethod; }
 
 	protected:
 
@@ -104,5 +114,6 @@ namespace AudioDataLib
 
 		// We assume the samples are all in order according to time.
 		std::vector<Sample>* sampleArray;
+		InterpolationMethod interpMethod;
 	};
 }

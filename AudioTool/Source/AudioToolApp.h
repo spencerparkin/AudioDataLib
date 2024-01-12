@@ -26,8 +26,6 @@ public:
 	void GetAllTracks(std::vector<TrackData*>& selectedTracksArray, bool thatAreSelected);
 	void ClearAllTrackSelection();
 
-	void ShowErrorDialog(const wxArrayString& errorArray);
-
 private:
 
 	std::vector<TrackData*> trackDataArray;

@@ -9,6 +9,7 @@ namespace AudioDataLib
 {
 	class MidiData;
 	class Mutex;
+	class Error;
 
 	// This class is meant to be used in conjection with some other library that provides
 	// access to a MIDI device.  Here we provide a convenient way to feed the MIDI device
@@ -26,13 +27,13 @@ namespace AudioDataLib
 		void SetTimeSeconds(double timeSeconds) { this->timeSeconds = timeSeconds; }
 		double GetTimeSeconds() const { return this->timeSeconds; }
 
-		virtual bool BeginPlayback(const std::set<uint32_t>& tracksToPlaySet, std::string& error);
-		virtual bool EndPlayback(std::string& error);
+		virtual bool BeginPlayback(const std::set<uint32_t>& tracksToPlaySet, Error& error);
+		virtual bool EndPlayback(Error& error);
 
 		// This gets called every iteration of the user's main program loop.  This class
 		// keeps time and knows when to fire the SendMessage() method and with what data.
 		// If this method is not called often enough, it can result in faulty play-back.
-		virtual bool ManagePlayback(std::string& error);
+		virtual bool ManagePlayback(Error& error);
 
 		// This should get implemented by a user-drived class to send the
 		// given message to the MIDI device.
@@ -49,11 +50,11 @@ namespace AudioDataLib
 			TrackPlayer(uint32_t trackOffset, const MidiData::MetaEvent::Tempo& tempo);
 			virtual ~TrackPlayer();
 
-			bool Advance(double deltaTimeSeconds, MidiPlayer* midiPlayer, bool makeSound, std::string& error);
+			bool Advance(double deltaTimeSeconds, MidiPlayer* midiPlayer, bool makeSound, Error& error);
 			bool MoreToPlay(MidiPlayer* midiPlayer);
 
 		private:
-			bool ProcessEvent(const MidiData::Event* event, MidiPlayer* midiPlayer, bool makeSound, std::string& error);
+			bool ProcessEvent(const MidiData::Event* event, MidiPlayer* midiPlayer, bool makeSound, Error& error);
 
 			uint32_t trackOffset;
 			uint32_t nextTrackEventOffset;

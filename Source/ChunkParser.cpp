@@ -1,4 +1,5 @@
 #include "ChunkParser.h"
+#include "Error.h"
 
 using namespace AudioDataLib;
 
@@ -26,14 +27,14 @@ void ChunkParser::Clear()
 	this->bufferSize = 0;
 }
 
-bool ChunkParser::ParseStream(ByteStream& inputStream, std::string& error)
+bool ChunkParser::ParseStream(ByteStream& inputStream, Error& error)
 {
 	this->Clear();
 
 	this->bufferSize = (uint32_t)inputStream.GetSize();
 	if (this->bufferSize == 0)
 	{
-		error = "No bytes to read.";
+		error.Add("No bytes to read.");
 		return false;
 	}
 
@@ -41,7 +42,7 @@ bool ChunkParser::ParseStream(ByteStream& inputStream, std::string& error)
 	uint64_t numBytesRead = inputStream.ReadBytesFromStream(this->buffer, this->bufferSize);
 	if (numBytesRead != this->bufferSize)
 	{
-		error = "Couldn't read the entire stream.";
+		error.Add("Couldn't read the entire stream.");
 		return false;
 	}
 
@@ -55,7 +56,7 @@ bool ChunkParser::ParseStream(ByteStream& inputStream, std::string& error)
 	return true;
 }
 
-/*virtual*/ bool ChunkParser::ParseChunkData(ReadOnlyBufferStream& inputStream, Chunk* chunk, std::string& error)
+/*virtual*/ bool ChunkParser::ParseChunkData(ReadOnlyBufferStream& inputStream, Chunk* chunk, Error& error)
 {
 	// Unfortunately, the RIFF format is not so generic that the parser can do
 	// everything entirely by itself.  Sub-chunks may exist, but it is up to
@@ -126,12 +127,12 @@ void ChunkParser::Chunk::FindAllChunks(const std::string& chunkName, std::vector
 		subChunk->FindAllChunks(chunkName, chunkArray);
 }
 
-bool ChunkParser::Chunk::ParseStream(ReadOnlyBufferStream& inputStream, ChunkParser* chunkParser, std::string& error)
+bool ChunkParser::Chunk::ParseStream(ReadOnlyBufferStream& inputStream, ChunkParser* chunkParser, Error& error)
 {
 	char nameBuf[5];
 	if (4 != inputStream.ReadBytesFromStream((uint8_t*)&nameBuf, 4))
 	{
-		error = "Failed to read chunk name.";
+		error.Add("Failed to read chunk name.");
 		return false;
 	}
 
@@ -140,7 +141,7 @@ bool ChunkParser::Chunk::ParseStream(ReadOnlyBufferStream& inputStream, ChunkPar
 
 	if (4 != inputStream.ReadBytesFromStream((uint8_t*)&this->bufferSize, sizeof(uint32_t)))
 	{
-		error = "Could not read chunk size.";
+		error.Add("Could not read chunk size.");
 		return false;
 	}
 
@@ -157,7 +158,7 @@ bool ChunkParser::Chunk::ParseStream(ReadOnlyBufferStream& inputStream, ChunkPar
 	return true;
 }
 
-bool ChunkParser::Chunk::ParseSubChunks(ReadOnlyBufferStream& inputStream, ChunkParser* chunkParser, std::string& error)
+bool ChunkParser::Chunk::ParseSubChunks(ReadOnlyBufferStream& inputStream, ChunkParser* chunkParser, Error& error)
 {
 	while (inputStream.CanRead())
 	{

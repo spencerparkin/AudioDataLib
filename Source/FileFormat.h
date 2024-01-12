@@ -6,6 +6,7 @@ namespace AudioDataLib
 {
 	class FileData;
 	class ByteStream;
+	class Error;
 
 	class AUDIO_DATA_LIB_API FileFormat
 	{
@@ -13,8 +14,8 @@ namespace AudioDataLib
 		FileFormat();
 		virtual ~FileFormat();
 
-		virtual bool ReadFromStream(ByteStream& inputStream, FileData*& fileData, std::string& error) = 0;
-		virtual bool WriteToStream(ByteStream& outputStream, FileData* fileData, std::string& error) = 0;
+		virtual bool ReadFromStream(ByteStream& inputStream, FileData*& fileData, Error& error) = 0;
+		virtual bool WriteToStream(ByteStream& outputStream, FileData* fileData, Error& error) = 0;
 
 		static FileFormat* CreateForFile(const std::string& filePath);
 		static void Destroy(FileFormat* fileFormat);

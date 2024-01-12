@@ -1,5 +1,6 @@
 #include "AudioSink.h"
 #include "WaveForm.h"
+#include "Error.h"
 
 using namespace AudioDataLib;
 
@@ -146,7 +147,7 @@ void AudioSink::GenerateAudio(double desiredSecondsAvailable, double minSecondsA
 	else
 	{
 		// Grab audio buffers from all the inputs and transform them into wave form space.
-		std::string error;
+		Error error;
 		double secondsNeeded = this->audioStreamOut->GetFormat().BytesToSeconds(numBytesNeeded);
 		auto waveFormListArray = new std::list<WaveForm*>[this->audioStreamOut->GetFormat().numChannels];
 		for (AudioStream* audioStreamIn : *this->audioStreamInArray)

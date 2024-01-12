@@ -85,16 +85,15 @@ void AudioToolFrame::OnTimer(wxTimerEvent& event)
 
 	this->inTimer = true;
 
-	wxArrayString errorArray;
+	Error error;
 	std::string statusBarText;
 
 	std::vector<TrackData*> tracksArray;
 	wxGetApp().GetAllTracks(tracksArray, false);
 	for (TrackData* trackData : tracksArray)
 	{
-		std::string error;
-		if (!trackData->Process(error))
-			errorArray.push_back(error);
+		
+		trackData->Process(error);
 
 		std::string statusMessage;
 		if (trackData->GetStatusMessage(statusMessage))
@@ -107,9 +106,9 @@ void AudioToolFrame::OnTimer(wxTimerEvent& event)
 
 	this->GetStatusBar()->SetStatusText(statusBarText);
 
-	if (errorArray.size() > 0)
+	if (error)
 	{
-		wxGetApp().ShowErrorDialog(errorArray);
+		wxMessageBox(error.GetMessage().c_str(), "Error!", wxICON_ERROR | wxOK, wxGetApp().GetFrame());
 		this->timer.Stop();
 	}
 
@@ -151,30 +150,29 @@ void AudioToolFrame::OnImportAudio(wxCommandEvent& event)
 	if (filePathArray.size() == 0)
 		return;
 
-	wxArrayString errorArray;
+	Error error;
 
 	for(const wxString& filePath : filePathArray)
 	{
 		FileFormat* fileFormat = FileFormat::CreateForFile((const char*)filePath.c_str());
 		if (!fileFormat)
 		{
-			errorArray.push_back(wxString::Format("Support loading files of type (%s) does not yet exist.", filePath.c_str()));
+			error.Add(FormatString("Support loading files of type (%s) does not yet exist.", filePath.c_str()));
 			continue;
 		}
 		
-		std::string error;
 		FileData* fileData = nullptr;
 		FileInputStream inputStream(filePath.c_str());
 		if (!inputStream.IsOpen())
-			errorArray.push_back("Failed to open file: " + filePath);
+			error.Add(FormatString("Failed to open file: %s", (const char*)filePath.c_str()));
 		else if(!fileFormat->ReadFromStream(inputStream, fileData, error))
-			errorArray.push_back(wxString::Format("Failed to load file %s: %s", filePath.c_str(), error.c_str()));
+			error.Add(FormatString("Failed to load file %s", (const char*)filePath.c_str()));
 
 		TrackData* trackData = TrackData::MakeTrackDataFor(fileData);
 		if (!trackData)
 		{
 			delete fileData;
-			errorArray.push_back("Can't create track for file data.");
+			error.Add("Can't create track for file data.");
 		}
 		else
 		{
@@ -189,7 +187,8 @@ void AudioToolFrame::OnImportAudio(wxCommandEvent& event)
 		FileFormat::Destroy(fileFormat);
 	}
 
-	wxGetApp().ShowErrorDialog(errorArray);
+	if (error)
+		wxMessageBox(error.GetMessage().c_str(), "Error!", wxICON_ERROR | wxOK, wxGetApp().GetFrame());
 
 	this->Layout();
 	this->Refresh();
@@ -206,40 +205,30 @@ void AudioToolFrame::OnSkip(wxCommandEvent& event)
 
 void AudioToolFrame::OnStop(wxCommandEvent& event)
 {
-	wxArrayString errorArray;
+	Error error;
 
 	std::vector<TrackData*> trackDataArray;
 	wxGetApp().GetAllTracks(trackDataArray, false);
 	for (TrackData* trackData : trackDataArray)
-	{
 		if (trackData->GetState() == TrackData::State::PLAYING)
-		{
-			std::string error;
-			if (!trackData->StopPlayback(error))
-				errorArray.push_back(trackData->GetName() + ": " + error.c_str());
-		}
-	}
+			trackData->StopPlayback(error);
 
-	wxGetApp().ShowErrorDialog(errorArray);
+	if (error)
+		wxMessageBox(error.GetMessage().c_str(), "Error!", wxICON_ERROR | wxOK, wxGetApp().GetFrame());
 }
 
 void AudioToolFrame::OnPlay(wxCommandEvent& event)
 {
-	wxArrayString errorArray;
+	Error error;
 
 	std::vector<TrackData*> trackDataArray;
 	wxGetApp().GetAllTracks(trackDataArray, true);
 	for (TrackData* trackData : trackDataArray)
-	{
 		if (trackData->GetState() == TrackData::State::HAPPY)
-		{
-			std::string error;
-			if (!trackData->BeginPlayback(error))
-				errorArray.push_back(trackData->GetName() + ": " + error.c_str());
-		}
-	}
+			trackData->BeginPlayback(error);
 
-	wxGetApp().ShowErrorDialog(errorArray);
+	if (error)
+		wxMessageBox(error.GetMessage().c_str(), "Error!", wxICON_ERROR | wxOK, wxGetApp().GetFrame());
 }
 
 void AudioToolFrame::OnPause(wxCommandEvent& event)

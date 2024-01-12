@@ -1,5 +1,6 @@
 #include "MidiData.h"
 #include "MidiFileFormat.h"
+#include "Error.h"
 
 using namespace AudioDataLib;
 
@@ -71,14 +72,14 @@ bool MidiData::RemoveTrack(uint32_t i)
 	return false;
 }
 
-bool MidiData::CalculateTrackLengthInSeconds(uint32_t i, double& totalTimeSeconds, std::string& error) const
+bool MidiData::CalculateTrackLengthInSeconds(uint32_t i, double& totalTimeSeconds, Error& error) const
 {
 	totalTimeSeconds = 0.0;
 
 	const Track* track = this->GetTrack(i);
 	if (!track)
 	{
-		error = "Track not found.";
+		error.Add(FormatString("Track (%d) not found.", i));
 		return false;
 	}
 	
@@ -95,14 +96,14 @@ bool MidiData::CalculateTrackLengthInSeconds(uint32_t i, double& totalTimeSecond
 	{
 		if (i == 0)
 		{
-			error = "Doesn't make sense to measure length of the info track.";
+			error.Add("Doesn't make sense to measure length of the info track.");
 			return false;
 		}
 
 		const Track* infoTrack = this->GetTrack(0);
 		if (!infoTrack)
 		{
-			error = "Info track not found.";
+			error.Add("Info track not found.");
 			return false;
 		}
 
@@ -149,7 +150,7 @@ bool MidiData::CalculateTrackLengthInSeconds(uint32_t i, double& totalTimeSecond
 			}
 			else if (this->timing.type == Timing::FRAMES_PER_SECOND)
 			{
-				error = "Calculating time with FPS is not yet supported.";
+				error.Add("Calculating time with FPS is not yet supported.");
 				return false;
 			}
 
@@ -211,12 +212,12 @@ MidiData::SystemExclusiveEvent::SystemExclusiveEvent()
 {
 }
 
-/*virtual*/ bool MidiData::SystemExclusiveEvent::Decode(ByteStream& inputStream, std::string& error)
+/*virtual*/ bool MidiData::SystemExclusiveEvent::Decode(ByteStream& inputStream, Error& error)
 {
 	return false;
 }
 
-/*virtual*/ bool MidiData::SystemExclusiveEvent::Encode(ByteStream& outputStream, std::string& error) const
+/*virtual*/ bool MidiData::SystemExclusiveEvent::Encode(ByteStream& outputStream, Error& error) const
 {
 	return false;
 }
@@ -292,31 +293,31 @@ MidiData::MetaEvent::MetaEvent()
 	}
 }
 
-/*virtual*/ bool MidiData::MetaEvent::Decode(ByteStream& inputStream, std::string& error)
+/*virtual*/ bool MidiData::MetaEvent::Decode(ByteStream& inputStream, Error& error)
 {
 	if (this->type != Type::UNKNOWN || this->data != nullptr)
 	{
-		error = "Meta-event already decoded.";
+		error.Add("Meta-event already decoded.");
 		return false;
 	}
 
 	uint8_t eventType = 0;
 	if (1 != inputStream.ReadBytesFromStream(&eventType, 1))
 	{
-		error = "Could not read event type byte.";
+		error.Add("Could not read event type byte.");
 		return false;
 	}
 
 	if (eventType != 0xFF)
 	{
-		error = "Can't decode meta-event if type is not 0xFF.";
+		error.Add("Can't decode meta-event if type is not 0xFF.");
 		return false;
 	}
 
 	uint8_t subTypeByte = 0;
 	if (1 != inputStream.ReadBytesFromStream(&subTypeByte, 1))
 	{
-		error = "Could not read type byte.";
+		error.Add("Could not read type byte.");
 		return false;
 	}
 
@@ -332,7 +333,7 @@ MidiData::MetaEvent::MetaEvent()
 		{
 			if (dataLength != 2)
 			{
-				error = "Expected length 2 for sequence number type.";
+				error.Add("Expected length 2 for sequence number type.");
 				return false;
 			}
 
@@ -361,7 +362,7 @@ MidiData::MetaEvent::MetaEvent()
 			text->buffer = new char[(size_t)dataLength + 1];
 			if (dataLength != inputStream.ReadBytesFromStream((uint8_t*)text->buffer, dataLength))
 			{
-				error = "Failed to read text from meta event.";
+				error.Add("Failed to read text from meta event.");
 				return false;
 			}
 
@@ -375,7 +376,7 @@ MidiData::MetaEvent::MetaEvent()
 
 			if (dataLength != 1)
 			{
-				error = "Expected 1 bytes for channel prefix.";
+				error.Add("Expected 1 bytes for channel prefix.");
 				return false;
 			}
 
@@ -388,7 +389,7 @@ MidiData::MetaEvent::MetaEvent()
 		{
 			if (dataLength != 0)
 			{
-				error = "Expected 0 bytes for channel prefix.";
+				error.Add("Expected 0 bytes for channel prefix.");
 				return false;
 			}
 
@@ -398,7 +399,7 @@ MidiData::MetaEvent::MetaEvent()
 		{
 			if (dataLength != 3)
 			{
-				error = "Expected 3 bytes for set tempo meta-event.";
+				error.Add("Expected 3 bytes for set tempo meta-event.");
 				return false;
 			}
 
@@ -423,7 +424,7 @@ MidiData::MetaEvent::MetaEvent()
 		{
 			if (dataLength != 5)
 			{
-				error = "Expected 5 bytes for SMPTE offset meta-event.";
+				error.Add("Expected 5 bytes for SMPTE offset meta-event.");
 				return false;
 			}
 
@@ -451,7 +452,7 @@ MidiData::MetaEvent::MetaEvent()
 		{
 			if (dataLength != 4)
 			{
-				error = "Expected 4 bytes for time signature meta-event.";
+				error.Add("Expected 4 bytes for time signature meta-event.");
 				return false;
 			}
 
@@ -476,7 +477,7 @@ MidiData::MetaEvent::MetaEvent()
 		{
 			if (dataLength != 2)
 			{
-				error = "Expected 2 bytes for key signature meta-events.";
+				error.Add("Expected 2 bytes for key signature meta-events.");
 				return false;
 			}
 
@@ -495,7 +496,7 @@ MidiData::MetaEvent::MetaEvent()
 		{
 			if (dataLength == 0)
 			{
-				error = "Got zero data size for manufacturer-specific data meta-event.";
+				error.Add("Got zero data size for manufacturer-specific data meta-event.");
 				return false;
 			}
 
@@ -506,7 +507,7 @@ MidiData::MetaEvent::MetaEvent()
 			opaque->buffer = new uint8_t[(uint32_t)dataLength];
 			if (dataLength != inputStream.ReadBytesFromStream(opaque->buffer, dataLength))
 			{
-				error = "Failed to read manufacturer-specific data for meta-event.";
+				error.Add("Failed to read manufacturer-specific data for meta-event.");
 				return false;
 			}
 
@@ -517,7 +518,7 @@ MidiData::MetaEvent::MetaEvent()
 	return true;
 }
 
-/*virtual*/ bool MidiData::MetaEvent::Encode(ByteStream& outputStream, std::string& error) const
+/*virtual*/ bool MidiData::MetaEvent::Encode(ByteStream& outputStream, Error& error) const
 {
 	return false;
 }
@@ -536,18 +537,18 @@ MidiData::ChannelEvent::ChannelEvent()
 {
 }
 
-/*virtual*/ bool MidiData::ChannelEvent::Decode(ByteStream& inputStream, std::string& error)
+/*virtual*/ bool MidiData::ChannelEvent::Decode(ByteStream& inputStream, Error& error)
 {
 	if (this->type != Type::UNKNOWN)
 	{
-		error = "Channel event already decoded.";
+		error.Add("Channel event already decoded.");
 		return false;
 	}
 
 	uint8_t eventType = 0;
 	if (1 != inputStream.ReadBytesFromStream(&eventType, 1))
 	{
-		error = "Could not read event-type/channel byte.";
+		error.Add("Could not read event-type/channel byte.");
 		return false;
 	}
 
@@ -556,7 +557,7 @@ MidiData::ChannelEvent::ChannelEvent()
 
 	if (1 != inputStream.ReadBytesFromStream(&this->param1, 1))
 	{
-		error = "Could not read param 1.";
+		error.Add("Could not read param 1.");
 		return false;
 	}
 
@@ -564,7 +565,7 @@ MidiData::ChannelEvent::ChannelEvent()
 	{
 		if (1 != inputStream.ReadBytesFromStream(&this->param2, 1))
 		{
-			error = "Could not read param 2.";
+			error.Add("Could not read param 2.");
 			return false;
 		}
 	}
@@ -572,24 +573,24 @@ MidiData::ChannelEvent::ChannelEvent()
 	return true;
 }
 
-/*virtual*/ bool MidiData::ChannelEvent::Encode(ByteStream& outputStream, std::string& error) const
+/*virtual*/ bool MidiData::ChannelEvent::Encode(ByteStream& outputStream, Error& error) const
 {
 	if (this->type == Type::UNKNOWN)
 	{
-		error = "Can't encode unknown channel event type.";
+		error.Add("Can't encode unknown channel event type.");
 		return false;
 	}
 
 	uint8_t eventType = (uint8_t(this->type) << 4) | this->channel;
 	if (1 != outputStream.WriteBytesToStream((const uint8_t*)&eventType, 1))
 	{
-		error = "Couldn't write event-type/channel byte.";
+		error.Add("Couldn't write event-type/channel byte.");
 		return false;
 	}
 
 	if (1 != outputStream.WriteBytesToStream(&this->param1, 1))
 	{
-		error = "Could not write param 1.";
+		error.Add("Could not write param 1.");
 		return false;
 	}
 
@@ -597,7 +598,7 @@ MidiData::ChannelEvent::ChannelEvent()
 	{
 		if (1 != outputStream.WriteBytesToStream(&this->param2, 1))
 		{
-			error = "Could not write param 2.";
+			error.Add("Could not write param 2.");
 			return false;
 		}
 	}

@@ -4,6 +4,7 @@
 #include "AudioSink.h"
 #include "WaveForm.h"
 #include "AudioTest.h"
+#include "Error.h"
 #include <iostream>
 
 using namespace AudioDataLib;
@@ -25,7 +26,7 @@ bool TestMidiSongLength()
 	FileInputStream inputStream("TestData/GGMOZH.MID");
 
 	FileData* fileData = nullptr;
-	std::string error;
+	Error error;
 	MidiFileFormat midiFileFormat;
 	midiFileFormat.ReadFromStream(inputStream, fileData, error);
 
@@ -45,7 +46,7 @@ bool TestMidiSongLength()
 bool TestAudioSink()
 {
 	bool success = false;
-	std::string error;
+	Error error;
 
 	WaveFileFormat waveFileFormat;
 
@@ -104,8 +105,8 @@ bool TestAudioSink()
 
 	} while (false);
 
-	if (error.size() > 0)
-		std::cout << error << std::endl;
+	if (error)
+		std::cout << error.GetMessage() << std::endl;
 
 	delete fileDataA;
 	delete fileDataB;
@@ -120,7 +121,7 @@ bool TestWaveForm()
 	FileInputStream inputStream("TestData/TestAudio1.wav");
 
 	FileData* fileData = nullptr;
-	std::string error;
+	Error error;
 	bool loadedWave = waveFileFormat.ReadFromStream(inputStream, fileData, error);
 	assert(loadedWave);
 
@@ -152,7 +153,7 @@ bool TestWaveFormat()
 	FileInputStream inputStream("TestData/TestAudio1.wav");
 
 	FileData* fileData = nullptr;
-	std::string error;
+	Error error;
 	bool loadedWave = waveFileFormat.ReadFromStream(inputStream, fileData, error);
 	assert(loadedWave);
 
@@ -183,7 +184,7 @@ bool TestWaveFormAdd()
 	FileInputStream inputStreamA("TestData/TestAudio1.wav");
 	FileInputStream inputStreamB("TestData/TestAudio2.wav");
 
-	std::string error;
+	Error error;
 
 	waveFileFormat.ReadFromStream(inputStreamA, fileDataA, error);
 	waveFileFormat.ReadFromStream(inputStreamB, fileDataB, error);
@@ -223,7 +224,7 @@ bool TestAudioConvertFormat()
 	FileInputStream inputStream("TestData/TestAudio1.wav");
 
 	FileData* fileData = nullptr;
-	std::string error;
+	Error error;
 	bool loadedWave = waveFileFormat.ReadFromStream(inputStream, fileData, error);
 	assert(loadedWave);
 
