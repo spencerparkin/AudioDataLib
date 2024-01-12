@@ -54,3 +54,8 @@ void AudioTrackData::SetAudioData(AudioDataLib::AudioData* audioData)
 {
 	return State::HAPPY;
 }
+
+/*virtual*/ bool AudioTrackData::GetStatusMessage(std::string& statusMsg) const
+{
+	return false;
+}

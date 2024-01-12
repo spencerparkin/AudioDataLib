@@ -41,6 +41,12 @@ void MidiTrackData::SetMidiData(MidiData* midiData)
 	{
 		if (!this->midiPlayer->ManagePlayback(error))
 			return false;
+
+		if (this->midiPlayer->NoMoreToPlay())
+		{
+			if (!this->StopPlayback(error))
+				return false;
+		}
 	}
 
 	return true;
@@ -105,6 +111,20 @@ void MidiTrackData::SetMidiData(MidiData* midiData)
 		return State::PLAYING;
 
 	return State::HAPPY;
+}
+
+/*virtual*/ bool MidiTrackData::GetStatusMessage(std::string& statusMsg) const
+{
+	if (this->midiPlayer)
+	{
+		double timeSeconds = this->midiPlayer->GetTimeSeconds();
+		char msgBuf[1024];
+		sprintf(msgBuf, "Player at %f seconds.", timeSeconds);
+		statusMsg = msgBuf;
+		return true;
+	}
+
+	return false;
 }
 
 //---------------------------- MidiTrackData::MidiPlayer ----------------------------

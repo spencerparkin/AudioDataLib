@@ -27,6 +27,7 @@ public:
 	virtual bool StopPlayback(std::string& error) = 0;
 	virtual bool BeginRecording(std::string& error) = 0;
 	virtual bool StopRecording(std::string& error) = 0;
+	virtual bool GetStatusMessage(std::string& statusMsg) const = 0;
 
 	enum State
 	{

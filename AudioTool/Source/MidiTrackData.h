@@ -18,6 +18,7 @@ public:
 	virtual bool BeginRecording(std::string& error) override;
 	virtual bool StopRecording(std::string& error) override;
 	virtual State GetState() const override;
+	virtual bool GetStatusMessage(std::string& statusMsg) const override;
 
 	void SetMidiData(AudioDataLib::MidiData* midiData);
 

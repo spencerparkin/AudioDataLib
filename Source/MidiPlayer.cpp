@@ -82,6 +82,15 @@ void MidiPlayer::Clear()
 	// The override should send the given message to a MIDI device.
 }
 
+bool MidiPlayer::NoMoreToPlay()
+{
+	for (TrackPlayer* trackPlayer : *this->trackPlayerArray)
+		if (trackPlayer->MoreToPlay(this))
+			return false;
+	
+	return true;
+}
+
 //------------------------------- MidiPlayer::TrackPlayer -------------------------------
 
 MidiPlayer::TrackPlayer::TrackPlayer(uint32_t trackOffset)
@@ -95,6 +104,15 @@ MidiPlayer::TrackPlayer::TrackPlayer(uint32_t trackOffset)
 
 /*virtual*/ MidiPlayer::TrackPlayer::~TrackPlayer()
 {
+}
+
+bool MidiPlayer::TrackPlayer::MoreToPlay(MidiPlayer* midiPlayer)
+{
+	const MidiData::Track* track = midiPlayer->midiData->GetTrack(this->trackOffset);
+	if (!track)
+		return false;
+
+	return this->nextTrackEventOffset < track->GetEventArray().size();
 }
 
 bool MidiPlayer::TrackPlayer::Advance(double deltaTimeSeconds, MidiPlayer* midiPlayer, bool makeSound, std::string& error)

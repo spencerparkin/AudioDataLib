@@ -38,6 +38,8 @@ namespace AudioDataLib
 		// given message to the MIDI device.
 		virtual void SendMessage(const uint8_t* message, uint64_t messageSize);
 
+		bool NoMoreToPlay();
+
 	protected:
 		void Clear();
 
@@ -48,6 +50,7 @@ namespace AudioDataLib
 			virtual ~TrackPlayer();
 
 			bool Advance(double deltaTimeSeconds, MidiPlayer* midiPlayer, bool makeSound, std::string& error);
+			bool MoreToPlay(MidiPlayer* midiPlayer);
 
 		private:
 			bool ProcessEvent(const MidiData::Event* event, MidiPlayer* midiPlayer, bool makeSound, std::string& error);

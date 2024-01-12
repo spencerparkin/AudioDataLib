@@ -86,6 +86,7 @@ void AudioToolFrame::OnTimer(wxTimerEvent& event)
 	this->inTimer = true;
 
 	wxArrayString errorArray;
+	std::string statusBarText;
 
 	std::vector<TrackData*> tracksArray;
 	wxGetApp().GetAllTracks(tracksArray, false);
@@ -94,7 +95,17 @@ void AudioToolFrame::OnTimer(wxTimerEvent& event)
 		std::string error;
 		if (!trackData->Process(error))
 			errorArray.push_back(error);
+
+		std::string statusMessage;
+		if (trackData->GetStatusMessage(statusMessage))
+		{
+			if (statusBarText.length() > 0)
+				statusBarText += " | ";
+			statusBarText += statusMessage;
+		}
 	}
+
+	this->GetStatusBar()->SetStatusText(statusBarText);
 
 	if (errorArray.size() > 0)
 	{

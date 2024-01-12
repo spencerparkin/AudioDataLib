@@ -21,6 +21,7 @@ public:
 	virtual bool BeginRecording(std::string& error) override;
 	virtual bool StopRecording(std::string& error) override;
 	virtual State GetState() const override;
+	virtual bool GetStatusMessage(std::string& statusMsg) const override;
 
 private:
 	AudioDataLib::AudioData* audioData;
