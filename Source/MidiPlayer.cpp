@@ -41,9 +41,25 @@ void MidiPlayer::Clear()
 		return false;
 	}
 
+	MidiData::MetaEvent::Tempo initialTempo{ 500000 };
+
+	if (this->midiData->GetFormatType() == MidiData::FormatType::MULTI_TRACK)
+	{
+		const MidiData::Track* infoTrack = this->midiData->GetTrack(0);
+		if (!infoTrack)
+		{
+			error = "Could not get info track for multi-track MIDI data.";
+			return false;
+		}
+
+		const MidiData::MetaEvent* tempoEvent = infoTrack->FindMetaEventOfType(MidiData::MetaEvent::Type::SET_TEMPO);
+		if (tempoEvent)
+			initialTempo = *tempoEvent->GetData<MidiData::MetaEvent::Tempo>();
+	}
+
 	for (uint32_t trackOffset : tracksToPlaySet)
 	{
-		auto trackPlayer = new TrackPlayer(trackOffset);
+		auto trackPlayer = new TrackPlayer(trackOffset, initialTempo);
 		this->trackPlayerArray->push_back(trackPlayer);
 		if (!trackPlayer->Advance(this->timeSeconds, this, false, error))
 			return false;
@@ -66,6 +82,11 @@ void MidiPlayer::Clear()
 	clock_t elapsedClock = presentClock - this->lastClock;
 	double elapsedTimeSeconds = double(elapsedClock) / double(CLOCKS_PER_SEC);
 	this->lastClock = presentClock;
+
+	// This is to prevent break-points in the debugger from messing up the playback.
+	if (elapsedTimeSeconds > 2.0)
+		return true;
+
 	this->timeSeconds += elapsedTimeSeconds;
 
 	// Synchronization between the tracks here is called into question in my mind.  Hmmmmm.
@@ -93,12 +114,12 @@ bool MidiPlayer::NoMoreToPlay()
 
 //------------------------------- MidiPlayer::TrackPlayer -------------------------------
 
-MidiPlayer::TrackPlayer::TrackPlayer(uint32_t trackOffset)
+MidiPlayer::TrackPlayer::TrackPlayer(uint32_t trackOffset, const MidiData::MetaEvent::Tempo& tempo)
 {
 	this->trackOffset = trackOffset;
 	this->nextTrackEventOffset = 0;
 	this->timeSinceLastEventSeconds = 0.0;
-	this->currentTempo.microsecondsPerQuarterNote = 500000;
+	this->currentTempo = tempo;
 	::memset(&this->messageBuffer, 0, ADL_MIDI_MESSAGE_BUFFER_SIZE);
 }
 

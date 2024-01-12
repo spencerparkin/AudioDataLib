@@ -46,7 +46,7 @@ namespace AudioDataLib
 		class TrackPlayer
 		{
 		public:
-			TrackPlayer(uint32_t trackOffset);
+			TrackPlayer(uint32_t trackOffset, const MidiData::MetaEvent::Tempo& tempo);
 			virtual ~TrackPlayer();
 
 			bool Advance(double deltaTimeSeconds, MidiPlayer* midiPlayer, bool makeSound, std::string& error);
