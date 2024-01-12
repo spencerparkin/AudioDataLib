@@ -82,7 +82,7 @@ bool MidiData::CalculateTrackLengthInSeconds(uint32_t i, double& totalTimeSecond
 		return false;
 	}
 	
-	MetaEvent::TimeSignature currentTimeSig;
+	MetaEvent::TimeSignature currentTimeSig;	// TODO: Do we not need this at all here or in a MIDI play-back machine?
 	currentTimeSig.numerator = 4;
 	currentTimeSig.denominator = 2;
 	currentTimeSig.metro = 24;
