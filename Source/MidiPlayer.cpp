@@ -112,7 +112,7 @@ bool MidiPlayer::TrackPlayer::Advance(double deltaTimeSeconds, MidiPlayer* midiP
 		return false;
 	}
 
-	double microsecondsPerTick = double(currentTempo.microsecondsPerQuarterNote) / double(midiPlayer->midiData->GetTiming().ticksPerQuarterNote);
+	double microsecondsPerTick = double(this->currentTempo.microsecondsPerQuarterNote) / double(midiPlayer->midiData->GetTiming().ticksPerQuarterNote);
 
 	this->timeSinceLastEventSeconds += deltaTimeSeconds;
 
