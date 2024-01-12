@@ -107,6 +107,31 @@ namespace AudioDataLib
 		uint64_t readOffset;
 	};
 
+	class AUDIO_DATA_LIB_API WriteOnlyBufferStream : public ByteStream
+	{
+	public:
+		WriteOnlyBufferStream(uint8_t* buffer, uint64_t bufferSize);
+		virtual ~WriteOnlyBufferStream();
+
+		virtual uint64_t WriteBytesToStream(const uint8_t* buffer, uint64_t bufferSize) override;
+		virtual uint64_t ReadBytesFromStream(uint8_t* buffer, uint64_t bufferSize) override;
+
+		virtual uint64_t GetSize() const override;
+
+		virtual bool CanRead() override;
+		virtual bool CanWrite() override;
+
+		uint64_t GetWriteOffset() const { return this->writeOffset; }
+		bool SetWriteOffset(uint64_t readOffset);
+
+		const uint8_t* GetBuffer() const { return this->writeOnlyBuffer; }
+
+	protected:
+		uint8_t* writeOnlyBuffer;
+		uint64_t writeOnlyBufferSize;
+		uint64_t writeOffset;
+	};
+
 	class AUDIO_DATA_LIB_API AudioStream : public ByteStream
 	{
 	public:

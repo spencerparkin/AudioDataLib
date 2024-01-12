@@ -181,6 +181,48 @@ bool ReadOnlyBufferStream::SetReadOffset(uint64_t readOffset)
 	return true;
 }
 
+//------------------------- WriteOnlyBufferStream -------------------------
+
+WriteOnlyBufferStream::WriteOnlyBufferStream(uint8_t* buffer, uint64_t bufferSize)
+{
+	this->writeOnlyBuffer = buffer;
+	this->writeOnlyBufferSize = bufferSize;
+	this->writeOffset = 0;
+}
+
+/*virtual*/ WriteOnlyBufferStream::~WriteOnlyBufferStream()
+{
+}
+
+/*virtual*/ uint64_t WriteOnlyBufferStream::WriteBytesToStream(const uint8_t* buffer, uint64_t bufferSize)
+{
+	uint64_t numBytesWritten = 0;
+	while (numBytesWritten < bufferSize && this->writeOffset < this->writeOnlyBufferSize)
+		this->writeOnlyBuffer[this->writeOffset++] = buffer[numBytesWritten++];
+
+	return numBytesWritten;
+}
+
+/*virtual*/ uint64_t WriteOnlyBufferStream::ReadBytesFromStream(uint8_t* buffer, uint64_t bufferSize)
+{
+	return 0;
+}
+
+/*virtual*/ uint64_t WriteOnlyBufferStream::GetSize() const
+{
+	return this->writeOffset;
+}
+
+/*virtual*/ bool WriteOnlyBufferStream::CanRead()
+{
+	return false;
+}
+
+/*virtual*/ bool WriteOnlyBufferStream::CanWrite()
+{
+	return this->GetSize() < this->writeOnlyBufferSize;
+}
+
 //------------------------- AudioStream -------------------------
 
 AudioStream::AudioStream(const AudioData::Format& format)

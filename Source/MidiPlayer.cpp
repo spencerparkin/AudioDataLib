@@ -162,7 +162,7 @@ bool MidiPlayer::TrackPlayer::ProcessEvent(const MidiData::Event* event, MidiPla
 		if (channelEvent->type == MidiData::ChannelEvent::Type::NOTE_ON && !makeSound)
 			return true;
 
-		ReadOnlyBufferStream bufferStream(this->messageBuffer, ADL_MIDI_MESSAGE_BUFFER_SIZE);
+		WriteOnlyBufferStream bufferStream(this->messageBuffer, ADL_MIDI_MESSAGE_BUFFER_SIZE);
 
 		if (!channelEvent->Encode(bufferStream, error))
 			return false;
