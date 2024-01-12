@@ -547,7 +547,7 @@ MidiData::ChannelEvent::ChannelEvent()
 	uint8_t eventType = 0;
 	if (1 != inputStream.ReadBytesFromStream(&eventType, 1))
 	{
-		error = "Could not read channel byte/nibble.";
+		error = "Could not read event-type/channel byte.";
 		return false;
 	}
 
@@ -574,5 +574,33 @@ MidiData::ChannelEvent::ChannelEvent()
 
 /*virtual*/ bool MidiData::ChannelEvent::Encode(ByteStream& outputStream, std::string& error) const
 {
+	if (this->type == Type::UNKNOWN)
+	{
+		error = "Can't encode unknown channel event type.";
+		return false;
+	}
+
+	uint8_t eventType = (uint8_t(this->type) << 4) | this->channel;
+	if (1 != outputStream.WriteBytesToStream((const uint8_t*)&eventType, 1))
+	{
+		error = "Couldn't write event-type/channel byte.";
+		return false;
+	}
+
+	if (1 != outputStream.WriteBytesToStream(&this->param1, 1))
+	{
+		error = "Could not write param 1.";
+		return false;
+	}
+
+	if (this->type != Type::PROGRAM_CHANGE && this->type != Type::CHANNEL_AFTERTOUCH)
+	{
+		if (1 != outputStream.WriteBytesToStream(&this->param2, 1))
+		{
+			error = "Could not write param 2.";
+			return false;
+		}
+	}
+
 	return false;
 }
