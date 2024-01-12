@@ -120,25 +120,25 @@ FileOutputStream::FileOutputStream(const char* filePath) : FileStream(filePath, 
 	return true;
 }
 
-//------------------------- BufferStream -------------------------
+//------------------------- ReadOnlyBufferStream -------------------------
 
-BufferStream::BufferStream(const uint8_t* buffer, uint64_t bufferSize)
+ReadOnlyBufferStream::ReadOnlyBufferStream(const uint8_t* buffer, uint64_t bufferSize)
 {
 	this->readOnlyBuffer = buffer;
 	this->readOnlyBufferSize = bufferSize;
 	this->readOffset = 0;
 }
 
-/*virtual*/ BufferStream::~BufferStream()
+/*virtual*/ ReadOnlyBufferStream::~ReadOnlyBufferStream()
 {
 }
 
-/*virtual*/ uint64_t BufferStream::WriteBytesToStream(const uint8_t* buffer, uint64_t bufferSize)
+/*virtual*/ uint64_t ReadOnlyBufferStream::WriteBytesToStream(const uint8_t* buffer, uint64_t bufferSize)
 {
 	return 0;
 }
 
-/*virtual*/ uint64_t BufferStream::ReadBytesFromStream(uint8_t* buffer, uint64_t bufferSize)
+/*virtual*/ uint64_t ReadOnlyBufferStream::ReadBytesFromStream(uint8_t* buffer, uint64_t bufferSize)
 {
 	uint64_t numBytesRead = 0;
 	while (numBytesRead < bufferSize && this->readOffset < this->readOnlyBufferSize)
@@ -147,7 +147,7 @@ BufferStream::BufferStream(const uint8_t* buffer, uint64_t bufferSize)
 	return numBytesRead;
 }
 
-/*virtual*/ uint64_t BufferStream::PeekBytesFromStream(uint8_t* buffer, uint64_t bufferSize)
+/*virtual*/ uint64_t ReadOnlyBufferStream::PeekBytesFromStream(uint8_t* buffer, uint64_t bufferSize)
 {
 	uint64_t numBytesPeeked = 0;
 	uint64_t i = this->readOffset;
@@ -157,22 +157,22 @@ BufferStream::BufferStream(const uint8_t* buffer, uint64_t bufferSize)
 	return numBytesPeeked;
 }
 
-/*virtual*/ uint64_t BufferStream::GetSize() const
+/*virtual*/ uint64_t ReadOnlyBufferStream::GetSize() const
 {
 	return this->readOnlyBufferSize - this->readOffset;
 }
 
-/*virtual*/ bool BufferStream::CanRead()
+/*virtual*/ bool ReadOnlyBufferStream::CanRead()
 {
 	return this->GetSize() > 0;
 }
 
-/*virtual*/ bool BufferStream::CanWrite()
+/*virtual*/ bool ReadOnlyBufferStream::CanWrite()
 {
 	return false;
 }
 
-bool BufferStream::SetReadOffset(uint64_t readOffset)
+bool ReadOnlyBufferStream::SetReadOffset(uint64_t readOffset)
 {
 	if (readOffset > this->readOnlyBufferSize)
 		return false;
@@ -192,7 +192,7 @@ AudioStream::AudioStream(const AudioData::Format& format)
 AudioStream::AudioStream(const AudioData* audioData)
 {
 	this->format = audioData->GetFormat();
-	this->byteStream = new BufferStream(audioData->GetAudioBuffer(), audioData->GetAudioBufferSize());
+	this->byteStream = new ReadOnlyBufferStream(audioData->GetAudioBuffer(), audioData->GetAudioBufferSize());
 }
 
 /*virtual*/ AudioStream::~AudioStream()

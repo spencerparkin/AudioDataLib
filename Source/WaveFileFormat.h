@@ -27,7 +27,7 @@ namespace AudioDataLib
 			WaveChunkParser();
 			virtual ~WaveChunkParser();
 
-			virtual bool ParseChunkData(BufferStream& inputStream, Chunk* chunk, std::string& error) override;
+			virtual bool ParseChunkData(ReadOnlyBufferStream& inputStream, Chunk* chunk, std::string& error) override;
 		};
 	};
 }

@@ -34,7 +34,7 @@ WaveFileFormat::WaveFileFormat()
 		return false;
 	}
 
-	BufferStream formatStream(fmtChunk->GetBuffer(), fmtChunk->GetBufferSize());
+	ReadOnlyBufferStream formatStream(fmtChunk->GetBuffer(), fmtChunk->GetBufferSize());
 
 	uint16_t type = 0;
 	if (2 != formatStream.ReadBytesFromStream((uint8_t*)&type, 2))
@@ -255,7 +255,7 @@ WaveFileFormat::WaveChunkParser::WaveChunkParser()
 {
 }
 
-/*virtual*/ bool WaveFileFormat::WaveChunkParser::ParseChunkData(BufferStream& inputStream, Chunk* chunk, std::string& error)
+/*virtual*/ bool WaveFileFormat::WaveChunkParser::ParseChunkData(ReadOnlyBufferStream& inputStream, Chunk* chunk, std::string& error)
 {
 	if (chunk->GetName() == "RIFF")
 	{

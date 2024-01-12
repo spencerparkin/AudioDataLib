@@ -45,7 +45,7 @@ bool ChunkParser::ParseStream(ByteStream& inputStream, std::string& error)
 		return false;
 	}
 
-	BufferStream bufferStream(this->buffer, this->bufferSize);
+	ReadOnlyBufferStream bufferStream(this->buffer, this->bufferSize);
 
 	this->rootChunk = new Chunk();
 	*this->rootChunk->name = "root";
@@ -55,7 +55,7 @@ bool ChunkParser::ParseStream(ByteStream& inputStream, std::string& error)
 	return true;
 }
 
-/*virtual*/ bool ChunkParser::ParseChunkData(BufferStream& inputStream, Chunk* chunk, std::string& error)
+/*virtual*/ bool ChunkParser::ParseChunkData(ReadOnlyBufferStream& inputStream, Chunk* chunk, std::string& error)
 {
 	// Unfortunately, the RIFF format is not so generic that the parser can do
 	// everything entirely by itself.  Sub-chunks may exist, but it is up to
@@ -126,7 +126,7 @@ void ChunkParser::Chunk::FindAllChunks(const std::string& chunkName, std::vector
 		subChunk->FindAllChunks(chunkName, chunkArray);
 }
 
-bool ChunkParser::Chunk::ParseStream(BufferStream& inputStream, ChunkParser* chunkParser, std::string& error)
+bool ChunkParser::Chunk::ParseStream(ReadOnlyBufferStream& inputStream, ChunkParser* chunkParser, std::string& error)
 {
 	char nameBuf[5];
 	if (4 != inputStream.ReadBytesFromStream((uint8_t*)&nameBuf, 4))
@@ -147,7 +147,7 @@ bool ChunkParser::Chunk::ParseStream(BufferStream& inputStream, ChunkParser* chu
 	this->bufferSize = chunkParser->byteSwapper.Resolve(this->bufferSize);
 	this->buffer = inputStream.GetBuffer() + inputStream.GetReadOffset();
 
-	BufferStream subInputStream(this->buffer, this->bufferSize);
+	ReadOnlyBufferStream subInputStream(this->buffer, this->bufferSize);
 
 	if (!chunkParser->ParseChunkData(subInputStream, this, error))
 		return false;
@@ -157,7 +157,7 @@ bool ChunkParser::Chunk::ParseStream(BufferStream& inputStream, ChunkParser* chu
 	return true;
 }
 
-bool ChunkParser::Chunk::ParseSubChunks(BufferStream& inputStream, ChunkParser* chunkParser, std::string& error)
+bool ChunkParser::Chunk::ParseSubChunks(ReadOnlyBufferStream& inputStream, ChunkParser* chunkParser, std::string& error)
 {
 	while (inputStream.CanRead())
 	{

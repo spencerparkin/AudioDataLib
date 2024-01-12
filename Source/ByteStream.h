@@ -80,11 +80,11 @@ namespace AudioDataLib
 		virtual bool CanWrite() override;
 	};
 
-	class AUDIO_DATA_LIB_API BufferStream : public ByteStream
+	class AUDIO_DATA_LIB_API ReadOnlyBufferStream : public ByteStream
 	{
 	public:
-		BufferStream(const uint8_t* buffer, uint64_t bufferSize);
-		virtual ~BufferStream();
+		ReadOnlyBufferStream(const uint8_t* buffer, uint64_t bufferSize);
+		virtual ~ReadOnlyBufferStream();
 
 		virtual uint64_t WriteBytesToStream(const uint8_t* buffer, uint64_t bufferSize) override;
 		virtual uint64_t ReadBytesFromStream(uint8_t* buffer, uint64_t bufferSize) override;

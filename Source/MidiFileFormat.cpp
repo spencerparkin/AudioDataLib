@@ -44,7 +44,7 @@ MidiFileFormat::MidiFileFormat()
 
 		midiData = new MidiData();
 
-		BufferStream bufferStream(headerChunk->GetBuffer(), headerChunk->GetBufferSize());
+		ReadOnlyBufferStream bufferStream(headerChunk->GetBuffer(), headerChunk->GetBufferSize());
 
 		uint16_t formatType = 0;
 		if (2 != bufferStream.ReadBytesFromStream((uint8_t*)&formatType, 2))
@@ -88,7 +88,7 @@ MidiFileFormat::MidiFileFormat()
 			auto track = new MidiData::Track();
 			midiData->trackArray->push_back(track);
 
-			BufferStream bufferStream(chunk->GetBuffer(), chunk->GetBufferSize());
+			ReadOnlyBufferStream bufferStream(chunk->GetBuffer(), chunk->GetBufferSize());
 			while (bufferStream.CanRead())
 			{
 				MidiData::Event* event = nullptr;

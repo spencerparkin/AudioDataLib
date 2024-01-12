@@ -13,7 +13,7 @@ namespace AudioDataLib
 		ChunkParser();
 		virtual ~ChunkParser();
 
-		virtual bool ParseChunkData(BufferStream& inputStream, Chunk* chunk, std::string& error);
+		virtual bool ParseChunkData(ReadOnlyBufferStream& inputStream, Chunk* chunk, std::string& error);
 
 		void Clear();
 		bool ParseStream(ByteStream& inputStream, std::string& error);
@@ -28,8 +28,8 @@ namespace AudioDataLib
 			Chunk();
 			virtual ~Chunk();
 
-			bool ParseStream(BufferStream& inputStream, ChunkParser* chunkParser, std::string& error);
-			bool ParseSubChunks(BufferStream& inputStream, ChunkParser* chunkParser, std::string& error);
+			bool ParseStream(ReadOnlyBufferStream& inputStream, ChunkParser* chunkParser, std::string& error);
+			bool ParseSubChunks(ReadOnlyBufferStream& inputStream, ChunkParser* chunkParser, std::string& error);
 
 			const Chunk* FindChunk(const std::string& chunkName) const;
 			void FindAllChunks(const std::string& chunkName, std::vector<const Chunk*>& chunkArray) const;
