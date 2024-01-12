@@ -98,7 +98,7 @@ MidiFileFormat::MidiFileFormat()
 					break;
 				}
 
-				track->eventArray->push_back(event);
+				track->AddEvent(event);
 			}
 
 			if (decodeFailureOccurred)

@@ -115,7 +115,7 @@ bool MidiData::CalculateTrackLengthInSeconds(uint32_t i, double& totalTimeSecond
 			currentTimeSig = *timeSigEvent->GetData<MetaEvent::TimeSignature>();
 	}
 
-	for (const Event* event : *track->eventArray)
+	for (const Event* event : track->GetEventArray())
 	{
 		const MetaEvent* metaEvent = dynamic_cast<const MetaEvent*>(event);
 		const ChannelEvent* channelEvent = dynamic_cast<const ChannelEvent*>(event);
@@ -180,6 +180,14 @@ void MidiData::Track::Clear()
 		delete event;
 
 	this->eventArray->clear();
+}
+
+const MidiData::Event* MidiData::Track::GetEvent(uint32_t i) const
+{
+	if (i >= this->eventArray->size())
+		return nullptr;
+
+	return (*this->eventArray)[i];
 }
 
 //------------------------------- MidiData::Event -------------------------------

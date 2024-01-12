@@ -77,6 +77,11 @@ namespace AudioDataLib
 				return this->FindEvent<MetaEvent>([=](MetaEvent* event) -> bool { return event->type == type; });
 			}
 
+			const Event* GetEvent(uint32_t i) const;
+			const std::vector<Event*>& GetEventArray() const { return *this->eventArray; }
+			void AddEvent(Event* event) { this->eventArray->push_back(event); }
+
+		private:
 			std::vector<Event*>* eventArray;
 		};
 
