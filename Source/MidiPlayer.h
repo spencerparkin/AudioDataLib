@@ -26,7 +26,7 @@ namespace AudioDataLib
 		void SetTimeSeconds(double timeSeconds) { this->timeSeconds = timeSeconds; }
 		double GetTimeSeconds() const { return this->timeSeconds; }
 
-		virtual bool BeginPlayback(const std::set<uint32_t>& trackToPlaySet, std::string& error);
+		virtual bool BeginPlayback(const std::set<uint32_t>& tracksToPlaySet, std::string& error);
 		virtual bool EndPlayback(std::string& error);
 
 		// This gets called every iteration of the user's main program loop.  This class

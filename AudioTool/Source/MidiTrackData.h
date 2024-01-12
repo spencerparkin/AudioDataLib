@@ -32,7 +32,7 @@ private:
 		MidiPlayer();
 		virtual ~MidiPlayer();
 
-		virtual bool BeginPlayback(std::string& error) override;
+		virtual bool BeginPlayback(const std::set<uint32_t>& tracksToPlaySet, std::string& error) override;
 		virtual bool EndPlayback(std::string& error) override;
 		virtual void SendMessage(const uint8_t* message, uint64_t messageSize) override;
 

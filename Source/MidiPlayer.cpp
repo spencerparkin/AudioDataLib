@@ -31,7 +31,7 @@ void MidiPlayer::Clear()
 	this->trackPlayerArray->clear();
 }
 
-/*virtual*/ bool MidiPlayer::BeginPlayback(const std::set<uint32_t>& trackToPlaySet, std::string& error)
+/*virtual*/ bool MidiPlayer::BeginPlayback(const std::set<uint32_t>& tracksToPlaySet, std::string& error)
 {
 	this->Clear();
 
@@ -41,7 +41,7 @@ void MidiPlayer::Clear()
 		return false;
 	}
 
-	for (uint32_t trackOffset : trackToPlaySet)
+	for (uint32_t trackOffset : tracksToPlaySet)
 	{
 		auto trackPlayer = new TrackPlayer(trackOffset);
 		this->trackPlayerArray->push_back(trackPlayer);

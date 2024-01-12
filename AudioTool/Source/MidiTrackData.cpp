@@ -38,7 +38,10 @@ void MidiTrackData::SetMidiData(MidiData* midiData)
 /*virtual*/ bool MidiTrackData::Process(std::string& error)
 {
 	if (this->midiPlayer)
-		this->midiPlayer->ManagePlayback();
+	{
+		if (!this->midiPlayer->ManagePlayback(error))
+			return false;
+	}
 
 	return true;
 }
@@ -51,10 +54,14 @@ void MidiTrackData::SetMidiData(MidiData* midiData)
 		return false;
 	}
 
+	std::set<uint32_t> playTrackSet;
+	for (uint32_t i = 1; i < this->midiData->GetNumTracks(); i++)
+		playTrackSet.insert(i);
+
 	this->midiPlayer = new MidiPlayer();
 	this->midiPlayer->SetTimeSeconds(this->timeSeconds);
 	this->midiPlayer->SetMidiData(this->midiData);
-	if (!this->midiPlayer->BeginPlayback(error))
+	if (!this->midiPlayer->BeginPlayback(playTrackSet, error))
 	{
 		delete this->midiPlayer;
 		this->midiPlayer = nullptr;
@@ -102,7 +109,7 @@ void MidiTrackData::SetMidiData(MidiData* midiData)
 
 //---------------------------- MidiTrackData::MidiPlayer ----------------------------
 
-MidiTrackData::MidiPlayer::MidiPlayer()
+MidiTrackData::MidiPlayer::MidiPlayer() : AudioDataLib::MidiPlayer(nullptr)
 {
 	this->midiOut = nullptr;
 }
@@ -112,7 +119,7 @@ MidiTrackData::MidiPlayer::MidiPlayer()
 	delete this->midiOut;
 }
 
-/*virtual*/ bool MidiTrackData::MidiPlayer::BeginPlayback(std::string& error)
+/*virtual*/ bool MidiTrackData::MidiPlayer::BeginPlayback(const std::set<uint32_t>& tracksToPlaySet, std::string& error)
 {
 	if (this->midiOut)
 	{
@@ -138,7 +145,7 @@ MidiTrackData::MidiPlayer::MidiPlayer()
 			this->midiOut->openPort(0);
 		}
 
-		if (!AudioDataLib::MidiPlayer::BeginPlayback(error))
+		if (!AudioDataLib::MidiPlayer::BeginPlayback(tracksToPlaySet, error))
 			success = false;
 	}
 	catch (RtMidiError& midiError)
