@@ -97,7 +97,7 @@ MidiPlayer::TrackPlayer::TrackPlayer(uint32_t trackOffset)
 {
 }
 
-bool MidiPlayer::TrackPlayer::Advance(double deltaTimeSeconds, MidiPlayer* midiPlayer, bool sendMessages, std::string& error)
+bool MidiPlayer::TrackPlayer::Advance(double deltaTimeSeconds, MidiPlayer* midiPlayer, bool makeSound, std::string& error)
 {
 	const MidiData::Track* track = midiPlayer->midiData->GetTrack(this->trackOffset);
 	if (!track)
@@ -131,7 +131,7 @@ bool MidiPlayer::TrackPlayer::Advance(double deltaTimeSeconds, MidiPlayer* midiP
 		{
 			this->timeSinceLastEventSeconds -= timeBeforeNextEventSeconds;
 
-			if (!this->ProcessEvent(event, midiPlayer, sendMessages, error))
+			if (!this->ProcessEvent(event, midiPlayer, makeSound, error))
 				return false;
 
 			this->nextTrackEventOffset++;
@@ -141,7 +141,7 @@ bool MidiPlayer::TrackPlayer::Advance(double deltaTimeSeconds, MidiPlayer* midiP
 	return true;
 }
 
-bool MidiPlayer::TrackPlayer::ProcessEvent(const MidiData::Event* event, MidiPlayer* midiPlayer, bool sendMessages, std::string& error)
+bool MidiPlayer::TrackPlayer::ProcessEvent(const MidiData::Event* event, MidiPlayer* midiPlayer, bool makeSound, std::string& error)
 {
 	const MidiData::MetaEvent* metaEvent = dynamic_cast<const MidiData::MetaEvent*>(event);
 	const MidiData::ChannelEvent* channelEvent = dynamic_cast<const MidiData::ChannelEvent*>(event);
@@ -159,21 +159,21 @@ bool MidiPlayer::TrackPlayer::ProcessEvent(const MidiData::Event* event, MidiPla
 	}
 	else if (channelEvent)
 	{
-		if (sendMessages)
-		{
-			BufferStream bufferStream(this->messageBuffer, ADL_MIDI_MESSAGE_BUFFER_SIZE);
+		if (channelEvent->type == MidiData::ChannelEvent::Type::NOTE_ON && !makeSound)
+			return true;
 
-			if (!channelEvent->Encode(bufferStream, error))
-				return false;
+		BufferStream bufferStream(this->messageBuffer, ADL_MIDI_MESSAGE_BUFFER_SIZE);
 
-			if (midiPlayer->mutex)
-				midiPlayer->mutex->Lock();
+		if (!channelEvent->Encode(bufferStream, error))
+			return false;
 
-			midiPlayer->SendMessage(bufferStream.GetBuffer(), bufferStream.GetSize());
+		if (midiPlayer->mutex)
+			midiPlayer->mutex->Lock();
 
-			if (midiPlayer->mutex)
-				midiPlayer->mutex->Unlock();
-		}
+		midiPlayer->SendMessage(bufferStream.GetBuffer(), bufferStream.GetSize());
+
+		if (midiPlayer->mutex)
+			midiPlayer->mutex->Unlock();
 	}
 
 	return true;

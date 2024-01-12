@@ -47,10 +47,10 @@ namespace AudioDataLib
 			TrackPlayer(uint32_t trackOffset);
 			virtual ~TrackPlayer();
 
-			bool Advance(double deltaTimeSeconds, MidiPlayer* midiPlayer, bool sendMessages, std::string& error);
+			bool Advance(double deltaTimeSeconds, MidiPlayer* midiPlayer, bool makeSound, std::string& error);
 
 		private:
-			bool ProcessEvent(const MidiData::Event* event, MidiPlayer* midiPlayer, bool sendMessages, std::string& error);
+			bool ProcessEvent(const MidiData::Event* event, MidiPlayer* midiPlayer, bool makeSound, std::string& error);
 
 			uint32_t trackOffset;
 			uint32_t nextTrackEventOffset;
