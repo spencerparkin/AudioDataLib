@@ -602,5 +602,5 @@ MidiData::ChannelEvent::ChannelEvent()
 		}
 	}
 
-	return false;
+	return true;
 }
