@@ -37,7 +37,7 @@ namespace AudioDataLib
 
 		// This should get implemented by a user-drived class to send the
 		// given message to the MIDI device.
-		virtual void SendMessage(const uint8_t* message, uint64_t messageSize);
+		virtual bool SendMessage(const uint8_t* message, uint64_t messageSize, Error& error);
 
 		bool NoMoreToPlay();
 

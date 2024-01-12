@@ -98,10 +98,12 @@ void MidiPlayer::Clear()
 	return true;
 }
 
-/*virtual*/ void MidiPlayer::SendMessage(const uint8_t* message, uint64_t messageSize)
+/*virtual*/ bool MidiPlayer::SendMessage(const uint8_t* message, uint64_t messageSize, Error& error)
 {
 	// We do nothing here by default.  The user needs to override this method.
 	// The override should send the given message to a MIDI device.
+
+	return true;
 }
 
 bool MidiPlayer::NoMoreToPlay()
@@ -210,10 +212,13 @@ bool MidiPlayer::TrackPlayer::ProcessEvent(const MidiData::Event* event, MidiPla
 		if (midiPlayer->mutex)
 			midiPlayer->mutex->Lock();
 
-		midiPlayer->SendMessage(bufferStream.GetBuffer(), bufferStream.GetSize());
+		midiPlayer->SendMessage(bufferStream.GetBuffer(), bufferStream.GetSize(), error);
 
 		if (midiPlayer->mutex)
 			midiPlayer->mutex->Unlock();
+
+		if (error)
+			return false;
 	}
 
 	return true;

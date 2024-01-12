@@ -212,17 +212,20 @@ MidiTrackData::MidiPlayer::MidiPlayer() : AudioDataLib::MidiPlayer(nullptr)
 	return success;
 }
 
-/*virtual*/ void MidiTrackData::MidiPlayer::SendMessage(const uint8_t* message, uint64_t messageSize)
+/*virtual*/ bool MidiTrackData::MidiPlayer::SendMessage(const uint8_t* message, uint64_t messageSize, Error& error)
 {
 	if (this->midiOut)
 	{
-		//try
-		//{
+		try
+		{
 			this->midiOut->sendMessage(message, (size_t)messageSize);
-		//}
-		//catch (RtMidiError& midiError)
-		//{
-		//	// TODO: Handle this.
-		//}
+		}
+		catch (RtMidiError& midiError)
+		{
+			error.Add(midiError.getMessage());
+			return false;
+		}
 	}
+
+	return true;
 }

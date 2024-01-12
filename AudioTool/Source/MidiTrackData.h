@@ -35,7 +35,7 @@ private:
 
 		virtual bool BeginPlayback(const std::set<uint32_t>& tracksToPlaySet, AudioDataLib::Error& error) override;
 		virtual bool EndPlayback(AudioDataLib::Error& error) override;
-		virtual void SendMessage(const uint8_t* message, uint64_t messageSize) override;
+		virtual bool SendMessage(const uint8_t* message, uint64_t messageSize, AudioDataLib::Error& error) override;
 
 	private:
 		RtMidiOut* midiOut;
