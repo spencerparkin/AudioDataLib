@@ -40,6 +40,7 @@ namespace AudioDataLib
 		virtual bool SendMessage(const uint8_t* message, uint64_t messageSize, Error& error);
 
 		bool NoMoreToPlay();
+        void GetSimultaneouslyPlayableTracks(std::set<uint32_t>& playableTracksSet) const;
 
 	protected:
 		void Clear();

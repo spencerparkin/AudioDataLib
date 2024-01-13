@@ -32,6 +32,22 @@ void MidiPlayer::Clear()
 	this->trackPlayerArray->clear();
 }
 
+void MidiPlayer::GetSimultaneouslyPlayableTracks(std::set<uint32_t>& playableTracksSet) const
+{
+    playableTracksSet.clear();
+
+    if(this->midiData->GetFormatType() == MidiData::FormatType::SINGLE_TRACK)
+    {
+        if(this->midiData->GetNumTracks() == 1)
+            playableTracksSet.insert(0);
+    }
+    else if(this->midiData->GetFormatType() == MidiData::FormatType::MULTI_TRACK)
+    {
+        for(uint32_t i = 1; i < this->midiData->GetNumTracks(); i++)
+            playableTracksSet.insert(i);
+    }
+}
+
 /*virtual*/ bool MidiPlayer::BeginPlayback(const std::set<uint32_t>& tracksToPlaySet, Error& error)
 {
 	this->Clear();
