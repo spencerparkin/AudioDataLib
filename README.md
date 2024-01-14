@@ -217,10 +217,11 @@ tight as I can make the lock/unlock pair.
 
 ### Streaming MIDI message to a MIDI Device
 
-Keeping the same philosphy here, the library doesn't deal MIDI devices directly, but it does
-provide a convenient way to feed a MIDI device for real-time playback purposes.  The connected
-device can then do whatever it wants with the music; typicaly, it would synthesize it for you
-as audible sound.
+Keeping the same philosophy here, the library doesn't deal with MIDI devices directly (one of the
+goals is zero dependencies, not counting the standard C++ library), but it does
+provide a convenient way to feed a MIDI device (that you open yourself) for real-time playback purposes.
+The connected device can then do whatever it wants with the music; typically, it would synthesize it for you
+as audible sound, but it could be anything.
 
 Loading some MIDI data into RAM can be done as follows.
 
@@ -266,8 +267,8 @@ while(!myPlayer.NoMoreToPlay())
 myPlayer.EndPlayback(error);
 ```
 
-I'll be the first to admin that my API may be flawed, but the code works pretty well
-so far with the MIDI files I've used with it.  Note that I've found that for accurate
+I'll be the first to admin that my API isn't perfect, but the code has worked pretty well
+for me so far with the MIDI files I've used with it.  Note that I've found that for accurate
 playback, the thread calling the `ManagePlayback` function needs to be a dedicated thread.
 
 ## Plans
