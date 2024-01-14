@@ -29,6 +29,8 @@ For all use-cases, we assume we're in the `AudioDataLib` namespace, and have the
 #include <AudioSink.h>
 #include <ByteStream.h>
 #include <Mutex.h>
+#include <MidiData.h>
+#include <MidiPlayer.h>
 
 using namespace AudioDataLib;
 ```
@@ -215,13 +217,66 @@ tight as I can make the lock/unlock pair.
 
 ### Streaming MIDI message to a MIDI Device
 
-TODO: Write this.
+Keeping the same philosphy here, the library doesn't deal MIDI devices directly, but it does
+provide a convenient way to feed a MIDI device for real-time playback purposes.  The connected
+device can then do whatever it wants with the music; typicaly, it would synthesize it for you
+as audible sound.
+
+Loading some MIDI data into RAM can be done as follows.
+
+```C++
+Error error;
+FileData* fileData = nullptr;
+FileFormat* fileFormat = FileFormat::CreateForFile("path/to/myfile.mid");
+FileInputStream inputStream("path/to/myfile.mid");
+fileFormat->ReadFromStream(inputSTream, fileData, error);
+FileFormat::Destroy(fileFormat);
+auto midiData = dynamic_cast<MidiData*>(fileData);
+
+// Do something snazzy with the MIDI data here.
+
+FileData::Destroy(midiData);
+```
+
+Sending the MIDI data to a device's input port can be done as follows.
+
+```C++
+class MyPlayer : public MidiPlayer
+{
+public:
+    MyPlayer(() : MidiPlayer(nullptr) {}
+    virtual ~MyPlayer() {}
+    
+    virtual bool SendMessage(const uint8_t* message, uint64_t messageSize, Error& error) override
+    {
+        // Send the given MIDI message to the connected MIDI device's input port here!
+    }
+};
+
+Error error;
+MyPlayer myPlayer;
+MidiData* midiData = nullptr;   // Pretend this was initialized with some groovy MIDI data.
+myPlayer.SetMidiData(midiData);
+myPlayer.SetTimeSeconds(0.0);               // Start at the beginning.
+myPlayer.BeginPlayback({1, 2, 3}, error);   // Begin playback of tracks 1, 2, and 3.
+
+while(!myPlayer.NoMoreToPlay())
+    myPlayer.ManagePlayback(error);
+    
+myPlayer.EndPlayback(error);
+```
+
+I'll be the first to admin that my API may be flawed, but the code works pretty well
+so far with the MIDI files I've used with it.  Note that I've found that for accurate
+playback, the thread calling the `ManagePlayback` function needs to be a dedicated thread.
 
 ## Plans
 
 I'd like to add support for more file formats and stream formats other than just PCM at some point.
-Some synthasis support would be good to add.  Being able to add an echo, for example, might be
-interesting.  Support for some signal analysis using FFTs would be interesting too.
+Some synthesis support would be good to add, such as generating MIDI sounds from MIDI messages,
+which could, in-turn, be pumped to a sound card or to disk as a WAV file.
+Certain FX, such as being able to add an echo might be interesting.
+Support for some signal analysis using FFTs would be interesting too.
 This is all pie-in-the-ski right now as I'm sure the library in its current form is,
 admittedly, mediocre at best.
 
