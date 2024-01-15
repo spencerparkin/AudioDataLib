@@ -268,8 +268,7 @@ myPlayer.EndPlayback(error);
 ```
 
 I'll be the first to admin that my API isn't perfect, but the code has worked pretty well
-for me so far with the MIDI files I've used with it.  Note that I've found that for accurate
-playback, the thread calling the `ManagePlayback` function needs to be a dedicated thread.
+for me so far with the MIDI files I've used it with.
 
 ## Plans
 
