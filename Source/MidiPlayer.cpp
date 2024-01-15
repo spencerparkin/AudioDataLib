@@ -88,6 +88,8 @@ void MidiPlayer::GetSimultaneouslyPlayableTracks(std::set<uint32_t>& playableTra
 
 /*virtual*/ bool MidiPlayer::EndPlayback(Error& error)
 {
+    // TODO: We should send a NOTE_OFF event for every channel.
+
 	this->Clear();
 
 	return true;
