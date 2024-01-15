@@ -5,33 +5,16 @@
 
 using namespace AudioDataLib;
 
-SimpleSynth::SimpleSynth(const AudioData::Format& format)
+SimpleSynth::SimpleSynth(const AudioData::Format& format) : MidiSynth(format)
 {
-	this->audioSink = new AudioSink(false);
-	this->audioSink->SetAudioOutput(new AudioStream(format));
 }
 
 /*virtual*/ SimpleSynth::~SimpleSynth()
 {
-	AudioStream* audioStream = this->audioSink->GetAudioOutput();
-	delete audioStream;
-	delete this->audioSink;
-}
-
-/*virtual*/ AudioStream* SimpleSynth::GetAudioStreamOut()
-{
-	return this->audioSink->GetAudioOutput();
 }
 
 /*virtual*/ bool SimpleSynth::GenerateAudio(Error& error)
 {
-	// TODO: Iterate each currently playing note, asking each to pump sound into their
-	//       audio stream which are plugged into the audio sink.
-
-	// I may want to refine the audio sink API here.  We really don't care about
-	// buffering in time as much as simply making available as much data as we
-	// possibly can for each call.
-	this->audioSink->GenerateAudio(1.0, 1.0);
 	return false;
 }
 

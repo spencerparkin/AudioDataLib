@@ -20,9 +20,5 @@ namespace AudioDataLib
 
 		virtual bool ReceiveMessage(const uint8_t* message, uint64_t messageSize, Error& error) override;
 		virtual bool GenerateAudio(Error& error) override;
-		virtual AudioStream* GetAudioStreamOut() override;
-
-	private:
-		AudioSink* audioSink;
 	};
 }
