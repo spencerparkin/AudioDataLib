@@ -6,7 +6,7 @@ namespace AudioDataLib
 {
 	class Error;
 
-	// TODO: Might be interesting to one day be able to convert to/from another form using FFT.
+	// TODO: Might be interesting to one day be able to convert to/from frequency-domain using an DFT/FFT.
 	class AUDIO_DATA_LIB_API WaveForm
 	{
 		friend class Index;

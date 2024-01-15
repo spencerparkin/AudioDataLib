@@ -9,8 +9,8 @@ namespace AudioDataLib
 
 	// Similar to the MidiPlayer class, we rely upon the user to provide access
 	// to the actual MIDI device.  This class is useful as a receptical for
-	// MIDI messages received from a MIDI port.  Those messages get stuffed
-	// into the provided MIDI data object.
+	// MIDI messages sent from a MIDI port (or elsewhere.)  Those messages then
+	// get put into the provided MIDI data object.
 	class AUDIO_DATA_LIB_API MidiRecorder
 	{
 	public:

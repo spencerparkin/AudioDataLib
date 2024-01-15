@@ -11,6 +11,9 @@
     <Filter Include="Source\FileFormats">
       <UniqueIdentifier>{2cdc7017-16b5-4b65-b379-4385a5417439}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\MIDI">
+      <UniqueIdentifier>{c4dfe469-168e-4f79-908f-e80463a6c009}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\FileFormat.h">
@@ -43,9 +46,6 @@
     <ClInclude Include="Source\MidiData.h">
       <Filter>Source\FileDatas</Filter>
     </ClInclude>
-    <ClInclude Include="Source\MidiPlayer.h">
-      <Filter>Source</Filter>
-    </ClInclude>
     <ClInclude Include="Source\FileData.h">
       <Filter>Source</Filter>
     </ClInclude>
@@ -55,11 +55,20 @@
     <ClInclude Include="Source\ByteSwapper.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="Source\MidiRecorder.h">
-      <Filter>Source</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Error.h">
       <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\MidiSynth.h">
+      <Filter>Source\MIDI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\MidiPlayer.h">
+      <Filter>Source\MIDI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\MidiRecorder.h">
+      <Filter>Source\MIDI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SimpleSynth.h">
+      <Filter>Source\MIDI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -90,9 +99,6 @@
     <ClCompile Include="Source\MidiData.cpp">
       <Filter>Source\FileDatas</Filter>
     </ClCompile>
-    <ClCompile Include="Source\MidiPlayer.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="Source\FileData.cpp">
       <Filter>Source</Filter>
     </ClCompile>
@@ -102,11 +108,20 @@
     <ClCompile Include="Source\ByteSwapper.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="Source\MidiRecorder.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Error.cpp">
       <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\MidiPlayer.cpp">
+      <Filter>Source\MIDI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\MidiRecorder.cpp">
+      <Filter>Source\MIDI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\MidiSynth.cpp">
+      <Filter>Source\MIDI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SimpleSynth.cpp">
+      <Filter>Source\MIDI</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
