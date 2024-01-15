@@ -3,20 +3,29 @@
 
 using namespace AudioDataLib;
 
-MidiSynth::MidiSynth(const AudioData::Format& format)
+MidiSynth::MidiSynth()
 {
-	this->audioStreamOut = new AudioStream(format);
 }
 
 /*virtual*/ MidiSynth::~MidiSynth()
 {
-	delete this->audioStreamOut;
 }
 
 /*virtual*/ bool MidiSynth::ReceiveMessage(const uint8_t* message, uint64_t messageSize, Error& error)
 {
 	error.Add("Method not overridden.");
 	return false;
+}
+
+/*virtual*/ bool MidiSynth::GenerateAudio(Error& error)
+{
+	error.Add("Method not overridden.");
+	return false;
+}
+
+/*virtual*/ AudioStream* MidiSynth::GetAudioStreamOut()
+{
+	return nullptr;
 }
 
 double MidiSynth::MidiPitchToFrequency(uint8_t pitchValue)

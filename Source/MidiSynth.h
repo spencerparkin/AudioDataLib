@@ -15,18 +15,16 @@ namespace AudioDataLib
 	class AUDIO_DATA_LIB_API MidiSynth
 	{
 	public:
-		MidiSynth(const AudioData::Format& format);
+		MidiSynth();
 		virtual ~MidiSynth();
 
 		virtual bool ReceiveMessage(const uint8_t* message, uint64_t messageSize, Error& error);
-
-		AudioStream* GetAudioStreamOut() { return this->audioStreamOut; }
+		virtual bool GenerateAudio(Error& error);
+		virtual AudioStream* GetAudioStreamOut();
 
 	protected:
 		
 		double MidiPitchToFrequency(uint8_t pitchValue);
 		double MidiVelocityToAmplitude(uint8_t velocityValue);
-
-		AudioStream* audioStreamOut;
 	};
 }

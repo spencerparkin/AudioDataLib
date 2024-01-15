@@ -1,15 +1,38 @@
 #include "SimpleSynth.h"
+#include "AudioSink.h"
 #include "MidiData.h"
 #include "Error.h"
 
 using namespace AudioDataLib;
 
-SimpleSynth::SimpleSynth(const AudioData::Format& format) : MidiSynth(format)
+SimpleSynth::SimpleSynth(const AudioData::Format& format)
 {
+	this->audioSink = new AudioSink(false);
+	this->audioSink->SetAudioOutput(new AudioStream(format));
 }
 
 /*virtual*/ SimpleSynth::~SimpleSynth()
 {
+	AudioStream* audioStream = this->audioSink->GetAudioOutput();
+	delete audioStream;
+	delete this->audioSink;
+}
+
+/*virtual*/ AudioStream* SimpleSynth::GetAudioStreamOut()
+{
+	return this->audioSink->GetAudioOutput();
+}
+
+/*virtual*/ bool SimpleSynth::GenerateAudio(Error& error)
+{
+	// TODO: Iterate each currently playing note, asking each to pump sound into their
+	//       audio stream which are plugged into the audio sink.
+
+	// I may want to refine the audio sink API here.  We really don't care about
+	// buffering in time as much as simply making available as much data as we
+	// possibly can for each call.
+	this->audioSink->GenerateAudio(1.0, 1.0);
+	return false;
 }
 
 /*virtual*/ bool SimpleSynth::ReceiveMessage(const uint8_t* message, uint64_t messageSize, Error& error)
@@ -34,13 +57,14 @@ SimpleSynth::SimpleSynth(const AudioData::Format& format) : MidiSynth(format)
 			if (velocityValue == 0)
 			{
 				// This is the same as a NOTE_OFF event.
+				// TODO: Signal a note to taper off.
 			}
 			else
 			{
 				double noteFrequency = this->MidiPitchToFrequency(pitchValue);
 				double noteVolume = this->MidiVelocityToAmplitude(velocityValue);
 
-				// TODO: Hmmmm...
+				// TODO: Create a new note and plug it into the audio sink.
 			}			
 
 			break;
@@ -48,9 +72,8 @@ SimpleSynth::SimpleSynth(const AudioData::Format& format) : MidiSynth(format)
 		case MidiData::ChannelEvent::NOTE_OFF:
 		{
 			uint8_t pitchValue = channelEvent.param1;
-
-			// I'll probably ubrubtly turn the note off here, but in a real
-			// synth, the note would have some sort of tapering characteristics.
+			// TODO: Signal a note to taper off.
+			
 			break;
 		}
 		default:

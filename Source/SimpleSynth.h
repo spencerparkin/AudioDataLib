@@ -4,6 +4,8 @@
 
 namespace AudioDataLib
 {
+	class AudioSink;
+
 	// The idea here is to impliment a musical instrument that can be
 	// recognized as such, even if it doesn't sound all that great.
 	// There is nothing fancy going on here like modulation, envelopes,
@@ -17,5 +19,10 @@ namespace AudioDataLib
 		virtual ~SimpleSynth();
 
 		virtual bool ReceiveMessage(const uint8_t* message, uint64_t messageSize, Error& error) override;
+		virtual bool GenerateAudio(Error& error) override;
+		virtual AudioStream* GetAudioStreamOut() override;
+
+	private:
+		AudioSink* audioSink;
 	};
 }
