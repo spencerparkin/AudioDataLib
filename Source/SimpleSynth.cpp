@@ -35,6 +35,7 @@ SimpleSynth::SimpleSynth(const AudioData::Format& format)
 	return false;
 }
 
+// TODO: All notes could work off the same oscillator mechanism so that there is no weird discontinuity in the wave-forms.
 /*virtual*/ bool SimpleSynth::ReceiveMessage(const uint8_t* message, uint64_t messageSize, Error& error)
 {
 	MidiData::ChannelEvent channelEvent;
