@@ -9,6 +9,7 @@ namespace AudioDataLib
 	// There is nothing fancy going on here like modulation, envelopes,
 	// filters, harmonics, etc.  Can I just make something that plays
 	// musical notes at the desired pitches for the desired ranges?
+	// Useful resource: https://www.cs.cmu.edu/~music/cmsip/readings/MIDI%20tutorial%20for%20programmers.html
 	class AUDIO_DATA_LIB_API SimpleSynth : public MidiSynth
 	{
 	public:

@@ -24,6 +24,9 @@ namespace AudioDataLib
 
 	protected:
 		
+		double MidiPitchToFrequency(uint8_t pitchValue);
+		double MidiVelocityToAmplitude(uint8_t velocityValue);
+
 		AudioStream* audioStreamOut;
 	};
 }
