@@ -267,7 +267,7 @@ while(!myPlayer.NoMoreToPlay())
 myPlayer.EndPlayback(error);
 ```
 
-I'll be the first to admin that my API isn't perfect, but the code has worked pretty well
+I'll be the first to admit that my API isn't perfect, but the code has worked pretty well
 for me so far with the MIDI files I've used it with.
 
 ## Plans
