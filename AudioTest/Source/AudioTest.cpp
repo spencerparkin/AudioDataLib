@@ -1,5 +1,6 @@
 #include "WaveFileFormat.h"
 #include "MidiFileFormat.h"
+#include "SoundFontFormat.h"
 #include "ByteStream.h"
 #include "AudioSink.h"
 #include "WaveForm.h"
@@ -16,9 +17,26 @@ int main(int argc, char** argv)
 	//TestWaveFormAdd();
 	//TestAudioSink();
 	//TestAudioConvertFormat();
-	TestMidiSongLength();
+	//TestMidiSongLength();
+	TestSoundFontLoadSave();
 
 	return 0;
+}
+
+bool TestSoundFontLoadSave()
+{
+	FileInputStream inputStream("TestData/bassoon.sf2");
+
+	FileData* fileData = nullptr;
+	Error error;
+
+	SoundFontFormat format;
+	if (!format.ReadFromStream(inputStream, fileData, error))
+		return false;
+
+	//...
+
+	return true;
 }
 
 bool TestMidiSongLength()

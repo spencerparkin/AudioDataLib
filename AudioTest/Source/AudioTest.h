@@ -6,3 +6,4 @@ bool TestWaveFormat();
 bool TestWaveFormAdd();
 bool TestAudioConvertFormat();
 bool TestMidiSongLength();
+bool TestSoundFontLoadSave();

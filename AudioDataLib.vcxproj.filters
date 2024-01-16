@@ -73,6 +73,12 @@
     <ClInclude Include="Source\Timer.h">
       <Filter>Source</Filter>
     </ClInclude>
+    <ClInclude Include="Source\SoundFontFormat.h">
+      <Filter>Source\FileFormats</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SoundFontData.h">
+      <Filter>Source\FileDatas</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\FileFormat.cpp">
@@ -128,6 +134,12 @@
     </ClCompile>
     <ClCompile Include="Source\Timer.cpp">
       <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SoundFontFormat.cpp">
+      <Filter>Source\FileFormats</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SoundFontData.cpp">
+      <Filter>Source\FileDatas</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
