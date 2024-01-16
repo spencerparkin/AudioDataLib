@@ -48,7 +48,7 @@ SimpleSynth::SimpleSynth(const AudioData::Format& format) : MidiSynth(format)
 				double noteFrequency = this->MidiPitchToFrequency(pitchValue);
 				double noteVolume = this->MidiVelocityToAmplitude(velocityValue);
 
-				// TODO: Create a new note and plug it into the audio sink.
+				// TODO: Create a new note and start tracking it.
 			}			
 
 			break;

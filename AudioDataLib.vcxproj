@@ -35,6 +35,7 @@
     <ClInclude Include="Source\MidiSynth.h" />
     <ClInclude Include="Source\Mutex.h" />
     <ClInclude Include="Source\SimpleSynth.h" />
+    <ClInclude Include="Source\Timer.h" />
     <ClInclude Include="Source\WaveForm.h" />
     <ClInclude Include="Source\WaveFileFormat.h" />
   </ItemGroup>
@@ -54,6 +55,7 @@
     <ClCompile Include="Source\MidiSynth.cpp" />
     <ClCompile Include="Source\Mutex.cpp" />
     <ClCompile Include="Source\SimpleSynth.cpp" />
+    <ClCompile Include="Source\Timer.cpp" />
     <ClCompile Include="Source\WaveForm.cpp" />
     <ClCompile Include="Source\WaveFileFormat.cpp" />
   </ItemGroup>

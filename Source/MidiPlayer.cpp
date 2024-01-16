@@ -1,6 +1,7 @@
 #include "MidiPlayer.h"
 #include "MidiData.h"
 #include "Mutex.h"
+#include "Timer.h"
 #include "ByteStream.h"
 #include "Error.h"
 
@@ -8,13 +9,13 @@ using namespace AudioDataLib;
 
 //------------------------------- MidiPlayer -------------------------------
 
-MidiPlayer::MidiPlayer(Mutex* mutex)
+MidiPlayer::MidiPlayer(Timer* timer, Mutex* mutex)
 {
+	this->timer = timer;
 	this->mutex = mutex;
 	this->midiData = nullptr;
 	this->timeSeconds = 0.0;
 	this->trackPlayerArray = new std::vector<TrackPlayer*>();
-	this->lastClock = 0;
 }
 
 /*virtual*/ MidiPlayer::~MidiPlayer()
@@ -82,13 +83,20 @@ void MidiPlayer::GetSimultaneouslyPlayableTracks(std::set<uint32_t>& playableTra
 			return false;
 	}
 
-	this->lastClock = ::clock();
+	if (!this->timer)
+	{
+		error.Add("No timer set.");
+		return false;
+	}
+
+	this->timer->Start();
+	this->timer->SetMaxDeltaTimeSeconds(2.0);
 	return true;
 }
 
 /*virtual*/ bool MidiPlayer::EndPlayback(Error& error)
 {
-    // TODO: We should send a NOTE_OFF event for every channel.
+	this->SilenceAllChannels(error);
 
 	this->Clear();
 
@@ -97,21 +105,37 @@ void MidiPlayer::GetSimultaneouslyPlayableTracks(std::set<uint32_t>& playableTra
 
 /*virtual*/ bool MidiPlayer::ManagePlayback(Error& error)
 {
-	clock_t presentClock = ::clock();
-	clock_t elapsedClock = presentClock - this->lastClock;
-	double elapsedTimeSeconds = double(elapsedClock) / double(CLOCKS_PER_SEC);
-	this->lastClock = presentClock;
+	double deltaTimeSeconds = this->timer->GetDeltaTimeSeconds();
 
-	// This is to prevent break-points in the debugger from messing up the playback.
-	if (elapsedTimeSeconds > 2.0)
-		return true;
-
-	this->timeSeconds += elapsedTimeSeconds;
+	this->timeSeconds += deltaTimeSeconds;
 
 	// Synchronization between the tracks here is called into question in my mind.  Hmmmmm.
 	for (TrackPlayer* trackPlayer : *this->trackPlayerArray)
-		if (!trackPlayer->Advance(elapsedTimeSeconds, this, true, error))
+		if (!trackPlayer->Advance(deltaTimeSeconds, this, true, error))
 			return false;
+
+	return true;
+}
+
+bool MidiPlayer::SilenceAllChannels(Error& error)
+{
+	for (uint8_t channel = 0; channel < 16; channel++)
+	{
+		MidiData::ChannelEvent channelEvent;
+		channelEvent.channel = channel;
+		channelEvent.type = MidiData::ChannelEvent::NOTE_OFF;
+		channelEvent.param1 = 0;
+		channelEvent.param2 = 0;
+
+		for (uint8_t pitchValue = 0; pitchValue <= 127; pitchValue++)
+		{
+			channelEvent.param1 = pitchValue;
+			uint8_t messageBuffer[128];
+			WriteOnlyBufferStream messageStream(messageBuffer, sizeof(messageBuffer));
+			channelEvent.Encode(messageStream, error);
+			this->SendMessage(messageStream.GetBuffer(), messageStream.GetSize(), error);
+		}
+	}
 
 	return true;
 }
@@ -215,10 +239,6 @@ bool MidiPlayer::TrackPlayer::ProcessEvent(const MidiData::Event* event, MidiPla
 				this->currentTempo = *metaEvent->GetData<MidiData::MetaEvent::Tempo>();
 				break;
 			}
-            default:
-            {
-                break;
-            }
 		}
 	}
 	else if (channelEvent)

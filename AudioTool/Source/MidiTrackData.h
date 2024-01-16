@@ -1,6 +1,7 @@
 #pragma once
 
 #include "TrackData.h"
+#include "Timer.h"
 #include "MidiData.h"
 #include "MidiPlayer.h"
 #include "RtMidi/RtMidi.h"
@@ -30,7 +31,7 @@ private:
 	class MidiPlayer : public AudioDataLib::MidiPlayer
 	{
 	public:
-		MidiPlayer();
+		MidiPlayer(AudioDataLib::Timer* timer);
 		virtual ~MidiPlayer();
 
 		virtual bool BeginPlayback(const std::set<uint32_t>& tracksToPlaySet, AudioDataLib::Error& error) override;

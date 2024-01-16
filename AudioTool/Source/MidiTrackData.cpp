@@ -64,7 +64,7 @@ void MidiTrackData::SetMidiData(MidiData* midiData)
 	for (uint32_t i = 1; i < this->midiData->GetNumTracks(); i++)
 		playTrackSet.insert(i);
 
-	this->midiPlayer = new MidiPlayer();
+	this->midiPlayer = new MidiPlayer(new HighResTimer());
 	this->midiPlayer->SetTimeSeconds(this->timeSeconds);
 	this->midiPlayer->SetMidiData(this->midiData);
 	if (!this->midiPlayer->BeginPlayback(playTrackSet, error))
@@ -129,13 +129,14 @@ void MidiTrackData::SetMidiData(MidiData* midiData)
 
 //---------------------------- MidiTrackData::MidiPlayer ----------------------------
 
-MidiTrackData::MidiPlayer::MidiPlayer() : AudioDataLib::MidiPlayer(nullptr)
+MidiTrackData::MidiPlayer::MidiPlayer(Timer* timer) : AudioDataLib::MidiPlayer(timer, nullptr)
 {
 	this->midiOut = nullptr;
 }
 
 /*virtual*/ MidiTrackData::MidiPlayer::~MidiPlayer()
 {
+	delete this->GetTimer();
 	delete this->midiOut;
 }
 

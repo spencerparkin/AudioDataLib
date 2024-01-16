@@ -10,6 +10,7 @@ namespace AudioDataLib
 	class MidiData;
 	class Mutex;
 	class Error;
+	class Timer;
 
 	// This class is meant to be used in conjection with some other library that provides
 	// access to a MIDI device.  Here we provide a convenient way to feed the MIDI device
@@ -18,7 +19,7 @@ namespace AudioDataLib
 	class AUDIO_DATA_LIB_API MidiPlayer
 	{
 	public:
-		MidiPlayer(Mutex* mutex);
+		MidiPlayer(Timer* timer, Mutex* mutex);
 		virtual ~MidiPlayer();
 
 		void SetMidiData(const MidiData* midiData) { this->midiData = midiData; }
@@ -42,8 +43,11 @@ namespace AudioDataLib
 		bool NoMoreToPlay();
         void GetSimultaneouslyPlayableTracks(std::set<uint32_t>& playableTracksSet) const;
 
+		Timer* GetTimer() { return this->timer; }
+
 	protected:
 		void Clear();
+		bool SilenceAllChannels(Error& error);
 
 		class TrackPlayer
 		{
@@ -67,7 +71,7 @@ namespace AudioDataLib
 		double timeSeconds;
 		const MidiData* midiData;
 		Mutex* mutex;
+		Timer* timer;
 		std::vector<TrackPlayer*>* trackPlayerArray;
-		clock_t lastClock;
 	};
 }

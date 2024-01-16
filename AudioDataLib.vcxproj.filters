@@ -70,6 +70,9 @@
     <ClInclude Include="Source\SimpleSynth.h">
       <Filter>Source\MIDI</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Timer.h">
+      <Filter>Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\FileFormat.cpp">
@@ -122,6 +125,9 @@
     </ClCompile>
     <ClCompile Include="Source\SimpleSynth.cpp">
       <Filter>Source\MIDI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Timer.cpp">
+      <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
