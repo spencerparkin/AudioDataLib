@@ -135,6 +135,10 @@ bool MidiData::CalculateTrackLengthInSeconds(uint32_t i, double& totalTimeSecond
 					currentTimeSig = *metaEvent->GetData<MetaEvent::TimeSignature>();
 					break;
 				}
+                default:
+                {
+                    break;
+                }
 			}
 		}
 		else if (channelEvent)
@@ -290,6 +294,10 @@ MidiData::MetaEvent::MetaEvent()
 			delete opaque;
 			break;
 		}
+        default:
+        {
+            break;
+        }
 	}
 }
 
@@ -513,6 +521,10 @@ MidiData::MetaEvent::MetaEvent()
 
 			break;
 		}
+        default:
+        {
+            break;
+        }
 	}
 
 	return true;

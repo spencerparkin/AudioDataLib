@@ -217,6 +217,10 @@ namespace AudioDataLib
 					{
 						return ((const Text*)this->data)->buffer;
 					}
+                    default:
+                    {
+                        break;
+                    }
 				}
 
 				return nullptr;
