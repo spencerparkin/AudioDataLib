@@ -215,6 +215,10 @@ bool MidiPlayer::TrackPlayer::ProcessEvent(const MidiData::Event* event, MidiPla
 				this->currentTempo = *metaEvent->GetData<MidiData::MetaEvent::Tempo>();
 				break;
 			}
+            default:
+            {
+                break;
+            }
 		}
 	}
 	else if (channelEvent)
