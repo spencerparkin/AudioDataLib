@@ -79,6 +79,9 @@
     <ClInclude Include="Source\SoundFontData.h">
       <Filter>Source\FileDatas</Filter>
     </ClInclude>
+    <ClInclude Include="Source\WaveTableSynth.h">
+      <Filter>Source\MIDI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\FileFormat.cpp">
@@ -140,6 +143,9 @@
     </ClCompile>
     <ClCompile Include="Source\SoundFontData.cpp">
       <Filter>Source\FileDatas</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\WaveTableSynth.cpp">
+      <Filter>Source\MIDI</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

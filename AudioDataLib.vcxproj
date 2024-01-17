@@ -40,6 +40,7 @@
     <ClInclude Include="Source\Timer.h" />
     <ClInclude Include="Source\WaveForm.h" />
     <ClInclude Include="Source\WaveFileFormat.h" />
+    <ClInclude Include="Source\WaveTableSynth.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\AudioData.cpp" />
@@ -62,6 +63,7 @@
     <ClCompile Include="Source\Timer.cpp" />
     <ClCompile Include="Source\WaveForm.cpp" />
     <ClCompile Include="Source\WaveFileFormat.cpp" />
+    <ClCompile Include="Source\WaveTableSynth.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

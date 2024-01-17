@@ -66,21 +66,21 @@ bool ChunkParser::ParseStream(ByteStream& inputStream, Error& error)
 	return true;
 }
 
-const ChunkParser::Chunk* ChunkParser::FindChunk(const std::string& chunkName) const
+const ChunkParser::Chunk* ChunkParser::FindChunk(const std::string& chunkName, bool caseSensative /*= true*/) const
 {
 	if (!this->rootChunk)
 		return nullptr;
 
-	return this->rootChunk->FindChunk(chunkName);
+	return this->rootChunk->FindChunk(chunkName, caseSensative);
 }
 
-void ChunkParser::FindAllChunks(const std::string& chunkName, std::vector<const Chunk*>& chunkArray) const
+void ChunkParser::FindAllChunks(const std::string& chunkName, std::vector<const Chunk*>& chunkArray, bool caseSensative /*= true*/) const
 {
 	chunkArray.clear();
 	if (!this->rootChunk)
 		return;
 
-	this->rootChunk->FindAllChunks(chunkName, chunkArray);
+	this->rootChunk->FindAllChunks(chunkName, chunkArray, caseSensative);
 }
 
 //------------------------------ ChunkParser::Chunk ------------------------------
@@ -103,14 +103,14 @@ ChunkParser::Chunk::Chunk()
 	delete this->subChunkArray;
 }
 
-const ChunkParser::Chunk* ChunkParser::Chunk::FindChunk(const std::string& chunkName) const
+const ChunkParser::Chunk* ChunkParser::Chunk::FindChunk(const std::string& chunkName, bool caseSensative) const
 {
-	if (*this->name == chunkName)
+	if (this->MatchesName(chunkName, caseSensative))
 		return this;
 
 	for (const Chunk* subChunk : *this->subChunkArray)
 	{
-		const Chunk* foundChunk = subChunk->FindChunk(chunkName);
+		const Chunk* foundChunk = subChunk->FindChunk(chunkName, caseSensative);
 		if (foundChunk)
 			return foundChunk;
 	}
@@ -118,13 +118,21 @@ const ChunkParser::Chunk* ChunkParser::Chunk::FindChunk(const std::string& chunk
 	return nullptr;
 }
 
-void ChunkParser::Chunk::FindAllChunks(const std::string& chunkName, std::vector<const Chunk*>& chunkArray) const
+void ChunkParser::Chunk::FindAllChunks(const std::string& chunkName, std::vector<const Chunk*>& chunkArray, bool caseSensative) const
 {
-	if (*this->name == chunkName)
+	if (this->MatchesName(chunkName, caseSensative))
 		chunkArray.push_back(this);
 
 	for (const Chunk* subChunk : *this->subChunkArray)
-		subChunk->FindAllChunks(chunkName, chunkArray);
+		subChunk->FindAllChunks(chunkName, chunkArray, caseSensative);
+}
+
+bool ChunkParser::Chunk::MatchesName(const std::string& chunkName, bool caseSensative) const
+{
+	if (caseSensative)
+		return *this->name == chunkName;
+
+	return 0 == ::_stricmp(this->name->c_str(), chunkName.c_str());
 }
 
 bool ChunkParser::Chunk::ParseStream(ReadOnlyBufferStream& inputStream, ChunkParser* chunkParser, Error& error)

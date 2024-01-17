@@ -15,5 +15,15 @@ namespace AudioDataLib
 
 		virtual bool ReadFromStream(ByteStream& inputStream, FileData*& fileData, Error& error) override;
 		virtual bool WriteToStream(ByteStream& outputStream, FileData* fileData, Error& error) override;
+
+	private:
+		class SoundFontChunkParser : public ChunkParser
+		{
+		public:
+			SoundFontChunkParser();
+			virtual ~SoundFontChunkParser();
+
+			virtual bool ParseChunkData(ReadOnlyBufferStream& inputStream, Chunk* chunk, Error& error) override;
+		};
 	};
 }

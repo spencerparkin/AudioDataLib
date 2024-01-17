@@ -4,8 +4,6 @@
 
 namespace AudioDataLib
 {
-	class AudioSink;
-
 	// The idea here is to impliment a musical instrument that can be
 	// recognized as such, even if it doesn't sound all that great.
 	// There is nothing fancy going on here like modulation, envelopes,
