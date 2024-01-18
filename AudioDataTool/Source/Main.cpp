@@ -89,6 +89,19 @@ int main(int argc, char** argv)
 		delete fileFormat;
 		return retCode;
 	}
+	else if (parser.ArgGiven("mix"))
+	{
+		std::string sourceFileA = parser.GetArgValue("mix", 0);
+		std::string sourceFileB = parser.GetArgValue("mix", 1);
+		std::string destinationFile = parser.GetArgValue("mix", 2);
+
+		Error error;
+		if (!MixAudio({ sourceFileA, sourceFileB }, destinationFile, error))
+		{
+			fprintf(stderr, "Error: %s", error.GetMessage().c_str());
+			return -1;
+		}
+	}
 
 	return 0;
 }
@@ -149,6 +162,131 @@ bool PlayAudioData(AudioDataLib::AudioData* audioData, AudioDataLib::Error& erro
 	} while (false);
 	
 	player.Shutdown(error);
+
+	return success;
+}
+
+bool MixAudio(const std::vector<std::string>& sourceFileArray, const std::string& destinationFile, AudioDataLib::Error& error)
+{
+	bool success = false;
+
+	std::vector<FileFormat*> fileFormatArray;
+	std::vector<FileData*> fileDataArray;
+
+	FileFormat* fileFormatOut = nullptr;
+
+	do
+	{
+		for (const std::string& sourceFile : sourceFileArray)
+		{
+			FileFormat* fileFormat = FileFormat::CreateForFile(sourceFile);
+			if (!fileFormat)
+			{
+				error.Add("Did not recognize file type for file: " + sourceFile);
+				break;
+			}
+
+			fileFormatArray.push_back(fileFormat);
+		}
+
+		if (fileFormatArray.size() != sourceFileArray.size())
+		{
+			error.Add("Could not recognize all source file type.");
+			break;
+		}
+
+		for (int i = 0; i < (signed)sourceFileArray.size(); i++)
+		{
+			FileFormat* fileFormat = fileFormatArray[i];
+			const std::string& sourceFile = sourceFileArray[i];
+
+			FileInputStream inputStream(sourceFile.c_str());
+			if (!inputStream.IsOpen())
+			{
+				error.Add(FormatString("Failed to open file %s for reading.", sourceFile.c_str()));
+				break;
+			}
+
+			FileData* fileData = nullptr;
+			if (!fileFormat->ReadFromStream(inputStream, fileData, error))
+			{
+				error.Add("Failed to read file: " + sourceFile);
+				break;
+			}
+
+			fileDataArray.push_back(fileData);
+
+			if (!dynamic_cast<AudioData*>(fileData))
+			{
+				error.Add(FormatString("File data for file %s is not audio data.", sourceFile.c_str()));
+				break;
+			}
+		}
+
+		if (fileDataArray.size() != sourceFileArray.size())
+		{
+			error.Add("Could not load all source files.");
+			break;
+		}
+
+		AudioSink audioSink(true);
+
+		AudioData::Format format;
+		format.bitsPerSample = 0;
+
+		double maxTimeSeconds = 0.0;
+		for (FileData* fileData : fileDataArray)
+		{
+			auto audioData = dynamic_cast<AudioData*>(fileData);
+			double timeSeconds = audioData->GetTimeSeconds();
+			if (maxTimeSeconds < timeSeconds)
+				maxTimeSeconds = timeSeconds;
+
+			audioSink.AddAudioInput(new AudioStream(audioData));
+
+			if (format.bitsPerSample == 0)
+				format = audioData->GetFormat();
+		}
+
+		auto audioStreamOut = new AudioStream(format);
+		audioSink.SetAudioOutput(audioStreamOut);
+		audioSink.GenerateAudio(maxTimeSeconds, 0.0);
+
+		AudioData generatedAudioData;
+		generatedAudioData.GetFormat() = audioStreamOut->GetFormat();
+		generatedAudioData.SetAudioBufferSize(audioStreamOut->GetSize());
+		audioStreamOut->ReadBytesFromStream(generatedAudioData.GetAudioBuffer(), generatedAudioData.GetAudioBufferSize());
+
+		fileFormatOut = FileFormat::CreateForFile(destinationFile);
+		if (!fileFormatOut)
+		{
+			error.Add("Could not recognize file type for file: " + destinationFile);
+			break;
+		}
+
+		FileOutputStream outputStream(destinationFile.c_str());
+		if (!outputStream.IsOpen())
+		{
+			error.Add(FormatString("Could not open file %s for writing.", destinationFile.c_str()));
+			break;
+		}
+
+		if (!fileFormatOut->WriteToStream(outputStream, &generatedAudioData, error))
+		{
+			error.Add("Failed to write file: " + destinationFile);
+			break;
+		}
+
+		success = true;
+	} while (false);
+
+	for (FileFormat* fileFormat : fileFormatArray)
+		delete fileFormat;
+
+	for (FileData* fileData : fileDataArray)
+		delete fileData;
+
+	delete fileFormatOut;
 
 	return success;
 }
