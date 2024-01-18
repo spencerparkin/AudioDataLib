@@ -18,6 +18,7 @@ int main(int argc, char** argv)
 	parser.RegisterArg("concat", 3, "Concatinate the two given WAV files into a single WAV file, the third given output file.");
 	parser.RegisterArg("trim_start", 2, "Trim the start of the given WAV file by the given number of seconds.  This modifies the given file.");
 	parser.RegisterArg("trim_end", 2, "Truncate the given WAV file by the given number of seconds.  This modifies the given file.");
+	parser.RegisterArg("help", 0, "Show the usage.");
 	
 	std::string error;
 	if (!parser.Parse(argc, argv, error))
@@ -25,6 +26,12 @@ int main(int argc, char** argv)
 		fprintf(stderr, ("Error: " + error).c_str());
 		parser.PrintUsage(stderr);
 		return -1;
+	}
+
+	if (parser.ArgGiven("help"))
+	{
+		parser.PrintUsage(stdout);
+		return 0;
 	}
 
 	if (parser.ArgGiven("play"))

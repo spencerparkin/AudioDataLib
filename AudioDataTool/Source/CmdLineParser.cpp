@@ -20,17 +20,15 @@ void CmdLineParser::RegisterArg(const std::string& argName, int numValues, const
 
 void CmdLineParser::PrintUsage(FILE* fp) const
 {
-	fprintf(fp, "Synopsis:\n\n");
+	fprintf(fp, "Synopsis: ");
 	fprintf(fp, this->synopsis.c_str());
-	fprintf(fp, "\n");
-	fprintf(fp, "Usage:\n\n");
+	fprintf(fp, "\n\n");
+	fprintf(fp, "Usage...\n\n");
 
 	for (const ArgDef& argDef : this->argDefArray)
 	{
 		fprintf(fp, "-----------------------------\n");
-		fprintf(fp, "%s", argDef.name.c_str());
-		for (int i = 0; i < argDef.numValues; i++)
-			fprintf(fp, " <value%d>", i + 1);
+		fprintf(fp, "%s (followed by %d value(s))", argDef.name.c_str(), argDef.numValues);
 		fprintf(fp, "\n\t%s\n", argDef.help.c_str());
 	}
 
