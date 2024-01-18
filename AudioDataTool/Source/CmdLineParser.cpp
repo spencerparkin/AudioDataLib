@@ -40,24 +40,38 @@ void CmdLineParser::PrintUsage(FILE* fp) const
 const CmdLineParser::ArgDef* CmdLineParser::FindArgDef(const std::string& argName) const
 {
 	for (const ArgDef& argDef : this->argDefArray)
-		if (argDef.name == argName)
+		if (argDef.name == "--" + argName)
 			return &argDef;
 
 	return nullptr;
 }
 
-const CmdLineParser::ArgInst* CmdLineParser::FindArgInst(const std::string& argName) const
+const CmdLineParser::ArgInst* CmdLineParser::FindArgInst(const std::string& argName, int instance /*= 0*/) const
 {
 	for (const ArgInst& argInst : this->argInstArray)
-		if (argInst.argDef->name == argName)
+		if (argInst.argDef->name == "--" + argName && instance-- == 0)
 			return &argInst;
 
 	return nullptr;
 }
 
-bool CmdLineParser::ArgGiven(const std::string& argName) const
+bool CmdLineParser::ArgGiven(const std::string& argName, int instance) const
 {
-	return this->FindArgInst(argName) != nullptr;
+	return this->FindArgInst(argName, instance) != nullptr;
+}
+
+const std::string& CmdLineParser::GetArgValue(const std::string& argName, int valueOffset, int instance /*= 0*/)
+{
+	static std::string emptyValue;
+
+	const ArgInst* argInst = this->FindArgInst(argName, instance);
+	if (!argInst)
+		return emptyValue;
+
+	if (0 <= valueOffset && valueOffset < (int)argInst->valueArray.size())
+		return argInst->valueArray[valueOffset];
+
+	return emptyValue;
 }
 
 bool CmdLineParser::Parse(int argc, char** argv, std::string& error)

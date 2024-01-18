@@ -1,4 +1,8 @@
 #include "CmdLineParser.h"
+#include "Main.h"
+#include <memory>
+
+using namespace AudioDataLib;
 
 int main(int argc, char** argv)
 {
@@ -23,10 +27,95 @@ int main(int argc, char** argv)
 		return -1;
 	}
 
-	if (parser.ArgGiven("--play"))
+	if (parser.ArgGiven("play"))
 	{
-		//...
+		const std::string& filePath = parser.GetArgValue("play", 0);
+		FileFormat* fileFormat = FileFormat::CreateForFile(filePath);
+		if (!fileFormat)
+		{
+			fprintf(stderr, "File format for file \"%s\" not recognized.", filePath.c_str());
+			return -1;
+		}
+
+		FileInputStream inputStream(filePath.c_str());
+		if (!inputStream.IsOpen())
+		{
+			fprintf(stderr, "Could not open file: %s", filePath.c_str());
+			delete fileFormat;
+			return -1;
+		}
+
+		Error error;
+		FileData* fileData = nullptr;
+		if (!fileFormat->ReadFromStream(inputStream, fileData, error))
+		{
+			fprintf(stderr, ("Error: " + error.GetMessage()).c_str());
+			delete fileFormat;
+			return -1;
+		}
+
+		int retCode = 0;
+
+		auto midiData = dynamic_cast<MidiData*>(fileData);
+		auto audioData = dynamic_cast<AudioData*>(fileData);
+
+		if (midiData)
+		{
+			if (!PlayMidiFile(midiData, error))
+				retCode = -1;
+		}
+		else if (audioData)
+		{
+			if (!PlayAudioFile(audioData, error))
+				retCode = -1;
+		}
+		else
+		{
+			error.Add("Failed to cast file data!");
+			retCode = -1;
+		}
+
+		if (error)
+			fprintf(stderr, "Error: %s", error.GetMessage().c_str());
+
+		delete fileData;
+		delete fileFormat;
+		return retCode;
 	}
 
 	return 0;
+}
+
+bool PlayMidiFile(AudioDataLib::MidiData* midiData, AudioDataLib::Error& error)
+{
+	SystemClockTimer timer;
+	RtMidiPlayer player(&timer);
+
+	player.SetMidiData(midiData);
+	std::set<uint32_t> playableTrackSet;
+
+	player.GetSimultaneouslyPlayableTracks(playableTrackSet);
+	player.SetTimeSeconds(0.0);
+	if (!player.BeginPlayback(playableTrackSet, error))
+		return false;
+
+	while (!player.NoMoreToPlay())
+	{
+		if (!player.ManagePlayback(error))
+			return false;
+
+		// TODO: Maybe watch for key-presses here?  Should be able to pause, rewind, fastforward, and just stop.
+		// TODO: Print playback time periodically, but can you do it without introducing a newline each time?
+	}
+
+	if (!player.EndPlayback(error))
+		return false;
+
+	return true;
+}
+
+bool PlayAudioFile(AudioDataLib::AudioData* audioData, AudioDataLib::Error& error)
+{
+	// TODO: Write this.  Use SDL library.
+	return true;
 }
