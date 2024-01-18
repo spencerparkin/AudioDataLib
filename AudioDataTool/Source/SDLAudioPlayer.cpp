@@ -117,6 +117,9 @@ bool SDLAudioPlayer::IsPlayingSomething()
 
 bool SDLAudioPlayer::ManagePlayback(AudioDataLib::Error& error)
 {
+	// TODO: More thought needs to go into how much future time we buffer for the sink.
+	//       Too much time, and we suffer latency issues when an audio clip is fired.
+	//       Too little, and we can suffer from audio drop-outs due to a starved device.
 	this->audioSink.GenerateAudio(0.1, 0.1);
 	return true;
 }
