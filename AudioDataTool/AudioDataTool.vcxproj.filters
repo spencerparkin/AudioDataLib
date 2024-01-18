@@ -25,6 +25,9 @@
     <ClCompile Include="Source\RtMidiPlayer.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="Source\SDLAudioPlayer.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\CmdLineParser.h">
@@ -37,6 +40,9 @@
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="Source\Main.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SDLAudioPlayer.h">
       <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>

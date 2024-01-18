@@ -116,6 +116,32 @@ bool PlayMidiFile(AudioDataLib::MidiData* midiData, AudioDataLib::Error& error)
 
 bool PlayAudioFile(AudioDataLib::AudioData* audioData, AudioDataLib::Error& error)
 {
-	// TODO: Write this.  Use SDL library.
-	return true;
+	bool success = false;
+	SDLAudioPlayer player;
+
+	do
+	{
+		if (!player.Setup(error))
+			break;
+
+		if (!player.PlayAudio(audioData, error))
+			break;
+
+		while (player.IsPlayingSomething())
+		{
+			if (!player.ManagePlayback(error))
+				break;
+
+			// TODO: Maybe listen for key-presses here and let the user quit if desired?
+		}
+
+		if (error)
+			break;
+
+		success = true;
+	} while (false);
+	
+	player.Shutdown(error);
+
+	return success;
 }
