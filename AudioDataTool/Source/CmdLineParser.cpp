@@ -40,7 +40,7 @@ void CmdLineParser::PrintUsage(FILE* fp) const
 const CmdLineParser::ArgDef* CmdLineParser::FindArgDef(const std::string& argName) const
 {
 	for (const ArgDef& argDef : this->argDefArray)
-		if (argDef.name == "--" + argName)
+		if (argDef.name == argName)
 			return &argDef;
 
 	return nullptr;
@@ -91,16 +91,16 @@ bool CmdLineParser::Parse(int argc, char** argv, std::string& error)
 		ArgInst argInst;
 		argInst.argDef = argDef;
 
-		for (int j = 1; j <= argDef->numValues; i++)
+		for (int j = 1; j <= argDef->numValues; j++)
 		{
 			if (i + j >= argc)
 			{
 				char errorBuf[128];
-				sprintf_s(errorBuf, sizeof(errorBuf), "Argument \"%s\" needed %d values.", argName.c_str(), argDef->numValues);
+				sprintf_s(errorBuf, sizeof(errorBuf), "Argument \"%s\" needed %d value(s).", argName.c_str(), argDef->numValues);
 				return false;
 			}
 
-			std::string argValue = argv[j];
+			std::string argValue = argv[i + j];
 			if (argValue.find("--") == 0)
 			{
 				char errorBuf[128];
@@ -112,6 +112,7 @@ bool CmdLineParser::Parse(int argc, char** argv, std::string& error)
 		}
 
 		this->argInstArray.push_back(argInst);
+		i += argDef->numValues;
 	}
 
 	return true;
