@@ -36,12 +36,14 @@ bool SDLAudioPlayer::Setup(Error& error)
 		printf("%d: %s\n", i + 1, audioDeviceName.c_str());
 	}
 
-	std::string chosenAudioDeviceName = SDL_GetAudioDeviceName(0, 0);		// TODO: Maybe let the user pick?
+	std::string chosenAudioDeviceName = SDL_GetAudioDeviceName(2, 0);		// TODO: Maybe let the user pick?
+	printf("Chosen device: %s", chosenAudioDeviceName.c_str());
 
-	this->audioSpec.freq = 44000;
+	this->audioSpec.freq = 48000;
 	this->audioSpec.format = AUDIO_S16LSB;
 	this->audioSpec.channels = 1;
 	this->audioSpec.callback = &SDLAudioPlayer::AudioCallbackEntryPoint;
+	this->audioSpec.userdata = this;
 
 	this->audioDeviceID = SDL_OpenAudioDevice(chosenAudioDeviceName.c_str(), 0, &this->audioSpec, &this->audioSpec, SDL_AUDIO_ALLOW_ANY_CHANGE);
 	if (this->audioDeviceID == 0)
@@ -49,12 +51,21 @@ bool SDLAudioPlayer::Setup(Error& error)
 		error.Add(FormatString("Failed to open output audio device: %s", SDL_GetError()));
 		return false;
 	}
-
-	// TODO: Our audio data is always signed.  Do I need to add support for the unsigned case?
+	
 	AudioData::Format format;
 	format.numChannels = this->audioSpec.channels;
 	format.bitsPerSample = SDL_AUDIO_BITSIZE(this->audioSpec.format);
 	format.framesPerSecond = this->audioSpec.freq;
+	
+	if (SDL_AUDIO_ISFLOAT(this->audioSpec.format))
+		format.sampleType = AudioData::Format::FLOAT;
+	if (SDL_AUDIO_ISSIGNED(this->audioSpec.format))	// TODO: Our audio data is always signed.  Do I need to add support for the unsigned case?
+		format.sampleType = AudioData::Format::SIGNED_INTEGER;
+	else
+	{
+		error.Add("SDL format not yet supported by AudioDataLib.");
+		return false;
+	}
 
 	this->audioSink.SetAudioOutput(new ThreadSafeAudioStream(format, &this->mutex, false));
 
