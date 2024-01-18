@@ -19,7 +19,9 @@ namespace AudioDataLib
 
 		// Make sure that an amount of audio data equivilant to the given amount
 		// of time is available for consumption in our audio output stream.
-		// This will produce silence in the audio output if necessary.
+		// This will produce silence in the audio output if necessary.  Note that
+		// too much buffered time will create latency when new audio clips are fired.
+		// But too little buffered can cause audio drop-outs due to a starved device.
 		void GenerateAudio(double desiredSecondsAvailable, double minSecondsAddedPerMix);
 	
 		// The memory for the given audio stream is deleted once it has been depleted.
