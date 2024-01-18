@@ -303,7 +303,7 @@ namespace AudioDataLib
 		Track* GetTrack(uint32_t i);
 		void AddTrack(Track* track);
 		bool RemoveTrack(uint32_t i);
-		uint32_t GetNumTracks() const { return this->trackArray->size(); }
+		uint32_t GetNumTracks() const { return (uint32_t)this->trackArray->size(); }
 
 	protected:
 		FormatType formatType;

@@ -38,7 +38,7 @@ namespace AudioDataLib
 
 			bool MatchesName(const std::string& chunkName, bool caseSensative) const;
 
-			uint32_t GetNumSubChunks() const { return this->subChunkArray->size(); }
+			uint32_t GetNumSubChunks() const { return (uint32_t)this->subChunkArray->size(); }
 			const std::vector<Chunk*>& GetSubChunkArray() const { return *this->subChunkArray; }
 
 			const uint8_t* GetBuffer() const { return this->buffer; }

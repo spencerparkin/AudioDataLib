@@ -213,7 +213,7 @@ void AudioSink::GenerateAudio(double desiredSecondsAvailable, double minSecondsA
 		{
 			if (this->ownsStreamMemory)
 				delete audioStreamIn;
-			uint32_t j = this->audioStreamInArray->size() - 1;
+			uint32_t j = uint32_t(this->audioStreamInArray->size()) - 1;
 			if (i != j)
 				(*this->audioStreamInArray)[i] = (*this->audioStreamInArray)[j];
 			this->audioStreamInArray->pop_back();

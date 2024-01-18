@@ -30,7 +30,7 @@ namespace AudioDataLib
 		void SetAudioOutput(AudioStream* audioStreamOut);
 
 		// Remember that this count decrements as the audio inputs are depleted.
-		int GetAudioInputCount() const { return this->audioStreamInArray->size(); }
+		uint32_t GetAudioInputCount() const { return (uint32_t)this->audioStreamInArray->size(); }
 
 	protected:
 
