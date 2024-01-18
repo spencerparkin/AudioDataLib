@@ -45,6 +45,8 @@ namespace AudioDataLib
 		AudioData();
 		virtual ~AudioData();
 
+		virtual void DumpInfo(FILE* fp) const override;
+
 		// The main purpose of these is to make sure that memory is created or freed in the proper heap.
 		// They can also be useful when writing template functions.
 		static AudioData* Create();

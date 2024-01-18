@@ -39,6 +39,98 @@ void MidiData::Clear()
 	this->trackArray->clear();
 }
 
+/*virtual*/ void MidiData::DumpInfo(FILE* fp) const
+{
+	const char* formatTypeStr = nullptr;
+
+	switch (this->formatType)
+	{
+	case FormatType::SINGLE_TRACK:
+		formatTypeStr = "Single-track";
+		break;
+	case FormatType::MULTI_TRACK:
+		formatTypeStr = "Multi-track";
+		break;
+	case FormatType::VARIOUS_TRACKS:
+		formatTypeStr = "Various-tracks";
+		break;
+	default:
+		formatTypeStr = "?";
+		break;
+	}
+
+	const char* timingTypeStr = nullptr;
+
+	switch (this->timing.type)
+	{
+	case Timing::Type::FRAMES_PER_SECOND:
+		timingTypeStr = "FPS";
+		break;
+	case Timing::Type::TICKS_PER_QUARTER_NOTE:
+		timingTypeStr = "TPQ";
+		break;
+	default:
+		timingTypeStr = "?";
+		break;
+	}
+
+	if (this->formatType == FormatType::MULTI_TRACK)
+	{
+		const Track* infoTrack = this->GetTrack(0);
+		if (infoTrack)
+		{
+			const MetaEvent* metaEvent = infoTrack->FindMetaEventOfType(MetaEvent::Type::COPYRIGHT_NOTICE);
+			if (metaEvent)
+				fprintf(fp, "Copyright notice: %s\n", metaEvent->GetData<const char>());
+
+			metaEvent = infoTrack->FindMetaEventOfType(MetaEvent::Type::KEY_SIGNATURE);
+			if (metaEvent)
+			{
+				std::string keySigStr = *metaEvent->GetData<MetaEvent::KeySignature>();
+				fprintf(fp, "Key signature: %s\n", keySigStr.c_str());
+			}
+
+			metaEvent = infoTrack->FindMetaEventOfType(MetaEvent::Type::TIME_SIGNATURE);
+			if (metaEvent)
+			{
+				std::string timeSigStr = *metaEvent->GetData<MetaEvent::TimeSignature>();
+				fprintf(fp, "Time signature: %s\n", timeSigStr.c_str());
+			}
+		}
+	}
+
+	fprintf(fp, "Format type: %s\n", formatTypeStr);
+	fprintf(fp, "Num. tracks: %d\n", this->trackArray->size());
+	fprintf(fp, "Timing type: %s\n", timingTypeStr);
+
+	if (this->timing.type == Timing::Type::FRAMES_PER_SECOND)
+	{
+		fprintf(fp, "Frame-rate: %d\n", this->timing.framesPerSecond);
+		fprintf(fp, "Ticks-per-frame: %d\n", this->timing.ticksPerFrame);
+	}
+	else if (this->timing.type == Timing::Type::TICKS_PER_QUARTER_NOTE)
+		fprintf(fp, "Ticks-per-QN: %d\n", this->timing.ticksPerQuarterNote);
+
+	for (uint32_t i = 0; i < this->trackArray->size(); i++)
+	{
+		const Track* track = this->GetTrack(i);
+		fprintf(fp, "-----------------------------------\n");
+		fprintf(fp, "Track %d has %d events.\n", i, track->GetEventArray().size());
+
+		const MetaEvent* metaEvent = track->FindMetaEventOfType(MetaEvent::Type::INSTRUMENT_NAME);
+		if (metaEvent)
+			fprintf(fp, "Instruction name: %s\n", metaEvent->GetData<const char>());
+
+		if (this->formatType != FormatType::MULTI_TRACK || i > 0)
+		{
+			Error error;
+			double trackTimeSeconds = 0.0;
+			this->CalculateTrackLengthInSeconds(i, trackTimeSeconds, error);
+			fprintf(fp, "Track time: %f\n", trackTimeSeconds);
+		}
+	}
+}
+
 const MidiData::Track* MidiData::GetTrack(uint32_t i) const
 {
 	return const_cast<MidiData*>(this)->GetTrack(i);
@@ -232,6 +324,39 @@ MidiData::MetaEvent::MetaEvent()
 {
 	this->type = Type::UNKNOWN;
 	this->data = nullptr;
+}
+
+MidiData::MetaEvent::KeySignature::operator std::string() const
+{
+	std::string keySigStr;
+
+	switch (this->key)
+	{
+		// TODO: "key" can be -7 to +7.  This is the number of flags/sharps.  But what's the letter?
+	case 0:
+		keySigStr = "C";
+		break;
+	default:
+		keySigStr = "?";
+		break;
+	}
+
+	if (this->scale == 0)
+		keySigStr += " major";
+	else
+		keySigStr += " minor";
+
+	return keySigStr;
+}
+
+MidiData::MetaEvent::TimeSignature::operator std::string() const
+{
+	std::string timeSigStr;
+	uint32_t actualDenom = 1 << this->denominator;
+	char timeSigBuf[64];
+	sprintf(timeSigBuf, "%d / %d", this->numerator, actualDenom);
+	timeSigStr = timeSigBuf;
+	return timeSigStr;
 }
 
 /*virtual*/ MidiData::MetaEvent::~MetaEvent()

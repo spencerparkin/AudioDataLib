@@ -15,6 +15,8 @@ namespace AudioDataLib
 		MidiData();
 		virtual ~MidiData();
 
+		virtual void DumpInfo(FILE* fp) const override;
+
 		void Clear();
 
 		bool CalculateTrackLengthInSeconds(uint32_t i, double& totalTimeSeconds, Error& error) const;
@@ -182,12 +184,16 @@ namespace AudioDataLib
 				uint8_t denominator;
 				uint8_t metro;
 				uint8_t __32nds;
+
+				operator std::string() const;
 			};
 
 			struct KeySignature
 			{
 				uint8_t key;
 				uint8_t scale;
+
+				operator std::string() const;
 			};
 
 			struct Opaque

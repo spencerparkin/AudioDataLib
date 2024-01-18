@@ -64,6 +64,8 @@ FileInputStream::FileInputStream(const char* filePath) : FileStream(filePath, "r
 
 /*virtual*/ uint64_t FileInputStream::GetSize() const
 {
+	if (!this->fp)
+		return 0;
 	uint64_t curPos = ftell(this->fp);
 	fseek(this->fp, 0, SEEK_END);
 	uint64_t endPos = ftell(this->fp);

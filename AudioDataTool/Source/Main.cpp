@@ -19,6 +19,7 @@ int main(int argc, char** argv)
 	parser.RegisterArg("trim_start", 2, "Trim the start of the given WAV file by the given number of seconds.  This modifies the given file.");
 	parser.RegisterArg("trim_end", 2, "Truncate the given WAV file by the given number of seconds.  This modifies the given file.");
 	parser.RegisterArg("help", 0, "Show the usage.");
+	parser.RegisterArg("dump_info", 1, "Load the given file and then dump some stats about it.");
 	
 	std::string error;
 	if (!parser.Parse(argc, argv, error))
@@ -31,6 +32,20 @@ int main(int argc, char** argv)
 	if (parser.ArgGiven("help"))
 	{
 		parser.PrintUsage(stdout);
+		return 0;
+	}
+
+	if (parser.ArgGiven("dump_info"))
+	{
+		const std::string& filePath = parser.GetArgValue("dump_info", 0);
+
+		Error error;
+		if (!DumpInfo(filePath, error))
+		{
+			fprintf(stderr, error.GetMessage().c_str());
+			return -1;
+		}
+
 		return 0;
 	}
 
@@ -89,7 +104,8 @@ int main(int argc, char** argv)
 		delete fileFormat;
 		return retCode;
 	}
-	else if (parser.ArgGiven("mix"))
+	
+	if (parser.ArgGiven("mix"))
 	{
 		std::string sourceFileA = parser.GetArgValue("mix", 0);
 		std::string sourceFileB = parser.GetArgValue("mix", 1);
@@ -101,6 +117,8 @@ int main(int argc, char** argv)
 			fprintf(stderr, "Error: %s", error.GetMessage().c_str());
 			return -1;
 		}
+
+		return 0;
 	}
 
 	return 0;
@@ -287,6 +305,45 @@ bool MixAudio(const std::vector<std::string>& sourceFileArray, const std::string
 		delete fileData;
 
 	delete fileFormatOut;
+
+	return success;
+}
+
+bool DumpInfo(const std::string& filePath, AudioDataLib::Error& error)
+{
+	bool success = false;
+	FileFormat* fileFormat = nullptr;
+	FileData* fileData = nullptr;
+
+	do
+	{
+		FileInputStream inputStream(filePath.c_str());
+		if (!inputStream.IsOpen())
+		{
+			error.Add("Failed to open file: " + filePath);
+			break;
+		}
+
+		fileFormat = FileFormat::CreateForFile(filePath.c_str());
+		if (!fileFormat)
+		{
+			error.Add("Failed type not recognized for file: " + filePath);
+			break;
+		}
+
+		if (!fileFormat->ReadFromStream(inputStream, fileData, error))
+		{
+			error.Add("Failed to read file: " + filePath);
+			break;
+		}
+
+		fileData->DumpInfo(stdout);
+
+		success = true;
+	} while (false);
+
+	delete fileFormat;
+	delete fileData;
 
 	return success;
 }

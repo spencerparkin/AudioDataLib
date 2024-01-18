@@ -10,6 +10,6 @@ namespace AudioDataLib
 		FileData();
 		virtual ~FileData();
 
-		//...
+		virtual void DumpInfo(FILE* fp) const = 0;
 	};
 }

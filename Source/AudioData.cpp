@@ -26,6 +26,33 @@ AudioData::AudioData()
 	delete audioData;
 }
 
+/*virtual*/ void AudioData::DumpInfo(FILE* fp) const
+{
+	const char* sampleTypeStr = nullptr;
+
+	switch (this->format.sampleType)
+	{
+	case Format::SampleType::FLOAT:
+		sampleTypeStr = "IEEE floating-point";
+		break;
+	case Format::SampleType::SIGNED_INTEGER:
+		sampleTypeStr = "Signed integer";
+		break;
+	default:
+		sampleTypeStr = "?";
+		break;
+	}
+
+	double durationSeconds = this->GetTimeSeconds();
+
+	fprintf(fp, "Sample-type: %s\n", sampleTypeStr);
+	fprintf(fp, "Bits-per-spample: %d\n", this->format.bitsPerSample);
+	fprintf(fp, "Frame-rate (FPS): %d\n", this->format.framesPerSecond);
+	fprintf(fp, "Channels: %d\n", this->format.numChannels);
+	fprintf(fp, "Buffer size: %lld\n", this->audioBufferSize);
+	fprintf(fp, "Duration (sec): %f\n", durationSeconds);
+}
+
 void AudioData::SetAudioBufferSize(uint64_t audioBufferSize)
 {
 	delete[] this->audioBuffer;

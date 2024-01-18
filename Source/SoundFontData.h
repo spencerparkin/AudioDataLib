@@ -11,6 +11,8 @@ namespace AudioDataLib
 		SoundFontData();
 		virtual ~SoundFontData();
 
+		virtual void DumpInfo(FILE* fp) const override;
+
 		struct VersionTag
 		{
 			uint16_t major;
