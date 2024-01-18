@@ -7,5 +7,5 @@
 #include "Error.h"
 #include "Timer.h"
 
-bool PlayMidiFile(AudioDataLib::MidiData* midiData, AudioDataLib::Error& error);
-bool PlayAudioFile(AudioDataLib::AudioData* audioData, AudioDataLib::Error& error);
+bool PlayMidiData(AudioDataLib::MidiData* midiData, AudioDataLib::Error& error);
+bool PlayAudioData(AudioDataLib::AudioData* audioData, AudioDataLib::Error& error);

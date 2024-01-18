@@ -61,12 +61,12 @@ int main(int argc, char** argv)
 
 		if (midiData)
 		{
-			if (!PlayMidiFile(midiData, error))
+			if (!PlayMidiData(midiData, error))
 				retCode = -1;
 		}
 		else if (audioData)
 		{
-			if (!PlayAudioFile(audioData, error))
+			if (!PlayAudioData(audioData, error))
 				retCode = -1;
 		}
 		else
@@ -86,7 +86,7 @@ int main(int argc, char** argv)
 	return 0;
 }
 
-bool PlayMidiFile(AudioDataLib::MidiData* midiData, AudioDataLib::Error& error)
+bool PlayMidiData(AudioDataLib::MidiData* midiData, AudioDataLib::Error& error)
 {
 	SystemClockTimer timer;
 	RtMidiPlayer player(&timer);
@@ -114,7 +114,7 @@ bool PlayMidiFile(AudioDataLib::MidiData* midiData, AudioDataLib::Error& error)
 	return true;
 }
 
-bool PlayAudioFile(AudioDataLib::AudioData* audioData, AudioDataLib::Error& error)
+bool PlayAudioData(AudioDataLib::AudioData* audioData, AudioDataLib::Error& error)
 {
 	bool success = false;
 	SDLAudioPlayer player;
