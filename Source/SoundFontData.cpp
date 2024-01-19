@@ -5,11 +5,23 @@ using namespace AudioDataLib;
 SoundFontData::SoundFontData()
 {
 	this->generalInfo = new GeneralInfo();
+	this->audioSampleArray = new std::vector<AudioSample*>();
 }
 
 /*virtual*/ SoundFontData::~SoundFontData()
 {
+	this->Clear();
+
 	delete this->generalInfo;
+	delete this->audioSampleArray;
+}
+
+void SoundFontData::Clear()
+{
+	for (AudioSample* audioSample : *this->audioSampleArray)
+		delete audioSample;
+	
+	this->audioSampleArray->clear();
 }
 
 /*virtual*/ void SoundFontData::DumpInfo(FILE* fp) const
@@ -20,4 +32,14 @@ SoundFontData::SoundFontData()
 	fprintf(fp, "For product: %s\n", this->generalInfo->intendedProductName.c_str());
 
 	//...
+}
+
+SoundFontData::AudioSample::AudioSample()
+{
+	this->audioData = new AudioData();
+}
+
+/*virtual*/ SoundFontData::AudioSample::~AudioSample()
+{
+	delete this->audioData;
 }

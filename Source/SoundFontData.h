@@ -5,13 +5,19 @@
 
 namespace AudioDataLib
 {
+	class AudioData;
+
 	class AUDIO_DATA_LIB_API SoundFontData : public FileData
 	{
+		friend class SoundFontFormat;
+
 	public:
 		SoundFontData();
 		virtual ~SoundFontData();
 
 		virtual void DumpInfo(FILE* fp) const override;
+
+		void Clear();
 
 		struct VersionTag
 		{
@@ -40,10 +46,24 @@ namespace AudioDataLib
 			std::string soundFontToolRecord;
 		};
 
+		class AudioSample
+		{
+		public:
+			AudioSample();
+			virtual ~AudioSample();
+
+			AudioData* GetAudioData() { return this->audioData; }
+
+		protected:
+			AudioData* audioData;
+			// TODO: Store loop start/end points here.
+		};
+
 		const GeneralInfo& GetGeneralInfo() const { return *this->generalInfo; }
 		GeneralInfo& GetGeneralInfo() { return *this->generalInfo; }
 
 	private:
 		GeneralInfo* generalInfo;
+		std::vector<AudioSample*>* audioSampleArray;
 	};
 }
