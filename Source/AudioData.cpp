@@ -75,6 +75,11 @@ uint64_t AudioData::GetNumSamplesPerChannel() const
 	return this->GetNumSamples() / this->format.numChannels;
 }
 
+uint64_t AudioData::GetNumFrames() const
+{
+	return this->GetAudioBufferSize() / this->format.BytesPerFrame();
+}
+
 double AudioData::GetTimeSeconds() const
 {
 	return this->format.BytesPerChannelToSeconds(this->format.BytesPerChannel(this->audioBufferSize));

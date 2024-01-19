@@ -53,10 +53,24 @@ namespace AudioDataLib
 			virtual ~AudioSample();
 
 			AudioData* GetAudioData() { return this->audioData; }
+			const AudioData* GetAudioData() const { return this->audioData; }
+
+			void SetName(const std::string& name) { this->name = name; }
+			const std::string& GetName() const { return this->name; }
+
+			struct Loop
+			{
+				uint64_t startFrame;
+				uint64_t endFrame;
+			};
+
+			const Loop& GetLoop() const { return this->loop; }
+			void SetLoop(const Loop& loop) { this->loop = loop; }
 
 		protected:
 			AudioData* audioData;
-			// TODO: Store loop start/end points here.
+			std::string name;
+			Loop loop;
 		};
 
 		const GeneralInfo& GetGeneralInfo() const { return *this->generalInfo; }

@@ -64,6 +64,7 @@ namespace AudioDataLib
 
 		uint64_t GetNumSamples() const;
 		uint64_t GetNumSamplesPerChannel() const;
+		uint64_t GetNumFrames() const;
 
 		double GetTimeSeconds() const;
 

@@ -191,9 +191,124 @@ SoundFontFormat::SoundFontFormat()
 
 SoundFontData::AudioSample* SoundFontFormat::ConstructAudioSample(const std::vector<SampleHeader>& audioSampleHeaderArray, const ChunkParser::Chunk* smplChunk, const ChunkParser::Chunk* sm24Chunk, Error& error)
 {
+	if (audioSampleHeaderArray.size() == 0)
+		return nullptr;
+
+	// Sanity check the headers against the sample chunk.
+	for (const SampleHeader& header : audioSampleHeaderArray)
+	{
+		if (!(header.sampleStart <= header.sampleEnd && header.sampleEnd <= smplChunk->GetBufferSize() / sizeof(uint16_t)))
+		{
+			error.Add("Header boundaries not in range of the chunk.");
+			return nullptr;
+		}
+
+		if (!(header.sampleStart <= header.sampleLoopStart && header.sampleLoopStart <= header.sampleEnd) ||
+			!(header.sampleStart <= header.sampleLoopEnd && header.sampleLoopEnd <= header.sampleEnd))
+		{
+			error.Add("Loop boundaries not contained within sample boundaries.");
+			return nullptr;
+		}
+	}
+
+	// I suppose this uniformity is not really necessary, and it may be up to us to resample?
+	uint32_t sampleRate = audioSampleHeaderArray[0].sampleRate;
+	uint64_t sampleBufferSizeFrames = audioSampleHeaderArray[0].sampleEnd - audioSampleHeaderArray[0].sampleStart;
+	uint64_t loopSizeFrames = audioSampleHeaderArray[0].sampleLoopEnd - audioSampleHeaderArray[0].sampleLoopStart;
+	uint64_t loopBaseFrames = audioSampleHeaderArray[0].sampleLoopStart - audioSampleHeaderArray[0].sampleStart;
+	for (uint32_t i = 1; i < audioSampleHeaderArray.size(); i++)
+	{
+		uint32_t otherSampleRate = audioSampleHeaderArray[i].sampleRate;
+		uint64_t otherSampleBufferSizeFrames = audioSampleHeaderArray[i].sampleEnd - audioSampleHeaderArray[i].sampleStart;
+		uint64_t otherLoopSizeFrames = audioSampleHeaderArray[i].sampleLoopEnd - audioSampleHeaderArray[i].sampleLoopStart;
+		uint64_t otherLoopBaseFrames = audioSampleHeaderArray[i].sampleLoopStart - audioSampleHeaderArray[i].sampleStart;
+
+		if (sampleRate != otherSampleRate)
+		{
+			error.Add("Not all headers for a sample share the same sample-rate.");
+			return nullptr;
+		}
+
+		if (sampleBufferSizeFrames != otherSampleBufferSizeFrames)
+		{
+			error.Add("Not all headers for a sample share the same sample buffer size.");
+			return nullptr;
+		}
+
+		if (loopSizeFrames != otherLoopSizeFrames)
+		{
+			error.Add("Not all headers for a sample have the same loop size.");
+			return nullptr;
+		}
+
+		if (loopBaseFrames != otherLoopBaseFrames)
+		{
+			error.Add("Not all headers for a sample have the same loop base.");
+			return nullptr;
+		}
+	}
+
+	const uint16_t* sampleBuffer16 = (const uint16_t*)smplChunk->GetBuffer();
+	uint64_t sampleBuffer16Size = smplChunk->GetBufferSize() / sizeof(uint16_t);
+
+	const uint8_t* sampleBuffer8 = sm24Chunk ? (const uint8_t*)sm24Chunk->GetBuffer() : nullptr;
+	uint64_t sampleBuffer8Size = sm24Chunk ? (sm24Chunk->GetBufferSize() / sizeof(uint8_t)) : 0;
+
+	if (sampleBuffer8 && sampleBuffer8Size != sampleBuffer16Size)
+	{
+		error.Add("The supplementary buffer is no the same size as the main buffer.");
+		return nullptr;
+	}
+
 	auto audioSample = new SoundFontData::AudioSample();
 
-	// TODO: Write this.
+	std::string name;
+
+	for (const SampleHeader& header : audioSampleHeaderArray)
+	{
+		if (name.length() == 0)
+			name.assign((const char*)header.sampleName);
+		else
+		{
+			std::string otherName((const char*)header.sampleName);
+			name += "|" + otherName;
+		}
+	}
+
+	audioSample->SetName(name);
+	audioSample->SetLoop(SoundFontData::AudioSample::Loop{ loopBaseFrames, loopBaseFrames + loopSizeFrames });
+
+	AudioData* audioData = audioSample->GetAudioData();
+	AudioData::Format& format = audioData->GetFormat();
+
+	format.numChannels = (uint16_t)audioSampleHeaderArray.size();
+	format.bitsPerSample = sm24Chunk ? 32 : 16;
+	format.framesPerSecond = audioSampleHeaderArray[0].sampleRate;
+	format.sampleType = AudioData::Format::SampleType::SIGNED_INTEGER;
+
+	if (!sampleBuffer8)
+	{
+		audioData->SetAudioBufferSize(sampleBufferSizeFrames * format.BytesPerFrame());
+		uint64_t samplesPerFrame = format.SamplesPerFrame();
+		uint64_t numFrames = audioData->GetNumFrames();
+		uint16_t* sampleBuffer = (uint16_t*)audioData->GetAudioBuffer();
+		assert(numFrames == sampleBufferSizeFrames);
+		
+		for (uint64_t i = 0; i < numFrames; i++)
+		{
+			uint64_t j = 0;
+			for (const SampleHeader& header : audioSampleHeaderArray)
+				sampleBuffer[j++] = sampleBuffer16[header.sampleStart + i];
+
+			sampleBuffer += samplesPerFrame;
+		}
+	}
+	else
+	{
+		error.Add("Not yet implimented.  Until I get a sound-font file that has this case, I can't test it.");
+		delete audioSample;
+		audioSample = nullptr;
+	}
 
 	return audioSample;
 }
