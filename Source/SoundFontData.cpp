@@ -49,6 +49,14 @@ void SoundFontData::Clear()
 	}
 }
 
+const SoundFontData::AudioSample* SoundFontData::GetAudioSample(uint32_t i) const
+{
+	if (i >= this->GetNumAudioSamples())
+		return nullptr;
+
+	return (*this->audioSampleArray)[i];
+}
+
 SoundFontData::AudioSample::AudioSample()
 {
 	this->audioData = new AudioData();

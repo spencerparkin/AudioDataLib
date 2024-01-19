@@ -118,9 +118,9 @@ WaveFileFormat::WaveFileFormat()
 	return true;
 }
 
-/*virtual*/ bool WaveFileFormat::WriteToStream(ByteStream& outputStream, FileData* fileData, Error& error)
+/*virtual*/ bool WaveFileFormat::WriteToStream(ByteStream& outputStream, const FileData* fileData, Error& error)
 {
-	AudioData* audioData = dynamic_cast<AudioData*>(fileData);
+	const AudioData* audioData = dynamic_cast<const AudioData*>(fileData);
 	if (!audioData)
 	{
 		error.Add("Can't make a WAV file with something other than AudioData.");

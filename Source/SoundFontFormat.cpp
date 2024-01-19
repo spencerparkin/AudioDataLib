@@ -313,8 +313,9 @@ SoundFontData::AudioSample* SoundFontFormat::ConstructAudioSample(const std::vec
 	return audioSample;
 }
 
-/*virtual*/ bool SoundFontFormat::WriteToStream(ByteStream& outputStream, FileData* fileData, Error& error)
+/*virtual*/ bool SoundFontFormat::WriteToStream(ByteStream& outputStream, const FileData* fileData, Error& error)
 {
+	error.Add("Not yet implimented.");
 	return false;
 }
 

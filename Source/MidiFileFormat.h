@@ -15,7 +15,7 @@ namespace AudioDataLib
 		virtual ~MidiFileFormat();
 
 		virtual bool ReadFromStream(ByteStream& inputStream, FileData*& fileData, Error& error) override;
-		virtual bool WriteToStream(ByteStream& outputStream, FileData* fileData, Error& error) override;
+		virtual bool WriteToStream(ByteStream& outputStream, const FileData* fileData, Error& error) override;
 
 		static bool DecodeEvent(ByteStream& inputStream, MidiData::Event*& event, Error& error);
 		static bool EncodeEvent(ByteStream& outputStream, const MidiData::Event* event, Error& error);

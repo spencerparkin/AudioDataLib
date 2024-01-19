@@ -1,6 +1,9 @@
 #include "CmdLineParser.h"
+#include "SoundFontFormat.h"
+#include "WaveFileFormat.h"
 #include "Main.h"
 #include <memory>
+#include <filesystem>
 
 using namespace AudioDataLib;
 
@@ -46,6 +49,19 @@ int main(int argc, char** argv)
 		if (!DumpInfo(filePath, error))
 		{
 			fprintf(stderr, error.GetMessage().c_str());
+			return -1;
+		}
+
+		return 0;
+	}
+	
+	if (parser.ArgGiven("unpack"))
+	{
+		const std::string& filePath = parser.GetArgValue("unpack", 0);
+		Error error;
+		if (!UnpackSoundFont(filePath, error))
+		{
+			fprintf(stderr, "Failed to unpack sound font...\n\n%s", error.GetMessage().c_str());
 			return -1;
 		}
 
@@ -124,7 +140,8 @@ int main(int argc, char** argv)
 		return 0;
 	}
 
-	return 0;
+	fprintf(stderr, "Features not yet implimented for given arguments.  Sorry, bro.\n");
+	return -1;
 }
 
 bool PlayMidiData(AudioDataLib::MidiData* midiData, AudioDataLib::Error& error)
@@ -341,6 +358,94 @@ bool DumpInfo(const std::string& filePath, AudioDataLib::Error& error)
 		}
 
 		fileData->DumpInfo(stdout);
+
+		success = true;
+	} while (false);
+
+	delete fileFormat;
+	delete fileData;
+
+	return success;
+}
+
+bool UnpackSoundFont(const std::string& filePath, AudioDataLib::Error& error)
+{
+	bool success = false;
+	FileFormat* fileFormat = nullptr;
+	FileData* fileData = nullptr;
+
+	do
+	{
+		fileFormat = FileFormat::CreateForFile(filePath);
+		if (!fileFormat)
+		{
+			error.Add("Could not recognize file type: " + filePath);
+			break;
+		}
+
+		auto soundFontFormat = dynamic_cast<SoundFontFormat*>(fileFormat);
+		if (!soundFontFormat)
+		{
+			error.Add("Not given a sound-font file: " + filePath);
+			break;
+		}
+
+		FileInputStream inputStream(filePath.c_str());
+		if (!inputStream.IsOpen())
+		{
+			error.Add("Failed to open file: " + filePath);
+			break;
+		}
+
+		if (!soundFontFormat->ReadFromStream(inputStream, fileData, error))
+		{
+			error.Add("Failed to read file: " + filePath);
+			break;
+		}
+
+		auto soundFontData = dynamic_cast<SoundFontData*>(fileData);
+		if (!soundFontData)
+		{
+			error.Add("Didn't get sound font data!");
+			break;
+		}
+
+		if (soundFontData->GetNumAudioSamples() == 0)
+		{
+			error.Add("No audio samples found in the sound font data!");
+			break;
+		}
+
+		WaveFileFormat waveFileFormat;
+
+		for (uint32_t i = 0; i < soundFontData->GetNumAudioSamples(); i++)
+		{
+			const SoundFontData::AudioSample* audioSample = soundFontData->GetAudioSample(i);
+			const AudioData* audioData = audioSample->GetAudioData();
+
+			std::string sampleFilePath = (std::filesystem::path(filePath).parent_path() / std::filesystem::path(filePath).stem()).string();
+			sampleFilePath += "__" + audioSample->GetName();
+			sampleFilePath += ".wav";
+
+			std::replace(sampleFilePath.begin(), sampleFilePath.end(), ' ', '_');
+			std::replace(sampleFilePath.begin(), sampleFilePath.end(), '|', '_');
+			std::replace(sampleFilePath.begin(), sampleFilePath.end(), '(', '_');
+			std::replace(sampleFilePath.begin(), sampleFilePath.end(), ')', '_');
+			std::replace(sampleFilePath.begin(), sampleFilePath.end(), '#', 's');
+
+			FileOutputStream outputStream(sampleFilePath.c_str());
+			if (!outputStream.IsOpen())
+			{
+				error.Add(FormatString("Failed to open file %s for writing.", sampleFilePath.c_str()));
+				break;
+			}
+
+			if (!waveFileFormat.WriteToStream(outputStream, audioData, error))
+				break;
+		}
+
+		if (error)
+			break;
 
 		success = true;
 	} while (false);

@@ -21,7 +21,7 @@ namespace AudioDataLib
 		virtual ~SoundFontFormat();
 
 		virtual bool ReadFromStream(ByteStream& inputStream, FileData*& fileData, Error& error) override;
-		virtual bool WriteToStream(ByteStream& outputStream, FileData* fileData, Error& error) override;
+		virtual bool WriteToStream(ByteStream& outputStream, const FileData* fileData, Error& error) override;
 
 	private:
 		class SoundFontChunkParser : public ChunkParser

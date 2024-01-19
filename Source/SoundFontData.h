@@ -76,6 +76,9 @@ namespace AudioDataLib
 		const GeneralInfo& GetGeneralInfo() const { return *this->generalInfo; }
 		GeneralInfo& GetGeneralInfo() { return *this->generalInfo; }
 
+		uint32_t GetNumAudioSamples() const { return this->audioSampleArray->size(); }
+		const AudioSample* GetAudioSample(uint32_t i) const;
+
 	private:
 		GeneralInfo* generalInfo;
 		std::vector<AudioSample*>* audioSampleArray;

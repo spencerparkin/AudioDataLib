@@ -20,7 +20,7 @@ namespace AudioDataLib
 		};
 
 		virtual bool ReadFromStream(ByteStream& inputStream, FileData*& fileData, Error& error) override;
-		virtual bool WriteToStream(ByteStream& outputStream, FileData* fileData, Error& error) override;
+		virtual bool WriteToStream(ByteStream& outputStream, const FileData* fileData, Error& error) override;
 
 	protected:
 		class WaveChunkParser : public ChunkParser

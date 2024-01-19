@@ -119,8 +119,9 @@ MidiFileFormat::MidiFileFormat()
 	return success;
 }
 
-/*virtual*/ bool MidiFileFormat::WriteToStream(ByteStream& outputStream, FileData* fileData, Error& error)
+/*virtual*/ bool MidiFileFormat::WriteToStream(ByteStream& outputStream, const FileData* fileData, Error& error)
 {
+	error.Add("Not yet implimented.");
 	return true;
 }
 
