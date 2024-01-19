@@ -410,37 +410,44 @@ bool UnpackSoundFont(const std::string& filePath, AudioDataLib::Error& error)
 			break;
 		}
 
-		if (soundFontData->GetNumAudioSamples() == 0)
+		if (soundFontData->GetNumPitchDatas() == 0)
 		{
-			error.Add("No audio samples found in the sound font data!");
+			error.Add("No pitch datas found in the sound font data!");
 			break;
 		}
 
 		WaveFileFormat waveFileFormat;
 
-		for (uint32_t i = 0; i < soundFontData->GetNumAudioSamples(); i++)
+		for (uint32_t i = 0; i < soundFontData->GetNumPitchDatas(); i++)
 		{
-			const SoundFontData::AudioSample* audioSample = soundFontData->GetAudioSample(i);
-			const AudioData* audioData = audioSample->GetAudioData();
-
-			std::string sampleFilePath = (std::filesystem::path(filePath).parent_path() / std::filesystem::path(filePath).stem()).string();
-			sampleFilePath += "__" + audioSample->GetName();
-			sampleFilePath += ".wav";
-
-			std::replace(sampleFilePath.begin(), sampleFilePath.end(), ' ', '_');
-			std::replace(sampleFilePath.begin(), sampleFilePath.end(), '|', '_');
-			std::replace(sampleFilePath.begin(), sampleFilePath.end(), '(', '_');
-			std::replace(sampleFilePath.begin(), sampleFilePath.end(), ')', '_');
-			std::replace(sampleFilePath.begin(), sampleFilePath.end(), '#', 's');
-
-			FileOutputStream outputStream(sampleFilePath.c_str());
-			if (!outputStream.IsOpen())
+			const SoundFontData::PitchData* pitchData = soundFontData->GetPitchData(i);
+			
+			for (uint32_t j = 0; j < pitchData->GetNumLoopedAudioDatas(); j++)
 			{
-				error.Add(FormatString("Failed to open file %s for writing.", sampleFilePath.c_str()));
-				break;
+				const SoundFontData::LoopedAudioData* audioData = pitchData->GetLoopedAudioData(j);
+
+				std::string sampleFilePath = (std::filesystem::path(filePath).parent_path() / std::filesystem::path(filePath).stem()).string();
+				sampleFilePath += "__" + audioData->GetName();
+				sampleFilePath += ".wav";
+
+				std::replace(sampleFilePath.begin(), sampleFilePath.end(), ' ', '_');
+				std::replace(sampleFilePath.begin(), sampleFilePath.end(), '|', '_');
+				std::replace(sampleFilePath.begin(), sampleFilePath.end(), '(', '_');
+				std::replace(sampleFilePath.begin(), sampleFilePath.end(), ')', '_');
+				std::replace(sampleFilePath.begin(), sampleFilePath.end(), '#', 's');
+
+				FileOutputStream outputStream(sampleFilePath.c_str());
+				if (!outputStream.IsOpen())
+				{
+					error.Add(FormatString("Failed to open file %s for writing.", sampleFilePath.c_str()));
+					break;
+				}
+
+				if (!waveFileFormat.WriteToStream(outputStream, audioData, error))
+					break;
 			}
 
-			if (!waveFileFormat.WriteToStream(outputStream, audioData, error))
+			if (error)
 				break;
 		}
 

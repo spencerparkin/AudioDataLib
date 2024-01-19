@@ -2,10 +2,12 @@
 
 using namespace AudioDataLib;
 
+//------------------------------- SoundFontData -------------------------------
+
 SoundFontData::SoundFontData()
 {
 	this->generalInfo = new GeneralInfo();
-	this->audioSampleArray = new std::vector<AudioSample*>();
+	this->pitchDataArray = new std::vector<PitchData*>();
 }
 
 /*virtual*/ SoundFontData::~SoundFontData()
@@ -13,15 +15,15 @@ SoundFontData::SoundFontData()
 	this->Clear();
 
 	delete this->generalInfo;
-	delete this->audioSampleArray;
+	delete this->pitchDataArray;
 }
 
 void SoundFontData::Clear()
 {
-	for (AudioSample* audioSample : *this->audioSampleArray)
-		delete audioSample;
+	for (PitchData* pitchData : *this->pitchDataArray)
+		delete pitchData;
 	
-	this->audioSampleArray->clear();
+	this->pitchDataArray->clear();
 }
 
 /*virtual*/ void SoundFontData::DumpInfo(FILE* fp) const
@@ -35,38 +37,82 @@ void SoundFontData::Clear()
 	fprintf(fp, "Tool: %s\n", this->generalInfo->soundFontToolRecord.c_str());
 	fprintf(fp, "Wavetable engine: %s\n", this->generalInfo->waveTableSoundEngine.c_str());
 	fprintf(fp, "Wavetable ROM: %s\n", this->generalInfo->waveTableSoundDataROM.c_str());
-	fprintf(fp, "Num samples: %d\n", this->audioSampleArray->size());
+	fprintf(fp, "Num pitches: %d\n", this->pitchDataArray->size());
 
-	for (const AudioSample* audioSample : *this->audioSampleArray)
+	for (const PitchData* pitchData : *this->pitchDataArray)
 	{
 		fprintf(fp, "========================================\n");
-		fprintf(fp, "Name: %s\n", audioSample->GetName().c_str());
-		fprintf(fp, "Loop frame start: %lld\n", audioSample->GetLoop().startFrame);
-		fprintf(fp, "Loop frame end: %lld\n", audioSample->GetLoop().endFrame);
-		fprintf(fp, "Total frames: %lld\n", audioSample->GetAudioData()->GetNumFrames());
-		fprintf(fp, "Pitch: %d\n", audioSample->GetPitch());
-		const AudioData* audioData = audioSample->GetAudioData();
-		audioData->DumpInfo(fp);
+		fprintf(fp, "MIDI Pitch: %d\n", pitchData->GetMIDIPitch());
+		fprintf(fp, "Channels: %d\n", pitchData->GetNumLoopedAudioDatas());
+
+		for (uint32_t i = 0; i < pitchData->GetNumLoopedAudioDatas(); i++)
+		{
+			fprintf(fp, "-----------------------\n");
+			const LoopedAudioData* audioData = pitchData->GetLoopedAudioData(i);
+			audioData->DumpInfo(fp);
+		}
 	}
 }
 
-const SoundFontData::AudioSample* SoundFontData::GetAudioSample(uint32_t i) const
+const SoundFontData::PitchData* SoundFontData::GetPitchData(uint32_t i) const
 {
-	if (i >= this->GetNumAudioSamples())
+	if (i >= this->GetNumPitchDatas())
 		return nullptr;
 
-	return (*this->audioSampleArray)[i];
+	return (*this->pitchDataArray)[i];
 }
 
-SoundFontData::AudioSample::AudioSample()
+//------------------------------- SoundFontData::LoopedAudioData -------------------------------
+
+SoundFontData::LoopedAudioData::LoopedAudioData()
 {
-	this->audioData = new AudioData();
-	this->pitch = 0;
 	this->loop.startFrame = 0;
 	this->loop.endFrame = 0;
+	this->name = new std::string();
 }
 
-/*virtual*/ SoundFontData::AudioSample::~AudioSample()
+/*virtual*/ SoundFontData::LoopedAudioData::~LoopedAudioData()
 {
-	delete this->audioData;
+	delete this->name;
+}
+
+/*virtual*/ void SoundFontData::LoopedAudioData::DumpInfo(FILE* fp) const
+{
+	fprintf(fp, "Name: %s\n", this->name->c_str());
+	fprintf(fp, "Loop start frame: %lld\n", this->loop.startFrame);
+	fprintf(fp, "Loop end frame: %lld\n", this->loop.endFrame);
+	fprintf(fp, "Num frames: %lld\n", this->GetNumFrames());
+
+	AudioData::DumpInfo(fp);
+}
+
+//------------------------------- SoundFontData::PitchData -------------------------------
+
+SoundFontData::PitchData::PitchData()
+{
+	this->midiPitch = 0;
+	this->loopedAudioDataArray = new std::vector<LoopedAudioData*>();
+}
+
+/*virtual*/ SoundFontData::PitchData::~PitchData()
+{
+	this->Clear();
+
+	delete this->loopedAudioDataArray;
+}
+
+void SoundFontData::PitchData::Clear()
+{
+	for (LoopedAudioData* audioData : *this->loopedAudioDataArray)
+		delete audioData;
+
+	this->loopedAudioDataArray->clear();
+}
+
+const SoundFontData::LoopedAudioData* SoundFontData::PitchData::GetLoopedAudioData(uint32_t i) const
+{
+	if (i >= this->GetNumLoopedAudioDatas())
+		return nullptr;
+
+	return (*this->loopedAudioDataArray)[i];
 }

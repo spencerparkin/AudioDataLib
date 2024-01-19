@@ -46,17 +46,16 @@ namespace AudioDataLib
 			std::string soundFontToolRecord;
 		};
 
-		class AudioSample
+		class AUDIO_DATA_LIB_API LoopedAudioData : public AudioData
 		{
 		public:
-			AudioSample();
-			virtual ~AudioSample();
+			LoopedAudioData();
+			virtual ~LoopedAudioData();
 
-			AudioData* GetAudioData() { return this->audioData; }
-			const AudioData* GetAudioData() const { return this->audioData; }
+			virtual void DumpInfo(FILE* fp) const override;
 
-			void SetName(const std::string& name) { this->name = name; }
-			const std::string& GetName() const { return this->name; }
+			void SetName(const std::string& name) { *this->name = name; }
+			const std::string& GetName() const { return *this->name; }
 
 			struct Loop
 			{
@@ -67,24 +66,50 @@ namespace AudioDataLib
 			const Loop& GetLoop() const { return this->loop; }
 			void SetLoop(const Loop& loop) { this->loop = loop; }
 
-			uint8_t GetPitch() const { return this->pitch; }
-			void SetPitch(uint8_t pitch) { this->pitch = pitch; }
+		protected:
+			std::string* name;
+			Loop loop;
+		};
+
+		class AUDIO_DATA_LIB_API PitchData
+		{
+			friend class SoundFontFormat;
+
+		public:
+			PitchData();
+			virtual ~PitchData();
+
+			void Clear();
+
+			uint8_t GetMIDIPitch() const { return this->midiPitch; }
+			void SetMIDIPitch(uint8_t midiPitch) { this->midiPitch = midiPitch; }
+
+			uint32_t GetNumLoopedAudioDatas() const { return this->loopedAudioDataArray->size(); }
+			const LoopedAudioData* GetLoopedAudioData(uint32_t i) const;
 
 		protected:
-			AudioData* audioData;
-			std::string name;
-			Loop loop;
-			uint8_t pitch;
+
+			// This is looped audio data, one for each channel.  The channels are
+			// kept separate up until the moment of synthesis, because each one
+			// might have its own sample-rate and looping characteristics.
+			std::vector<LoopedAudioData*>* loopedAudioDataArray;
+
+			// TODO: Since most sound-font files appear to neglect this information,
+			//       we might need to do an FFT on the sound-data itself in order to
+			//       deduce the actual MIDI pitch number associated with it.
+			uint8_t midiPitch;
 		};
 
 		const GeneralInfo& GetGeneralInfo() const { return *this->generalInfo; }
 		GeneralInfo& GetGeneralInfo() { return *this->generalInfo; }
 
-		uint32_t GetNumAudioSamples() const { return this->audioSampleArray->size(); }
-		const AudioSample* GetAudioSample(uint32_t i) const;
+		uint32_t GetNumPitchDatas() const { return this->pitchDataArray->size(); }
+		const PitchData* GetPitchData(uint32_t i) const;
 
 	private:
 		GeneralInfo* generalInfo;
-		std::vector<AudioSample*>* audioSampleArray;
+
+		// TODO: Maybe these need to be further sub-divided by instrument?
+		std::vector<PitchData*>* pitchDataArray;
 	};
 }

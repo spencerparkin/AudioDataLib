@@ -50,6 +50,6 @@ namespace AudioDataLib
 		};
 #pragma pack(pop)
 
-		SoundFontData::AudioSample* ConstructAudioSample(const std::vector<SampleHeader>& audioSampleHeaderArray, const ChunkParser::Chunk* smplChunk, const ChunkParser::Chunk* sm24Chunk, Error& error);
+		SoundFontData::PitchData* ConstructPitchData(const std::vector<SampleHeader>& pitchSampleHeaderArray, const ChunkParser::Chunk* smplChunk, const ChunkParser::Chunk* sm24Chunk, Error& error);
 	};
 }
