@@ -1,4 +1,5 @@
 #include "CmdLineParser.h"
+#include <algorithm>
 
 CmdLineParser::CmdLineParser()
 {
@@ -25,12 +26,18 @@ void CmdLineParser::PrintUsage(FILE* fp) const
 	fprintf(fp, "\n\n");
 	fprintf(fp, "Usage...\n\n");
 
-	// TODO: Print in sorted order.
+	std::vector<const ArgDef*> sortableArgDefArray;
 	for (const ArgDef& argDef : this->argDefArray)
+		sortableArgDefArray.push_back(&argDef);
+
+	std::sort(sortableArgDefArray.begin(), sortableArgDefArray.end(), [](const ArgDef* argDefA, const ArgDef* argDefB) -> int {
+		return ::strcmp(argDefA->name.c_str(), argDefB->name.c_str());
+	});
+
+	for (const ArgDef* argDef : sortableArgDefArray)
 	{
-		fprintf(fp, "-----------------------------\n");
-		fprintf(fp, "%s (followed by %d value(s))", argDef.name.c_str(), argDef.numValues);
-		fprintf(fp, "\n\t%s\n", argDef.help.c_str());
+		fprintf(fp, "%s (followed by %d value(s))", argDef->name.c_str(), argDef->numValues);
+		fprintf(fp, "\n\t%s\n", argDef->help.c_str());
 	}
 
 	fprintf(fp, "\n");
