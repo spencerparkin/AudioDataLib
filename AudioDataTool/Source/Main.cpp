@@ -20,6 +20,7 @@ int main(int argc, char** argv)
 	parser.RegisterArg("trim_end", 2, "Truncate the given WAV file by the given number of seconds.  This modifies the given file.");
 	parser.RegisterArg("help", 0, "Show the usage.");
 	parser.RegisterArg("dump_info", 1, "Load the given file and then dump some stats about it.");
+	parser.RegisterArg("unpack", 1, "Unpack the given sound-font file by generating from it a bunch of WAV files for all the samples it contains.");
 	
 	std::string error;
 	if (!parser.Parse(argc, argv, error))

@@ -141,6 +141,9 @@ SoundFontFormat::SoundFontFormat()
 				const SampleHeader* header = &sampleHeaderArray[i];
 				audioSampleHeaderArray.push_back(*header);
 				
+				if ((header->sampleType & ADL_SAMPLE_TYPE_BIT_ROM) != 0)
+					continue;	// Just ignore ROM samples for now.
+
 				if (header->sampleType != ADL_SAMPLE_TYPE_BIT_MONO)
 				{
 					while (true)
