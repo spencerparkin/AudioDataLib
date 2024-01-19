@@ -67,10 +67,14 @@ namespace AudioDataLib
 			const Loop& GetLoop() const { return this->loop; }
 			void SetLoop(const Loop& loop) { this->loop = loop; }
 
+			uint8_t GetPitch() const { return this->pitch; }
+			void SetPitch(uint8_t pitch) { this->pitch = pitch; }
+
 		protected:
 			AudioData* audioData;
 			std::string name;
 			Loop loop;
+			uint8_t pitch;
 		};
 
 		const GeneralInfo& GetGeneralInfo() const { return *this->generalInfo; }

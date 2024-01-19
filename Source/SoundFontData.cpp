@@ -44,6 +44,7 @@ void SoundFontData::Clear()
 		fprintf(fp, "Loop frame start: %lld\n", audioSample->GetLoop().startFrame);
 		fprintf(fp, "Loop frame end: %lld\n", audioSample->GetLoop().endFrame);
 		fprintf(fp, "Total frames: %lld\n", audioSample->GetAudioData()->GetNumFrames());
+		fprintf(fp, "Pitch: %d\n", audioSample->GetPitch());
 		const AudioData* audioData = audioSample->GetAudioData();
 		audioData->DumpInfo(fp);
 	}
@@ -60,6 +61,9 @@ const SoundFontData::AudioSample* SoundFontData::GetAudioSample(uint32_t i) cons
 SoundFontData::AudioSample::AudioSample()
 {
 	this->audioData = new AudioData();
+	this->pitch = 0;
+	this->loop.startFrame = 0;
+	this->loop.endFrame = 0;
 }
 
 /*virtual*/ SoundFontData::AudioSample::~AudioSample()

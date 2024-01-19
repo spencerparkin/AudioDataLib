@@ -216,12 +216,14 @@ SoundFontData::AudioSample* SoundFontFormat::ConstructAudioSample(const std::vec
 	uint64_t sampleBufferSizeFrames = audioSampleHeaderArray[0].sampleEnd - audioSampleHeaderArray[0].sampleStart;
 	uint64_t loopSizeFrames = audioSampleHeaderArray[0].sampleLoopEnd - audioSampleHeaderArray[0].sampleLoopStart;
 	uint64_t loopBaseFrames = audioSampleHeaderArray[0].sampleLoopStart - audioSampleHeaderArray[0].sampleStart;
+	uint8_t pitch = audioSampleHeaderArray[0].originalPitch;
 	for (uint32_t i = 1; i < audioSampleHeaderArray.size(); i++)
 	{
 		uint32_t otherSampleRate = audioSampleHeaderArray[i].sampleRate;
 		uint64_t otherSampleBufferSizeFrames = audioSampleHeaderArray[i].sampleEnd - audioSampleHeaderArray[i].sampleStart;
 		uint64_t otherLoopSizeFrames = audioSampleHeaderArray[i].sampleLoopEnd - audioSampleHeaderArray[i].sampleLoopStart;
 		uint64_t otherLoopBaseFrames = audioSampleHeaderArray[i].sampleLoopStart - audioSampleHeaderArray[i].sampleStart;
+		uint8_t otherPitch = audioSampleHeaderArray[0].originalPitch;
 
 		if (sampleRate != otherSampleRate)
 		{
@@ -244,6 +246,12 @@ SoundFontData::AudioSample* SoundFontFormat::ConstructAudioSample(const std::vec
 		if (loopBaseFrames != otherLoopBaseFrames)
 		{
 			error.Add("Not all headers for a sample have the same loop base.");
+			return nullptr;
+		}
+
+		if (pitch != otherPitch)
+		{
+			error.Add("Not all headers for a sample have the same pitch.");
 			return nullptr;
 		}
 	}
@@ -277,6 +285,7 @@ SoundFontData::AudioSample* SoundFontFormat::ConstructAudioSample(const std::vec
 
 	audioSample->SetName(name);
 	audioSample->SetLoop(SoundFontData::AudioSample::Loop{ loopBaseFrames, loopBaseFrames + loopSizeFrames });
+	audioSample->SetPitch(pitch);
 
 	AudioData* audioData = audioSample->GetAudioData();
 	AudioData::Format& format = audioData->GetFormat();
