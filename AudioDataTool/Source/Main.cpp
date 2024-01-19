@@ -13,6 +13,7 @@ int main(int argc, char** argv)
 	parser.RegisterArg("keyboard", 1, "Receive MIDI input from the given MIDI keyboard device.");
 	parser.RegisterArg("synth", 0, "Synthesize MIDI input to the sound-card.");
 	parser.RegisterArg("record_midi", 1, "Record MIDI input to the given MIDI file.");
+	parser.RegisterArg("log_midi", 0, "Print MIDI input to the screen as it is given.");
 	parser.RegisterArg("record_wave", 1, "Record microphone input to the given WAV file.");
 	parser.RegisterArg("mix", 3, "Mix the two given WAV files into a single WAV file, the third given output file.");
 	parser.RegisterArg("concat", 3, "Concatinate the two given WAV files into a single WAV file, the third given output file.");
