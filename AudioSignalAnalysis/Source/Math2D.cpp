@@ -178,6 +178,12 @@ void Box2D::ExpandToIncludePoint(const Vector2D& point)
 		this->max.y = point.y;
 }
 
+void Box2D::ExpandToIncludeBox(const Box2D& box)
+{
+	this->ExpandToIncludePoint(box.min);
+	this->ExpandToIncludePoint(box.max);
+}
+
 bool Box2D::ContainsPoint(const Vector2D& point) const
 {
 	return this->min.x <= point.x && point.x <= this->max.x &&

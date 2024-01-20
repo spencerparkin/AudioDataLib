@@ -78,8 +78,10 @@ void Frame::OnImportAudio(wxCommandEvent& event)
 		}
 
 		WaveFormAudio* audio = new WaveFormAudio();
-		audio->audioData = audioData;
+		audio->SetAudioData(audioData);
 		wxGetApp().audioArray.push_back(audio);
+
+		this->canvas->FitContent();
 	}
 
 	this->Refresh();

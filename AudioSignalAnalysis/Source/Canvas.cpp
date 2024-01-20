@@ -21,11 +21,24 @@ Canvas::Canvas(wxWindow* parent) : wxGLCanvas(parent, wxID_ANY, attributeList, w
 	this->graphWindow.max = Vector2D(10.0, 10.0);
 
 	this->dragging = false;
+	this->stretchFactor = 1.0;
 }
 
 /*virtual*/ Canvas::~Canvas()
 {
 	delete this->renderContext;
+}
+
+void Canvas::FitContent()
+{
+	this->graphWindow.min = Vector2D(0.0, 0.0);
+	this->graphWindow.max = Vector2D(0.0, 0.0);
+
+	for (const Audio* audio : wxGetApp().audioArray)
+	{
+		Box2D boundingBox = audio->CalcBoundingBox();
+		this->graphWindow.ExpandToIncludeBox(boundingBox);
+	}
 }
 
 void Canvas::OnPaint(wxPaintEvent& event)
@@ -44,7 +57,11 @@ void Canvas::OnPaint(wxPaintEvent& event)
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluOrtho2D(expandedGraphWindow.min.x, expandedGraphWindow.max.x, expandedGraphWindow.min.y, expandedGraphWindow.max.y);
+	gluOrtho2D(
+		expandedGraphWindow.min.x * this->stretchFactor,
+		expandedGraphWindow.max.x * this->stretchFactor,
+		expandedGraphWindow.min.y,
+		expandedGraphWindow.max.y);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -117,8 +134,13 @@ void Canvas::OnMouseWheel(wxMouseEvent& event)
 	wxPoint currentMousePos = event.GetPosition();
 	constexpr double wheelSensativity = 0.05;
 	double zoomFactor = wheelChange * wheelSensativity;
-	Vector2D mousePoint = this->MousePosToWorld(event.GetPosition());
-	this->graphWindow.Zoom(mousePoint, zoomFactor);
+	if (event.ShiftDown())
+		this->stretchFactor *= 1.0 + wheelChange / 10.0;
+	else
+	{
+		Vector2D mousePoint = this->MousePosToWorld(event.GetPosition());
+		this->graphWindow.Zoom(mousePoint, zoomFactor);
+	}
 	this->Refresh();
 }
 

@@ -30,12 +30,7 @@ WaveFormAudio::WaveFormAudio()
 
 /*virtual*/ void WaveFormAudio::Render() const
 {
-	if (!this->waveForm)
-	{
-		Error error;
-		this->waveForm = new WaveForm();
-		this->waveForm->ConvertFromAudioBuffer(this->audioData->GetFormat(), this->audioData->GetAudioBuffer(), this->audioData->GetAudioBufferSize(), 0, error);
-	}
+	this->GetWaveForm();
 
 	glBegin(GL_LINE_STRIP);
 
@@ -49,4 +44,41 @@ WaveFormAudio::WaveFormAudio()
 	}
 
 	glEnd();
+}
+
+/*virtual*/ Box2D WaveFormAudio::CalcBoundingBox() const
+{
+	Box2D boundingBox;
+
+	this->GetWaveForm();
+
+	const std::vector<WaveForm::Sample>& sampleArray = this->waveForm->GetSampleArray();
+
+	for (const WaveForm::Sample& sample : sampleArray)
+	{
+		Vector2D samplePoint(sample.timeSeconds, sample.amplitude);
+		boundingBox.ExpandToIncludePoint(samplePoint);
+	}
+
+	return boundingBox;
+}
+
+void WaveFormAudio::SetAudioData(AudioDataLib::AudioData* audioData)
+{
+	if (this->audioData)
+		delete this->audioData;
+
+	this->audioData = audioData;
+}
+
+const AudioDataLib::WaveForm* WaveFormAudio::GetWaveForm() const
+{
+	if (!this->waveForm)
+	{
+		Error error;
+		this->waveForm = new WaveForm();
+		this->waveForm->ConvertFromAudioBuffer(this->audioData->GetFormat(), this->audioData->GetAudioBuffer(), this->audioData->GetAudioBufferSize(), 0, error);
+	}
+
+	return this->waveForm;
 }

@@ -43,6 +43,7 @@ public:
 	Vector2D Center() const;
 	void ExpandToMatchAspect(double aspectRatio);
 	void ExpandToIncludePoint(const Vector2D& point);
+	void ExpandToIncludeBox(const Box2D& box);
 	bool ContainsPoint(const Vector2D& point) const;
 	bool OverlapsWithBox(const Box2D& box) const;
 	Vector2D FromUVs(const Vector2D& uvs) const;

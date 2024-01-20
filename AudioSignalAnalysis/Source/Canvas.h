@@ -20,6 +20,8 @@ public:
 	Vector2D MousePosToWorld(const wxPoint& mousePos);
 	wxPoint MousePosFromWorld(const Vector2D& worldPoint);
 
+	void FitContent();
+
 private:
 	wxGLContext* renderContext;
 	static int attributeList[];
@@ -27,4 +29,5 @@ private:
 	Box2D expandedGraphWindow;
 	bool dragging;
 	wxPoint lastMousePos;
+	double stretchFactor;
 };
