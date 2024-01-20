@@ -156,7 +156,7 @@ void RunTest()
 {
 	WaveForm waveForm;
 
-	uint32_t numSamples = 4096;
+	uint32_t numSamples = 4098;
 	double frequencyHz = 1.0; //440.0;
 	double durationSeconds = 2.0;
 
@@ -170,11 +170,10 @@ void RunTest()
 		waveForm.AddSample(sample);
 	}
 
-	std::list<double> dominantFrequenciesList;
+	// See: https://www.youtube.com/watch?v=DHLcc1bKjiI
+	double dominantFrequency = 0.0;
 	Error error;
-	waveForm.CalcDominantFrequencies(dominantFrequenciesList, 1, error);
-
-	double dominantFrequency = *dominantFrequenciesList.begin();
+	waveForm.CalcDominantFrequency(dominantFrequency, error);
 	printf("Dominant frequency: %f\n", dominantFrequency);
 }
 

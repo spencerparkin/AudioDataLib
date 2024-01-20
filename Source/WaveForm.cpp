@@ -1,5 +1,5 @@
 #include "WaveForm.h"
-#include "ComplexVector.h"
+#include "ComplexNumber.h"
 #include "Error.h"
 
 using namespace AudioDataLib;
@@ -430,55 +430,8 @@ void WaveForm::Scale(double scale)
 		sample.amplitude *= scale;
 }
 
-bool WaveForm::CalcDominantFrequencies(std::list<double>& dominantFrequenciesList, uint32_t numFrequencies, Error& error) const
+bool WaveForm::CalcDominantFrequency(double& dominantFrequency, Error& error) const
 {
-	if (this->sampleArray->size() == 0)
-	{
-		error.Add("Nothing to analyze.");
-		return false;
-	}
-
-	uint32_t powerOfTwo = 1;
-	while (powerOfTwo << 1 < this->sampleArray->size())
-		powerOfTwo <<= 1;
-
-	ComplexVector amplitudeVector;
-	for (uint32_t i = 0; i < powerOfTwo; i++)
-	{
-		const Sample& sample = (*this->sampleArray)[i];
-		amplitudeVector.AddComponent(ComplexNumber(sample.amplitude, 0.0));
-	}
-
-	ComplexVector frequencyVector;
-	if (!frequencyVector.FFT(amplitudeVector, false, error))
-	{
-		error.Add("FFT failed!");
-		return false;
-	}
-
-	std::vector<double> frequencyArray;
-	for (uint32_t i = 0; i < frequencyVector.Size(); i++)
-		frequencyArray.push_back(frequencyVector[i].Magnitude());
-
-	dominantFrequenciesList.clear();
-	for (double frequency : frequencyArray)
-	{
-		if (dominantFrequenciesList.size() < numFrequencies)
-			dominantFrequenciesList.push_back(frequency);
-		else
-		{
-			for (std::list<double>::iterator iter = dominantFrequenciesList.begin(); iter != dominantFrequenciesList.end(); iter++)
-			{
-				double dominantFrequency = *iter;
-				if (frequency > dominantFrequency)
-				{
-					dominantFrequenciesList.erase(iter);
-					dominantFrequenciesList.push_back(frequency);
-					break;
-				}
-			}
-		}
-	}
-
-	return true;
+	error.Add("Not yet implimented.");
+	return false;
 }

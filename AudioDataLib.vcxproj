@@ -23,7 +23,6 @@
     <ClInclude Include="Source\Common.h" />
     <ClInclude Include="Source\AudioData.h" />
     <ClInclude Include="Source\ComplexNumber.h" />
-    <ClInclude Include="Source\ComplexVector.h" />
     <ClInclude Include="Source\Error.h" />
     <ClInclude Include="Source\FileData.h" />
     <ClInclude Include="Source\FileFormat.h" />
@@ -48,7 +47,6 @@
     <ClCompile Include="Source\AudioData.cpp" />
     <ClCompile Include="Source\ByteSwapper.cpp" />
     <ClCompile Include="Source\ComplexNumber.cpp" />
-    <ClCompile Include="Source\ComplexVector.cpp" />
     <ClCompile Include="Source\Error.cpp" />
     <ClCompile Include="Source\FileData.cpp" />
     <ClCompile Include="Source\FileFormat.cpp" />

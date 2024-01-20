@@ -134,11 +134,11 @@ bool SoundFontData::PitchData::CalcDominantFrequency(Error& error) const
 		if (!waveForm.ConvertFromAudioBuffer(audioData->GetFormat(), audioData->GetAudioBuffer(), audioData->GetAudioBufferSize(), 0, error))
 			return false;
 
-		std::list<double> dominantFrequenciesList;
-		if (!waveForm.CalcDominantFrequencies(dominantFrequenciesList, 1, error))
+		double dominantFrequency = 0.0;
+		if (!waveForm.CalcDominantFrequency(dominantFrequency, error))
 			return false;
 
-		dominantFrequenciesByChannelArray.push_back(*dominantFrequenciesList.begin());
+		dominantFrequenciesByChannelArray.push_back(dominantFrequency);
 	}
 	
 	if (dominantFrequenciesByChannelArray.size() == 0)

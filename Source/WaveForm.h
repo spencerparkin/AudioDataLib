@@ -1,6 +1,7 @@
 #pragma once
 
 #include "AudioData.h"
+#include "ComplexNumber.h"
 
 namespace AudioDataLib
 {
@@ -59,7 +60,7 @@ namespace AudioDataLib
 		double GetMinAmplitude() const;
 		InterpolationMethod GetInterpolationMethod() const { return this->interpMethod; }
 		void SetInterpolateionMethod(InterpolationMethod interpMethod) { this->interpMethod = interpMethod; }
-		bool CalcDominantFrequencies(std::list<double>& dominantFrequenciesList, uint32_t numFrequencies, Error& error) const;
+		bool CalcDominantFrequency(double& dominantFrequency, Error& error) const;
 
 	protected:
 
