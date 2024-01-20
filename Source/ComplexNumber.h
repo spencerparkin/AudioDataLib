@@ -37,6 +37,7 @@ namespace AudioDataLib
 		ComplexNumber Inverse() const;
 
 		double SquareMagnitude() const;
+		double Magnitude() const;
 
 		double realPart, imagPart;
 	};

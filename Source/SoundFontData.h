@@ -87,6 +87,10 @@ namespace AudioDataLib
 			uint32_t GetNumLoopedAudioDatas() const { return this->loopedAudioDataArray->size(); }
 			const LoopedAudioData* GetLoopedAudioData(uint32_t i) const;
 
+			bool CalcDominantFrequency(Error& error) const;
+
+			double GetDomainantFrequency() const { return this->dominantFrequency; }
+
 		protected:
 
 			// This is looped audio data, one for each channel.  The channels are
@@ -94,10 +98,12 @@ namespace AudioDataLib
 			// might have its own sample-rate and looping characteristics.
 			std::vector<LoopedAudioData*>* loopedAudioDataArray;
 
-			// TODO: Since most sound-font files appear to neglect this information,
-			//       we might need to do an FFT on the sound-data itself in order to
-			//       deduce the actual MIDI pitch number associated with it.
+			// Since most sound-font files appear to neglect this information,
+			// we will do an FFT analysis on the sound-data itself in order to
+			// deduce the actual MIDI pitch number associated with it.
 			uint8_t midiPitch;
+
+			mutable double dominantFrequency;
 		};
 
 		const GeneralInfo& GetGeneralInfo() const { return *this->generalInfo; }

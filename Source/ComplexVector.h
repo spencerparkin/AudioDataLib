@@ -17,6 +17,9 @@ namespace AudioDataLib
 		const ComplexNumber& operator[](uint32_t i) const;
 		ComplexNumber& operator[](uint32_t i);
 		uint64_t Size() const;
+		void Clear();
+		void AddComponent(const ComplexNumber& complexNumber);
+		const std::vector<ComplexNumber>& GetArray() const;
 
 		bool FFT(const ComplexVector& complexVector, bool inverse, Error& error, bool recursing = false);
 

@@ -155,6 +155,11 @@ double ComplexNumber::SquareMagnitude() const
 	return this->realPart * this->realPart + this->imagPart * this->imagPart;
 }
 
+double ComplexNumber::Magnitude() const
+{
+	return ::sqrt(this->SquareMagnitude());
+}
+
 namespace AudioDataLib
 {
 	ComplexNumber operator+(const ComplexNumber& complexNumberA, const ComplexNumber& complexNumberB)

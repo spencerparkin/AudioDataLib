@@ -41,6 +41,21 @@ uint64_t ComplexVector::Size() const
 	return this->complexArray->size();
 }
 
+void ComplexVector::Clear()
+{
+	this->complexArray->clear();
+}
+
+void ComplexVector::AddComponent(const ComplexNumber& complexNumber)
+{
+	this->complexArray->push_back(complexNumber);
+}
+
+const std::vector<ComplexNumber>& ComplexVector::GetArray() const
+{
+	return *this->complexArray;
+}
+
 bool ComplexVector::FFT(const ComplexVector& complexVector, bool inverse, Error& error, bool recursing /*= false*/)
 {
 	this->complexArray->clear();
