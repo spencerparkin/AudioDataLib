@@ -22,6 +22,11 @@ void WaveForm::Clear()
 	this->sampleArray->clear();
 }
 
+void WaveForm::AddSample(const Sample& sample)
+{
+	this->sampleArray->push_back(sample);
+}
+
 void WaveForm::MakeSilence(double samplesPerSecond, double totalSeconds)
 {
 	this->Clear();
@@ -443,9 +448,6 @@ bool WaveForm::CalcDominantFrequencies(std::list<double>& dominantFrequenciesLis
 		const Sample& sample = (*this->sampleArray)[i];
 		amplitudeVector.AddComponent(ComplexNumber(sample.amplitude, 0.0));
 	}
-
-	// TODO: I think these calculations are wrong.  Maybe synthesize a sin-wave, then
-	//       see if we can calculate the frequency using this code.
 
 	ComplexVector frequencyVector;
 	if (!frequencyVector.FFT(amplitudeVector, false, error))

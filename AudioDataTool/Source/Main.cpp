@@ -1,6 +1,7 @@
 #include "CmdLineParser.h"
 #include "SoundFontFormat.h"
 #include "WaveFileFormat.h"
+#include "WaveForm.h"
 #include "Main.h"
 #include <memory>
 #include <filesystem>
@@ -26,6 +27,7 @@ int main(int argc, char** argv)
 	parser.RegisterArg("help", 0, "Show the usage.");
 	parser.RegisterArg("dump_info", 1, "Load the given file and then dump some stats about it.");
 	parser.RegisterArg("unpack", 1, "Unpack the given sound-font file by generating from it a bunch of WAV files for all the samples it contains.");
+	parser.RegisterArg("test", 0, "Run some test code.");
 	
 	std::string error;
 	if (!parser.Parse(argc, argv, error))
@@ -38,6 +40,12 @@ int main(int argc, char** argv)
 	if (parser.ArgGiven("help"))
 	{
 		parser.PrintUsage(stdout);
+		return 0;
+	}
+
+	if (parser.ArgGiven("test"))
+	{
+		RunTest();
 		return 0;
 	}
 
@@ -142,6 +150,32 @@ int main(int argc, char** argv)
 
 	fprintf(stderr, "Features not yet implimented for given arguments.  Sorry, bro.\n");
 	return -1;
+}
+
+void RunTest()
+{
+	WaveForm waveForm;
+
+	uint32_t numSamples = 4096;
+	double frequencyHz = 1.0; //440.0;
+	double durationSeconds = 2.0;
+
+	for (uint32_t i = 0; i < numSamples; i++)
+	{
+		WaveForm::Sample sample;
+
+		sample.timeSeconds = (double(i) / double(numSamples - 1)) * durationSeconds;
+		sample.amplitude = ::sin(2.0 * ADL_PI * sample.timeSeconds * frequencyHz);
+
+		waveForm.AddSample(sample);
+	}
+
+	std::list<double> dominantFrequenciesList;
+	Error error;
+	waveForm.CalcDominantFrequencies(dominantFrequenciesList, 1, error);
+
+	double dominantFrequency = *dominantFrequenciesList.begin();
+	printf("Dominant frequency: %f\n", dominantFrequency);
 }
 
 bool PlayMidiData(AudioDataLib::MidiData* midiData, AudioDataLib::Error& error)

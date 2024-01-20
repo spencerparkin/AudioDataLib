@@ -42,6 +42,7 @@ namespace AudioDataLib
 
 		void Clear();
 		void Copy(const WaveForm* waveForm);
+		void AddSample(const Sample& sample);
 		void MakeSilence(double samplesPerSecond, double totalSeconds);
 		double EvaluateAt(double timeSeconds) const;
 		void SumTogether(const std::list<WaveForm*>& waveFormList);
