@@ -14,6 +14,9 @@
     <Filter Include="Source\MIDI">
       <UniqueIdentifier>{c4dfe469-168e-4f79-908f-e80463a6c009}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Math">
+      <UniqueIdentifier>{48997259-0c16-43ec-b2f0-0dd60ee3fbcd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\FileFormat.h">
@@ -82,6 +85,12 @@
     <ClInclude Include="Source\WaveTableSynth.h">
       <Filter>Source\MIDI</Filter>
     </ClInclude>
+    <ClInclude Include="Source\ComplexNumber.h">
+      <Filter>Source\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ComplexVector.h">
+      <Filter>Source\Math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\FileFormat.cpp">
@@ -146,6 +155,12 @@
     </ClCompile>
     <ClCompile Include="Source\WaveTableSynth.cpp">
       <Filter>Source\MIDI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ComplexNumber.cpp">
+      <Filter>Source\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ComplexVector.cpp">
+      <Filter>Source\Math</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

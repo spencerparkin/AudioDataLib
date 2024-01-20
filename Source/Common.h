@@ -13,6 +13,7 @@
 #define ADL_MAX(x, y)			((x) > (y) ? (x) : (y))
 #define ADL_MIN(x, y)			((x) < (y) ? (x) : (y))
 #define ADL_CLAMP(x, a, b)		ADL_MIN(ADL_MAX(x, a), b)
+#define ADL_PI					3.1415926536
 
 #include <stdlib.h>
 #include <string>
