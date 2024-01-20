@@ -53,7 +53,7 @@ void Frame::OnImportAudio(wxCommandEvent& event)
 		return;
 
 	wxArrayString audioFileArray;
-	fileDialog.GetFilenames(audioFileArray);
+	fileDialog.GetPaths(audioFileArray);
 
 	WaveFileFormat fileFormat;
 	for (const wxString& audioFile : audioFileArray)

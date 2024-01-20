@@ -1,6 +1,7 @@
 #pragma once
 
 #include <wx/glcanvas.h>
+#include "Math2D.h"
 
 class Canvas : public wxGLCanvas
 {
@@ -14,4 +15,5 @@ public:
 private:
 	wxGLContext* renderContext;
 	static int attributeList[];
+	Box2D graphWindow;
 };

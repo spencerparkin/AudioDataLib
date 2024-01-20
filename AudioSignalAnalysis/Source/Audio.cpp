@@ -1,5 +1,6 @@
 #include "Audio.h"
 #include "Error.h"
+#include <wx/glcanvas.h>
 
 using namespace AudioDataLib;
 
@@ -36,5 +37,16 @@ WaveFormAudio::WaveFormAudio()
 		this->waveForm->ConvertFromAudioBuffer(this->audioData->GetFormat(), this->audioData->GetAudioBuffer(), this->audioData->GetAudioBufferSize(), 0, error);
 	}
 
-	// TODO: Draw the wave-form here.
+	glBegin(GL_LINE_STRIP);
+
+	glColor3f(1.0f, 1.0f, 1.0f);
+
+	const std::vector<WaveForm::Sample>& sampleArray = this->waveForm->GetSampleArray();
+
+	for (const WaveForm::Sample& sample : sampleArray)
+	{
+		glVertex2d(sample.timeSeconds, sample.amplitude);
+	}
+
+	glEnd();
 }

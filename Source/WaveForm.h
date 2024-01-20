@@ -7,7 +7,7 @@ namespace AudioDataLib
 {
 	class Error;
 
-	// TODO: Might be interesting to one day be able to convert to/from frequency-domain using an DFT/FFT.
+	// To be more specific, this is a descrete wave-form.
 	class AUDIO_DATA_LIB_API WaveForm
 	{
 		friend class Index;
@@ -61,6 +61,7 @@ namespace AudioDataLib
 		InterpolationMethod GetInterpolationMethod() const { return this->interpMethod; }
 		void SetInterpolateionMethod(InterpolationMethod interpMethod) { this->interpMethod = interpMethod; }
 		bool CalcDominantFrequency(double& dominantFrequency, Error& error) const;
+		const std::vector<Sample>& GetSampleArray() const { return *this->sampleArray; }
 
 	protected:
 

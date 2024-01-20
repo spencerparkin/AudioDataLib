@@ -19,6 +19,9 @@
     <ClInclude Include="Source\Audio.h">
       <Filter>Source</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Math2D.h">
+      <Filter>Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\App.cpp">
@@ -31,6 +34,9 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="Source\Audio.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Math2D.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
