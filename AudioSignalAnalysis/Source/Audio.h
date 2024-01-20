@@ -24,6 +24,8 @@ public:
 	virtual Box2D CalcBoundingBox() const override;
 
 	void SetAudioData(AudioDataLib::AudioData* audioData);
+
+	void SetWaveForm(AudioDataLib::WaveForm* waveForm);
 	const AudioDataLib::WaveForm* GetWaveForm() const;
 
 private:

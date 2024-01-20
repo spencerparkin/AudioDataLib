@@ -9,6 +9,7 @@
 #include <wx/menu.h>
 #include <wx/filedlg.h>
 #include <wx/msgdlg.h>
+#include <wx/numdlg.h>
 
 using namespace AudioDataLib;
 
@@ -17,6 +18,8 @@ Frame::Frame(const wxPoint& pos, const wxSize& size) : wxFrame(nullptr, wxID_ANY
 	wxMenu* fileMenu = new wxMenu();
 	fileMenu->Append(new wxMenuItem(fileMenu, ID_ImportAudio, "Import Audio", "Import audio from a selected file."));
 	fileMenu->Append(new wxMenuItem(fileMenu, ID_ExportAudio, "Export Audio", "Export audio to disk."));
+	fileMenu->AppendSeparator();
+	fileMenu->Append(new wxMenuItem(fileMenu, ID_MakeTone, "Make Tone", "Synthesize a simple sine-wave."));
 	fileMenu->AppendSeparator();
 	fileMenu->Append(new wxMenuItem(fileMenu, ID_Exit, "Exit", "Go skiing."));
 
@@ -32,6 +35,7 @@ Frame::Frame(const wxPoint& pos, const wxSize& size) : wxFrame(nullptr, wxID_ANY
 	this->Bind(wxEVT_MENU, &Frame::OnAbout, this, ID_About);
 	this->Bind(wxEVT_MENU, &Frame::OnImportAudio, this, ID_ImportAudio);
 	this->Bind(wxEVT_MENU, &Frame::OnExportAudio, this, ID_ExportAudio);
+	this->Bind(wxEVT_MENU, &Frame::OnMakeTone, this, ID_MakeTone);
 
 	this->SetStatusBar(new wxStatusBar(this));
 
@@ -94,6 +98,34 @@ void Frame::OnExportAudio(wxCommandEvent& event)
 void Frame::OnExit(wxCommandEvent& event)
 {
 	this->Close(true);
+}
+
+void Frame::OnMakeTone(wxCommandEvent& event)
+{
+	wxNumberEntryDialog numberDialog(this, "Frequency?", "Enter frequency in Hz.", "Frequency", 0, 0, 5000);
+	if (wxID_OK != numberDialog.ShowModal())
+		return;
+
+	WaveFormAudio* audio = new WaveFormAudio();
+	WaveForm* waveForm = new WaveForm();
+
+	uint32_t numSamples = 4098;
+	double frequencyHz = double(numberDialog.GetValue());
+	double durationSeconds = 2.0;
+
+	for (uint32_t i = 0; i < numSamples; i++)
+	{
+		WaveForm::Sample sample;
+
+		sample.timeSeconds = (double(i) / double(numSamples - 1)) * durationSeconds;
+		sample.amplitude = ::sin(2.0 * ADL_PI * sample.timeSeconds * frequencyHz);
+
+		waveForm->AddSample(sample);
+	}
+
+	audio->SetWaveForm(waveForm);
+	wxGetApp().audioArray.push_back(audio);
+	this->Refresh();
 }
 
 void Frame::OnAbout(wxCommandEvent& event)

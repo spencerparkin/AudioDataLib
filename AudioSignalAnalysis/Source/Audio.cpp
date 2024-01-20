@@ -71,9 +71,17 @@ void WaveFormAudio::SetAudioData(AudioDataLib::AudioData* audioData)
 	this->audioData = audioData;
 }
 
+void WaveFormAudio::SetWaveForm(AudioDataLib::WaveForm* waveForm)
+{
+	if (this->waveForm)
+		delete this->waveForm;
+	
+	this->waveForm = waveForm;
+}
+
 const AudioDataLib::WaveForm* WaveFormAudio::GetWaveForm() const
 {
-	if (!this->waveForm)
+	if (!this->waveForm && this->audioData)
 	{
 		Error error;
 		this->waveForm = new WaveForm();
