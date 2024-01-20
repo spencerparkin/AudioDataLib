@@ -31,6 +31,30 @@ void Vector2D::operator=(const Vector2D& vector)
 	this->y = vector.y;
 }
 
+void Vector2D::operator+=(const Vector2D& vector)
+{
+	this->x += vector.x;
+	this->y += vector.y;
+}
+
+void Vector2D::operator-=(const Vector2D& vector)
+{
+	this->x -= vector.x;
+	this->y -= vector.y;
+}
+
+void Vector2D::operator*=(double scalar)
+{
+	this->x *= scalar;
+	this->y *= scalar;
+}
+
+void Vector2D::operator/=(double scalar)
+{
+	this->x /= scalar;
+	this->y /= scalar;
+}
+
 double Vector2D::Length() const
 {
 	return ::sqrt(this->Dot(*this));
@@ -119,6 +143,11 @@ double Box2D::Height() const
 	return this->max.y - this->min.y;
 }
 
+Vector2D Box2D::Center() const
+{
+	return (this->min + this->max) / 2.0;
+}
+
 void Box2D::ExpandToMatchAspect(double aspectRatio)
 {
 	double currentAspectRatio = this->AspectRatio();
@@ -158,4 +187,26 @@ bool Box2D::ContainsPoint(const Vector2D& point) const
 bool Box2D::OverlapsWithBox(const Box2D& box) const
 {
 	return false;
+}
+
+Vector2D Box2D::FromUVs(const Vector2D& uvs) const
+{
+	return Vector2D(
+		this->min.x + uvs.x * this->Width(),
+		this->min.y + uvs.y * this->Height()
+	);
+}
+
+Vector2D Box2D::ToUVs(const Vector2D& point) const
+{
+	return Vector2D(
+		(point.x - this->min.x) / this->Width(),
+		(point.y - this->min.y) / this->Height()
+	);
+}
+
+void Box2D::Zoom(const Vector2D& focalPoint, double zoomFactor)
+{
+	this->min += (focalPoint - this->min) * zoomFactor;
+	this->max += (focalPoint - this->max) * zoomFactor;
 }
