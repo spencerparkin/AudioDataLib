@@ -2,6 +2,7 @@
 
 #include "AudioData.h"
 #include "WaveForm.h"
+#include "FrequencyGraph.h"
 #include "Math2D.h"
 
 class Audio
@@ -12,6 +13,12 @@ public:
 
 	virtual void Render() const = 0;
 	virtual Box2D CalcBoundingBox() const = 0;
+
+	bool IsSelected() const { return this->selected; }
+	void SetSelected(bool selected) { this->selected = selected; }
+
+protected:
+	bool selected;
 };
 
 class WaveFormAudio : public Audio
@@ -31,4 +38,19 @@ public:
 private:
 	AudioDataLib::AudioData* audioData;
 	mutable AudioDataLib::WaveForm* waveForm;
+};
+
+class FrequencyGraphAudio : public Audio
+{
+public:
+	FrequencyGraphAudio();
+	virtual ~FrequencyGraphAudio();
+
+	void SetFrequencyGraph(AudioDataLib::FrequencyGraph* frequencyGraph);
+
+	virtual void Render() const override;
+	virtual Box2D CalcBoundingBox() const override;
+
+private:
+	AudioDataLib::FrequencyGraph* frequencyGraph;
 };

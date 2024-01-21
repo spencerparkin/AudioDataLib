@@ -37,3 +37,13 @@ void App::Clear()
 
 	this->audioArray.clear();
 }
+
+bool App::GetSelectedAudio(std::vector<Audio*>& selectedAudioArray)
+{
+	selectedAudioArray.clear();
+	for (Audio* audio : this->audioArray)
+		if (audio->IsSelected())
+			selectedAudioArray.push_back(audio);
+
+	return selectedAudioArray.size() > 0;
+}

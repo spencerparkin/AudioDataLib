@@ -1,6 +1,7 @@
 #include "Frame.h"
 #include "Canvas.h"
-#include "WaveFileFormat.h"
+#include "FileFormat.h"
+#include "ByteStream.h"
 #include "Error.h"
 #include "App.h"
 #include "Audio.h"
@@ -19,15 +20,21 @@ Frame::Frame(const wxPoint& pos, const wxSize& size) : wxFrame(nullptr, wxID_ANY
 	fileMenu->Append(new wxMenuItem(fileMenu, ID_ImportAudio, "Import Audio", "Import audio from a selected file."));
 	fileMenu->Append(new wxMenuItem(fileMenu, ID_ExportAudio, "Export Audio", "Export audio to disk."));
 	fileMenu->AppendSeparator();
-	fileMenu->Append(new wxMenuItem(fileMenu, ID_MakeTone, "Make Tone", "Synthesize a simple sine-wave."));
+	fileMenu->Append(new wxMenuItem(fileMenu, ID_Clear, "Clear", "Delete all audio."));
+	fileMenu->AppendSeparator();
+	fileMenu->Append(new wxMenuItem(fileMenu, ID_MakeSound, "Make Sound", "Synthesize a simple sound as a sum of sine-waves with different frequencies."));
 	fileMenu->AppendSeparator();
 	fileMenu->Append(new wxMenuItem(fileMenu, ID_Exit, "Exit", "Go skiing."));
+
+	wxMenu* analyzeMenu = new wxMenu();
+	analyzeMenu->Append(new wxMenuItem(analyzeMenu, ID_GenerateFrequencyGraph, "Generate Frequency Graph", "Convert from the time-domain of the wave-form to the frequency domain."));
 
 	wxMenu* helpMenu = new wxMenu();
 	helpMenu->Append(new wxMenuItem(helpMenu, ID_About, "About", "Show the about-box."));
 
 	wxMenuBar* menuBar = new wxMenuBar();
 	menuBar->Append(fileMenu, "File");
+	menuBar->Append(analyzeMenu, "Analyze");
 	menuBar->Append(helpMenu, "Help");
 	this->SetMenuBar(menuBar);
 
@@ -35,7 +42,9 @@ Frame::Frame(const wxPoint& pos, const wxSize& size) : wxFrame(nullptr, wxID_ANY
 	this->Bind(wxEVT_MENU, &Frame::OnAbout, this, ID_About);
 	this->Bind(wxEVT_MENU, &Frame::OnImportAudio, this, ID_ImportAudio);
 	this->Bind(wxEVT_MENU, &Frame::OnExportAudio, this, ID_ExportAudio);
-	this->Bind(wxEVT_MENU, &Frame::OnMakeTone, this, ID_MakeTone);
+	this->Bind(wxEVT_MENU, &Frame::OnClear, this, ID_Clear);
+	this->Bind(wxEVT_MENU, &Frame::OnGenerateFrequencyGraph, this, ID_GenerateFrequencyGraph);
+	this->Bind(wxEVT_MENU, &Frame::OnSound, this, ID_MakeSound);
 
 	this->SetStatusBar(new wxStatusBar(this));
 
@@ -50,6 +59,39 @@ Frame::Frame(const wxPoint& pos, const wxSize& size) : wxFrame(nullptr, wxID_ANY
 {
 }
 
+void Frame::OnGenerateFrequencyGraph(wxCommandEvent& event)
+{
+	std::vector<Audio*> selectedAudioArray;
+	if (!wxGetApp().GetSelectedAudio(selectedAudioArray))
+	{
+		wxMessageBox("Select some audio first.", "Error!", wxICON_ERROR | wxOK, this);
+		return;
+	}
+
+	const Audio* audio = selectedAudioArray[0];
+	auto waveFormAudio = dynamic_cast<const WaveFormAudio*>(audio);
+	if (!audio)
+	{
+		wxMessageBox("Must have wave-form audio selected.", "Error!", wxICON_ERROR | wxOK, this);
+		return;
+	}
+
+	const WaveForm* waveForm = waveFormAudio->GetWaveForm();
+	FrequencyGraph* frequencyGraph = new FrequencyGraph();
+	Error error;
+	if (!frequencyGraph->FromWaveForm(*waveForm, error))
+	{
+		wxMessageBox(error.GetMessage(), "Error!", wxICON_ERROR | wxOK, this);
+		delete frequencyGraph;
+		return;
+	}
+
+	FrequencyGraphAudio* frequencyAudio = new FrequencyGraphAudio();
+	frequencyAudio->SetFrequencyGraph(frequencyGraph);
+	wxGetApp().audioArray.push_back(frequencyAudio);
+	this->Refresh();
+}
+
 void Frame::OnImportAudio(wxCommandEvent& event)
 {
 	wxFileDialog fileDialog(this, "Locate your audio data files.", wxEmptyString, wxEmptyString, "Wave files (*.wav)|*.wav", wxFD_FILE_MUST_EXIST | wxFD_MULTIPLE);
@@ -59,34 +101,39 @@ void Frame::OnImportAudio(wxCommandEvent& event)
 	wxArrayString audioFileArray;
 	fileDialog.GetPaths(audioFileArray);
 
-	WaveFileFormat fileFormat;
 	for (const wxString& audioFile : audioFileArray)
 	{
+		FileFormat* fileFormat = FileFormat::CreateForFile((const char*)audioFile.c_str());
+		if (!fileFormat)
+			continue;
+
 		FileInputStream inputStream(audioFile.c_str());
-		if (!inputStream.IsOpen())
-			continue;
-
-		Error error;
-		FileData* fileData = nullptr;
-		if (!fileFormat.ReadFromStream(inputStream, fileData, error))
+		if (inputStream.IsOpen())
 		{
-			wxMessageBox(error.GetMessage(), "Error!", wxICON_ERROR | wxOK, this);
-			continue;
+			Error error;
+			FileData* fileData = nullptr;
+			if (!fileFormat->ReadFromStream(inputStream, fileData, error))
+				wxMessageBox(error.GetMessage(), "Error!", wxICON_ERROR | wxOK, this);
+			else
+			{
+				// For now, we only deal with the AudioData class.
+				auto audioData = dynamic_cast<AudioData*>(fileData);
+				if (!audioData)
+					delete audioData;
+				else
+				{
+					WaveFormAudio* audio = new WaveFormAudio();
+					audio->SetAudioData(audioData);
+					audio->SetSelected(true);
+					wxGetApp().audioArray.push_back(audio);
+				}
+			}
 		}
 
-		auto audioData = dynamic_cast<AudioData*>(fileData);
-		if (!audioData)
-		{
-			delete audioData;
-			continue;
-		}
-
-		WaveFormAudio* audio = new WaveFormAudio();
-		audio->SetAudioData(audioData);
-		wxGetApp().audioArray.push_back(audio);
-
-		this->canvas->FitContent();
+		delete fileFormat;
 	}
+
+	this->canvas->FitContent();
 
 	this->Refresh();
 }
@@ -100,7 +147,7 @@ void Frame::OnExit(wxCommandEvent& event)
 	this->Close(true);
 }
 
-void Frame::OnMakeTone(wxCommandEvent& event)
+void Frame::OnSound(wxCommandEvent& event)
 {
 	wxNumberEntryDialog numberDialog(this, "Frequency?", "Enter frequency in Hz.", "Frequency", 0, 0, 5000);
 	if (wxID_OK != numberDialog.ShowModal())
@@ -113,6 +160,7 @@ void Frame::OnMakeTone(wxCommandEvent& event)
 	double frequencyHz = double(numberDialog.GetValue());
 	double durationSeconds = 2.0;
 
+	// TODO: Add other frequencies into the mix.
 	for (uint32_t i = 0; i < numSamples; i++)
 	{
 		WaveForm::Sample sample;
@@ -124,7 +172,14 @@ void Frame::OnMakeTone(wxCommandEvent& event)
 	}
 
 	audio->SetWaveForm(waveForm);
+	audio->SetSelected(true);
 	wxGetApp().audioArray.push_back(audio);
+	this->Refresh();
+}
+
+void Frame::OnClear(wxCommandEvent& event)
+{
+	wxGetApp().Clear();
 	this->Refresh();
 }
 

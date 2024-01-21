@@ -88,6 +88,12 @@
     <ClInclude Include="Source\ComplexNumber.h">
       <Filter>Source\Math</Filter>
     </ClInclude>
+    <ClInclude Include="Source\FrequencyGraph.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ComplexVector.h">
+      <Filter>Source\Math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\FileFormat.cpp">
@@ -154,6 +160,12 @@
       <Filter>Source\MIDI</Filter>
     </ClCompile>
     <ClCompile Include="Source\ComplexNumber.cpp">
+      <Filter>Source\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\FrequencyGraph.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ComplexVector.cpp">
       <Filter>Source\Math</Filter>
     </ClCompile>
   </ItemGroup>

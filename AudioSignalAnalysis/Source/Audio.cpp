@@ -8,6 +8,7 @@ using namespace AudioDataLib;
 
 Audio::Audio()
 {
+	this->selected = false;
 }
 
 /*virtual*/ Audio::~Audio()
@@ -33,11 +34,9 @@ WaveFormAudio::WaveFormAudio()
 	this->GetWaveForm();
 
 	glBegin(GL_LINE_STRIP);
-
-	glColor3f(1.0f, 1.0f, 1.0f);
+	glColor3f(1.0f, 0.0f, 0.0f);
 
 	const std::vector<WaveForm::Sample>& sampleArray = this->waveForm->GetSampleArray();
-
 	for (const WaveForm::Sample& sample : sampleArray)
 	{
 		glVertex2d(sample.timeSeconds, sample.amplitude);
@@ -89,4 +88,48 @@ const AudioDataLib::WaveForm* WaveFormAudio::GetWaveForm() const
 	}
 
 	return this->waveForm;
+}
+
+//--------------------------------- FrequencyGraphAudio ---------------------------------
+
+FrequencyGraphAudio::FrequencyGraphAudio()
+{
+	this->frequencyGraph = nullptr;
+}
+
+/*virtual*/ FrequencyGraphAudio::~FrequencyGraphAudio()
+{
+	delete this->frequencyGraph;
+}
+
+void FrequencyGraphAudio::SetFrequencyGraph(AudioDataLib::FrequencyGraph* frequencyGraph)
+{
+	if (this->frequencyGraph)
+		delete this->frequencyGraph;
+
+	this->frequencyGraph = frequencyGraph;
+}
+
+/*virtual*/ void FrequencyGraphAudio::Render() const
+{
+	glBegin(GL_LINE_STRIP);
+	glColor3f(0.0f, 1.0f, 0.0f);
+
+	const std::vector<double>& frequencyArray = this->frequencyGraph->GetFrequencyArray();
+	for (uint32_t frequency = 0; frequency < frequencyArray.size(); frequency++)
+	{
+		double frequencyStrength = frequencyArray[frequency];
+		glVertex2d(double(frequency), frequencyStrength);
+	}
+
+	glEnd();
+}
+
+/*virtual*/ Box2D FrequencyGraphAudio::CalcBoundingBox() const
+{
+	Box2D boundingBox;
+
+	//...
+
+	return boundingBox;
 }

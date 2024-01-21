@@ -16,14 +16,18 @@ public:
 		ID_About,
 		ID_ImportAudio,
 		ID_ExportAudio,
-		ID_MakeTone
+		ID_Clear,
+		ID_GenerateFrequencyGraph,
+		ID_MakeSound
 	};
 
 	void OnExit(wxCommandEvent& event);
 	void OnAbout(wxCommandEvent& event);
 	void OnImportAudio(wxCommandEvent& event);
 	void OnExportAudio(wxCommandEvent& event);
-	void OnMakeTone(wxCommandEvent& event);
+	void OnClear(wxCommandEvent& event);
+	void OnGenerateFrequencyGraph(wxCommandEvent& event);
+	void OnSound(wxCommandEvent& event);
 
 private:
 

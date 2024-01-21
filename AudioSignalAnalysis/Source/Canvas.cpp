@@ -68,13 +68,28 @@ void Canvas::OnPaint(wxPaintEvent& event)
 
 	glBegin(GL_LINES);
 
-	glColor3f(0.5f, 0.5f, 0.5f);
+	glColor3f(1.0f, 1.0f, 1.0f);
 
 	glVertex2f(-10.0, 0.0f);
 	glVertex2f(10.0, 0.0f);
 
 	glVertex2f(0.0f, -10.0);
 	glVertex2f(0.0f, 10.0);
+
+	for (uint32_t i = 1; i < 10; i++)
+	{
+		glVertex2f(GLfloat(i), -0.1f);
+		glVertex2f(GLfloat(i), 0.1f);
+
+		glVertex2f(-GLfloat(i), -0.1f);
+		glVertex2f(-GLfloat(i), 0.1f);
+
+		glVertex2f(-0.1f, GLfloat(i));
+		glVertex2f(0.1f, GLfloat(i));
+
+		glVertex2f(-0.1f, -GLfloat(i));
+		glVertex2f(0.1f, -GLfloat(i));
+	}
 
 	glEnd();
 

@@ -16,6 +16,8 @@ public:
 
 	void Clear();
 
+	bool GetSelectedAudio(std::vector<Audio*>& selectedAudioArray);
+
 	Frame* frame;
 
 	std::vector<Audio*> audioArray;
