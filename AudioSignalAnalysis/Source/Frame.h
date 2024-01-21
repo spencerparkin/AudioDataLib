@@ -27,7 +27,7 @@ public:
 	void OnExportAudio(wxCommandEvent& event);
 	void OnClear(wxCommandEvent& event);
 	void OnGenerateFrequencyGraph(wxCommandEvent& event);
-	void OnSound(wxCommandEvent& event);
+	void OnMakeSound(wxCommandEvent& event);
 
 private:
 

@@ -44,7 +44,7 @@ Frame::Frame(const wxPoint& pos, const wxSize& size) : wxFrame(nullptr, wxID_ANY
 	this->Bind(wxEVT_MENU, &Frame::OnExportAudio, this, ID_ExportAudio);
 	this->Bind(wxEVT_MENU, &Frame::OnClear, this, ID_Clear);
 	this->Bind(wxEVT_MENU, &Frame::OnGenerateFrequencyGraph, this, ID_GenerateFrequencyGraph);
-	this->Bind(wxEVT_MENU, &Frame::OnSound, this, ID_MakeSound);
+	this->Bind(wxEVT_MENU, &Frame::OnMakeSound, this, ID_MakeSound);
 
 	this->SetStatusBar(new wxStatusBar(this));
 
@@ -147,26 +147,34 @@ void Frame::OnExit(wxCommandEvent& event)
 	this->Close(true);
 }
 
-void Frame::OnSound(wxCommandEvent& event)
+void Frame::OnMakeSound(wxCommandEvent& event)
 {
-	wxNumberEntryDialog numberDialog(this, "Frequency?", "Enter frequency in Hz.", "Frequency", 0, 0, 5000);
-	if (wxID_OK != numberDialog.ShowModal())
+	wxNumberEntryDialog numberDialogA(this, "Frequency A?", "Enter frequency in Hz.", "Frequency", 0, 0, 5000);
+	if (wxID_OK != numberDialogA.ShowModal())
+		return;
+
+	wxNumberEntryDialog numberDialogB(this, "Frequency B?", "Enter frequency in Hz.", "Frequency", 0, 0, 5000);
+	if (wxID_OK != numberDialogB.ShowModal())
 		return;
 
 	WaveFormAudio* audio = new WaveFormAudio();
 	WaveForm* waveForm = new WaveForm();
 
 	uint32_t numSamples = 4098;
-	double frequencyHz = double(numberDialog.GetValue());
+	double frequencyAHz = double(numberDialogA.GetValue());
+	double frequencyBHz = double(numberDialogB.GetValue());
 	double durationSeconds = 2.0;
+	double amplitudeA = 0.1;
+	double amplitudeB = 0.2;
 
-	// TODO: Add other frequencies into the mix.
 	for (uint32_t i = 0; i < numSamples; i++)
 	{
 		WaveForm::Sample sample;
 
 		sample.timeSeconds = (double(i) / double(numSamples - 1)) * durationSeconds;
-		sample.amplitude = 0.1 * ::sin(2.0 * ADL_PI * sample.timeSeconds * frequencyHz);
+		sample.amplitude =
+			amplitudeA * ::sin(2.0 * ADL_PI * sample.timeSeconds * frequencyAHz) +
+			amplitudeB * ::sin(2.0 * ADL_PI * sample.timeSeconds * frequencyBHz);
 
 		waveForm->AddSample(sample);
 	}
