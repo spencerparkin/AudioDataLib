@@ -19,14 +19,18 @@ namespace AudioDataLib
 		bool FromWaveForm(const WaveForm& waveForm, Error& error);
 		bool ToWaveForm(WaveForm& waveForm, Error& error) const;
 
-		const std::vector<double>& GetFrequencyArray() const { return *this->frequencyArray; }
+		struct Plot
+		{
+			double frequency;
+			double strength;
+		};
+
+		const std::vector<Plot>& GetPlotArray() const { return *this->plotArray; }
 
 		// TODO: Add methods here for picking out the spikes or dominant frequencies.
 
 	protected:
-		// Here, the indices (or offsets) into the array are the frequencies,
-		// and the values of the array of the strengths of those frequencies
-		// that we find in a given signal.
-		std::vector<double>* frequencyArray;
+		
+		std::vector<Plot>* plotArray;
 	};
 }

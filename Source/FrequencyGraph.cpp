@@ -7,17 +7,17 @@ using namespace AudioDataLib;
 
 FrequencyGraph::FrequencyGraph()
 {
-	this->frequencyArray = new std::vector<double>();
+	this->plotArray = new std::vector<Plot>();
 }
 
 /*virtual*/ FrequencyGraph::~FrequencyGraph()
 {
-	delete this->frequencyArray;
+	delete this->plotArray;
 }
 
 void FrequencyGraph::Clear()
 {
-	this->frequencyArray->clear();
+	this->plotArray->clear();
 }
 
 bool FrequencyGraph::FromWaveForm(const WaveForm& waveForm, Error& error)
@@ -28,26 +28,29 @@ bool FrequencyGraph::FromWaveForm(const WaveForm& waveForm, Error& error)
 
 	double startTimeSeconds = waveForm.GetStartTime();
 	double endTimeSeconds = waveForm.GetEndTime();
+	double durationTimeSeconds = endTimeSeconds - startTimeSeconds;
 
 	uint32_t numSamples = 4096;
 
 	for (uint32_t i = 0; i < numSamples; i++)
 	{
-		double timeSeconds = startTimeSeconds + (double(i) / double(numSamples - 1)) * (endTimeSeconds - startTimeSeconds);
+		double timeSeconds = startTimeSeconds + (double(i) / double(numSamples - 1)) * durationTimeSeconds;
 		double amplitude = waveForm.EvaluateAt(timeSeconds);
 		sampleVector.Add(ComplexNumber(amplitude, 0.0));
 	}
 
-	ComplexVector frequencyVector;
-	if (!frequencyVector.FFT(sampleVector, false, error))
+	ComplexVector complexVector;
+	if (!complexVector.FFT(sampleVector, false, error))
 		return false;
 
-	double scale = 10.0;		// TODO: What should the scale be?
+	double scale = 1.0;		// TODO: What should the scale be?
 
-	for (uint32_t i = 0; i < frequencyVector.Size(); i++)
+	for (uint32_t i = 0; i < complexVector.Size(); i++)
 	{
-		double frequencyStrength = frequencyVector[i].Magnitude() * scale;
-		this->frequencyArray->push_back(frequencyStrength);
+		Plot plot;
+		plot.strength = complexVector[i].Magnitude() * scale;
+		plot.frequency = double(i) / 2.0;		// TODO: I really don't know why I have to divide by two.
+		this->plotArray->push_back(plot);
 	}
 
 	return true;

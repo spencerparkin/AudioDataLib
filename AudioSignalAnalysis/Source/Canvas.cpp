@@ -70,25 +70,32 @@ void Canvas::OnPaint(wxPaintEvent& event)
 
 	glColor3f(1.0f, 1.0f, 1.0f);
 
-	glVertex2f(-10.0, 0.0f);
-	glVertex2f(10.0, 0.0f);
+	glVertex2f(-20.0, 0.0f);
+	glVertex2f(20.0, 0.0f);
 
-	glVertex2f(0.0f, -10.0);
-	glVertex2f(0.0f, 10.0);
+	glVertex2f(0.0f, -20.0);
+	glVertex2f(0.0f, 20.0);
 
-	for (uint32_t i = 1; i < 10; i++)
+	for (uint32_t i = 1; i < 20; i++)
 	{
-		glVertex2f(GLfloat(i), -0.1f);
-		glVertex2f(GLfloat(i), 0.1f);
+		GLfloat tickSize = ((i % 5) == 0) ? 0.2f : 0.1f;
 
-		glVertex2f(-GLfloat(i), -0.1f);
-		glVertex2f(-GLfloat(i), 0.1f);
+		if (i % 5 == 0)
+			glColor3f(0.0f, 0.0f, 1.0f);
+		else
+			glColor3f(1.0f, 1.0f, 1.0f);
 
-		glVertex2f(-0.1f, GLfloat(i));
-		glVertex2f(0.1f, GLfloat(i));
+		glVertex2f(GLfloat(i), -tickSize);
+		glVertex2f(GLfloat(i), tickSize);
 
-		glVertex2f(-0.1f, -GLfloat(i));
-		glVertex2f(0.1f, -GLfloat(i));
+		glVertex2f(-GLfloat(i), -tickSize);
+		glVertex2f(-GLfloat(i), tickSize);
+
+		glVertex2f(-tickSize, GLfloat(i));
+		glVertex2f(tickSize, GLfloat(i));
+
+		glVertex2f(-tickSize, -GLfloat(i));
+		glVertex2f(tickSize, -GLfloat(i));
 	}
 
 	glEnd();

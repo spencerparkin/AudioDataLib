@@ -166,7 +166,7 @@ void Frame::OnSound(wxCommandEvent& event)
 		WaveForm::Sample sample;
 
 		sample.timeSeconds = (double(i) / double(numSamples - 1)) * durationSeconds;
-		sample.amplitude = ::sin(2.0 * ADL_PI * sample.timeSeconds * frequencyHz);
+		sample.amplitude = 0.1 * ::sin(2.0 * ADL_PI * sample.timeSeconds * frequencyHz);
 
 		waveForm->AddSample(sample);
 	}

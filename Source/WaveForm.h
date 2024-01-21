@@ -24,7 +24,7 @@ namespace AudioDataLib
 		struct Sample
 		{
 			double timeSeconds;
-			double amplitude;
+			double amplitude;	// TODO: This term isn't quite right.  What's a better term?  "Value"?
 		};
 
 		struct SampleBounds

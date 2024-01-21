@@ -115,11 +115,10 @@ void FrequencyGraphAudio::SetFrequencyGraph(AudioDataLib::FrequencyGraph* freque
 	glBegin(GL_LINE_STRIP);
 	glColor3f(0.0f, 1.0f, 0.0f);
 
-	const std::vector<double>& frequencyArray = this->frequencyGraph->GetFrequencyArray();
-	for (uint32_t frequency = 0; frequency < frequencyArray.size(); frequency++)
+	const std::vector<FrequencyGraph::Plot>& plotArray = this->frequencyGraph->GetPlotArray();
+	for(const FrequencyGraph::Plot& plot : plotArray)
 	{
-		double frequencyStrength = frequencyArray[frequency];
-		glVertex2d(double(frequency), frequencyStrength);
+		glVertex2d(plot.frequency, plot.strength);
 	}
 
 	glEnd();
