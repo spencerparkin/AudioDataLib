@@ -16,6 +16,7 @@ namespace AudioDataLib
 		virtual ~SoundFontData();
 
 		virtual void DumpInfo(FILE* fp) const override;
+		virtual FileData* Clone() const override;
 
 		void Clear();
 
@@ -53,6 +54,7 @@ namespace AudioDataLib
 			virtual ~LoopedAudioData();
 
 			virtual void DumpInfo(FILE* fp) const override;
+			virtual FileData* Clone() const override;
 
 			void SetName(const std::string& name) { *this->name = name; }
 			const std::string& GetName() const { return *this->name; }

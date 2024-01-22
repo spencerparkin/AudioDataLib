@@ -39,6 +39,11 @@ void MidiData::Clear()
 	this->trackArray->clear();
 }
 
+/*virtual*/ FileData* MidiData::Clone() const
+{
+	return nullptr;
+}
+
 /*virtual*/ void MidiData::DumpInfo(FILE* fp) const
 {
 	const char* formatTypeStr = nullptr;

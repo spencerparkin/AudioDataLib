@@ -16,7 +16,7 @@ public:
 
 	void Clear();
 
-	bool GetSelectedAudio(std::vector<Audio*>& selectedAudioArray);
+	bool GetFlaggedAudio(std::vector<Audio*>& foundAudioArray, uint32_t flag);
 
 	Frame* frame;
 

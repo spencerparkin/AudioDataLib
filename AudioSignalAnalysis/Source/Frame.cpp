@@ -5,6 +5,7 @@
 #include "Error.h"
 #include "App.h"
 #include "Audio.h"
+#include "SoundFontData.h"
 #include <wx/aboutdlg.h>
 #include <wx/sizer.h>
 #include <wx/menu.h>
@@ -62,7 +63,7 @@ Frame::Frame(const wxPoint& pos, const wxSize& size) : wxFrame(nullptr, wxID_ANY
 void Frame::OnGenerateFrequencyGraph(wxCommandEvent& event)
 {
 	std::vector<Audio*> selectedAudioArray;
-	if (!wxGetApp().GetSelectedAudio(selectedAudioArray))
+	if (!wxGetApp().GetFlaggedAudio(selectedAudioArray, AUDIO_FLAG_SELECTED))
 	{
 		wxMessageBox("Select some audio first.", "Error!", wxICON_ERROR | wxOK, this);
 		return;
@@ -81,7 +82,7 @@ void Frame::OnGenerateFrequencyGraph(wxCommandEvent& event)
 	Error error;
 	if (!frequencyGraph->FromWaveForm(*waveForm, error))
 	{
-		wxMessageBox(error.GetMessage(), "Error!", wxICON_ERROR | wxOK, this);
+		wxMessageBox(error.GetErrorMessage(), "Error!", wxICON_ERROR | wxOK, this);
 		delete frequencyGraph;
 		return;
 	}
@@ -94,7 +95,7 @@ void Frame::OnGenerateFrequencyGraph(wxCommandEvent& event)
 
 void Frame::OnImportAudio(wxCommandEvent& event)
 {
-	wxFileDialog fileDialog(this, "Locate your audio data files.", wxEmptyString, wxEmptyString, "Wave files (*.wav)|*.wav", wxFD_FILE_MUST_EXIST | wxFD_MULTIPLE);
+	wxFileDialog fileDialog(this, "Locate your audio data files.", wxEmptyString, wxEmptyString, "Wave Files (*.wav)|*.wav|Sound-Font Files (*.sf2)|*.sf2", wxFD_FILE_MUST_EXIST | wxFD_MULTIPLE);
 	if (wxID_OK != fileDialog.ShowModal())
 		return;
 
@@ -113,19 +114,38 @@ void Frame::OnImportAudio(wxCommandEvent& event)
 			Error error;
 			FileData* fileData = nullptr;
 			if (!fileFormat->ReadFromStream(inputStream, fileData, error))
-				wxMessageBox(error.GetMessage(), "Error!", wxICON_ERROR | wxOK, this);
+				wxMessageBox(error.GetErrorMessage(), "Error!", wxICON_ERROR | wxOK, this);
 			else
 			{
-				// For now, we only deal with the AudioData class.
 				auto audioData = dynamic_cast<AudioData*>(fileData);
-				if (!audioData)
-					delete audioData;
-				else
+				auto soundFontData = dynamic_cast<SoundFontData*>(fileData);
+
+				if (audioData)
 				{
 					WaveFormAudio* audio = new WaveFormAudio();
 					audio->SetAudioData(audioData);
-					audio->SetSelected(true);
 					wxGetApp().audioArray.push_back(audio);
+				}
+				else if (soundFontData)
+				{
+					for (uint32_t i = 0; i < soundFontData->GetNumPitchDatas(); i++)
+					{
+						const SoundFontData::PitchData* pitchData = soundFontData->GetPitchData(i);
+						for (uint32_t j = 0; j < pitchData->GetNumLoopedAudioDatas(); j++)
+						{
+							const SoundFontData::LoopedAudioData* audioData = pitchData->GetLoopedAudioData(j);
+							WaveFormAudio* audio = new WaveFormAudio();
+							audio->SetAudioData(dynamic_cast<AudioData*>(audioData->Clone()));
+							wxGetApp().audioArray.push_back(audio);
+						}
+					}
+
+					delete soundFontData;
+				}
+				else
+				{
+					wxMessageBox("Could not use data from file: " + audioFile, "Error!", wxICON_ERROR | wxOK, this);
+					delete fileData;
 				}
 			}
 		}
@@ -180,7 +200,7 @@ void Frame::OnMakeSound(wxCommandEvent& event)
 	}
 
 	audio->SetWaveForm(waveForm);
-	audio->SetSelected(true);
+	audio->SetFlags(audio->GetFlags() | AUDIO_FLAG_VISIBLE);
 	wxGetApp().audioArray.push_back(audio);
 	this->Refresh();
 }

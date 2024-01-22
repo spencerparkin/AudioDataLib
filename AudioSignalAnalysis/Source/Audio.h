@@ -5,6 +5,9 @@
 #include "FrequencyGraph.h"
 #include "Math2D.h"
 
+#define AUDIO_FLAG_SELECTED			0x00000001
+#define AUDIO_FLAG_VISIBLE			0x00000002
+
 class Audio
 {
 public:
@@ -14,11 +17,11 @@ public:
 	virtual void Render() const = 0;
 	virtual Box2D CalcBoundingBox() const = 0;
 
-	bool IsSelected() const { return this->selected; }
-	void SetSelected(bool selected) { this->selected = selected; }
+	uint32_t GetFlags() const { return this->flags; }
+	void SetFlags(uint32_t flags) { this->flags = flags; }
 
 protected:
-	bool selected;
+	uint32_t flags;
 };
 
 class WaveFormAudio : public Audio

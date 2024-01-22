@@ -31,13 +31,18 @@ Canvas::Canvas(wxWindow* parent) : wxGLCanvas(parent, wxID_ANY, attributeList, w
 
 void Canvas::FitContent()
 {
-	this->graphWindow.min = Vector2D(0.0, 0.0);
-	this->graphWindow.max = Vector2D(0.0, 0.0);
-
-	for (const Audio* audio : wxGetApp().audioArray)
+	std::vector<Audio*> visibleAudio;
+	wxGetApp().GetFlaggedAudio(visibleAudio, AUDIO_FLAG_VISIBLE);
+	if (visibleAudio.size() > 0)
 	{
-		Box2D boundingBox = audio->CalcBoundingBox();
-		this->graphWindow.ExpandToIncludeBox(boundingBox);
+		this->graphWindow.min = Vector2D(0.0, 0.0);
+		this->graphWindow.max = Vector2D(1.0, 1.0);
+
+		for (const Audio* audio : visibleAudio)
+		{
+			Box2D boundingBox = audio->CalcBoundingBox();
+			this->graphWindow.ExpandToIncludeBox(boundingBox);
+		}
 	}
 }
 
@@ -101,7 +106,8 @@ void Canvas::OnPaint(wxPaintEvent& event)
 	glEnd();
 
 	for (const Audio* audio : wxGetApp().audioArray)
-		audio->Render();
+		if ((audio->GetFlags() & AUDIO_FLAG_VISIBLE) != 0)
+			audio->Render();
 
 	glFlush();
 

@@ -8,7 +8,7 @@ using namespace AudioDataLib;
 
 Audio::Audio()
 {
-	this->selected = false;
+	this->flags = 0;
 }
 
 /*virtual*/ Audio::~Audio()

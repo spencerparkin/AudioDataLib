@@ -26,6 +26,14 @@ AudioData::AudioData()
 	delete audioData;
 }
 
+/*virtual*/ FileData* AudioData::Clone() const
+{
+	auto audioData = new AudioData();
+	audioData->SetAudioBufferSize(this->GetAudioBufferSize());
+	::memcpy(audioData->GetAudioBuffer(), this->GetAudioBuffer(), (size_t)audioData->GetAudioBufferSize());
+	return audioData;
+}
+
 /*virtual*/ void AudioData::DumpInfo(FILE* fp) const
 {
 	const char* sampleTypeStr = nullptr;

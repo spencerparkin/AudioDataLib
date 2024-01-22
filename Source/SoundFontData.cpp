@@ -28,6 +28,11 @@ void SoundFontData::Clear()
 	this->pitchDataArray->clear();
 }
 
+/*virtual*/ FileData* SoundFontData::Clone() const
+{
+	return nullptr;
+}
+
 /*virtual*/ void SoundFontData::DumpInfo(FILE* fp) const
 {
 	fprintf(fp, "Bank name: %s\n", this->generalInfo->bankName.c_str());
@@ -90,6 +95,16 @@ SoundFontData::LoopedAudioData::LoopedAudioData()
 	fprintf(fp, "Num frames: %lld\n", this->GetNumFrames());
 
 	AudioData::DumpInfo(fp);
+}
+
+/*virtual*/ FileData* SoundFontData::LoopedAudioData::Clone() const
+{
+	auto loopedAudioData = new LoopedAudioData();
+	loopedAudioData->loop = this->loop;
+	loopedAudioData->SetName(this->GetName());
+	loopedAudioData->SetAudioBufferSize(this->GetAudioBufferSize());
+	::memcpy(loopedAudioData->GetAudioBuffer(), this->GetAudioBuffer(), (size_t)loopedAudioData->GetAudioBufferSize());
+	return loopedAudioData;
 }
 
 //------------------------------- SoundFontData::PitchData -------------------------------

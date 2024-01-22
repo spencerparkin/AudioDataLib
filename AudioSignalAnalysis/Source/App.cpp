@@ -38,12 +38,12 @@ void App::Clear()
 	this->audioArray.clear();
 }
 
-bool App::GetSelectedAudio(std::vector<Audio*>& selectedAudioArray)
+bool App::GetFlaggedAudio(std::vector<Audio*>& foundAudioArray, uint32_t flag)
 {
-	selectedAudioArray.clear();
+	foundAudioArray.clear();
 	for (Audio* audio : this->audioArray)
-		if (audio->IsSelected())
-			selectedAudioArray.push_back(audio);
+		if ((audio->GetFlags() & flag) != 0)
+			foundAudioArray.push_back(audio);
 
-	return selectedAudioArray.size() > 0;
+	return foundAudioArray.size() > 0;
 }
