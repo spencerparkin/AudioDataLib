@@ -4,8 +4,9 @@ using namespace AudioDataLib;
 
 //------------------------------------- SDLAudioPlayer -------------------------------------
 
-SDLAudioPlayer::SDLAudioPlayer() : audioSink(true)
+SDLAudioPlayer::SDLAudioPlayer()
 {
+	this->audioStream = nullptr;
 	this->audioDeviceID = 0;
 	::memset(&this->audioSpec, 0, sizeof(SDL_AudioSpec));
 }
@@ -16,6 +17,12 @@ SDLAudioPlayer::SDLAudioPlayer() : audioSink(true)
 
 bool SDLAudioPlayer::Setup(Error& error)
 {
+	if (!this->audioStream)
+	{
+		error.Add("No audio stream set.");
+		return false;
+	}
+
 	int result = SDL_Init(SDL_INIT_AUDIO);
 	if (result != 0)
 	{
@@ -68,7 +75,7 @@ bool SDLAudioPlayer::Setup(Error& error)
 		return false;
 	}
 
-	this->audioSink.SetAudioOutput(new ThreadSafeAudioStream(format, &this->mutex, false));
+	this->audioStream->SetFormat(format);
 
 	// This will cause our callback to start getting called.
 	SDL_PauseAudioDevice(this->audioDeviceID, 0);
@@ -98,48 +105,7 @@ bool SDLAudioPlayer::Shutdown(Error& error)
 
 void SDLAudioPlayer::AudioCallback(Uint8* buffer, int length)
 {
-	AudioStream* audioStreamOut = this->audioSink.GetAudioOutput();
-	uint64_t numBytesRead = audioStreamOut->ReadBytesFromStream(buffer, uint64_t(length));
+	uint64_t numBytesRead = this->audioStream->ReadBytesFromStream(buffer, uint64_t(length));
 	for (uint64_t i = numBytesRead; i < uint64_t(length); i++)
 		buffer[i] = this->audioSpec.silence;
-}
-
-bool SDLAudioPlayer::PlayAudio(AudioData* audioData, Error& error)
-{
-	this->audioSink.AddAudioInput(new AudioStream(audioData));
-	return true;
-}
-
-bool SDLAudioPlayer::IsPlayingSomething()
-{
-	return this->audioSink.GetAudioInputCount() > 0;
-}
-
-bool SDLAudioPlayer::ManagePlayback(AudioDataLib::Error& error)
-{
-	// TODO: More thought needs to go into how much future time we buffer for the sink.
-	//       Too much time, and we suffer latency issues when an audio clip is fired.
-	//       Too little, and we can suffer from audio drop-outs due to a starved device.
-	this->audioSink.GenerateAudio(0.1, 0.1);
-	return true;
-}
-
-//------------------------------------- SDLAudioPlayer::Mutex -------------------------------------
-
-SDLAudioPlayer::Mutex::Mutex()
-{
-}
-
-/*virtual*/ SDLAudioPlayer::Mutex::~Mutex()
-{
-}
-
-/*virtual*/ void SDLAudioPlayer::Mutex::Lock()
-{
-	this->mutex.lock();
-}
-
-/*virtual*/ void SDLAudioPlayer::Mutex::Unlock()
-{
-	this->mutex.unlock();
 }

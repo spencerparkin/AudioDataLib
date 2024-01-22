@@ -12,15 +12,26 @@ Mutex::Mutex()
 {
 }
 
-/*virtual*/ void Mutex::Lock()
+//-------------------------- StandardMutex --------------------------
+
+StandardMutex::StandardMutex()
 {
-	// We do nothing by default.  It is up to the user
-	// of the library to provide a mutex implementation.
+	this->mutex = new std::mutex();
 }
 
-/*virtual*/ void Mutex::Unlock()
+/*virtual*/ StandardMutex::~StandardMutex()
 {
-	// See above comment.
+	delete this->mutex;
+}
+
+/*virtual*/ void StandardMutex::Lock()
+{
+	this->mutex->lock();
+}
+
+/*virtual*/ void StandardMutex::Unlock()
+{
+	this->mutex->unlock();
 }
 
 //-------------------------- MutexScopeLock --------------------------

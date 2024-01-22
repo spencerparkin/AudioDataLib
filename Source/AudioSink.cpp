@@ -4,9 +4,10 @@
 
 using namespace AudioDataLib;
 
-AudioSink::AudioSink(bool takeOwnershipOfStreamMembory)
+AudioSink::AudioSink(bool ownInputStreams, bool ownOutputStream)
 {
-	this->ownsStreamMemory = takeOwnershipOfStreamMembory;
+	this->ownInputStreams = ownInputStreams;
+	this->ownOutputStream = ownOutputStream;
 	this->audioStreamInArray = new std::vector<AudioStream*>();
 	this->audioStreamOut = nullptr;
 }
@@ -20,7 +21,7 @@ AudioSink::AudioSink(bool takeOwnershipOfStreamMembory)
 
 void AudioSink::Clear()
 {
-	if (this->ownsStreamMemory)
+	if (this->ownInputStreams)
 		for (AudioStream* audioStream : *this->audioStreamInArray)
 			delete audioStream;
 
@@ -31,11 +32,8 @@ void AudioSink::Clear()
 
 void AudioSink::SetAudioOutput(AudioStream* audioStreamOut)
 {
-	if (this->audioStreamOut)
-	{
-		if (this->ownsStreamMemory)
-			delete this->audioStreamOut;
-	}
+	if (this->ownOutputStream)
+		delete this->audioStreamOut;
 	
 	this->audioStreamOut = audioStreamOut;
 }
@@ -211,7 +209,7 @@ void AudioSink::GenerateAudio(double desiredSecondsAvailable, double minSecondsA
 			i++;
 		else
 		{
-			if (this->ownsStreamMemory)
+			if (this->ownInputStreams)
 				delete audioStreamIn;
 			uint32_t j = uint32_t(this->audioStreamInArray->size()) - 1;
 			if (i != j)

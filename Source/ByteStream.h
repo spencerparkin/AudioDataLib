@@ -136,10 +136,14 @@ namespace AudioDataLib
 		uint64_t writeOffset;
 	};
 
+	// This class by itself often acts, single-handedly, as the glue between
+	// this library and one that interfaces with the actual audio hardware.
+	// The low-level library will dicate the stream format, and then this library
+	// with accommodate that format.
 	class AUDIO_DATA_LIB_API AudioStream : public ByteStream
 	{
 	public:
-		AudioStream(const AudioData::Format& format);
+		AudioStream();
 		AudioStream(const AudioData* audioData);
 		virtual ~AudioStream();
 
@@ -151,7 +155,8 @@ namespace AudioDataLib
 		virtual bool CanRead() override;
 		virtual bool CanWrite() override;
 
-		const AudioData::Format& GetFormat() { return this->format; }
+		const AudioData::Format& GetFormat() const { return this->format; }
+		void SetFormat(const AudioData::Format& format) { this->format = format; }
 
 	protected:
 		AudioData::Format format;
@@ -161,7 +166,7 @@ namespace AudioDataLib
 	class AUDIO_DATA_LIB_API ThreadSafeAudioStream : public AudioStream
 	{
 	public:
-		ThreadSafeAudioStream(const AudioData::Format& format, Mutex* mutex, bool ownsMutexMemory);
+		ThreadSafeAudioStream(Mutex* mutex, bool ownsMutexMemory);
 		virtual ~ThreadSafeAudioStream();
 
 		virtual uint64_t WriteBytesToStream(const uint8_t* buffer, uint64_t bufferSize) override;

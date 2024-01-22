@@ -10,7 +10,8 @@ MidiSynth::MidiSynth()
 
 MidiSynth::MidiSynth(const AudioData::Format& format)
 {
-	this->audioStreamOut = new AudioStream(format);
+	this->audioStreamOut = new AudioStream();
+	this->audioStreamOut->SetFormat(format);
 }
 
 /*virtual*/ MidiSynth::~MidiSynth()

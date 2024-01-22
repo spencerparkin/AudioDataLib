@@ -237,9 +237,8 @@ void WriteOnlyBufferStream::Reset()
 
 //------------------------- AudioStream -------------------------
 
-AudioStream::AudioStream(const AudioData::Format& format)
+AudioStream::AudioStream()
 {
-	this->format = format;
 	this->byteStream = new MemoryStream();
 }
 
@@ -281,7 +280,7 @@ AudioStream::AudioStream(const AudioData* audioData)
 
 //------------------------- ThreadSafeAudioStream -------------------------
 
-ThreadSafeAudioStream::ThreadSafeAudioStream(const AudioData::Format& format, Mutex* mutex, bool ownsMutexMemory) : AudioStream(format)
+ThreadSafeAudioStream::ThreadSafeAudioStream(Mutex* mutex, bool ownsMutexMemory)
 {
 	this->mutex = mutex;
 	this->ownsMutexMemory = ownsMutexMemory;

@@ -1,3 +1,4 @@
+#include "AudioSink.h"
 #include "CmdLineParser.h"
 #include "SoundFontFormat.h"
 #include "WaveFileFormat.h"
@@ -8,6 +9,7 @@
 #include "RecorderSynth.h"
 #include "MidiFileFormat.h"
 #include "Keyboard.h"
+#include "Mutex.h"
 #include <memory>
 #include <filesystem>
 
@@ -381,21 +383,44 @@ bool PlayAudioData(AudioDataLib::AudioData* audioData, AudioDataLib::Error& erro
 {
 	bool success = false;
 	SDLAudioPlayer player;
+	AudioSink audioSink(true, true);
+	Keyboard* keyboard = nullptr;
 
 	do
 	{
-		if (!player.Setup(error))
-			break;
-
-		if (!player.PlayAudio(audioData, error))
-			break;
-
-		while (player.IsPlayingSomething())
+		keyboard = Keyboard::Create();
+		if (!keyboard)
 		{
-			if (!player.ManagePlayback(error))
-				break;
+			error.Add("Failed to create keyboard interface.");
+			break;
+		}
 
-			// TODO: Maybe listen for key-presses here and let the user quit if desired?
+		audioSink.SetAudioOutput(new ThreadSafeAudioStream(new StandardMutex(), true));
+
+		player.SetAudioStream(audioSink.GetAudioOutput());
+
+		if (!player.Setup(error))
+		{
+			error.Add("Failed to setup player.");
+			break;
+		}
+
+		audioSink.AddAudioInput(new AudioStream(audioData));
+
+		printf("Sound should be playing... (Press ESCAPE to exit before the audio finishes.)\n");
+
+		while (audioSink.GetAudioInputCount() > 0)
+		{
+			audioSink.GenerateAudio(0.2, 0.1);
+
+			std::string keyboardError;
+			if (!keyboard->Process(keyboardError))
+				error.Add(keyboardError);
+
+			Keyboard::Event event;
+			if (keyboard->GetKeyboardEvent(event))
+				if (event.type == Keyboard::Event::Type::KEY_PRESSED && event.keyCode == (int32_t)Keyboard::Key::KEY_ESCAPE)
+					break;
 		}
 
 		if (error)
@@ -472,7 +497,7 @@ bool MixAudio(const std::vector<std::string>& sourceFileArray, const std::string
 			break;
 		}
 
-		AudioSink audioSink(true);
+		AudioSink audioSink(true, true);
 
 		AudioData::Format format;
 		format.bitsPerSample = 0;
@@ -491,7 +516,8 @@ bool MixAudio(const std::vector<std::string>& sourceFileArray, const std::string
 				format = audioData->GetFormat();
 		}
 
-		auto audioStreamOut = new AudioStream(format);
+		auto audioStreamOut = new AudioStream();
+		audioStreamOut->SetFormat(format);
 		audioSink.SetAudioOutput(audioStreamOut);
 		audioSink.GenerateAudio(maxTimeSeconds, 0.0);
 
