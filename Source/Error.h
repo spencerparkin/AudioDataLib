@@ -18,6 +18,7 @@ namespace AudioDataLib
 		void Add(const std::string& error);
 		std::string GetMessage() const;
 		operator bool() const;
+		void Clear();
 
 	protected:
 		std::vector<std::string>* errorArray;

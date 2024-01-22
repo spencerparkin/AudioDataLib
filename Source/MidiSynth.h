@@ -15,6 +15,7 @@ namespace AudioDataLib
 	class AUDIO_DATA_LIB_API MidiSynth
 	{
 	public:
+		MidiSynth();
 		MidiSynth(const AudioData::Format& format);
 		virtual ~MidiSynth();
 

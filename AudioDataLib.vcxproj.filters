@@ -67,9 +67,6 @@
     <ClInclude Include="Source\MidiPlayer.h">
       <Filter>Source\MIDI</Filter>
     </ClInclude>
-    <ClInclude Include="Source\MidiRecorder.h">
-      <Filter>Source\MIDI</Filter>
-    </ClInclude>
     <ClInclude Include="Source\SimpleSynth.h">
       <Filter>Source\MIDI</Filter>
     </ClInclude>
@@ -93,6 +90,12 @@
     </ClInclude>
     <ClInclude Include="Source\ComplexVector.h">
       <Filter>Source\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\LogSynth.h">
+      <Filter>Source\MIDI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\RecorderSynth.h">
+      <Filter>Source\MIDI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -138,9 +141,6 @@
     <ClCompile Include="Source\MidiPlayer.cpp">
       <Filter>Source\MIDI</Filter>
     </ClCompile>
-    <ClCompile Include="Source\MidiRecorder.cpp">
-      <Filter>Source\MIDI</Filter>
-    </ClCompile>
     <ClCompile Include="Source\MidiSynth.cpp">
       <Filter>Source\MIDI</Filter>
     </ClCompile>
@@ -167,6 +167,12 @@
     </ClCompile>
     <ClCompile Include="Source\ComplexVector.cpp">
       <Filter>Source\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\LogSynth.cpp">
+      <Filter>Source\MIDI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\RecorderSynth.cpp">
+      <Filter>Source\MIDI</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

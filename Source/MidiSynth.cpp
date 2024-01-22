@@ -3,6 +3,11 @@
 
 using namespace AudioDataLib;
 
+MidiSynth::MidiSynth()
+{
+	this->audioStreamOut = nullptr;
+}
+
 MidiSynth::MidiSynth(const AudioData::Format& format)
 {
 	this->audioStreamOut = new AudioStream(format);

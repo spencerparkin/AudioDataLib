@@ -135,6 +135,11 @@ ReadOnlyBufferStream::ReadOnlyBufferStream(const uint8_t* buffer, uint64_t buffe
 {
 }
 
+void ReadOnlyBufferStream::Reset()
+{
+	this->readOffset = 0;
+}
+
 /*virtual*/ uint64_t ReadOnlyBufferStream::WriteBytesToStream(const uint8_t* buffer, uint64_t bufferSize)
 {
 	return 0;
@@ -194,6 +199,11 @@ WriteOnlyBufferStream::WriteOnlyBufferStream(uint8_t* buffer, uint64_t bufferSiz
 
 /*virtual*/ WriteOnlyBufferStream::~WriteOnlyBufferStream()
 {
+}
+
+void WriteOnlyBufferStream::Reset()
+{
+	this->writeOffset = 0;
 }
 
 /*virtual*/ uint64_t WriteOnlyBufferStream::WriteBytesToStream(const uint8_t* buffer, uint64_t bufferSize)

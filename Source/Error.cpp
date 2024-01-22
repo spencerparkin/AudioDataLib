@@ -17,6 +17,11 @@ void Error::Add(const std::string& error)
 	this->errorArray->push_back(error);
 }
 
+void Error::Clear()
+{
+	this->errorArray->clear();
+}
+
 std::string Error::GetMessage() const
 {
 	if (this->errorArray->size() == 0)

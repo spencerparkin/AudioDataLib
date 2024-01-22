@@ -3,6 +3,10 @@
 #include "WaveFileFormat.h"
 #include "WaveForm.h"
 #include "Main.h"
+#include "RtMidiSynth.h"
+#include "LogSynth.h"
+#include "RecorderSynth.h"
+#include "MidiFileFormat.h"
 #include <memory>
 #include <filesystem>
 
@@ -32,7 +36,12 @@ int main(int argc, char** argv)
 	std::string error;
 	if (!parser.Parse(argc, argv, error))
 	{
-		fprintf(stderr, ("Error: " + error).c_str());
+		if (error.length() > 0)
+		{
+			fprintf(stderr, ("Error: " + error).c_str());
+			fprintf(stderr, "\n\n");
+		}
+
 		parser.PrintUsage(stderr);
 		return -1;
 	}
@@ -69,7 +78,7 @@ int main(int argc, char** argv)
 		Error error;
 		if (!UnpackSoundFont(filePath, error))
 		{
-			fprintf(stderr, "Failed to unpack sound font...\n\n%s", error.GetMessage().c_str());
+			fprintf(stderr, "Failed to unpack sound font...\n\n%s\n", error.GetMessage().c_str());
 			return -1;
 		}
 
@@ -82,14 +91,14 @@ int main(int argc, char** argv)
 		FileFormat* fileFormat = FileFormat::CreateForFile(filePath);
 		if (!fileFormat)
 		{
-			fprintf(stderr, "File format for file \"%s\" not recognized.", filePath.c_str());
+			fprintf(stderr, "File format for file \"%s\" not recognized.\n", filePath.c_str());
 			return -1;
 		}
 
 		FileInputStream inputStream(filePath.c_str());
 		if (!inputStream.IsOpen())
 		{
-			fprintf(stderr, "Could not open file: %s", filePath.c_str());
+			fprintf(stderr, "Could not open file: %s\n", filePath.c_str());
 			delete fileFormat;
 			return -1;
 		}
@@ -125,7 +134,7 @@ int main(int argc, char** argv)
 		}
 
 		if (error)
-			fprintf(stderr, "Error: %s", error.GetMessage().c_str());
+			fprintf(stderr, "Error: %s\n", error.GetMessage().c_str());
 
 		delete fileData;
 		delete fileFormat;
@@ -141,7 +150,20 @@ int main(int argc, char** argv)
 		Error error;
 		if (!MixAudio({ sourceFileA, sourceFileB }, destinationFile, error))
 		{
-			fprintf(stderr, "Error: %s", error.GetMessage().c_str());
+			fprintf(stderr, "Error: %s\n", error.GetMessage().c_str());
+			return -1;
+		}
+
+		return 0;
+	}
+
+	if (parser.ArgGiven("keyboard"))
+	{
+		Error error;
+		if (!PlayWithKeyboard(parser, error))
+		{
+			if(error)
+				fprintf(stderr, "Error: %s\n", error.GetMessage().c_str());
 			return -1;
 		}
 
@@ -150,6 +172,115 @@ int main(int argc, char** argv)
 
 	fprintf(stderr, "Features not yet implimented for given arguments.  Sorry, bro.\n");
 	return -1;
+}
+
+bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
+{
+	bool success = false;
+	MidiData* recordedMidiData = nullptr;
+	FileOutputStream* recordedMidiOutStream = nullptr;
+	RtMidiSynth* synth = nullptr;
+	std::string recordedMidiFilePath;
+
+	do
+	{
+		synth = new RtMidiSynth();
+
+		if (parser.ArgGiven("log_midi"))
+		{
+			class StdoutLogSynth : public LogSynth
+			{
+			public:
+				virtual void LogMessage(const std::string& logMessage) override
+				{
+					printf("MIDI LOG: %s\n", logMessage.c_str());
+				}
+			};
+
+			synth->AddSynth(new StdoutLogSynth());
+		}
+
+		if (parser.ArgGiven("record_midi"))
+		{
+			recordedMidiFilePath = parser.GetArgValue("record_midi", 0);
+			if (recordedMidiFilePath.length() == 0)
+			{
+				error.Add("No MIDI file path given for recorded MIDI output.");
+				break;
+			}
+
+			recordedMidiOutStream = new FileOutputStream(recordedMidiFilePath.c_str());
+			if (!recordedMidiOutStream->IsOpen())
+			{
+				error.Add(FormatString("Failed to open file %s for writing.", recordedMidiFilePath.c_str()));
+				break;
+			}
+
+			recordedMidiData = new MidiData();
+			auto recorderSynth = new RecorderSynth();
+			recorderSynth->SetMidiData(recordedMidiData);
+			synth->AddSynth(recorderSynth);
+		}
+
+		if (parser.ArgGiven("synth"))
+		{
+			// TODO: Add synth that will send wave data to our SDLAudioPlayer class.
+		}
+
+		std::string desiredPortName = parser.GetArgValue("keyboard", 0);
+
+		if (!synth->Setup(desiredPortName, error))
+		{
+			error.Add("MIDI input setup failed.");
+			break;
+		}
+
+		while (true)
+		{
+			if (!synth->Process(error))
+			{
+				error.Add(FormatString("Process error: %s\n", error.GetMessage().c_str()));
+				break;
+			}
+
+			// TODO: Look for keypress to get us out of the loop.
+		}
+
+		if (error)
+			break;
+
+		success = true;
+	} while (false);
+
+	if (synth)
+	{
+		synth->Shutdown(error);
+		delete synth;
+		synth = nullptr;
+	}
+
+	if (recordedMidiData)
+	{
+		if (!recordedMidiOutStream->IsOpen())
+		{
+			error.Add("Output file stream was open before the performance started, but is not open now?!");
+			success = false;
+		}
+		else
+		{
+			MidiFileFormat fileFormat;
+			if (!fileFormat.WriteToStream(*recordedMidiOutStream, recordedMidiData, error))
+			{
+				error.Add("Failed to write recording to the file output stream.");
+				success = false;
+			}
+		}
+
+		delete recordedMidiData;
+		delete recordedMidiOutStream;
+	}
+
+	return success;
 }
 
 void RunTest()

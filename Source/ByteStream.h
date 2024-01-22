@@ -101,6 +101,8 @@ namespace AudioDataLib
 
 		const uint8_t* GetBuffer() const { return this->readOnlyBuffer; }
 
+		void Reset();
+
 	protected:
 		const uint8_t* readOnlyBuffer;
 		uint64_t readOnlyBufferSize;
@@ -125,6 +127,8 @@ namespace AudioDataLib
 		bool SetWriteOffset(uint64_t readOffset);
 
 		const uint8_t* GetBuffer() const { return this->writeOnlyBuffer; }
+
+		void Reset();
 
 	protected:
 		uint8_t* writeOnlyBuffer;

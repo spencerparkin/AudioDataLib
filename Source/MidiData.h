@@ -104,6 +104,8 @@ namespace AudioDataLib
 			virtual bool Decode(ByteStream& inputStream, Error& error) = 0;
 			virtual bool Encode(ByteStream& outputStream, Error& error) const = 0;
 
+			virtual std::string LogMessage() const = 0;
+
 			uint64_t deltaTimeTicks;
 		};
 
@@ -115,6 +117,8 @@ namespace AudioDataLib
 
 			virtual bool Decode(ByteStream& inputStream, Error& error) override;
 			virtual bool Encode(ByteStream& outputStream, Error& error) const override;
+
+			virtual std::string LogMessage() const override;
 		};
 
 		class AUDIO_DATA_LIB_API MetaEvent : public Event
@@ -125,6 +129,8 @@ namespace AudioDataLib
 
 			virtual bool Decode(ByteStream& inputStream, Error& error) override;
 			virtual bool Encode(ByteStream& outputStream, Error& error) const override;
+
+			virtual std::string LogMessage() const override;
 
 			enum Type : uint8_t
 			{
@@ -283,6 +289,8 @@ namespace AudioDataLib
 
 			virtual bool Decode(ByteStream& inputStream, Error& error) override;
 			virtual bool Encode(ByteStream& outputStream, Error& error) const override;
+
+			virtual std::string LogMessage() const override;
 
 			enum Type : uint8_t
 			{

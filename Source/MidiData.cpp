@@ -318,6 +318,11 @@ MidiData::SystemExclusiveEvent::SystemExclusiveEvent()
 	return false;
 }
 
+/*virtual*/ std::string MidiData::SystemExclusiveEvent::LogMessage() const
+{
+	return "?";
+}
+
 //------------------------------- MidiData::MetaEvent -------------------------------
 
 MidiData::MetaEvent::MetaEvent()
@@ -660,6 +665,11 @@ MidiData::MetaEvent::TimeSignature::operator std::string() const
 	return false;
 }
 
+/*virtual*/ std::string MidiData::MetaEvent::LogMessage() const
+{
+	return "?";
+}
+
 //------------------------------- MidiData::ChannelEvent -------------------------------
 
 MidiData::ChannelEvent::ChannelEvent()
@@ -741,4 +751,9 @@ MidiData::ChannelEvent::ChannelEvent()
 	}
 
 	return true;
+}
+
+/*virtual*/ std::string MidiData::ChannelEvent::LogMessage() const
+{
+	return "?";
 }

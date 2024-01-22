@@ -145,6 +145,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\RtMidiSynth.cpp" />
     <ClCompile Include="Source\SDLAudioPlayer.cpp" />
     <ClCompile Include="Source\CmdLineParser.cpp" />
     <ClCompile Include="Source\Main.cpp" />
@@ -152,6 +153,7 @@
     <ClCompile Include="Source\ThirdParty\RtMidi\RtMidi.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\RtMidiSynth.h" />
     <ClInclude Include="Source\SDLAudioPlayer.h" />
     <ClInclude Include="Source\CmdLineParser.h" />
     <ClInclude Include="Source\Main.h" />

@@ -30,8 +30,8 @@ void CmdLineParser::PrintUsage(FILE* fp) const
 	for (const ArgDef& argDef : this->argDefArray)
 		sortableArgDefArray.push_back(&argDef);
 
-	std::sort(sortableArgDefArray.begin(), sortableArgDefArray.end(), [](const ArgDef* argDefA, const ArgDef* argDefB) -> int {
-		return ::strcmp(argDefA->name.c_str(), argDefB->name.c_str());
+	std::sort(sortableArgDefArray.begin(), sortableArgDefArray.end(), [](const ArgDef* argDefA, const ArgDef* argDefB) -> bool {
+		return ::strcmp(argDefA->name.c_str(), argDefB->name.c_str()) < 0;
 	});
 
 	for (const ArgDef* argDef : sortableArgDefArray)
@@ -103,6 +103,7 @@ bool CmdLineParser::Parse(int argc, char** argv, std::string& error)
 			{
 				char errorBuf[128];
 				sprintf_s(errorBuf, sizeof(errorBuf), "Argument \"%s\" needed %d value(s).", argName.c_str(), argDef->numValues);
+				error = errorBuf;
 				return false;
 			}
 
@@ -111,6 +112,7 @@ bool CmdLineParser::Parse(int argc, char** argv, std::string& error)
 			{
 				char errorBuf[128];
 				sprintf_s(errorBuf, sizeof(errorBuf), "Argument \"%s\" didn't get value %d of %d.", argName.c_str(), j, argDef->numValues);
+				error = errorBuf;
 				return false;
 			}
 
