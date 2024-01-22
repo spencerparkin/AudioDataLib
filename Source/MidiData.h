@@ -294,7 +294,6 @@ namespace AudioDataLib
 
 			enum Type : uint8_t
 			{
-				
 				NOTE_OFF			= 0x8,
 				NOTE_ON				= 0x9,
 				NOTE_AFTERTOUCH		= 0xA,

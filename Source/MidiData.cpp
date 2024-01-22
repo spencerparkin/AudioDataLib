@@ -755,5 +755,19 @@ MidiData::ChannelEvent::ChannelEvent()
 
 /*virtual*/ std::string MidiData::ChannelEvent::LogMessage() const
 {
-	return "?";
+	const char* typeStr = nullptr;
+
+	switch (this->type)
+	{
+		case Type::NOTE_OFF: typeStr = "NOTE_OFF"; break;
+		case Type::NOTE_ON: typeStr = "NOTE_ON"; break;
+		case Type::NOTE_AFTERTOUCH: typeStr = "NOTE_AFTERTOUCH"; break;
+		case Type::CONTROLLER: typeStr = "CONTROLLER"; break;
+		case Type::PROGRAM_CHANGE: typeStr = "PROGRAM_CHANGE"; break;
+		case Type::CHANNEL_AFTERTOUCH: typeStr = "CHANNEL_AFTERTOUCH"; break;
+		case Type::PITCH_BEND: typeStr = "PITCH_BEND"; break;
+		case Type::UNKNOWN: typeStr = "UNKNOWN"; break;
+	}
+
+	return FormatString("%s: %d, %d (channel: %d)", typeStr, this->param1, this->param2, this->channel);
 }
