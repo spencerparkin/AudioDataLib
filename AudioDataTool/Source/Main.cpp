@@ -7,6 +7,7 @@
 #include "LogSynth.h"
 #include "RecorderSynth.h"
 #include "MidiFileFormat.h"
+#include "Keyboard.h"
 #include <memory>
 #include <filesystem>
 
@@ -18,7 +19,7 @@ int main(int argc, char** argv)
 	parser.SetSynopsis("This is just a basic command-line tool meant to exercise the AudioDataLib shared library.");
 
 	parser.RegisterArg("play", 1, "Play the given file.  This can be a WAV or MIDI file.");
-	parser.RegisterArg("keyboard", 1, "Receive MIDI input from the given MIDI keyboard device.");
+	parser.RegisterArg("keyboard", 1, "Receive MIDI input from the given MIDI input port.  A MIDI keyboard is not necessarily connected to the port, but could be any MIDI device.");
 	parser.RegisterArg("synth", 0, "Synthesize MIDI input to the sound-card.");
 	parser.RegisterArg("record_midi", 1, "Record MIDI input to the given MIDI file.");
 	parser.RegisterArg("log_midi", 0, "Print MIDI input to the screen as it is given.");
@@ -65,7 +66,7 @@ int main(int argc, char** argv)
 		Error error;
 		if (!DumpInfo(filePath, error))
 		{
-			fprintf(stderr, error.GetMessage().c_str());
+			fprintf(stderr, error.GetErrorMessage().c_str());
 			return -1;
 		}
 
@@ -78,7 +79,7 @@ int main(int argc, char** argv)
 		Error error;
 		if (!UnpackSoundFont(filePath, error))
 		{
-			fprintf(stderr, "Failed to unpack sound font...\n\n%s\n", error.GetMessage().c_str());
+			fprintf(stderr, "Failed to unpack sound font...\n\n%s\n", error.GetErrorMessage().c_str());
 			return -1;
 		}
 
@@ -107,7 +108,7 @@ int main(int argc, char** argv)
 		FileData* fileData = nullptr;
 		if (!fileFormat->ReadFromStream(inputStream, fileData, error))
 		{
-			fprintf(stderr, ("Error: " + error.GetMessage()).c_str());
+			fprintf(stderr, ("Error: " + error.GetErrorMessage()).c_str());
 			delete fileFormat;
 			return -1;
 		}
@@ -134,7 +135,7 @@ int main(int argc, char** argv)
 		}
 
 		if (error)
-			fprintf(stderr, "Error: %s\n", error.GetMessage().c_str());
+			fprintf(stderr, "Error: %s\n", error.GetErrorMessage().c_str());
 
 		delete fileData;
 		delete fileFormat;
@@ -150,7 +151,7 @@ int main(int argc, char** argv)
 		Error error;
 		if (!MixAudio({ sourceFileA, sourceFileB }, destinationFile, error))
 		{
-			fprintf(stderr, "Error: %s\n", error.GetMessage().c_str());
+			fprintf(stderr, "Error: %s\n", error.GetErrorMessage().c_str());
 			return -1;
 		}
 
@@ -163,7 +164,7 @@ int main(int argc, char** argv)
 		if (!PlayWithKeyboard(parser, error))
 		{
 			if(error)
-				fprintf(stderr, "Error: %s\n", error.GetMessage().c_str());
+				fprintf(stderr, "Error: %s\n", error.GetErrorMessage().c_str());
 			return -1;
 		}
 
@@ -181,9 +182,28 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 	FileOutputStream* recordedMidiOutStream = nullptr;
 	RtMidiSynth* synth = nullptr;
 	std::string recordedMidiFilePath;
+	Keyboard* keyboard = nullptr;
 
 	do
 	{
+		// No, this isn't the keyboard we're playing with.
+		// This is the computer keyboard that we'll need to exit our processing loop.
+		// We're not necessarily playing with a MIDI keyboard here.  We're playing
+		// withany MIDI input device.
+		keyboard = Keyboard::Create();
+		if (!keyboard)
+		{
+			error.Add("Failed to create keyboard object.");
+			break;
+		}
+
+		std::string keyboardError;
+		if (!keyboard->Setup(keyboardError))
+		{
+			error.Add(keyboardError);
+			break;
+		}
+
 		synth = new RtMidiSynth();
 
 		if (parser.ArgGiven("log_midi"))
@@ -235,15 +255,26 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 			break;
 		}
 
-		while (true)
+		printf("Now listening to MIDI port...  (Press ESCAPE to exit.)\n");
+
+		bool keepProcessing = true;
+		while (keepProcessing)
 		{
 			if (!synth->Process(error))
 			{
-				error.Add(FormatString("Process error: %s\n", error.GetMessage().c_str()));
+				error.Add(FormatString("Process error: %s\n", error.GetErrorMessage().c_str()));
 				break;
 			}
 
-			// TODO: Look for keypress to get us out of the loop.
+			std::string keyboardError;
+			keyboard->Process(keyboardError);
+
+			Keyboard::Event event;
+			while (keyboard->GetKeyboardEvent(event))
+			{
+				if (event.type == Keyboard::Event::Type::KEY_PRESSED && event.keyCode == (int32_t)Keyboard::Key::KEY_ESCAPE)
+					keepProcessing = false;
+			}
 		}
 
 		if (error)
@@ -251,6 +282,14 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 
 		success = true;
 	} while (false);
+
+	if (keyboard)
+	{
+		std::string keyboardError;
+		keyboard->Shutdown(keyboardError);
+		delete keyboard;
+		keyboard = nullptr;
+	}
 
 	if (synth)
 	{
@@ -269,7 +308,9 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 		else
 		{
 			MidiFileFormat fileFormat;
-			if (!fileFormat.WriteToStream(*recordedMidiOutStream, recordedMidiData, error))
+			if (fileFormat.WriteToStream(*recordedMidiOutStream, recordedMidiData, error))
+				printf("Saved files: %s!\n", recordedMidiFilePath.c_str());
+			else
 			{
 				error.Add("Failed to write recording to the file output stream.");
 				success = false;

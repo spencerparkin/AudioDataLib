@@ -22,7 +22,7 @@ void Error::Clear()
 	this->errorArray->clear();
 }
 
-std::string Error::GetMessage() const
+std::string Error::GetErrorMessage() const
 {
 	if (this->errorArray->size() == 0)
 		return "";

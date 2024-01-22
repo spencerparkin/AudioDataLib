@@ -56,6 +56,9 @@ bool RtMidiSynth::Setup(const std::string& desiredPortName, AudioDataLib::Error&
 		}
 
 		this->midiIn->openPort(desiredPort);
+
+		if(this->midiIn->isPortOpen())
+			printf("Successfully opened port %d!\n", desiredPort);
 	}
 	catch (RtMidiError rtError)
 	{

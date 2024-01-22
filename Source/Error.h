@@ -16,7 +16,7 @@ namespace AudioDataLib
 		virtual ~Error();
 
 		void Add(const std::string& error);
-		std::string GetMessage() const;
+		std::string GetErrorMessage() const;
 		operator bool() const;
 		void Clear();
 

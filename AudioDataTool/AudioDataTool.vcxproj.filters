@@ -31,6 +31,9 @@
     <ClCompile Include="Source\RtMidiSynth.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Keyboard.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\CmdLineParser.h">
@@ -49,6 +52,9 @@
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="Source\RtMidiSynth.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Keyboard.h">
       <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>
