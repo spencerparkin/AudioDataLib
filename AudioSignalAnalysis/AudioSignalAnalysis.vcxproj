@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="Source\App.h" />
     <ClInclude Include="Source\Audio.h" />
+    <ClInclude Include="Source\AudioListControl.h" />
     <ClInclude Include="Source\Canvas.h" />
     <ClInclude Include="Source\Frame.h" />
     <ClInclude Include="Source\Math2D.h" />
@@ -28,6 +29,7 @@
   <ItemGroup>
     <ClCompile Include="Source\App.cpp" />
     <ClCompile Include="Source\Audio.cpp" />
+    <ClCompile Include="Source\AudioListControl.cpp" />
     <ClCompile Include="Source\Canvas.cpp" />
     <ClCompile Include="Source\Frame.cpp" />
     <ClCompile Include="Source\Math2D.cpp" />

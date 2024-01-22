@@ -1,5 +1,6 @@
 #include "Audio.h"
 #include "Error.h"
+#include "AudioListControl.h"
 #include <wx/glcanvas.h>
 
 using namespace AudioDataLib;
@@ -60,6 +61,23 @@ WaveFormAudio::WaveFormAudio()
 	}
 
 	return boundingBox;
+}
+
+/*virtual*/ wxString WaveFormAudio::GetColumnInfo(long column) const
+{
+	switch (column)
+	{
+		case AUDIO_LIST_COLUMN_NAME:
+		{
+			return this->GetName();
+		}
+		case AUDIO_LIST_COLUMN_SIZE:
+		{
+			return wxString::Format("%lld bytes", this->audioData->GetAudioBufferSize());
+		}
+	}
+
+	return "?";
 }
 
 void WaveFormAudio::SetAudioData(AudioDataLib::AudioData* audioData)
@@ -128,7 +146,28 @@ void FrequencyGraphAudio::SetFrequencyGraph(AudioDataLib::FrequencyGraph* freque
 {
 	Box2D boundingBox;
 
-	//...
+	const std::vector<FrequencyGraph::Plot>& plotArray = this->frequencyGraph->GetPlotArray();
+	for (const FrequencyGraph::Plot& plot : plotArray)
+	{
+		boundingBox.ExpandToIncludePoint(Vector2D(plot.frequency, plot.strength));
+	}
 
 	return boundingBox;
+}
+
+/*virtual*/ wxString FrequencyGraphAudio::GetColumnInfo(long column) const
+{
+	switch (column)
+	{
+		case AUDIO_LIST_COLUMN_NAME:
+		{
+			return this->GetName();
+		}
+		case AUDIO_LIST_COLUMN_SIZE:
+		{
+			return wxString::Format("%d plots", this->frequencyGraph->GetPlotArray().size());
+		}
+	}
+
+	return "?";
 }

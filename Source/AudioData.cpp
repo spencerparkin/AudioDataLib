@@ -31,6 +31,7 @@ AudioData::AudioData()
 	auto audioData = new AudioData();
 	audioData->SetAudioBufferSize(this->GetAudioBufferSize());
 	::memcpy(audioData->GetAudioBuffer(), this->GetAudioBuffer(), (size_t)audioData->GetAudioBufferSize());
+	audioData->SetFormat(this->GetFormat());
 	return audioData;
 }
 

@@ -19,7 +19,7 @@ App::App()
 	if (!wxApp::OnInit())
 		return false;
 
-	this->frame = new Frame(wxDefaultPosition, wxSize(800, 800));
+	this->frame = new Frame(wxDefaultPosition, wxSize(1400, 800));
 	this->frame->Show();
 
 	return true;
@@ -36,6 +36,11 @@ void App::Clear()
 		delete audio;
 
 	this->audioArray.clear();
+}
+
+void App::AddAudio(Audio* audio)
+{
+	this->audioArray.push_back(audio);
 }
 
 bool App::GetFlaggedAudio(std::vector<Audio*>& foundAudioArray, uint32_t flag)

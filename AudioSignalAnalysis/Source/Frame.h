@@ -3,6 +3,7 @@
 #include <wx/frame.h>
 
 class Canvas;
+class AudioListControl;
 
 class Frame : public wxFrame
 {
@@ -32,4 +33,5 @@ public:
 private:
 
 	Canvas* canvas;
+	AudioListControl* audioList;
 };

@@ -15,11 +15,13 @@ public:
 	virtual int OnExit(void) override;
 
 	void Clear();
-
+	void AddAudio(Audio* audio);
+	const std::vector<Audio*>& GetAudioArray() const { return this->audioArray; }
 	bool GetFlaggedAudio(std::vector<Audio*>& foundAudioArray, uint32_t flag);
+	Frame* GetFrame() { return this->frame; }
 
+private:
 	Frame* frame;
-
 	std::vector<Audio*> audioArray;
 };
 

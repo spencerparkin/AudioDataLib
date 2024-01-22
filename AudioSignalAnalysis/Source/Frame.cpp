@@ -6,12 +6,15 @@
 #include "App.h"
 #include "Audio.h"
 #include "SoundFontData.h"
+#include "AudioListControl.h"
 #include <wx/aboutdlg.h>
 #include <wx/sizer.h>
 #include <wx/menu.h>
 #include <wx/filedlg.h>
 #include <wx/msgdlg.h>
 #include <wx/numdlg.h>
+#include <wx/splitter.h>
+#include <wx/filename.h>
 
 using namespace AudioDataLib;
 
@@ -49,10 +52,15 @@ Frame::Frame(const wxPoint& pos, const wxSize& size) : wxFrame(nullptr, wxID_ANY
 
 	this->SetStatusBar(new wxStatusBar(this));
 
-	this->canvas = new Canvas(this);
+	wxSplitterWindow* splitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_LIVE_UPDATE | wxSP_3D);
+
+	this->canvas = new Canvas(splitter);
+	this->audioList = new AudioListControl(splitter);
+
+	splitter->SplitVertically(this->audioList, this->canvas, 200);
 
 	wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-	sizer->Add(this->canvas, 1, wxALL | wxGROW, 0);
+	sizer->Add(splitter, 1, wxALL | wxGROW, 0);
 	this->SetSizer(sizer);
 }
 
@@ -89,8 +97,10 @@ void Frame::OnGenerateFrequencyGraph(wxCommandEvent& event)
 
 	FrequencyGraphAudio* frequencyAudio = new FrequencyGraphAudio();
 	frequencyAudio->SetFrequencyGraph(frequencyGraph);
-	wxGetApp().audioArray.push_back(frequencyAudio);
+	frequencyAudio->SetName("Freq. Graph of " + audio->GetName());
+	wxGetApp().AddAudio(frequencyAudio);
 	this->Refresh();
+	this->audioList->Update();
 }
 
 void Frame::OnImportAudio(wxCommandEvent& event)
@@ -124,7 +134,8 @@ void Frame::OnImportAudio(wxCommandEvent& event)
 				{
 					WaveFormAudio* audio = new WaveFormAudio();
 					audio->SetAudioData(audioData);
-					wxGetApp().audioArray.push_back(audio);
+					audio->SetName(wxFileName(audioFile).GetName());
+					wxGetApp().AddAudio(audio);
 				}
 				else if (soundFontData)
 				{
@@ -136,7 +147,8 @@ void Frame::OnImportAudio(wxCommandEvent& event)
 							const SoundFontData::LoopedAudioData* audioData = pitchData->GetLoopedAudioData(j);
 							WaveFormAudio* audio = new WaveFormAudio();
 							audio->SetAudioData(dynamic_cast<AudioData*>(audioData->Clone()));
-							wxGetApp().audioArray.push_back(audio);
+							audio->SetName(wxFileName(audioFile).GetName() + wxString::Format("_%d_%s", i, audioData->GetName().c_str()));
+							wxGetApp().AddAudio(audio);
 						}
 					}
 
@@ -154,6 +166,7 @@ void Frame::OnImportAudio(wxCommandEvent& event)
 	}
 
 	this->canvas->FitContent();
+	this->audioList->Update();
 
 	this->Refresh();
 }
@@ -201,13 +214,15 @@ void Frame::OnMakeSound(wxCommandEvent& event)
 
 	audio->SetWaveForm(waveForm);
 	audio->SetFlags(audio->GetFlags() | AUDIO_FLAG_VISIBLE);
-	wxGetApp().audioArray.push_back(audio);
+	wxGetApp().AddAudio(audio);
 	this->Refresh();
+	this->audioList->Update();
 }
 
 void Frame::OnClear(wxCommandEvent& event)
 {
 	wxGetApp().Clear();
+	this->audioList->Update();
 	this->Refresh();
 }
 

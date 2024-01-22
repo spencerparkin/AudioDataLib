@@ -81,12 +81,12 @@ void Canvas::OnPaint(wxPaintEvent& event)
 	glVertex2f(0.0f, -20.0);
 	glVertex2f(0.0f, 20.0);
 
-	for (uint32_t i = 1; i < 20; i++)
+	for (uint32_t i = 1; i <= 20; i++)
 	{
 		GLfloat tickSize = ((i % 5) == 0) ? 0.2f : 0.1f;
 
 		if (i % 5 == 0)
-			glColor3f(0.0f, 0.0f, 1.0f);
+			glColor3f(0.3f, 0.3f, 1.0f);
 		else
 			glColor3f(1.0f, 1.0f, 1.0f);
 
@@ -105,7 +105,7 @@ void Canvas::OnPaint(wxPaintEvent& event)
 
 	glEnd();
 
-	for (const Audio* audio : wxGetApp().audioArray)
+	for (const Audio* audio : wxGetApp().GetAudioArray())
 		if ((audio->GetFlags() & AUDIO_FLAG_VISIBLE) != 0)
 			audio->Render();
 

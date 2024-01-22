@@ -104,6 +104,7 @@ SoundFontData::LoopedAudioData::LoopedAudioData()
 	loopedAudioData->SetName(this->GetName());
 	loopedAudioData->SetAudioBufferSize(this->GetAudioBufferSize());
 	::memcpy(loopedAudioData->GetAudioBuffer(), this->GetAudioBuffer(), (size_t)loopedAudioData->GetAudioBufferSize());
+	loopedAudioData->SetFormat(this->GetFormat());
 	return loopedAudioData;
 }
 
