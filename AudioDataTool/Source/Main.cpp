@@ -353,30 +353,70 @@ void RunTest()
 
 bool PlayMidiData(AudioDataLib::MidiData* midiData, AudioDataLib::Error& error)
 {
+	bool success = false;
 	SystemClockTimer timer;
 	RtMidiPlayer player(&timer);
+	Keyboard* keyboard = nullptr;
+	std::string keyboardError;
 
-	player.SetMidiData(midiData);
-	std::set<uint32_t> playableTrackSet;
-
-	player.GetSimultaneouslyPlayableTracks(playableTrackSet);
-	player.SetTimeSeconds(0.0);
-	if (!player.BeginPlayback(playableTrackSet, error))
-		return false;
-
-	while (!player.NoMoreToPlay())
+	do
 	{
-		if (!player.ManagePlayback(error))
-			return false;
+		keyboard = Keyboard::Create();
+		if (!keyboard)
+		{
+			error.Add("Could not create keyboard!");
+			break;
+		}
 
-		// TODO: Maybe watch for key-presses here?  Should be able to pause, rewind, fastforward, and just stop.
-		// TODO: Print playback time periodically, but can you do it without introducing a newline each time?
+		if (!keyboard->Setup(keyboardError))
+		{
+			error.Add(keyboardError);
+			break;
+		}
+
+		player.SetMidiData(midiData);
+		std::set<uint32_t> playableTrackSet;
+
+		player.GetSimultaneouslyPlayableTracks(playableTrackSet);
+		player.SetTimeSeconds(0.0);
+		if (!player.BeginPlayback(playableTrackSet, error))
+			break;
+
+		printf("MIDI file should be playing now... (Press ESCAPE to exit prematurely.\n");
+
+		while (!player.NoMoreToPlay())
+		{
+			if (!player.ManagePlayback(error))
+				break;
+
+			if (!keyboard->Process(keyboardError))
+			{
+				error.Add(keyboardError);
+				break;
+			}
+
+			Keyboard::Event event;
+			if (keyboard->GetKeyboardEvent(event))
+				if (event.type == Keyboard::Event::Type::KEY_PRESSED && event.keyCode == (int32_t)Keyboard::Key::KEY_ESCAPE)
+					break;
+		}
+
+		if (error)
+			break;
+
+		if (!player.EndPlayback(error))
+			break;
+
+		success = true;
+	} while (false);
+
+	if (keyboard)
+	{
+		keyboard->Shutdown(keyboardError);
+		delete keyboard;
 	}
 
-	if (!player.EndPlayback(error))
-		return false;
-
-	return true;
+	return success;
 }
 
 bool PlayAudioData(AudioDataLib::AudioData* audioData, AudioDataLib::Error& error)
@@ -385,6 +425,7 @@ bool PlayAudioData(AudioDataLib::AudioData* audioData, AudioDataLib::Error& erro
 	SDLAudioPlayer player;
 	AudioSink audioSink(true, true);
 	Keyboard* keyboard = nullptr;
+	std::string keyboardError;
 
 	do
 	{
@@ -392,6 +433,12 @@ bool PlayAudioData(AudioDataLib::AudioData* audioData, AudioDataLib::Error& erro
 		if (!keyboard)
 		{
 			error.Add("Failed to create keyboard interface.");
+			break;
+		}
+
+		if (!keyboard->Setup(keyboardError))
+		{
+			error.Add(keyboardError);
 			break;
 		}
 
@@ -415,7 +462,10 @@ bool PlayAudioData(AudioDataLib::AudioData* audioData, AudioDataLib::Error& erro
 
 			std::string keyboardError;
 			if (!keyboard->Process(keyboardError))
+			{
 				error.Add(keyboardError);
+				break;
+			}
 
 			Keyboard::Event event;
 			if (keyboard->GetKeyboardEvent(event))
@@ -430,6 +480,12 @@ bool PlayAudioData(AudioDataLib::AudioData* audioData, AudioDataLib::Error& erro
 	} while (false);
 	
 	player.Shutdown(error);
+
+	if (keyboard)
+	{
+		keyboard->Shutdown(keyboardError);
+		delete keyboard;
+	}
 
 	return success;
 }
