@@ -98,10 +98,12 @@ bool RtMidiSynth::Shutdown(AudioDataLib::Error& error)
 
 void RtMidiSynth::Callback(double timeStamp, std::vector<unsigned char>* message)
 {
-	// TODO: What about the time-stamp?
 	Error error;
 	for (MidiSynth* synth : this->synthArray)
-		synth->ReceiveMessage((const uint8_t*)message->data(), message->size(), error);
+		synth->ReceiveMessage(timeStamp, (const uint8_t*)message->data(), message->size(), error);
+	
+	if (error)
+		fprintf(stderr, "%s\n\n", error.GetErrorMessage().c_str());
 }
 
 bool RtMidiSynth::Process(AudioDataLib::Error& error)
@@ -117,6 +119,10 @@ bool RtMidiSynth::Process(AudioDataLib::Error& error)
 		error.Add("MIDI port closed!");
 		return false;
 	}
+
+	for (MidiSynth* synth : this->synthArray)
+		if (!synth->GenerateAudio(error))
+			return false;
 
 	return true;
 }

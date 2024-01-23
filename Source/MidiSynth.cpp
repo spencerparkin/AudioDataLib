@@ -3,23 +3,26 @@
 
 using namespace AudioDataLib;
 
-MidiSynth::MidiSynth()
+MidiSynth::MidiSynth(bool ownsAudioStream)
 {
-	this->audioStreamOut = nullptr;
-}
-
-MidiSynth::MidiSynth(const AudioData::Format& format)
-{
-	this->audioStreamOut = new AudioStream();
-	this->audioStreamOut->SetFormat(format);
+	this->ownsAudioStream = ownsAudioStream;
+	this->audioStream = nullptr;
 }
 
 /*virtual*/ MidiSynth::~MidiSynth()
 {
-	delete this->audioStreamOut;
+	this->SetAudioStream(nullptr);
 }
 
-/*virtual*/ bool MidiSynth::ReceiveMessage(const uint8_t* message, uint64_t messageSize, Error& error)
+void MidiSynth::SetAudioStream(AudioStream* audioStream)
+{
+	if (this->ownsAudioStream)
+		delete this->audioStream;
+
+	this->audioStream = audioStream;
+}
+
+/*virtual*/ bool MidiSynth::ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize, Error& error)
 {
 	error.Add("Method not overridden.");
 	return false;

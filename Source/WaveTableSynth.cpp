@@ -3,16 +3,18 @@
 
 using namespace AudioDataLib;
 
-WaveTableSynth::WaveTableSynth(const AudioData::Format& format) : MidiSynth(format)
+WaveTableSynth::WaveTableSynth(bool ownsAudioStream, bool ownsSoundFontData) : MidiSynth(ownsAudioStream)
 {
+	this->ownsSoundFontData = ownsSoundFontData;
 	this->soundFontData = nullptr;
 }
 
 /*virtual*/ WaveTableSynth::~WaveTableSynth()
 {
+	this->SetSoundFontData(nullptr);
 }
 
-/*virtual*/ bool WaveTableSynth::ReceiveMessage(const uint8_t* message, uint64_t messageSize, Error& error)
+/*virtual*/ bool WaveTableSynth::ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize, Error& error)
 {
 	// TODO: Write this.
 	return false;
@@ -26,6 +28,9 @@ WaveTableSynth::WaveTableSynth(const AudioData::Format& format) : MidiSynth(form
 
 void WaveTableSynth::SetSoundFontData(SoundFontData* soundFontData)
 {
+	if (this->ownsSoundFontData)
+		delete this->soundFontData;
+
 	this->soundFontData = soundFontData;
 }
 

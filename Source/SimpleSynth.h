@@ -13,10 +13,10 @@ namespace AudioDataLib
 	class AUDIO_DATA_LIB_API SimpleSynth : public MidiSynth
 	{
 	public:
-		SimpleSynth(const AudioData::Format& format);
+		SimpleSynth(bool ownsAudioStream);
 		virtual ~SimpleSynth();
 
-		virtual bool ReceiveMessage(const uint8_t* message, uint64_t messageSize, Error& error) override;
+		virtual bool ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize, Error& error) override;
 		virtual bool GenerateAudio(Error& error) override;
 	};
 }

@@ -10,6 +10,8 @@
 #include "MidiFileFormat.h"
 #include "Keyboard.h"
 #include "Mutex.h"
+#include "SimpleSynth.h"
+#include "WaveTableSynth.h"
 #include <memory>
 #include <filesystem>
 
@@ -22,7 +24,8 @@ int main(int argc, char** argv)
 
 	parser.RegisterArg("play", 1, "Play the given file.  This can be a WAV or MIDI file.");
 	parser.RegisterArg("keyboard", 1, "Receive MIDI input from the given MIDI input port.  A MIDI keyboard is not necessarily connected to the port, but could be any MIDI device.");
-	parser.RegisterArg("synth", 0, "Synthesize MIDI input to the sound-card.");
+	parser.RegisterArg("synth", 1, "Synthesize MIDI input to the sound-card.  Use the given synth type: \"simple\", or \"wavetable\".");
+	parser.RegisterArg("soundfont", 1, "If using the \"wavetable\" synth, use this option to specify the sound-font file to use.");
 	parser.RegisterArg("record_midi", 1, "Record MIDI input to the given MIDI file.");
 	parser.RegisterArg("log_midi", 0, "Print MIDI input to the screen as it is given.");
 	parser.RegisterArg("record_wave", 1, "Record microphone input to the given WAV file.");
@@ -185,6 +188,7 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 	RtMidiSynth* synth = nullptr;
 	std::string recordedMidiFilePath;
 	Keyboard* keyboard = nullptr;
+	SDLAudioPlayer* player = nullptr;
 
 	do
 	{
@@ -246,11 +250,68 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 
 		if (parser.ArgGiven("synth"))
 		{
-			// TODO: Add synth that will send wave data to our SDLAudioPlayer class.
+			std::string synthType = parser.GetArgValue("synth", 0);
+
+			MidiSynth* midiSynth = nullptr;
+
+			if (synthType == "simple")
+			{
+				auto simpleSynth = new SimpleSynth(true);
+				synth->AddSynth(simpleSynth);
+				midiSynth = simpleSynth;
+			}
+			else if (synthType == "wavetable")
+			{
+				if (!parser.ArgGiven("soundfont"))
+				{
+					error.Add("Can't use \"wavetable\" synth type unless you also specify a sound-font.");
+					break;
+				}
+
+				std::string soundFontFile = parser.GetArgValue("soundfont", 0);
+				FileInputStream inputStream(soundFontFile.c_str());
+				SoundFontFormat soundFontFormat;
+
+				FileData* fileData = nullptr;
+				if (!soundFontFormat.ReadFromStream(inputStream, fileData, error))
+				{
+					error.Add("Failed to read file: " + soundFontFile);
+					break;
+				}
+
+				SoundFontData* soundFontData = dynamic_cast<SoundFontData*>(fileData);
+				if (!soundFontData)
+				{
+					error.Add("Expected sound font data; got something else!");
+					delete fileData;
+					break;
+				}
+
+				auto waveTableSynth = new WaveTableSynth(true, true);
+				waveTableSynth->SetSoundFontData(soundFontData);
+				synth->AddSynth(waveTableSynth);
+				midiSynth = waveTableSynth;
+			}
+
+			if (!midiSynth)
+			{
+				error.Add("Did not recognize: " + synthType);
+				break;
+			}
+
+			midiSynth->SetAudioStream(new ThreadSafeAudioStream(new StandardMutex(), true));
+
+			player = new SDLAudioPlayer();
+			player->SetAudioStream(midiSynth->GetAudioStream());
+
+			if (!player->Setup(error))
+			{
+				error.Add("Failed to setup SDL audio player!");
+				break;
+			}
 		}
 
 		std::string desiredPortName = parser.GetArgValue("keyboard", 0);
-
 		if (!synth->Setup(desiredPortName, error))
 		{
 			error.Add("MIDI input setup failed.");
@@ -291,6 +352,16 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 		keyboard->Shutdown(keyboardError);
 		delete keyboard;
 		keyboard = nullptr;
+	}
+
+	// Must shutdown the player before the synth so that the
+	// player doesn't get caught with a stale pointer.  Yes,
+	// I should probably be using shared pointers and the like.
+	if (player)
+	{
+		player->Shutdown(error);
+		delete player;
+		player = nullptr;
 	}
 
 	if (synth)

@@ -9,10 +9,10 @@ namespace AudioDataLib
 	class AUDIO_DATA_LIB_API WaveTableSynth : public MidiSynth
 	{
 	public:
-		WaveTableSynth(const AudioData::Format& format);
+		WaveTableSynth(bool ownsAudioStream, bool ownsSoundFontData);
 		virtual ~WaveTableSynth();
 
-		virtual bool ReceiveMessage(const uint8_t* message, uint64_t messageSize, Error& error) override;
+		virtual bool ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize, Error& error) override;
 		virtual bool GenerateAudio(Error& error) override;
 
 		void SetSoundFontData(SoundFontData* soundFontData);
@@ -20,5 +20,6 @@ namespace AudioDataLib
 
 	private:
 		SoundFontData* soundFontData;
+		bool ownsSoundFontData;
 	};
 }

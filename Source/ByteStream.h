@@ -139,7 +139,8 @@ namespace AudioDataLib
 	// This class by itself often acts, single-handedly, as the glue between
 	// this library and one that interfaces with the actual audio hardware.
 	// The low-level library will dicate the stream format, and then this library
-	// with accommodate that format.
+	// with accommodate that format.  The low-level library read from (or writes to)
+	// this stream while this library writes to (or reads from) it.
 	class AUDIO_DATA_LIB_API AudioStream : public ByteStream
 	{
 	public:

@@ -5,7 +5,7 @@
 
 using namespace AudioDataLib;
 
-SimpleSynth::SimpleSynth(const AudioData::Format& format) : MidiSynth(format)
+SimpleSynth::SimpleSynth(bool ownsAudioStream) : MidiSynth(ownsAudioStream)
 {
 }
 
@@ -15,11 +15,12 @@ SimpleSynth::SimpleSynth(const AudioData::Format& format) : MidiSynth(format)
 
 /*virtual*/ bool SimpleSynth::GenerateAudio(Error& error)
 {
-	return false;
+	// TODO: Make sure our audio/latency buffer is always full.
+	return true;
 }
 
 // TODO: All notes could work off the same oscillator mechanism so that there is no weird discontinuity in the wave-forms.
-/*virtual*/ bool SimpleSynth::ReceiveMessage(const uint8_t* message, uint64_t messageSize, Error& error)
+/*virtual*/ bool SimpleSynth::ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize, Error& error)
 {
 	MidiData::ChannelEvent channelEvent;
 	ReadOnlyBufferStream bufferStream(message, messageSize);

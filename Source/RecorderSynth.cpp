@@ -4,7 +4,7 @@
 
 using namespace AudioDataLib;
 
-RecorderSynth::RecorderSynth()
+RecorderSynth::RecorderSynth() : MidiSynth(false)
 {
 	this->midiData = nullptr;
 }
@@ -13,7 +13,7 @@ RecorderSynth::RecorderSynth()
 {
 }
 
-/*virtual*/ bool RecorderSynth::ReceiveMessage(const uint8_t* message, uint64_t messageSize, Error& error)
+/*virtual*/ bool RecorderSynth::ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize, Error& error)
 {
 	if (!this->midiData)
 	{
