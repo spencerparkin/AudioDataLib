@@ -105,7 +105,7 @@ void MidiData::Clear()
 	}
 
 	fprintf(fp, "Format type: %s\n", formatTypeStr);
-	fprintf(fp, "Num. tracks: %d\n", this->trackArray->size());
+	fprintf(fp, "Num. tracks: %d\n", uint32_t(this->trackArray->size()));
 	fprintf(fp, "Timing type: %s\n", timingTypeStr);
 
 	if (this->timing.type == Timing::Type::FRAMES_PER_SECOND)
@@ -120,7 +120,7 @@ void MidiData::Clear()
 	{
 		const Track* track = this->GetTrack(i);
 		fprintf(fp, "-----------------------------------\n");
-		fprintf(fp, "Track %d has %d events.\n", i, track->GetEventArray().size());
+		fprintf(fp, "Track %d has %d events.\n", i, uint32_t(track->GetEventArray().size()));
 
 		const MetaEvent* metaEvent = track->FindMetaEventOfType(MetaEvent::Type::INSTRUMENT_NAME);
 		if (metaEvent)

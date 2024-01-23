@@ -44,7 +44,7 @@ void SoundFontData::Clear()
 	fprintf(fp, "Tool: %s\n", this->generalInfo->soundFontToolRecord.c_str());
 	fprintf(fp, "Wavetable engine: %s\n", this->generalInfo->waveTableSoundEngine.c_str());
 	fprintf(fp, "Wavetable ROM: %s\n", this->generalInfo->waveTableSoundDataROM.c_str());
-	fprintf(fp, "Num pitches: %d\n", this->pitchDataArray->size());
+	fprintf(fp, "Num pitches: %d\n", uint32_t(this->pitchDataArray->size()));
 
 	for (const PitchData* pitchData : *this->pitchDataArray)
 	{
