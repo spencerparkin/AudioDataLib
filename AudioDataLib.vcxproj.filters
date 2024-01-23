@@ -97,6 +97,9 @@
     <ClInclude Include="Source\RecorderSynth.h">
       <Filter>Source\MIDI</Filter>
     </ClInclude>
+    <ClInclude Include="Source\SynthModule.h">
+      <Filter>Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\FileFormat.cpp">
@@ -173,6 +176,9 @@
     </ClCompile>
     <ClCompile Include="Source\RecorderSynth.cpp">
       <Filter>Source\MIDI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SynthModule.cpp">
+      <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -41,6 +41,7 @@
     <ClInclude Include="Source\SimpleSynth.h" />
     <ClInclude Include="Source\SoundFontData.h" />
     <ClInclude Include="Source\SoundFontFormat.h" />
+    <ClInclude Include="Source\SynthModule.h" />
     <ClInclude Include="Source\Timer.h" />
     <ClInclude Include="Source\WaveForm.h" />
     <ClInclude Include="Source\WaveFileFormat.h" />
@@ -68,6 +69,7 @@
     <ClCompile Include="Source\SimpleSynth.cpp" />
     <ClCompile Include="Source\SoundFontData.cpp" />
     <ClCompile Include="Source\SoundFontFormat.cpp" />
+    <ClCompile Include="Source\SynthModule.cpp" />
     <ClCompile Include="Source\Timer.cpp" />
     <ClCompile Include="Source\WaveForm.cpp" />
     <ClCompile Include="Source\WaveFileFormat.cpp" />
