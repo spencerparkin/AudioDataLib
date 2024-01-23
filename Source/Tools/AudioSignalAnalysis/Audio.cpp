@@ -73,7 +73,9 @@ WaveFormAudio::WaveFormAudio()
 		}
 		case AUDIO_LIST_COLUMN_SIZE:
 		{
-			return wxString::Format("%lld bytes", this->audioData->GetAudioBufferSize());
+			if (this->audioData)
+				return wxString::Format("%lld bytes", this->audioData->GetAudioBufferSize());
+			break;
 		}
 	}
 
@@ -165,7 +167,7 @@ void FrequencyGraphAudio::SetFrequencyGraph(AudioDataLib::FrequencyGraph* freque
 		}
 		case AUDIO_LIST_COLUMN_SIZE:
 		{
-			return wxString::Format("%d plots", this->frequencyGraph->GetPlotArray().size());
+			return wxString::Format("%d plots", uint32_t(this->frequencyGraph->GetPlotArray().size()));
 		}
 	}
 
