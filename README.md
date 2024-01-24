@@ -28,3 +28,39 @@ cmake ..
 
 The `CMakeLists.txt` files will need to be updated to point to your `wxWidgets` and `SDL` installations if building the tools.  If all you care about
 is the library, then it *should* build just fine as it only depends on the C++ standard library.
+
+## Usage
+
+You can do a lot of things with the library, but here's a quick example of just loading WAV file and then printing some info about it.
+
+```C++
+#include <WaveFileFormat.h>
+#include <AudioData.h>
+#include <ByteStream.h>
+#include <Error.h>
+#include <stdio.h>
+
+using namespace AudioDataLib;
+
+int main(int argc, char** argv)
+{
+    FileData* fileData = nullptr;
+    Error error;
+
+    FileInputStream inputStream("path/to/my_file.wav");
+
+    WaveFileFormat fileFormat;
+    fileFormat.ReadFromStream(inputStream, fileData, error);
+
+    auto audioData = dynamic_cast<AudioData*>(fileData);
+    if (audioData)
+        audioData->DumpInfo(stdout);
+
+    delete fileData;
+
+    return 0;
+}
+```
+
+My guess is that many will be put off my like of "modern style" and verbose API.  I also don't apologize for heavy use of OOP, which has come
+under a lot of attack in recent years.  And yes, I use explicit `this` everywhere in my code.  Sorry if that makes you gag.
