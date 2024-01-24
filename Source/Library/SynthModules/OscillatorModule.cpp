@@ -17,7 +17,7 @@ OscillatorModule::OscillatorModule()
 {
 	waveForm.Clear();
 
-	uint64_t numSamples = ::round(soundParams.durationSeconds * soundParams.samplesPerSecond);
+	uint64_t numSamples = ::floor(soundParams.durationSeconds * soundParams.samplesPerSecond);
 
 	switch (this->waveType)
 	{
@@ -26,7 +26,7 @@ OscillatorModule::OscillatorModule()
 			for (uint64_t i = 0; i < numSamples; i++)
 			{
 				WaveForm::Sample sample;
-				sample.timeSeconds = (double(i) / double(numSamples - 1)) * soundParams.durationSeconds;
+				sample.timeSeconds = (double(i) / double(numSamples)) * soundParams.durationSeconds;
 				sample.amplitude = soundParams.generalAmplitude * ::sin(2.0 * ADL_PI * (this->localTimeSeconds + sample.timeSeconds) * soundParams.generalFrequency);
 				waveForm.AddSample(sample);
 			}
@@ -37,7 +37,7 @@ OscillatorModule::OscillatorModule()
 			for (uint64_t i = 0; i < numSamples; i++)
 			{
 				WaveForm::Sample sample;
-				sample.timeSeconds = (double(i) / double(numSamples - 1)) * soundParams.durationSeconds;
+				sample.timeSeconds = (double(i) / double(numSamples)) * soundParams.durationSeconds;
 				sample.amplitude = ::sin(2.0 * ADL_PI * (this->localTimeSeconds + sample.timeSeconds) * soundParams.generalFrequency);
 				if (sample.amplitude >= 0.0)
 					sample.amplitude = soundParams.generalAmplitude;
@@ -52,7 +52,7 @@ OscillatorModule::OscillatorModule()
 			for (uint64_t i = 0; i < numSamples; i++)
 			{
 				WaveForm::Sample sample;
-				sample.timeSeconds = (double(i) / double(numSamples - 1)) * soundParams.durationSeconds;
+				sample.timeSeconds = (double(i) / double(numSamples)) * soundParams.durationSeconds;
 				double angle = ::fmod(2.0 * ADL_PI * (this->localTimeSeconds + sample.timeSeconds) * soundParams.generalFrequency, 2.0 * ADL_PI);
 				sample.amplitude = (1.0 - angle / ADL_PI) * soundParams.generalAmplitude;
 				waveForm.AddSample(sample);
