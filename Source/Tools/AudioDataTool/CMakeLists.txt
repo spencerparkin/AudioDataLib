@@ -17,6 +17,8 @@ set(TOOL_SOURCES
 
 set(SDL_ROOT "C:/ENG_DEV/driver/trunk/Main_8/apis/SDL2-2.28.5")
 
+source_group("Sources" TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${TOOL_SOURCES})
+
 add_executable(AudioDataTool ${TOOL_SOURCES})
 
 target_link_libraries(AudioDataTool PRIVATE
@@ -38,7 +40,7 @@ endif()
 if(WIN32)
     set_target_properties(AudioDataTool PROPERTIES
         VS_DEBUGGER_ENVIRONMENT "${AUGMENTED_PATH}"
-        VS_DEBUGGER_COMMAND_ARGUMENTS "--play GGMOZH.MID"
+        VS_DEBUGGER_COMMAND_ARGUMENTS "--keyboard \"AKM320 0\" --synth simple --log_midi"
         VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/TestData"
     )
 endif()

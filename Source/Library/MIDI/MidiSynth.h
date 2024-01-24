@@ -7,6 +7,7 @@
 namespace AudioDataLib
 {
 	class Error;
+	class SynthModule;
 
 	// This is the base class for all MIDI synthesizer implimentations and
 	// defines the interface that all such derivatives need to provide.
@@ -20,6 +21,7 @@ namespace AudioDataLib
 
 		virtual bool ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize, Error& error);
 		virtual bool GenerateAudio(Error& error);
+		virtual SynthModule* GetRootModule();
 		
 		void SetAudioStream(AudioStream* audioStream);
 		AudioStream* GetAudioStream() { return this->audioStream; }

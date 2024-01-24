@@ -15,6 +15,8 @@ set(APP_SOURCES
     Math2D.h
 )
 
+source_group("Sources" TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${APP_SOURCES})
+
 set(WX_WIDGETS_ROOT "E:/wxWidgets")
 
 if(WIN32)

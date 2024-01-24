@@ -24,8 +24,3 @@ RecorderSynth::RecorderSynth() : MidiSynth(false)
 	// TODO: Here we decode and put MIDI messages into a MidiData class with the appropriate time-stamps for later playback.
 	return true;
 }
-
-/*virtual*/ bool RecorderSynth::GenerateAudio(Error& error)
-{
-	return true;
-}

@@ -33,6 +33,15 @@ namespace AudioDataLib
 		SynthModule();
 		virtual ~SynthModule();
 
-		virtual bool GenerateSound(double timeSeconds, double samplesPerSecond, WaveForm& waveForm) = 0;
+		struct SoundParams
+		{
+			double durationSeconds;
+			double samplesPerSecond;
+			double generalFrequency;	// Frequency can very to add harmonics, tamber, and vibrato to the sound.
+			double generalAmplitude;	// Amplitude can very to add tromelo or tapering (trailing off) to the sound.
+			uint16_t channel;
+		};
+
+		virtual bool GenerateSound(const SoundParams& soundParams, WaveForm& waveForm) = 0;
 	};
 }

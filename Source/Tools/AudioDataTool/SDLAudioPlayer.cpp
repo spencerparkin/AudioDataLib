@@ -44,7 +44,7 @@ bool SDLAudioPlayer::Setup(Error& error)
 		printf("%d: %s\n", i + 1, audioDeviceName.c_str());
 	}
 
-	std::string chosenAudioDeviceName = SDL_GetAudioDeviceName(0, 0);		// TODO: Maybe let the user pick?
+	std::string chosenAudioDeviceName = SDL_GetAudioDeviceName(1, 0);		// TODO: Maybe let the user pick?
 	printf("\nChosen device: %s\n\n", chosenAudioDeviceName.c_str());
 
 	this->audioSpec.freq = 48000;

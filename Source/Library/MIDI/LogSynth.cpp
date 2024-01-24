@@ -45,8 +45,3 @@ LogSynth::LogSynth() : MidiSynth(false)
 	error.Clear();
 	return true;
 }
-
-/*virtual*/ bool LogSynth::GenerateAudio(Error& error)
-{
-	return true;
-}

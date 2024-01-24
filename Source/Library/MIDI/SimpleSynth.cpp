@@ -7,16 +7,18 @@ using namespace AudioDataLib;
 
 SimpleSynth::SimpleSynth(bool ownsAudioStream) : MidiSynth(ownsAudioStream)
 {
+	this->oscilatorModule = new OscillatorModule();
 }
 
 /*virtual*/ SimpleSynth::~SimpleSynth()
 {
+	delete oscilatorModule;
 }
 
-/*virtual*/ bool SimpleSynth::GenerateAudio(Error& error)
+/*virtual*/ SynthModule* SimpleSynth::GetRootModule()
 {
-	// TODO: Make sure our audio/latency buffer is always full.
-	return true;
+	// TODO: This is temporary until I can work out the bugs.  Ultimately we want to return a pitch mixer here.
+	return this->oscilatorModule;
 }
 
 /*virtual*/ bool SimpleSynth::ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize, Error& error)

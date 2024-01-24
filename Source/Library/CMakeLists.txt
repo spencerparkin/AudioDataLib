@@ -65,6 +65,8 @@ set(LIBRARY_SOURCES
     WaveForm.h
 )
 
+source_group("Sources" TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${LIBRARY_SOURCES})
+
 add_library(AudioDataLib SHARED
     ${LIBRARY_SOURCES}
 )

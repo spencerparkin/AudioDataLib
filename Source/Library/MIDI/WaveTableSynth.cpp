@@ -20,12 +20,6 @@ WaveTableSynth::WaveTableSynth(bool ownsAudioStream, bool ownsSoundFontData) : M
 	return false;
 }
 
-/*virtual*/ bool WaveTableSynth::GenerateAudio(Error& error)
-{
-	// TODO: Write this.
-	return false;
-}
-
 void WaveTableSynth::SetSoundFontData(SoundFontData* soundFontData)
 {
 	if (this->ownsSoundFontData)

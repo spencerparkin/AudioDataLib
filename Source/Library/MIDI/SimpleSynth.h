@@ -1,6 +1,7 @@
 #pragma once
 
 #include "MidiSynth.h"
+#include "OscillatorModule.h"
 
 namespace AudioDataLib
 {
@@ -17,6 +18,9 @@ namespace AudioDataLib
 		virtual ~SimpleSynth();
 
 		virtual bool ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize, Error& error) override;
-		virtual bool GenerateAudio(Error& error) override;
+		virtual SynthModule* GetRootModule() override;
+
+	private:
+		OscillatorModule* oscilatorModule;
 	};
 }

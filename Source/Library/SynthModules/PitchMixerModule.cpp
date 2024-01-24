@@ -10,7 +10,7 @@ PitchMixerModule::PitchMixerModule()
 {
 }
 
-/*virtual*/ bool PitchMixerModule::GenerateSound(double timeSeconds, double samplesPerSecond, WaveForm& waveForm)
+/*virtual*/ bool PitchMixerModule::GenerateSound(const SoundParams& soundParams, WaveForm& waveForm)
 {
 	return false;
 }

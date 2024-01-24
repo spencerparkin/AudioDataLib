@@ -24,6 +24,7 @@ cd AudioDataLib
 mkdir Build
 cd Build
 cmake ..
+cmake --build
 ```
 
 The `CMakeLists.txt` files will need to be updated to point to your `wxWidgets` and `SDL` installations if building the tools.  If all you care about

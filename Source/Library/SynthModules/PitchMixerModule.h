@@ -10,6 +10,6 @@ namespace AudioDataLib
 		PitchMixerModule();
 		virtual ~PitchMixerModule();
 
-		virtual bool GenerateSound(double timeSeconds, double samplesPerSecond, WaveForm& waveForm) override;
+		virtual bool GenerateSound(const SoundParams& soundParams, WaveForm& waveForm) override;
 	};
 }
