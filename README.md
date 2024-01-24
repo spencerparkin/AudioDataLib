@@ -52,9 +52,7 @@ int main(int argc, char** argv)
     WaveFileFormat fileFormat;
     fileFormat.ReadFromStream(inputStream, fileData, error);
 
-    auto audioData = dynamic_cast<AudioData*>(fileData);
-    if (audioData)
-        audioData->DumpInfo(stdout);
+    fileData->DumpInfo(stdout);
 
     delete fileData;
 
