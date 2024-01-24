@@ -60,5 +60,5 @@ int main(int argc, char** argv)
 }
 ```
 
-My guess is that many will be put off by my like of "modern style", and by my verbose API.  I also don't apologize for heavy use of *OOP*, which has come
+My guess is that many will be put off by my lack of "modern style", and by my verbose API.  I also don't apologize for heavy use of *OOP*, which has come
 under considerable attack in recent years.  And yes, I use explicit `this` everywhere in my code, because implicit `this` was just a bad idea.
