@@ -38,6 +38,12 @@ set(LIBRARY_SOURCES
     MIDI/SimpleSynth.h
     MIDI/WaveTableSynth.cpp
     MIDI/WaveTableSynth.h
+    SynthModules/OscillatorModule.cpp
+    SynthModules/OscillatorModule.h
+    SynthModules/PitchMixerModule.cpp
+    SynthModules/PitchMixerModule.h
+    SynthModules/SynthModule.cpp
+    SynthModules/SynthModule.h
     AudioSink.cpp
     AudioSink.h
     ByteStream.cpp
@@ -53,8 +59,6 @@ set(LIBRARY_SOURCES
     FrequencyGraph.h
     Mutex.cpp
     Mutex.h
-    SynthModule.cpp
-    SynthModule.h
     Timer.cpp
     Timer.h
     WaveForm.cpp
@@ -74,5 +78,6 @@ target_include_directories(AudioDataLib PUBLIC
     "FileFormats"
     "Math"
     "MIDI"
+    "SynthModules"
     "."
 )

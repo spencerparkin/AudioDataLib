@@ -33,6 +33,6 @@ namespace AudioDataLib
 		SynthModule();
 		virtual ~SynthModule();
 
-		virtual bool GenerateSound(double timeSeconds, WaveForm& waveForm) = 0;
+		virtual bool GenerateSound(double timeSeconds, double samplesPerSecond, WaveForm& waveForm) = 0;
 	};
 }

@@ -5,6 +5,8 @@ using namespace AudioDataLib;
 
 MidiSynth::MidiSynth(bool ownsAudioStream)
 {
+	this->minLatencySeconds = 0.05;
+	this->maxLatencySeconds = 0.10;
 	this->ownsAudioStream = ownsAudioStream;
 	this->audioStream = nullptr;
 }

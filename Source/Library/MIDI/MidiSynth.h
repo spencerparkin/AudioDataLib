@@ -31,5 +31,8 @@ namespace AudioDataLib
 
 		AudioStream* audioStream;
 		bool ownsAudioStream;
+
+		double minLatencySeconds;
+		double maxLatencySeconds;
 	};
 }
