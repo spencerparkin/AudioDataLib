@@ -31,8 +31,5 @@
 *.out
 *.app
 
-# Dev-Studio stuff
-.vs/
-Debug/
-Release/
-x64/
+# CMake build directory
+Build/

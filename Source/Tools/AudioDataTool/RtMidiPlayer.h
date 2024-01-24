@@ -1,7 +1,7 @@
 #pragma once
 
 #include "MidiPlayer.h"
-#include "ThirdParty/RtMidi/RtMidi.h"
+#include "RtMidi.h"
 
 class RtMidiPlayer : public AudioDataLib::MidiPlayer
 {

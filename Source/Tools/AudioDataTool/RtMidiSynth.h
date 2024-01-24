@@ -1,7 +1,7 @@
 #pragma once
 
 #include "MidiSynth.h"
-#include "ThirdParty/RtMidi/RtMidi.h"
+#include "RtMidi.h"
 #include "Error.h"
 
 class RtMidiSynth
