@@ -41,6 +41,9 @@ else()
     set(AUGMENTED_PATH "PATH=%PATH%;${SDL_ROOT}/lib/x86")
 endif()
 
+# Note: Right-click (in the CMake Targets View of Solution Explorer) on the executable target
+#       and choose "Add Debug Configuration".  This adds a launch.vs.json file which can be
+#       used to setup the following variables in an alternative way.
 if(WIN32)
     set_target_properties(AudioDataTool PROPERTIES
         VS_DEBUGGER_ENVIRONMENT "${AUGMENTED_PATH}"
