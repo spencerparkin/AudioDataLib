@@ -161,7 +161,11 @@ bool ChunkParser::Chunk::ParseStream(ReadOnlyBufferStream& inputStream, ChunkPar
 	if (!chunkParser->ParseChunkData(subInputStream, this, error))
 		return false;
 
-	inputStream.SetReadOffset(inputStream.GetReadOffset() + this->bufferSize);
+	if (!inputStream.SetReadOffset(inputStream.GetReadOffset() + this->bufferSize))
+	{
+		error.Add("Could not walk over data section of chunk.");
+		return false;
+	}
 
 	return true;
 }
