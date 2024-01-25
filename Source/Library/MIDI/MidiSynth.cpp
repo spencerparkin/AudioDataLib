@@ -65,16 +65,12 @@ void MidiSynth::SetAudioStream(AudioStream* audioStream)
 		if (!synthModule)
 			continue;
 
-		// A sub-module needs to be responsible for dictating general amplitude and frequency of the sound.
-		// The root module should not care about these parameters.  Some values here are chosen just for testing purposes.
-		SynthModule::SoundParams soundParams;
-		soundParams.durationSeconds = timeNeededSeconds;
-		soundParams.generalAmplitude = 0.5;
-		soundParams.generalFrequency = 440.0;
-		soundParams.samplesPerSecond = format.SamplesPerSecondPerChannel();
-
 		WaveForm waveForm;
-		synthModule->GenerateSound(soundParams, waveForm);
+		if (!synthModule->GenerateSound(timeNeededSeconds, format.SamplesPerSecondPerChannel(), waveForm, error))
+		{
+			error.Add(FormatString("Failed to generate wave-form for channel %d.", i));
+			break;
+		}
 
 		if (!waveForm.ConvertToAudioBuffer(format, audioBuffer, audioBufferSize, i, error))
 		{

@@ -10,7 +10,7 @@ namespace AudioDataLib
 		OscillatorModule();
 		virtual ~OscillatorModule();
 
-		virtual bool GenerateSound(const SoundParams& soundParams, WaveForm& waveForm) override;
+		virtual bool GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, Error& error) override;
 
 		enum WaveType
 		{
@@ -19,9 +19,19 @@ namespace AudioDataLib
 			SAWTOOTH
 		};
 
-	protected:
+		struct WaveParams
+		{
+			WaveType waveType;
+			double frequency;	// TODO: Maybe replace this with a function over time?
+			double amplitude;	// TODO: Maybe replace this with a function over time?
+		};
 
-		WaveType waveType;
-		double localTimeSeconds;
+		void SetWaveParams(const WaveParams& waveParams) { this->waveParams = waveParams; }
+		const WaveParams& GetWaveParams() const { return this->waveParams; }
+
+	protected:
+		
+		double lifeTimeSeconds;
+		WaveParams waveParams;
 	};
 }

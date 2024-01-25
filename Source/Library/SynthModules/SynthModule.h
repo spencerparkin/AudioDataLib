@@ -5,6 +5,7 @@
 namespace AudioDataLib
 {
 	class WaveForm;
+	class Error;
 
 	// These are the building-blocks of sound synthesis.  No matter what
 	// the module derivative does (e.g., filter, oscillate, mix, whatever),
@@ -33,14 +34,6 @@ namespace AudioDataLib
 		SynthModule();
 		virtual ~SynthModule();
 
-		struct SoundParams
-		{
-			double durationSeconds;
-			double samplesPerSecond;
-			double generalFrequency;	// Frequency can very to add harmonics, tamber, and vibrato to the sound.
-			double generalAmplitude;	// Amplitude can very to add tromelo or tapering (trailing off) to the sound.
-		};
-
-		virtual bool GenerateSound(const SoundParams& soundParams, WaveForm& waveForm) = 0;
+		virtual bool GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, Error& error) = 0;
 	};
 }

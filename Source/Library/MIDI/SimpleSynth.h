@@ -1,7 +1,7 @@
 #pragma once
 
 #include "MidiSynth.h"
-#include "OscillatorModule.h"
+#include "MixerModule.h"
 
 namespace AudioDataLib
 {
@@ -21,6 +21,6 @@ namespace AudioDataLib
 		virtual SynthModule* GetRootModule(uint16_t channel) override;
 
 	private:
-		OscillatorModule* oscilatorModule;
+		MixerModule* mixerModule;
 	};
 }

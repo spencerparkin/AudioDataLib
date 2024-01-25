@@ -40,10 +40,12 @@ set(LIBRARY_SOURCES
     MIDI/WaveTableSynth.h
     SynthModules/OscillatorModule.cpp
     SynthModules/OscillatorModule.h
-    SynthModules/PitchMixerModule.cpp
-    SynthModules/PitchMixerModule.h
+    SynthModules/MixerModule.cpp
+    SynthModules/MixerModule.h
     SynthModules/SynthModule.cpp
     SynthModules/SynthModule.h
+    SynthModules/FilterModule.cpp
+    SynthModules/FilterModule.h
     AudioSink.cpp
     AudioSink.h
     ByteStream.cpp

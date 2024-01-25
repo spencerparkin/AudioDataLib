@@ -1,5 +1,6 @@
 #include "SimpleSynth.h"
 #include "AudioSink.h"
+#include "OscillatorModule.h"
 #include "MidiData.h"
 #include "Error.h"
 
@@ -7,19 +8,20 @@ using namespace AudioDataLib;
 
 SimpleSynth::SimpleSynth(bool ownsAudioStream) : MidiSynth(ownsAudioStream)
 {
-	this->oscilatorModule = new OscillatorModule();
+	this->mixerModule = new MixerModule();
 }
 
 /*virtual*/ SimpleSynth::~SimpleSynth()
 {
-	delete oscilatorModule;
+	delete mixerModule;
 }
 
 /*virtual*/ SynthModule* SimpleSynth::GetRootModule(uint16_t channel)
 {
-	// TODO: This is temporary until I can work out the bugs.  Ultimately we want to return a pitch mixer here.
+	// TODO: Impliment stereo somehow?  For now, we output stereo in a mono form.
+	//       That is, we write channel 0, but leave channel 1 silent.
 	if(channel == 0)
-		return this->oscilatorModule;
+		return this->mixerModule;
 
 	return nullptr;
 }
@@ -46,14 +48,21 @@ SimpleSynth::SimpleSynth(bool ownsAudioStream) : MidiSynth(ownsAudioStream)
 			if (velocityValue == 0)
 			{
 				// This is the same as a NOTE_OFF event.
-				// TODO: Signal a note to taper off.
+				this->mixerModule->SetModule(uint32_t(pitchValue), nullptr);
 			}
 			else
 			{
 				double noteFrequency = this->MidiPitchToFrequency(pitchValue);
 				double noteVolume = this->MidiVelocityToAmplitude(velocityValue);
+				
+				OscillatorModule::WaveParams waveParams;
+				waveParams.amplitude = noteVolume;
+				waveParams.frequency = noteFrequency;
 
-				// TODO: Create a new note and start tracking it.
+				auto oscillatorModule = new OscillatorModule();
+				oscillatorModule->SetWaveParams(waveParams);
+
+				this->mixerModule->SetModule(uint32_t(pitchValue), oscillatorModule);
 			}			
 
 			break;
@@ -61,7 +70,12 @@ SimpleSynth::SimpleSynth(bool ownsAudioStream) : MidiSynth(ownsAudioStream)
 		case MidiData::ChannelEvent::NOTE_OFF:
 		{
 			uint8_t pitchValue = channelEvent.param1;
-			// TODO: Signal a note to taper off.
+			
+			// Note that in a more sophisticated implimentation, we would just signal some
+			// module in the dependency chain to taper-off the oscillator module according
+			// to some pre-configured curve.  But the simple-synth should be just that (simple)
+			// so that it can serve as a proof-of-concept for the whole system.
+			this->mixerModule->SetModule(uint32_t(pitchValue), nullptr);
 			
 			break;
 		}
