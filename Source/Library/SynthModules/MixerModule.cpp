@@ -52,7 +52,8 @@ void MixerModule::SetModule(uint32_t key, SynthModule* synthModule)
 		this->synthModuleMap->erase(iter);
 	}
 
-	this->synthModuleMap->insert(std::pair<uint32_t, SynthModule*>(key, synthModule));
+	if (synthModule != nullptr)
+		this->synthModuleMap->insert(std::pair<uint32_t, SynthModule*>(key, synthModule));
 }
 
 SynthModule* MixerModule::GetModule(uint32_t key)

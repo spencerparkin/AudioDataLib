@@ -56,6 +56,7 @@ SimpleSynth::SimpleSynth(bool ownsAudioStream) : MidiSynth(ownsAudioStream)
 				double noteVolume = this->MidiVelocityToAmplitude(velocityValue);
 				
 				OscillatorModule::WaveParams waveParams;
+				waveParams.waveType = OscillatorModule::WaveType::SINE;
 				waveParams.amplitude = noteVolume;
 				waveParams.frequency = noteFrequency;
 
