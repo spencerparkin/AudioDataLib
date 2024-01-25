@@ -27,6 +27,10 @@ target_link_libraries(AudioDataTool PRIVATE
     RtMidi
 )
 
+#set_target_properties(AudioDataTool PROPERTIES
+#    LINK_OPTIONS "/DELAYLOAD:SDL2.dll"
+#)
+
 target_include_directories(AudioDataTool PUBLIC "${SDL_ROOT}/include")
 
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -34,7 +38,7 @@ if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(AUGMENTED_PATH "PATH=%PATH%;${SDL_ROOT}/lib/x64")
 else()
     target_link_directories(AudioDataTool PUBLIC "$(SDL_ROOT}/lib/x86")
-    set(AUGMENTED_PATH "PATH=%PATH%;${SDL_ROOT}/lib/x64")
+    set(AUGMENTED_PATH "PATH=%PATH%;${SDL_ROOT}/lib/x86")
 endif()
 
 if(WIN32)
