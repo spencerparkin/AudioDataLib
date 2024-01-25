@@ -2,17 +2,19 @@
 #include "Error.h"
 #include "SynthModule.h"
 #include "WaveForm.h"
+#include "WaveFileFormat.h"
 
 using namespace AudioDataLib;
 
 MidiSynth::MidiSynth(bool ownsAudioStream)
 {
-	//this->minLatencySeconds = 0.05;
-	//this->maxLatencySeconds = 0.10;
-	this->minLatencySeconds = 1.0;
-	this->maxLatencySeconds = 2.0;
+	this->minLatencySeconds = 0.05;
+	this->maxLatencySeconds = 0.10;
 	this->ownsAudioStream = ownsAudioStream;
 	this->audioStream = nullptr;
+#ifdef ADL_DEBUG_SYNTH_AUDIO_STREAM
+	this->debugStream = nullptr;
+#endif //ADL_DEBUG_SYNTH_AUDIO_STREAM
 }
 
 /*virtual*/ MidiSynth::~MidiSynth()
@@ -36,8 +38,7 @@ void MidiSynth::SetAudioStream(AudioStream* audioStream)
 
 /*virtual*/ bool MidiSynth::GenerateAudio(Error& error)
 {
-	SynthModule* synthModule = this->GetRootModule();
-	if (!synthModule)
+	if (!this->audioStream)
 		return true;
 
 	if (this->maxLatencySeconds <= this->minLatencySeconds || this->minLatencySeconds <= 0.0)
@@ -56,9 +57,14 @@ void MidiSynth::SetAudioStream(AudioStream* audioStream)
 
 	uint64_t audioBufferSize = format.BytesFromSeconds(timeNeededSeconds);
 	uint8_t* audioBuffer = new uint8_t[audioBufferSize];
+	::memset(audioBuffer, 0, audioBufferSize);
 
 	for (uint16_t i = 0; i < format.numChannels; i++)
 	{
+		SynthModule* synthModule = this->GetRootModule(i);
+		if (!synthModule)
+			continue;
+
 		// A sub-module needs to be responsible for dictating general amplitude and frequency of the sound.
 		// The root module should not care about these parameters.  Some values here are chosen just for testing purposes.
 		SynthModule::SoundParams soundParams;
@@ -66,7 +72,6 @@ void MidiSynth::SetAudioStream(AudioStream* audioStream)
 		soundParams.generalAmplitude = 0.5;
 		soundParams.generalFrequency = 440.0;
 		soundParams.samplesPerSecond = format.SamplesPerSecondPerChannel();
-		soundParams.channel = i;
 
 		WaveForm waveForm;
 		synthModule->GenerateSound(soundParams, waveForm);
@@ -78,15 +83,44 @@ void MidiSynth::SetAudioStream(AudioStream* audioStream)
 		}
 	}
 
-	if(!error)
+	if (!error)
+	{
 		this->audioStream->WriteBytesToStream(audioBuffer, audioBufferSize);
+
+#ifdef ADL_DEBUG_SYNTH_AUDIO_STREAM
+		if (!this->debugStream)
+		{
+			this->debugStream = new AudioStream();
+			this->debugStream->SetFormat(this->audioStream->GetFormat());
+		}
+
+		this->debugStream->WriteBytesToStream(audioBuffer, audioBufferSize);
+
+		static bool dumpDebugStream = false;
+		if (dumpDebugStream)
+		{
+			AudioData debugData;
+			debugData.SetFormat(this->debugStream->GetFormat());
+			uint64_t debugDataSize = this->debugStream->GetSize();
+			debugData.SetAudioBufferSize(debugDataSize);
+			this->debugStream->ReadBytesFromStream(debugData.GetAudioBuffer(), debugDataSize);
+			FileOutputStream outputStream("Debug.wav");
+			WaveFileFormat fileFormat;
+			bool wroteFile = fileFormat.WriteToStream(outputStream, &debugData, error);
+			if (!wroteFile)
+			{
+				wroteFile = false;
+			}
+		}
+#endif //ADL_DEBUG_SYNTH_AUDIO_STREAM
+	}
 
 	delete[] audioBuffer;
 
 	return !error;
 }
 
-/*virtual*/ SynthModule* MidiSynth::GetRootModule()
+/*virtual*/ SynthModule* MidiSynth::GetRootModule(uint16_t channel)
 {
 	return nullptr;
 }

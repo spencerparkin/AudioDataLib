@@ -21,7 +21,7 @@ namespace AudioDataLib
 
 		virtual bool ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize, Error& error);
 		virtual bool GenerateAudio(Error& error);
-		virtual SynthModule* GetRootModule();
+		virtual SynthModule* GetRootModule(uint16_t channel);
 		
 		void SetAudioStream(AudioStream* audioStream);
 		AudioStream* GetAudioStream() { return this->audioStream; }
@@ -33,6 +33,10 @@ namespace AudioDataLib
 
 		AudioStream* audioStream;
 		bool ownsAudioStream;
+
+#ifdef ADL_DEBUG_SYNTH_AUDIO_STREAM
+		AudioStream* debugStream;
+#endif //ADL_DEBUG_SYNTH_AUDIO_STREAM
 
 		double minLatencySeconds;
 		double maxLatencySeconds;

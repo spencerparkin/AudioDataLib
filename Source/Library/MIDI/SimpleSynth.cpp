@@ -15,10 +15,13 @@ SimpleSynth::SimpleSynth(bool ownsAudioStream) : MidiSynth(ownsAudioStream)
 	delete oscilatorModule;
 }
 
-/*virtual*/ SynthModule* SimpleSynth::GetRootModule()
+/*virtual*/ SynthModule* SimpleSynth::GetRootModule(uint16_t channel)
 {
 	// TODO: This is temporary until I can work out the bugs.  Ultimately we want to return a pitch mixer here.
-	return this->oscilatorModule;
+	if(channel == 0)
+		return this->oscilatorModule;
+
+	return nullptr;
 }
 
 /*virtual*/ bool SimpleSynth::ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize, Error& error)
