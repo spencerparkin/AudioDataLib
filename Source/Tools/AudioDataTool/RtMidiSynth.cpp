@@ -36,8 +36,12 @@ bool RtMidiSynth::Setup(const std::string& desiredPortName, AudioDataLib::Error&
 
 	try
 	{
+		// Note that we do *not* make use of the message callback mechanism here,
+		// because our MIDI-synth objects are not thread-safe, nor do I think it
+		// is a good idea to try to make them thread-safe.  It's more efficient to
+		// just let RtMidi provide the main thread with MIDI messages over its own
+		// thread-safe queue, and to let us process those messages on the main thread.
 		this->midiIn = new RtMidiIn(RtMidi::Api::UNSPECIFIED, "AudioDataTool Client");
-		this->midiIn->setCallback(&RtMidiSynth::CallbackEntryPoint, this);
 
 		uint32_t portCount = this->midiIn->getPortCount();
 		uint32_t desiredPort = -1;
@@ -90,22 +94,6 @@ bool RtMidiSynth::Shutdown(AudioDataLib::Error& error)
 	return error;
 }
 
-/*static*/ void RtMidiSynth::CallbackEntryPoint(double timeStamp, std::vector<unsigned char>* message, void* userData)
-{
-	auto synth = reinterpret_cast<RtMidiSynth*>(userData);
-	synth->Callback(timeStamp, message);
-}
-
-void RtMidiSynth::Callback(double timeStamp, std::vector<unsigned char>* message)
-{
-	Error error;
-	for (MidiSynth* synth : this->synthArray)
-		synth->ReceiveMessage(timeStamp, (const uint8_t*)message->data(), message->size(), error);
-	
-	if (error)
-		fprintf(stderr, "%s\n\n", error.GetErrorMessage().c_str());
-}
-
 bool RtMidiSynth::Process(AudioDataLib::Error& error)
 {
 	if (!this->midiIn)
@@ -119,6 +107,13 @@ bool RtMidiSynth::Process(AudioDataLib::Error& error)
 		error.Add("MIDI port closed!");
 		return false;
 	}
+
+	std::vector<unsigned char> message;
+	double deltaTimeSeconds = this->midiIn->getMessage(&message);
+	if (message.size() > 0)
+		for (MidiSynth* synth : this->synthArray)
+			if (!synth->ReceiveMessage(deltaTimeSeconds, (const uint8_t*)message.data(), message.size(), error))
+				return false;
 
 	for (MidiSynth* synth : this->synthArray)
 		if (!synth->GenerateAudio(error))

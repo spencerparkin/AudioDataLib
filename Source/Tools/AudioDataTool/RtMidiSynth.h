@@ -19,10 +19,6 @@ public:
 
 private:
 
-	static void CallbackEntryPoint(double timeStamp, std::vector<unsigned char>* message, void* userData);
-
-	void Callback(double timeStamp, std::vector<unsigned char>* message);
-
 	RtMidiIn* midiIn;
 
 	std::vector<AudioDataLib::MidiSynth*> synthArray;
