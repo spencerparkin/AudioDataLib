@@ -133,7 +133,7 @@ WaveFileFormat::WaveFileFormat()
 		return false;
 	}
 
-	uint32_t riffChunkSize = (uint32_t)audioData->GetAudioBufferSize() + 34;
+	uint32_t riffChunkSize = (uint32_t)audioData->GetAudioBufferSize() + 36;
 	if (4 != outputStream.WriteBytesToStream((const uint8_t*)&riffChunkSize, 4))
 	{
 		error.Add("Could not write RIFF chunk size.");
