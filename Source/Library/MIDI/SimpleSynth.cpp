@@ -36,6 +36,11 @@ SimpleSynth::SimpleSynth(bool ownsAudioStream) : MidiSynth(ownsAudioStream)
 		return true;
 	}
 
+	// Note that we don't do anything with the channel info here, but
+	// in practice, we'd use this to select the instrument that will
+	// make the desired sound.  Also note that this term should not be
+	// confused with the same word that describes the parallel streams
+	// in an overall audio stream (for mono, stereo, etc.)
 	uint8_t channel = channelEvent.channel;
 
 	switch (channelEvent.type)
