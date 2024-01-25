@@ -123,14 +123,13 @@ void MidiSynth::SetAudioStream(AudioStream* audioStream)
 
 double MidiSynth::MidiPitchToFrequency(uint8_t pitchValue)
 {
-	// 56 = A  = 440
-	// 57 = A# = 440*2^{1/12}
-	// 58 = B  = 440*(2^{1/12})^2
-	// 59 = B# = 440*(2^{1/12))^3
-	// 60 = C  = 440*(2^{1/12))^4
+	// 57 = A  = 440
+	// 58 = A# = 440*2^{1/12}
+	// 59 = B  = 440*(2^{1/12})^2
+	// 60 = C  = 440*(2^{1/12))^3
 
 	constexpr double halfStepRatio = 1.0594630943592953;	// This is 2^{1/12}.
-	double exponent = double(int32_t(pitchValue) - 56);
+	double exponent = double(int32_t(pitchValue) - 57);
 	double factor = ::pow(halfStepRatio, exponent);
 	double frequency = 440.0 * factor;
 	return frequency;
