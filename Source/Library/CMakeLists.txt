@@ -38,6 +38,8 @@ set(LIBRARY_SOURCES
     MIDI/SimpleSynth.h
     MIDI/WaveTableSynth.cpp
     MIDI/WaveTableSynth.h
+    MIDI/SubtractiveSynth.cpp
+    MIDI/SubtractiveSynth.h
     SynthModules/OscillatorModule.cpp
     SynthModules/OscillatorModule.h
     SynthModules/MixerModule.cpp
