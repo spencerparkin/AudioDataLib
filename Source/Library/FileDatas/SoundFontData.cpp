@@ -48,12 +48,8 @@ void SoundFontData::Clear()
 
 	for (const PitchData* pitchData : *this->pitchDataArray)
 	{
-		Error error;
-		pitchData->CalcDominantFrequency(error);
-
 		fprintf(fp, "========================================\n");
 		fprintf(fp, "MIDI Pitch: %d\n", pitchData->GetMIDIPitch());
-		fprintf(fp, "Dominant Freq.: %f\n", pitchData->GetDomainantFrequency());
 		fprintf(fp, "Channels: %d\n", pitchData->GetNumLoopedAudioDatas());
 
 		for (uint32_t i = 0; i < pitchData->GetNumLoopedAudioDatas(); i++)
@@ -113,7 +109,6 @@ SoundFontData::LoopedAudioData::LoopedAudioData()
 SoundFontData::PitchData::PitchData()
 {
 	this->midiPitch = 0;
-	this->dominantFrequency = 0.0;
 	this->loopedAudioDataArray = new std::vector<LoopedAudioData*>();
 }
 
@@ -138,38 +133,4 @@ const SoundFontData::LoopedAudioData* SoundFontData::PitchData::GetLoopedAudioDa
 		return nullptr;
 
 	return (*this->loopedAudioDataArray)[i];
-}
-
-bool SoundFontData::PitchData::CalcDominantFrequency(Error& error) const
-{
-	std::vector<double> dominantFrequenciesByChannelArray;
-
-	for (const LoopedAudioData* audioData : *this->loopedAudioDataArray)
-	{
-		WaveForm waveForm;
-		if (!waveForm.ConvertFromAudioBuffer(audioData->GetFormat(), audioData->GetAudioBuffer(), audioData->GetAudioBufferSize(), 0, error))
-			return false;
-
-		double dominantFrequency = 0.0;
-		if (!waveForm.CalcDominantFrequency(dominantFrequency, error))
-			return false;
-
-		dominantFrequenciesByChannelArray.push_back(dominantFrequency);
-	}
-	
-	if (dominantFrequenciesByChannelArray.size() == 0)
-	{
-		error.Add("Was unable to calculate the dominant frequency for any channel.");
-		return false;
-	}
-
-	double averageFrequency = 0.0;
-	for (double frequency : dominantFrequenciesByChannelArray)
-		averageFrequency += frequency;
-
-	averageFrequency /= double(dominantFrequenciesByChannelArray.size());
-
-	this->dominantFrequency = averageFrequency;
-
-	return true;
 }

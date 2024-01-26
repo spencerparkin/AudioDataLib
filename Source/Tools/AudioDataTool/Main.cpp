@@ -11,7 +11,7 @@
 #include "Keyboard.h"
 #include "Mutex.h"
 #include "SimpleSynth.h"
-#include "WaveTableSynth.h"
+#include "SampleBasedSynth.h"
 #include <memory>
 #include <filesystem>
 
@@ -24,8 +24,8 @@ int main(int argc, char** argv)
 
 	parser.RegisterArg("play", 1, "Play the given file.  This can be a WAV or MIDI file.");
 	parser.RegisterArg("keyboard", 1, "Receive MIDI input from the given MIDI input port.  A MIDI keyboard is not necessarily connected to the port, but could be any MIDI device.");
-	parser.RegisterArg("synth", 1, "Synthesize MIDI input to the sound-card.  Use the given synth type: \"simple\", or \"wavetable\".");
-	parser.RegisterArg("soundfont", 1, "If using the \"wavetable\" synth, use this option to specify the sound-font file to use.");
+	parser.RegisterArg("synth", 1, "Synthesize MIDI input to the sound-card.  Use the given synth type: \"simple\", or \"sample\".");
+	parser.RegisterArg("soundfont", 1, "If using the \"sample\" synth, use this option to specify the sound-font file to use.");
 	parser.RegisterArg("record_midi", 1, "Record MIDI input to the given MIDI file.");
 	parser.RegisterArg("log_midi", 0, "Print MIDI input to the screen as it is given.");
 	parser.RegisterArg("record_wave", 1, "Record microphone input to the given WAV file.");
@@ -260,11 +260,11 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 				synth->AddSynth(simpleSynth);
 				midiSynth = simpleSynth;
 			}
-			else if (synthType == "wavetable")
+			else if (synthType == "sample")
 			{
 				if (!parser.ArgGiven("soundfont"))
 				{
-					error.Add("Can't use \"wavetable\" synth type unless you also specify a sound-font.");
+					error.Add("Can't use \"sample\" synth type unless you also specify a sound-font.");
 					break;
 				}
 
@@ -287,10 +287,10 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 					break;
 				}
 
-				auto waveTableSynth = new WaveTableSynth(true, true);
-				waveTableSynth->SetSoundFontData(soundFontData);
-				synth->AddSynth(waveTableSynth);
-				midiSynth = waveTableSynth;
+				auto sampleBasedSynth = new SampleBasedSynth(true, true);
+				sampleBasedSynth->SetSoundFontData(soundFontData);
+				synth->AddSynth(sampleBasedSynth);
+				midiSynth = sampleBasedSynth;
 			}
 
 			if (!midiSynth)

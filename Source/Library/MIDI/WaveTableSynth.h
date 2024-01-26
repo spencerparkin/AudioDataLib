@@ -13,12 +13,5 @@ namespace AudioDataLib
 		virtual ~WaveTableSynth();
 
 		virtual bool ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize, Error& error) override;
-
-		void SetSoundFontData(SoundFontData* soundFontData);
-		SoundFontData* GetSoundFontData();
-
-	private:
-		SoundFontData* soundFontData;
-		bool ownsSoundFontData;
 	};
 }

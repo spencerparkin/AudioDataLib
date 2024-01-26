@@ -40,6 +40,8 @@ set(LIBRARY_SOURCES
     MIDI/WaveTableSynth.h
     MIDI/SubtractiveSynth.cpp
     MIDI/SubtractiveSynth.h
+    MIDI/SampleBasedSynth.cpp
+    MIDI/SampleBasedSynth.h
     SynthModules/OscillatorModule.cpp
     SynthModules/OscillatorModule.h
     SynthModules/MixerModule.cpp
@@ -48,6 +50,10 @@ set(LIBRARY_SOURCES
     SynthModules/SynthModule.h
     SynthModules/FilterModule.cpp
     SynthModules/FilterModule.h
+    SynthModules/SoundFontModule.cpp
+    SynthModules/SoundFontModule.h
+    SynthModules/ArticulationModule.cpp
+    SynthModules/ArticulationModule.h
     AudioSink.cpp
     AudioSink.h
     ByteStream.cpp
