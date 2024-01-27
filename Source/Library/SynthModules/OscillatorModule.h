@@ -22,8 +22,8 @@ namespace AudioDataLib
 		struct WaveParams
 		{
 			WaveType waveType;
-			double frequency;	// TODO: Maybe replace this with a function over time?
-			double amplitude;	// TODO: Maybe replace this with a function over time?
+			double frequency;	// TODO: Maybe replace this with a function over time?  (LFO for verbrato?)
+			double amplitude;	// TODO: Maybe replace this with a function over time?	(LFO for tromelo?)
 		};
 
 		void SetWaveParams(const WaveParams& waveParams) { this->waveParams = waveParams; }

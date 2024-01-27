@@ -50,10 +50,14 @@ set(LIBRARY_SOURCES
     SynthModules/SynthModule.h
     SynthModules/FilterModule.cpp
     SynthModules/FilterModule.h
-    SynthModules/SoundFontModule.cpp
-    SynthModules/SoundFontModule.h
     SynthModules/ArticulationModule.cpp
     SynthModules/ArticulationModule.h
+    SynthModules/PitchShiftModule.cpp
+    SynthModules/PitchShiftModule.h
+    SynthModules/LoopedAudioModule.cpp
+    SynthModules/LoopedAudioModule.h
+    SynthModules/InterpolationModule.cpp
+    SynthModules/InterpolationModule.h
     AudioSink.cpp
     AudioSink.h
     ByteStream.cpp

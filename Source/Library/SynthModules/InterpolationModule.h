@@ -4,17 +4,15 @@
 
 namespace AudioDataLib
 {
-	class SoundFontData;
-
-	class AUDIO_DATA_LIB_API SoundFontModule : public SynthModule
+	class AUDIO_DATA_LIB_API InterpolationModule : public SynthModule
 	{
 	public:
-		SoundFontModule();
-		virtual ~SoundFontModule();
+		InterpolationModule();
+		virtual ~InterpolationModule();
 
 		virtual bool GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, Error& error) override;
 
-	private:
-		SoundFontData* soundFontData;
+		SynthModule* dependentModuleA;
+		SynthModule* dependentModuleB;
 	};
 }

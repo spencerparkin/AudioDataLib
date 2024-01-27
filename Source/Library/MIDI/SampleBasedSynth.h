@@ -24,5 +24,7 @@ namespace AudioDataLib
 		// TODO: Track which instruments are assigned to which MIDI channels.
 		//       Respond to program change events, if possible.  Should be a
 		//       way to assign instruments to channels using the command-line.
+
+		// TODO: Own mapping from channel to sound-font data.
 	};
 }

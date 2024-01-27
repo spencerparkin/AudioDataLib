@@ -16,5 +16,6 @@ ArticulationModule::ArticulationModule()
 	//       Can a similar thing be done to modulate pitch by up- or down-sampling the dependent module's wave-form?  (Vibrato.)
 	//       The up- or down-sampling is not uniform, it oscillates back and forth over time so that the pitch oscillates.
 	//       This would not be desirable with pre-recorded sound that already has vibrato baked into it.
+	//       A better way to do vibrato may be by running the frequency through an LFO.
 	return false;
 }
