@@ -16,7 +16,7 @@ namespace AudioDataLib
 
 		void Clear();
 
-		bool FromWaveForm(const WaveForm& waveForm, Error& error);
+		bool FromWaveForm(const WaveForm& waveForm, uint32_t numSamples, Error& error);
 		bool ToWaveForm(WaveForm& waveForm, Error& error) const;
 
 		struct Plot
@@ -27,7 +27,7 @@ namespace AudioDataLib
 
 		const std::vector<Plot>& GetPlotArray() const { return *this->plotArray; }
 
-		double FindDominantFrequency() const;
+		double FindDominantFrequency(double* dominantStrength = nullptr) const;
 
 	protected:
 		

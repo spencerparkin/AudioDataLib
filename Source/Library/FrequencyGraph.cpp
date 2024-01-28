@@ -20,7 +20,7 @@ void FrequencyGraph::Clear()
 	this->plotArray->clear();
 }
 
-bool FrequencyGraph::FromWaveForm(const WaveForm& waveForm, Error& error)
+bool FrequencyGraph::FromWaveForm(const WaveForm& waveForm, uint32_t numSamples, Error& error)
 {
 	this->Clear();
 
@@ -30,7 +30,11 @@ bool FrequencyGraph::FromWaveForm(const WaveForm& waveForm, Error& error)
 	double endTimeSeconds = waveForm.GetEndTime();
 	double durationTimeSeconds = endTimeSeconds - startTimeSeconds;
 
-	uint32_t numSamples = 4096;
+	if ((numSamples & (numSamples - 1)) != 0)
+	{
+		error.Add("The given number of samples must be a power of 2.");
+		return false;
+	}
 
 	for (uint32_t i = 0; i < numSamples; i++)
 	{
@@ -62,21 +66,20 @@ bool FrequencyGraph::ToWaveForm(WaveForm& waveForm, Error& error) const
 	return false;
 }
 
-double FrequencyGraph::FindDominantFrequency() const
+double FrequencyGraph::FindDominantFrequency(double* dominantStrength /*= nullptr*/) const
 {
-	double maxStrength = 0.0;
-	double dominantFrequency = 0.0;
+	Plot dominantPlot{ 0.0, 0.0 };
 
 	// I'm not sure why the graph is always symmetric about the center.  I really need a better handle on the math here.
 	for (uint32_t i = 0; i < this->plotArray->size() / 2; i++)
 	{
 		const Plot& plot = (*this->plotArray)[i];
-		if (plot.strength > maxStrength)
-		{
-			maxStrength = plot.strength;
-			dominantFrequency = plot.frequency;
-		}
+		if (plot.strength > dominantPlot.strength)
+			dominantPlot = plot;
 	}
 
-	return dominantFrequency;
+	if (dominantStrength)
+		*dominantStrength = dominantPlot.strength;
+
+	return dominantPlot.frequency;
 }

@@ -143,7 +143,8 @@ const SoundFontData::LoopedAudioData* SoundFontData::PitchData::GetLoopedAudioDa
 
 bool SoundFontData::PitchData::CalcAnalyticalPitch(Error& error) const
 {
-	std::vector<double> pitchArray;
+	this->analyticalPitch = 0.0;
+	double maxStrength = 0.0;
 
 	for (const LoopedAudioData* audioData : *this->loopedAudioDataArray)
 	{
@@ -151,17 +152,20 @@ bool SoundFontData::PitchData::CalcAnalyticalPitch(Error& error) const
 		if (!waveForm.ConvertFromAudioBuffer(audioData->GetFormat(), audioData->GetAudioBuffer(), audioData->GetAudioBufferSize(), 0, error))
 			return false;
 
+		// The more samples we use, the more accurate our result, I believe.
 		FrequencyGraph frequencyGraph;
-		if (!frequencyGraph.FromWaveForm(waveForm, error))
+		if (!frequencyGraph.FromWaveForm(waveForm, 8192, error))
 			return false;
 
-		pitchArray.push_back(frequencyGraph.FindDominantFrequency());
+		double strength = 0.0;
+		double frequency = frequencyGraph.FindDominantFrequency(&strength);
+
+		if (strength > maxStrength)
+		{
+			maxStrength = strength;
+			this->analyticalPitch = frequency;
+		}
 	}
-
-	this->analyticalPitch = 0.0;
-	for (double dominantFrequency : pitchArray)
-		this->analyticalPitch += dominantFrequency;
-
-	this->analyticalPitch /= double(pitchArray.size());
+	
 	return true;
 }
