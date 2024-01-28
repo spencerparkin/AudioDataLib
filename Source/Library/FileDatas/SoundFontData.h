@@ -89,6 +89,9 @@ namespace AudioDataLib
 			uint32_t GetNumLoopedAudioDatas() const { return this->loopedAudioDataArray->size(); }
 			const LoopedAudioData* GetLoopedAudioData(uint32_t i) const;
 
+			bool CalcAnalyticalPitch(Error& error) const;
+			double GetAnalyticalPitch() const { return this->analyticalPitch; }
+
 		protected:
 
 			// This is looped audio data, one for each channel.  The channels are
@@ -99,6 +102,8 @@ namespace AudioDataLib
 			// This is typically zero, maybe because the application is expected
 			// to deduce the general frequency of the font sample itself?
 			uint8_t midiPitch;
+
+			mutable double analyticalPitch;
 		};
 
 		const GeneralInfo& GetGeneralInfo() const { return *this->generalInfo; }

@@ -27,7 +27,7 @@ namespace AudioDataLib
 
 		const std::vector<Plot>& GetPlotArray() const { return *this->plotArray; }
 
-		// TODO: Add methods here for picking out the spikes or dominant frequencies.
+		double FindDominantFrequency() const;
 
 	protected:
 		

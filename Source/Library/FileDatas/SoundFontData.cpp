@@ -1,5 +1,6 @@
 #include "SoundFontData.h"
 #include "WaveForm.h"
+#include "FrequencyGraph.h"
 #include "Error.h"
 
 using namespace AudioDataLib;
@@ -48,8 +49,12 @@ void SoundFontData::Clear()
 
 	for (const PitchData* pitchData : *this->pitchDataArray)
 	{
+		Error error;
+		pitchData->CalcAnalyticalPitch(error);
+
 		fprintf(fp, "========================================\n");
 		fprintf(fp, "MIDI Pitch: %d\n", pitchData->GetMIDIPitch());
+		fprintf(fp, "Analytical pitch: %f\n", pitchData->GetAnalyticalPitch());
 		fprintf(fp, "Channels: %d\n", pitchData->GetNumLoopedAudioDatas());
 
 		for (uint32_t i = 0; i < pitchData->GetNumLoopedAudioDatas(); i++)
@@ -110,6 +115,7 @@ SoundFontData::PitchData::PitchData()
 {
 	this->midiPitch = 0;
 	this->loopedAudioDataArray = new std::vector<LoopedAudioData*>();
+	this->analyticalPitch = 0.0;
 }
 
 /*virtual*/ SoundFontData::PitchData::~PitchData()
@@ -133,4 +139,29 @@ const SoundFontData::LoopedAudioData* SoundFontData::PitchData::GetLoopedAudioDa
 		return nullptr;
 
 	return (*this->loopedAudioDataArray)[i];
+}
+
+bool SoundFontData::PitchData::CalcAnalyticalPitch(Error& error) const
+{
+	std::vector<double> pitchArray;
+
+	for (const LoopedAudioData* audioData : *this->loopedAudioDataArray)
+	{
+		WaveForm waveForm;
+		if (!waveForm.ConvertFromAudioBuffer(audioData->GetFormat(), audioData->GetAudioBuffer(), audioData->GetAudioBufferSize(), 0, error))
+			return false;
+
+		FrequencyGraph frequencyGraph;
+		if (!frequencyGraph.FromWaveForm(waveForm, error))
+			return false;
+
+		pitchArray.push_back(frequencyGraph.FindDominantFrequency());
+	}
+
+	this->analyticalPitch = 0.0;
+	for (double dominantFrequency : pitchArray)
+		this->analyticalPitch += dominantFrequency;
+
+	this->analyticalPitch /= double(pitchArray.size());
+	return true;
 }

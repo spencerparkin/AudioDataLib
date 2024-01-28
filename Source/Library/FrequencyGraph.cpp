@@ -61,3 +61,22 @@ bool FrequencyGraph::ToWaveForm(WaveForm& waveForm, Error& error) const
 	error.Add("Not yet implimented.");
 	return false;
 }
+
+double FrequencyGraph::FindDominantFrequency() const
+{
+	double maxStrength = 0.0;
+	double dominantFrequency = 0.0;
+
+	// I'm not sure why the graph is always symmetric about the center.  I really need a better handle on the math here.
+	for (uint32_t i = 0; i < this->plotArray->size() / 2; i++)
+	{
+		const Plot& plot = (*this->plotArray)[i];
+		if (plot.strength > maxStrength)
+		{
+			maxStrength = plot.strength;
+			dominantFrequency = plot.frequency;
+		}
+	}
+
+	return dominantFrequency;
+}
