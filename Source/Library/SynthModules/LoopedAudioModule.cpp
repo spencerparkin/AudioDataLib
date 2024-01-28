@@ -82,8 +82,8 @@ bool LoopedAudioModule::UseLoopedAudioData(const SoundFontData::LoopedAudioData*
 
 	double totalTimeSeconds = loopedAudioData->GetTimeSeconds();
 
-	this->startTimeSeconds = format.BytesPerChannelToSeconds(loopedAudioData->GetLoop().startFrame);
-	this->endTimeSeconds = format.BytesPerChannelToSeconds(loopedAudioData->GetLoop().endFrame);
+	this->startTimeSeconds = format.BytesPerChannelToSeconds(loopedAudioData->GetLoop().startFrame * format.BytesPerFrame());
+	this->endTimeSeconds = format.BytesPerChannelToSeconds(loopedAudioData->GetLoop().endFrame * format.BytesPerFrame());
 
 	if (this->startTimeSeconds >= this->endTimeSeconds || this->startTimeSeconds < 0.0 || this->endTimeSeconds < 0.0)
 	{
