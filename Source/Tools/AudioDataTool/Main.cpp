@@ -25,7 +25,7 @@ int main(int argc, char** argv)
 	parser.RegisterArg("play", 1, "Play the given file.  This can be a WAV or MIDI file.");
 	parser.RegisterArg("keyboard", 1, "Receive MIDI input from the given MIDI input port.  A MIDI keyboard is not necessarily connected to the port, but could be any MIDI device.");
 	parser.RegisterArg("synth", 1, "Synthesize MIDI input to the sound-card.  Use the given synth type: \"simple\", or \"sample\".");
-	parser.RegisterArg("soundfont", 1, "If using the \"sample\" synth, use this option to specify the sound-font file to use.");
+	parser.RegisterArg("soundfont", 2, "If using the \"sample\" synth, use this option to specify the sound-font to use on the given channel.");
 	parser.RegisterArg("record_midi", 1, "Record MIDI input to the given MIDI file.");
 	parser.RegisterArg("log_midi", 0, "Print MIDI input to the screen as it is given.");
 	parser.RegisterArg("record_wave", 1, "Record microphone input to the given WAV file.");
@@ -195,7 +195,7 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 		// No, this isn't the keyboard we're playing with.
 		// This is the computer keyboard that we'll need to exit our processing loop.
 		// We're not necessarily playing with a MIDI keyboard here.  We're playing
-		// withany MIDI input device.
+		// with any MIDI input device.
 		keyboard = Keyboard::Create();
 		if (!keyboard)
 		{
@@ -268,7 +268,15 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 					break;
 				}
 
-				std::string soundFontFile = parser.GetArgValue("soundfont", 0);
+				std::string channelStr = parser.GetArgValue("soundfont", 0);
+				uint16_t channel = ::atoi(channelStr.c_str());
+				if (channel < 1 || channel > 16)
+				{
+					error.Add("Channel argument must be in [1,16].");
+					break;
+				}
+
+				std::string soundFontFile = parser.GetArgValue("soundfont", 1);
 				FileInputStream inputStream(soundFontFile.c_str());
 				SoundFontFormat soundFontFormat;
 
@@ -288,7 +296,7 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 				}
 
 				auto sampleBasedSynth = new SampleBasedSynth(true, true);
-				sampleBasedSynth->SetSoundFontData(soundFontData);
+				sampleBasedSynth->SetSoundFontData(channel, soundFontData);
 				synth->AddSynth(sampleBasedSynth);
 				midiSynth = sampleBasedSynth;
 			}

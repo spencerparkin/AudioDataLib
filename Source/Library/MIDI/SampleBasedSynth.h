@@ -5,6 +5,7 @@
 namespace AudioDataLib
 {
 	class SoundFontData;
+	class LoopedAudioModule;
 
 	class AUDIO_DATA_LIB_API SampleBasedSynth : public MidiSynth
 	{
@@ -13,18 +14,20 @@ namespace AudioDataLib
 		virtual ~SampleBasedSynth();
 
 		virtual bool ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize, Error& error) override;
+		virtual SynthModule* GetRootModule(uint16_t channel) override;
 
-		void SetSoundFontData(SoundFontData* soundFontData);
-		SoundFontData* GetSoundFontData();
+		void SetSoundFontData(uint16_t channel, SoundFontData* soundFontData);
+		SoundFontData* GetSoundFontData(uint16_t channel);
+
+		void Clear();
 
 	private:
-		SoundFontData* soundFontData;
 		bool ownsSoundFontData;
 
-		// TODO: Track which instruments are assigned to which MIDI channels.
-		//       Respond to program change events, if possible.  Should be a
-		//       way to assign instruments to channels using the command-line.
+		typedef std::map<uint16_t, SoundFontData*> SoundFontMap;
+		SoundFontMap* soundFontMap;
 
-		// TODO: Own mapping from channel to sound-font data.
+		// TODO: This is just temporary.  Replace this with a mixer module when ready.
+		LoopedAudioModule* loopedAudioModule;
 	};
 }

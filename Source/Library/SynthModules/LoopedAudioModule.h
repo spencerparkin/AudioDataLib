@@ -2,6 +2,7 @@
 
 #include "SynthModule.h"
 #include "SoundFontData.h"
+#include "WaveForm.h"
 
 namespace AudioDataLib
 {
@@ -13,6 +14,14 @@ namespace AudioDataLib
 
 		virtual bool GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, Error& error) override;
 
-		SoundFontData::LoopedAudioData* loopedAudioData;
+		bool UseLoopedAudioData(const SoundFontData::LoopedAudioData* loopedAudioData, uint16_t channel, Error& error);
+
+	private:
+		WaveForm* loopedWaveForm;
+		double startTimeSeconds;
+		double endTimeSeconds;
+		double localTimeSeconds;
+		// NOTE: Some are supposed to fade out, and then we return true for CantGiveAnymoreAudio(); e.g., a piano key.
+		//       Others, like an organ or the basoon, can play indefinitely.
 	};
 }
