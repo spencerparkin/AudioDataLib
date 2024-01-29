@@ -160,6 +160,11 @@ double ComplexNumber::Magnitude() const
 	return ::sqrt(this->SquareMagnitude());
 }
 
+double ComplexNumber::Angle() const
+{
+	return ::atan2(this->imagPart, this->realPart);
+}
+
 namespace AudioDataLib
 {
 	ComplexNumber operator+(const ComplexNumber& complexNumberA, const ComplexNumber& complexNumberB)

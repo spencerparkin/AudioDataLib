@@ -179,7 +179,6 @@ bool SoundFontData::PitchData::CalcAnalyticalPitch(Error& error) const
 			return false;
 #endif
 
-		// The more samples we use, the more accurate our result, I believe.
 		FrequencyGraph frequencyGraph;
 		if (!frequencyGraph.FromWaveForm(waveForm, 8192, error))
 			return false;

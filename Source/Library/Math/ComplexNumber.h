@@ -38,6 +38,7 @@ namespace AudioDataLib
 
 		double SquareMagnitude() const;
 		double Magnitude() const;
+		double Angle() const;
 
 		double realPart, imagPart;
 	};

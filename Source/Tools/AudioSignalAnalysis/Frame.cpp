@@ -88,12 +88,15 @@ void Frame::OnGenerateFrequencyGraph(wxCommandEvent& event)
 	const WaveForm* waveForm = waveFormAudio->GetWaveForm();
 	FrequencyGraph* frequencyGraph = new FrequencyGraph();
 	Error error;
-	if (!frequencyGraph->FromWaveForm(*waveForm, 8192, error))
+	if (!frequencyGraph->FromWaveForm(*waveForm, 16384, error))
 	{
 		wxMessageBox(error.GetErrorMessage(), "Error!", wxICON_ERROR | wxOK, this);
 		delete frequencyGraph;
 		return;
 	}
+
+	double dominantFrequency = frequencyGraph->FindDominantFrequency();
+	wxMessageBox(wxString::Format("Dominant frequency is %f Hz.", dominantFrequency), "Frequency", wxICON_INFORMATION | wxOK, this);
 
 	FrequencyGraphAudio* frequencyAudio = new FrequencyGraphAudio();
 	frequencyAudio->SetFrequencyGraph(frequencyGraph);
@@ -193,10 +196,10 @@ void Frame::OnMakeSound(wxCommandEvent& event)
 	WaveFormAudio* audio = new WaveFormAudio();
 	WaveForm* waveForm = new WaveForm();
 
-	uint32_t numSamples = 4098;
+	uint32_t numSamples = 16384;
 	double frequencyAHz = double(numberDialogA.GetValue());
 	double frequencyBHz = double(numberDialogB.GetValue());
-	double durationSeconds = 2.0;
+	double durationSeconds = 6.0;
 	double amplitudeA = 0.1;
 	double amplitudeB = 0.2;
 

@@ -47,13 +47,13 @@ bool FrequencyGraph::FromWaveForm(const WaveForm& waveForm, uint32_t numSamples,
 	if (!complexVector.FFT(sampleVector, false, error))
 		return false;
 
-	double scale = 1.0;		// TODO: What should the scale be?
-
 	for (uint32_t i = 0; i < complexVector.Size(); i++)
 	{
+		const ComplexNumber& complexNumber = complexVector[i];
 		Plot plot;
-		plot.strength = complexVector[i].Magnitude() * scale;
-		plot.frequency = double(i) / 2.0;		// TODO: I really don't know why I have to divide by two.
+		plot.strength = complexNumber.Magnitude();
+		plot.phase = complexNumber.Angle();
+		plot.frequency = double(i) / durationTimeSeconds;
 		this->plotArray->push_back(plot);
 	}
 

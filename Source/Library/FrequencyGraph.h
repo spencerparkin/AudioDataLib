@@ -22,6 +22,7 @@ namespace AudioDataLib
 		struct Plot
 		{
 			double frequency;
+			double phase;
 			double strength;
 		};
 

@@ -34,3 +34,6 @@
 # CMake build directory
 Build/
 .vs/
+
+# Misc
+TestData/bassoon
