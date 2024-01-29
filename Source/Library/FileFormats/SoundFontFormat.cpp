@@ -428,7 +428,7 @@ SoundFontData::PitchData* SoundFontFormat::ConstructPitchData(const std::vector<
 
 /*virtual*/ bool SoundFontFormat::WriteToStream(ByteStream& outputStream, const FileData* fileData, Error& error)
 {
-	error.Add("Not yet implimented.");
+	error.Add("Not yet implimented.  (Probably never will be since SF files are insane.");
 	return false;
 }
 
