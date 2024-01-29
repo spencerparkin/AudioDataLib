@@ -297,6 +297,38 @@ void WaveForm::Copy(const WaveForm* waveForm)
 		this->sampleArray->push_back(sample);
 }
 
+bool WaveForm::Trim(double startTimeSeconds, double stopTimeSeconds, Error& error)
+{
+	if (this->sampleArray->size() == 0)
+	{
+		error.Add("Nothing to trim.");
+		return false;
+	}
+
+	if (startTimeSeconds > stopTimeSeconds)
+	{
+		error.Add(FormatString("Given time bounds ([%f, %f]) doesn't make sense.", startTimeSeconds, stopTimeSeconds));
+		return false;
+	}
+
+	std::vector<Sample>* newSampleArray = new std::vector<Sample>();
+	for (const Sample& sample : *this->sampleArray)
+		if (startTimeSeconds <= sample.timeSeconds && sample.timeSeconds <= stopTimeSeconds)
+			newSampleArray->push_back(sample);
+
+	delete this->sampleArray;
+	this->sampleArray = newSampleArray;
+
+	if (this->sampleArray->size() > 0)
+	{
+		double deltaTime = -(*this->sampleArray)[0].timeSeconds;
+		for (Sample& sample : *this->sampleArray)
+			sample.timeSeconds += deltaTime;
+	}
+
+	return true;
+}
+
 void WaveForm::SumTogether(const std::list<WaveForm*>& waveFormList)
 {
 	this->Clear();

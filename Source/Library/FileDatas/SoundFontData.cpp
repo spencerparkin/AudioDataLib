@@ -148,9 +148,19 @@ bool SoundFontData::PitchData::CalcAnalyticalPitch(Error& error) const
 
 	for (const LoopedAudioData* audioData : *this->loopedAudioDataArray)
 	{
+		const AudioData::Format& format = audioData->GetFormat();
+
 		WaveForm waveForm;
-		if (!waveForm.ConvertFromAudioBuffer(audioData->GetFormat(), audioData->GetAudioBuffer(), audioData->GetAudioBufferSize(), 0, error))
+		if (!waveForm.ConvertFromAudioBuffer(format, audioData->GetAudioBuffer(), audioData->GetAudioBufferSize(), 0, error))
 			return false;
+
+#if false		// I'm not sure that this helped at all, but rather, made things worse.
+		// Might we get a more accurate reading by restricting the FFT to the looped portion of the audio?
+		double loopStartTimeSeconds = format.BytesPerChannelToSeconds(audioData->GetLoop().startFrame * format.BytesPerFrame());
+		double loopEndTimeSeconds = format.BytesPerChannelToSeconds(audioData->GetLoop().endFrame * format.BytesPerFrame());
+		if (!waveForm.Trim(loopStartTimeSeconds, loopEndTimeSeconds, error))
+			return false;
+#endif
 
 		// The more samples we use, the more accurate our result, I believe.
 		FrequencyGraph frequencyGraph;

@@ -51,6 +51,7 @@ namespace AudioDataLib
 		bool Renormalize();
 		void Scale(double scale);
 		void Clamp(double minAmplitude, double maxAmplitude);
+		bool Trim(double startTimeSeconds, double stopTimeSeconds, Error& error);
 		double AverageSampleRate() const;
 		double GetStartTime() const;
 		double GetEndTime() const;
