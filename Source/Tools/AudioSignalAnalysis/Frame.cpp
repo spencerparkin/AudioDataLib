@@ -95,13 +95,22 @@ void Frame::OnGenerateFrequencyGraph(wxCommandEvent& event)
 		return;
 	}
 
-	double dominantFrequency = frequencyGraph->FindDominantFrequency();
-	wxMessageBox(wxString::Format("Dominant frequency is %f Hz.", dominantFrequency), "Frequency", wxICON_INFORMATION | wxOK, this);
+	double fundamentalFreq = frequencyGraph->EstimateFundamentalFrequency();
+	wxMessageBox(wxString::Format("Est. Fund. Freq. is %f Hz.", fundamentalFreq), "Frequency", wxICON_INFORMATION | wxOK, this);
 
 	FrequencyGraphAudio* frequencyAudio = new FrequencyGraphAudio();
 	frequencyAudio->SetFrequencyGraph(frequencyGraph);
 	frequencyAudio->SetName("Freq. Graph of " + audio->GetName());
 	wxGetApp().AddAudio(frequencyAudio);
+
+	FrequencyGraph* smootherFreqGraph = new FrequencyGraph();
+	frequencyGraph->GenerateSmootherGraph(*smootherFreqGraph, 5.0);
+	
+	frequencyAudio = new FrequencyGraphAudio();
+	frequencyAudio->SetFrequencyGraph(smootherFreqGraph);
+	frequencyAudio->SetName("Smooth Freq. Graph of " + audio->GetName());
+	wxGetApp().AddAudio(frequencyAudio);
+
 	this->Refresh();
 	this->audioList->Update();
 }

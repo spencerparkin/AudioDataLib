@@ -28,7 +28,11 @@ namespace AudioDataLib
 
 		const std::vector<Plot>& GetPlotArray() const { return *this->plotArray; }
 
-		double FindDominantFrequency(double* dominantStrength = nullptr) const;
+		void GenerateSmootherGraph(FrequencyGraph& smootherGraph, double frequencyRadius) const;
+
+		// This assumes we're working with a monophonic signal.
+		// Note that the fundamental frequency is not necessarily the perceived pitch.
+		double EstimateFundamentalFrequency(double strengthThreshold = 30.0, double frequencyRadius = 5.0) const;
 
 	protected:
 		

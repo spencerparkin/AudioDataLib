@@ -1,6 +1,7 @@
 #include "Canvas.h"
 #include "App.h"
 #include "Audio.h"
+#include "Frame.h"
 #include <gl/GLU.h>
 
 int Canvas::attributeList[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER, 0 };
@@ -137,6 +138,12 @@ void Canvas::OnMouseMotion(wxMouseEvent& event)
 		this->graphWindow.min += dragDelta;
 		this->graphWindow.max += dragDelta;
 		this->Refresh();
+	}
+	else
+	{
+		Vector2D mousePoint = this->MousePosToWorld(event.GetPosition());
+		wxStatusBar* statusBar = wxGetApp().GetFrame()->GetStatusBar();
+		statusBar->SetStatusText(wxString::Format("Mouse at (%1.3f, %1.3f)", mousePoint.x, mousePoint.y));
 	}
 }
 

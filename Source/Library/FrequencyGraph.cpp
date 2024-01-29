@@ -66,33 +66,77 @@ bool FrequencyGraph::ToWaveForm(WaveForm& waveForm, Error& error) const
 	return false;
 }
 
-// TODO: I've learned just now that the "dominant frequency" as I've defined it here,
-//       is not necessarily (and probably *not* in most cases) the *percieved* pitch of
-//       a given sound sample.  It is sometimes the GCD of the dominant frequencies
-//       above some threshold, I think, and is called the residue pitch, but this is
-//       not always the case.  Note that this is sometimes a pitch not present at all
-//       as showing up as a spike in the graph!  A few minutes of trying to research
-//       this topic has been overwelming.  I could try pinning down the perceived pitch
-//       of all my samples and then look for patterns in the graph data, but I think
-//       that would probably be a waste of time.  (Like me writing down prime numbers
-//       and then seeing if I could find a pattern in those!)  In the end, I may just
-//       have to determine the perceived pitches of all the font-data samples by ear,
-//       because I just have no idea how to calculate it analytically or get it from
-//       the font-data itself (which is ridiculous, by the way.)
-double FrequencyGraph::FindDominantFrequency(double* dominantStrength /*= nullptr*/) const
+void FrequencyGraph::GenerateSmootherGraph(FrequencyGraph& smootherGraph, double frequencyRadius) const
 {
-	Plot dominantPlot{ 0.0, 0.0 };
+	smootherGraph.Clear();
 
-	// I'm not sure why the graph is always symmetric about the center.  I really need a better handle on the math here.
-	for (uint32_t i = 0; i < this->plotArray->size() / 2; i++)
+	for (uint32_t i = 0; i < this->plotArray->size(); i++)
 	{
 		const Plot& plot = (*this->plotArray)[i];
-		if (plot.strength > dominantPlot.strength)
-			dominantPlot = plot;
+
+		Plot smoothPlot = plot;
+		uint32_t count = 1;
+
+		for(uint32_t j = 1; j < this->plotArray->size(); j++)
+		{
+			bool countBumped = false;
+
+			if (i >= j)
+			{
+				const Plot& localPlot = (*this->plotArray)[i - j];
+				if (::abs(plot.frequency - localPlot.frequency) <= frequencyRadius)
+				{
+					smoothPlot.strength += localPlot.strength;
+					count++;
+					countBumped = true;
+				}
+			}
+
+			if (i + j < this->plotArray->size())
+			{
+				const Plot& localPlot = (*this->plotArray)[i + j];
+				if (::abs(plot.frequency - localPlot.frequency) <= frequencyRadius)
+				{
+					smoothPlot.strength += localPlot.strength;
+					count++;
+					countBumped = true;
+				}
+			}
+
+			if (!countBumped)
+				break;
+		}
+
+		smoothPlot.strength /= double(count);
+		smootherGraph.plotArray->push_back(smoothPlot);
+	}
+}
+
+double FrequencyGraph::EstimateFundamentalFrequency(double strengthThreshold /*= 30.0*/, double frequencyRadius /*= 5.0*/) const
+{
+	FrequencyGraph smootherGraph;
+	this->GenerateSmootherGraph(smootherGraph, frequencyRadius);
+
+	for (uint32_t i = 1; i < smootherGraph.plotArray->size() - 1; i++)
+	{
+		const Plot* plot[3] =
+		{
+			&(*smootherGraph.plotArray)[i - 1],
+			&(*smootherGraph.plotArray)[i],
+			&(*smootherGraph.plotArray)[i + 1]
+		};
+
+		if (plot[1]->strength >= strengthThreshold)
+		{
+			double derivativeA = (plot[1]->strength - plot[0]->strength) / (plot[1]->frequency - plot[0]->frequency);
+			double derivativeB = (plot[2]->strength - plot[1]->strength) / (plot[2]->frequency - plot[1]->frequency);
+
+			if (derivativeA > 0.0 && derivativeB < 0.0)
+			{
+				return plot[1]->frequency;
+			}
+		}
 	}
 
-	if (dominantStrength)
-		*dominantStrength = dominantPlot.strength;
-
-	return dominantPlot.frequency;
+	return 0.0;
 }
