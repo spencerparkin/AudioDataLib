@@ -52,6 +52,7 @@ namespace AudioDataLib
 		void Scale(double scale);
 		void Clamp(double minAmplitude, double maxAmplitude);
 		bool Trim(double startTimeSeconds, double stopTimeSeconds, Error& error);
+		void SortSamples();
 		double AverageSampleRate() const;
 		double GetStartTime() const;
 		double GetEndTime() const;

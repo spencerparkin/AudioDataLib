@@ -81,6 +81,7 @@ SoundFontData::LoopedAudioData::LoopedAudioData()
 	this->loop.startFrame = 0;
 	this->loop.endFrame = 0;
 	this->name = new std::string();
+	this->channelType = ChannelType::MONO;
 }
 
 /*virtual*/ SoundFontData::LoopedAudioData::~LoopedAudioData()
@@ -90,10 +91,26 @@ SoundFontData::LoopedAudioData::LoopedAudioData()
 
 /*virtual*/ void SoundFontData::LoopedAudioData::DumpInfo(FILE* fp) const
 {
+	const char* channelTypeStr = "?";
+
+	switch (this->channelType)
+	{
+	case ChannelType::MONO:
+		channelTypeStr = "Mono";
+		break;
+	case ChannelType::LEFT_EAR:
+		channelTypeStr = "Left ear";
+		break;
+	case ChannelType::RIGHT_EAR:
+		channelTypeStr = "Right ear";
+		break;
+	}
+
 	fprintf(fp, "Name: %s\n", this->name->c_str());
 	fprintf(fp, "Loop start frame: %lld\n", this->loop.startFrame);
 	fprintf(fp, "Loop end frame: %lld\n", this->loop.endFrame);
 	fprintf(fp, "Num frames: %lld\n", this->GetNumFrames());
+	fprintf(fp, "Channel type: %s\n", channelTypeStr);
 
 	AudioData::DumpInfo(fp);
 }

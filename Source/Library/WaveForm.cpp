@@ -329,6 +329,13 @@ bool WaveForm::Trim(double startTimeSeconds, double stopTimeSeconds, Error& erro
 	return true;
 }
 
+void WaveForm::SortSamples()
+{
+	std::sort(this->sampleArray->begin(), this->sampleArray->end(), [](const Sample& sampleA, const Sample& sampleB) -> bool {
+		return sampleA.timeSeconds < sampleB.timeSeconds;
+	});
+}
+
 void WaveForm::SumTogether(const std::list<WaveForm*>& waveFormList)
 {
 	this->Clear();

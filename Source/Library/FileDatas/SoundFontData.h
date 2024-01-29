@@ -68,9 +68,20 @@ namespace AudioDataLib
 			const Loop& GetLoop() const { return this->loop; }
 			void SetLoop(const Loop& loop) { this->loop = loop; }
 
+			enum ChannelType
+			{
+				MONO,
+				LEFT_EAR,
+				RIGHT_EAR
+			};
+
+			void SetChannelType(ChannelType channelType) { this->channelType = channelType; }
+			ChannelType GetChannelType() const { return this->channelType; }
+
 		protected:
 			std::string* name;
 			Loop loop;
+			ChannelType channelType;
 		};
 
 		class AUDIO_DATA_LIB_API PitchData
