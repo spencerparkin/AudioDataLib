@@ -4,8 +4,8 @@
 
 namespace AudioDataLib
 {
+	class MixerModule;
 	class SoundFontData;
-	class LoopedAudioModule;
 
 	class AUDIO_DATA_LIB_API SampleBasedSynth : public MidiSynth
 	{
@@ -27,7 +27,7 @@ namespace AudioDataLib
 		typedef std::map<uint16_t, SoundFontData*> SoundFontMap;
 		SoundFontMap* soundFontMap;
 
-		// TODO: This is just temporary.  Replace this with a mixer module when ready.
-		LoopedAudioModule* loopedAudioModule;
+		MixerModule* mixerModuleLeftEar;
+		MixerModule* mixerModuleRightEar;
 	};
 }

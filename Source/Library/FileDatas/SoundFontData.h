@@ -100,8 +100,12 @@ namespace AudioDataLib
 			uint32_t GetNumLoopedAudioDatas() const { return this->loopedAudioDataArray->size(); }
 			const LoopedAudioData* GetLoopedAudioData(uint32_t i) const;
 
-			bool CalcAnalyticalPitch(Error& error) const;
+			const LoopedAudioData* FindLoopedAudioData(LoopedAudioData::ChannelType channelType) const;
+
+			bool CalcAnalyticalPitchAndVolume(Error& error) const;
+
 			double GetAnalyticalPitch() const { return this->analyticalPitch; }
+			double GetAnalyticalVolume() const { return this->analyticalVolume; }
 
 		protected:
 
@@ -114,7 +118,11 @@ namespace AudioDataLib
 			// to deduce the general frequency of the font sample itself?
 			uint8_t midiPitch;
 
+			// We try to deduce these from the audio samples rather than depend
+			// on getting the information from the sound-font file.
 			mutable double analyticalPitch;
+			mutable double analyticalVolume;
+			mutable bool analyzed;
 		};
 
 		const GeneralInfo& GetGeneralInfo() const { return *this->generalInfo; }
@@ -122,6 +130,8 @@ namespace AudioDataLib
 
 		uint32_t GetNumPitchDatas() const { return this->pitchDataArray->size(); }
 		const PitchData* GetPitchData(uint32_t i) const;
+
+		const PitchData* FindClosestPitchData(double givenPitch, double givenVolume) const;
 
 	private:
 		GeneralInfo* generalInfo;

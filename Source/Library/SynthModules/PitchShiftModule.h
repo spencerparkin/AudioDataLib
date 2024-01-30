@@ -9,5 +9,20 @@ namespace AudioDataLib
 		virtual ~PitchShiftModule();
 
 		virtual bool GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, Error& error) override;
+
+		void SetSourceAndTargetFrequencies(double sourceFrequency, double targetFrequency);
+
+		double GetSourceFrequency() const { return this->sourceFrequency; }
+		double GetTargetFrequency() const { return this->targetFrequency; }
+
+		void SetDependentModule(SynthModule* synthModule) { this->dependentModule = synthModule; }
+		SynthModule* GetDependentModule() { return this->dependentModule; }
+		const SynthModule* GetDependentModule() const { return this->dependentModule; }
+
+	protected:
+		double sourceFrequency;
+		double targetFrequency;
+
+		SynthModule* dependentModule;
 	};
 }

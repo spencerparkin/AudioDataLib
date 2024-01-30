@@ -295,8 +295,9 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 					break;
 				}
 
+				printf("Configurating synth to use sound font %s on channel %d...\n", soundFontFile.c_str(), channel);
 				auto sampleBasedSynth = new SampleBasedSynth(true, true);
-				sampleBasedSynth->SetSoundFontData(channel, soundFontData);
+				sampleBasedSynth->SetSoundFontData(channel - 1, soundFontData);
 				synth->AddSynth(sampleBasedSynth);
 				midiSynth = sampleBasedSynth;
 			}

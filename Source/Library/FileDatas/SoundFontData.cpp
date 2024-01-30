@@ -50,11 +50,12 @@ void SoundFontData::Clear()
 	for (const PitchData* pitchData : *this->pitchDataArray)
 	{
 		Error error;
-		pitchData->CalcAnalyticalPitch(error);
+		pitchData->CalcAnalyticalPitchAndVolume(error);
 
 		fprintf(fp, "========================================\n");
 		fprintf(fp, "MIDI Pitch: %d\n", pitchData->GetMIDIPitch());
 		fprintf(fp, "Analytical pitch: %f\n", pitchData->GetAnalyticalPitch());
+		fprintf(fp, "Analytical vol.: %f\n", pitchData->GetAnalyticalVolume());
 		fprintf(fp, "Channels: %d\n", pitchData->GetNumLoopedAudioDatas());
 
 		for (uint32_t i = 0; i < pitchData->GetNumLoopedAudioDatas(); i++)
@@ -72,6 +73,27 @@ const SoundFontData::PitchData* SoundFontData::GetPitchData(uint32_t i) const
 		return nullptr;
 
 	return (*this->pitchDataArray)[i];
+}
+
+const SoundFontData::PitchData* SoundFontData::FindClosestPitchData(double givenPitch, double givenVolume) const
+{
+	const PitchData* closestPitchData = nullptr;
+	double smallestDistance = std::numeric_limits<double>::max();
+	for (const PitchData* pitchData : *this->pitchDataArray)
+	{
+		double deltaPitch = pitchData->GetAnalyticalPitch() - givenPitch;
+		double deltaVol = pitchData->GetAnalyticalVolume() - givenVolume;
+
+		double distance = deltaPitch * deltaPitch + deltaVol * deltaVol;
+
+		if (distance < smallestDistance)
+		{
+			smallestDistance = distance;
+			closestPitchData = pitchData;
+		}
+	}
+
+	return closestPitchData;
 }
 
 //------------------------------- SoundFontData::LoopedAudioData -------------------------------
@@ -133,6 +155,8 @@ SoundFontData::PitchData::PitchData()
 	this->midiPitch = 0;
 	this->loopedAudioDataArray = new std::vector<LoopedAudioData*>();
 	this->analyticalPitch = 0.0;
+	this->analyticalVolume = 0.0;
+	this->analyzed = false;
 }
 
 /*virtual*/ SoundFontData::PitchData::~PitchData()
@@ -148,6 +172,7 @@ void SoundFontData::PitchData::Clear()
 		delete audioData;
 
 	this->loopedAudioDataArray->clear();
+	this->analyzed = false;
 }
 
 const SoundFontData::LoopedAudioData* SoundFontData::PitchData::GetLoopedAudioData(uint32_t i) const
@@ -158,9 +183,22 @@ const SoundFontData::LoopedAudioData* SoundFontData::PitchData::GetLoopedAudioDa
 	return (*this->loopedAudioDataArray)[i];
 }
 
-bool SoundFontData::PitchData::CalcAnalyticalPitch(Error& error) const
+const SoundFontData::LoopedAudioData* SoundFontData::PitchData::FindLoopedAudioData(LoopedAudioData::ChannelType channelType) const
 {
+	for (const LoopedAudioData* audioData : *this->loopedAudioDataArray)
+		if (audioData->GetChannelType() == channelType)
+			return audioData;
+
+	return nullptr;
+}
+
+bool SoundFontData::PitchData::CalcAnalyticalPitchAndVolume(Error& error) const
+{
+	if (this->analyzed)
+		return true;
+
 	this->analyticalPitch = 0.0;
+	this->analyticalVolume = 0.0;
 
 	for (const LoopedAudioData* audioData : *this->loopedAudioDataArray)
 	{
@@ -170,13 +208,7 @@ bool SoundFontData::PitchData::CalcAnalyticalPitch(Error& error) const
 		if (!waveForm.ConvertFromAudioBuffer(format, audioData->GetAudioBuffer(), audioData->GetAudioBufferSize(), 0, error))
 			return false;
 
-#if false		// I'm not sure that this helped at all, but rather, made things worse.
-		// Might we get a more accurate reading by restricting the FFT to the looped portion of the audio?
-		double loopStartTimeSeconds = format.BytesPerChannelToSeconds(audioData->GetLoop().startFrame * format.BytesPerFrame());
-		double loopEndTimeSeconds = format.BytesPerChannelToSeconds(audioData->GetLoop().endFrame * format.BytesPerFrame());
-		if (!waveForm.Trim(loopStartTimeSeconds, loopEndTimeSeconds, error))
-			return false;
-#endif
+		// TODO: How do we estimate the volume of the sample?
 
 		FrequencyGraph frequencyGraph;
 		if (!frequencyGraph.FromWaveForm(waveForm, 8192, error))
@@ -186,7 +218,11 @@ bool SoundFontData::PitchData::CalcAnalyticalPitch(Error& error) const
 	}
 
 	if (this->loopedAudioDataArray->size() > 0)
+	{
 		this->analyticalPitch /= double(this->loopedAudioDataArray->size());
+		this->analyticalVolume /= double(this->loopedAudioDataArray->size());
+	}
 	
+	this->analyzed = true;
 	return true;
 }
