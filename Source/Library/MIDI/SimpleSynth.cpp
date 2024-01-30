@@ -59,6 +59,8 @@ SimpleSynth::SimpleSynth(bool ownsAudioStream) : MidiSynth(ownsAudioStream)
 			{
 				double noteFrequency = this->MidiPitchToFrequency(pitchValue);
 				double noteVolume = this->MidiVelocityToAmplitude(velocityValue);
+
+				printf("Frequency: %f Hz\n", noteFrequency);
 				
 				OscillatorModule::WaveParams waveParams;
 				waveParams.waveType = OscillatorModule::WaveType::SAWTOOTH;
