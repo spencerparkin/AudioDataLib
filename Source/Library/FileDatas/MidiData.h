@@ -16,6 +16,7 @@ namespace AudioDataLib
 		virtual ~MidiData();
 
 		virtual void DumpInfo(FILE* fp) const override;
+		virtual void DumpCSV(FILE* fp) const override;
 		virtual FileData* Clone() const override;
 
 		void Clear();

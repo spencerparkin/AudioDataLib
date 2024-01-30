@@ -46,6 +46,7 @@ namespace AudioDataLib
 		virtual ~AudioData();
 
 		virtual void DumpInfo(FILE* fp) const override;
+		virtual void DumpCSV(FILE* fp) const override;
 		virtual FileData* Clone() const override;
 
 		// The main purpose of these is to make sure that memory is created or freed in the proper heap.

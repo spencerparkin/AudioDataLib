@@ -11,6 +11,7 @@ namespace AudioDataLib
 		virtual ~FileData();
 
 		virtual void DumpInfo(FILE* fp) const = 0;
+		virtual void DumpCSV(FILE* fp) const = 0;
 		virtual FileData* Clone() const = 0;
 	};
 }

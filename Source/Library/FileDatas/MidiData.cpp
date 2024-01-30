@@ -136,6 +136,10 @@ void MidiData::Clear()
 	}
 }
 
+/*virtual*/ void MidiData::DumpCSV(FILE* fp) const
+{
+}
+
 const MidiData::Track* MidiData::GetTrack(uint32_t i) const
 {
 	return const_cast<MidiData*>(this)->GetTrack(i);

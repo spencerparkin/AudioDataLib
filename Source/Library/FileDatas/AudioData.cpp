@@ -62,6 +62,10 @@ AudioData::AudioData()
 	fprintf(fp, "Duration (sec): %f\n", durationSeconds);
 }
 
+/*virtual*/ void AudioData::DumpCSV(FILE* fp) const
+{
+}
+
 void AudioData::SetAudioBufferSize(uint64_t audioBufferSize)
 {
 	delete[] this->audioBuffer;

@@ -67,6 +67,13 @@ void SoundFontData::Clear()
 	}
 }
 
+/*virtual*/ void SoundFontData::DumpCSV(FILE* fp) const
+{
+	fprintf(fp, "Sample Name, Frequency\n");
+
+	// TODO: Write this.
+}
+
 const SoundFontData::PitchData* SoundFontData::GetPitchData(uint32_t i) const
 {
 	if (i >= this->GetNumPitchDatas())
@@ -211,7 +218,7 @@ bool SoundFontData::PitchData::CalcAnalyticalPitchAndVolume(Error& error) const
 		// TODO: How do we estimate the volume of the sample?
 
 		FrequencyGraph frequencyGraph;
-		if (!frequencyGraph.FromWaveForm(waveForm, 8192, error))
+		if (!frequencyGraph.FromWaveForm(waveForm, 16384, error))
 			return false;
 
 		this->analyticalPitch += frequencyGraph.EstimateFundamentalFrequency();
