@@ -85,13 +85,13 @@ namespace AudioDataLib
 			ChannelType channelType;
 		};
 
-		class AUDIO_DATA_LIB_API PitchData
+		class AUDIO_DATA_LIB_API AudioSample
 		{
 			friend class SoundFontFormat;
 
 		public:
-			PitchData();
-			virtual ~PitchData();
+			AudioSample();
+			virtual ~AudioSample();
 
 			void Clear();
 
@@ -103,11 +103,6 @@ namespace AudioDataLib
 
 			const LoopedAudioData* FindLoopedAudioData(LoopedAudioData::ChannelType channelType) const;
 
-			bool CalcAnalyticalPitchAndVolume(Error& error) const;
-
-			double GetAnalyticalPitch() const { return this->analyticalPitch; }
-			double GetAnalyticalVolume() const { return this->analyticalVolume; }
-
 		protected:
 
 			// This is looped audio data, one for each channel.  The channels are
@@ -118,26 +113,20 @@ namespace AudioDataLib
 			// This is typically zero, maybe because the application is expected
 			// to deduce the general frequency of the font sample itself?
 			uint8_t midiPitch;
-
-			// We try to deduce these from the audio samples rather than depend
-			// on getting the information from the sound-font file.
-			mutable double analyticalPitch;
-			mutable double analyticalVolume;
-			mutable bool analyzed;
 		};
 
 		const GeneralInfo& GetGeneralInfo() const { return *this->generalInfo; }
 		GeneralInfo& GetGeneralInfo() { return *this->generalInfo; }
 
-		uint32_t GetNumPitchDatas() const { return this->pitchDataArray->size(); }
-		const PitchData* GetPitchData(uint32_t i) const;
+		uint32_t GetNumAudioSamples() const { return this->audioSampleArray->size(); }
+		const AudioSample* GetAudioSample(uint32_t i) const;
 
-		const PitchData* FindClosestPitchData(double givenPitch, double givenVolume) const;
+		const AudioSample* FindClosestAudioSample(double pitch, double volume) const;
 
 	private:
 		GeneralInfo* generalInfo;
 
 		// TODO: Maybe these need to be further sub-divided by instrument?
-		std::vector<PitchData*>* pitchDataArray;
+		std::vector<AudioSample*>* audioSampleArray;
 	};
 }

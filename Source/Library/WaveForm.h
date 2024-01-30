@@ -60,6 +60,7 @@ namespace AudioDataLib
 		uint64_t GetNumSamples() const;
 		double GetMaxAmplitude() const;
 		double GetMinAmplitude() const;
+		double CalcAverageVolume() const;
 		InterpolationMethod GetInterpolationMethod() const { return this->interpMethod; }
 		void SetInterpolateionMethod(InterpolationMethod interpMethod) { this->interpMethod = interpMethod; }
 		const std::vector<Sample>& GetSampleArray() const { return *this->sampleArray; }

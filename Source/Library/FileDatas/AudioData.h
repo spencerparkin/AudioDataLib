@@ -70,9 +70,18 @@ namespace AudioDataLib
 
 		double GetTimeSeconds() const;
 
+		struct MetaData
+		{
+			double analyticalPitch;
+			double analyticalVolume;
+		};
+
+		const MetaData* GetMetaData() const;
+
 	protected:
 		Format format;
 		uint8_t* audioBuffer;
 		uint64_t audioBufferSize;
+		mutable MetaData* metaData;
 	};
 }

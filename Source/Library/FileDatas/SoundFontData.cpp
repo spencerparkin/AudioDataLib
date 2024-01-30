@@ -1,7 +1,4 @@
 #include "SoundFontData.h"
-#include "WaveForm.h"
-#include "FrequencyGraph.h"
-#include "Error.h"
 
 using namespace AudioDataLib;
 
@@ -10,7 +7,7 @@ using namespace AudioDataLib;
 SoundFontData::SoundFontData()
 {
 	this->generalInfo = new GeneralInfo();
-	this->pitchDataArray = new std::vector<PitchData*>();
+	this->audioSampleArray = new std::vector<AudioSample*>();
 }
 
 /*virtual*/ SoundFontData::~SoundFontData()
@@ -18,15 +15,15 @@ SoundFontData::SoundFontData()
 	this->Clear();
 
 	delete this->generalInfo;
-	delete this->pitchDataArray;
+	delete this->audioSampleArray;
 }
 
 void SoundFontData::Clear()
 {
-	for (PitchData* pitchData : *this->pitchDataArray)
-		delete pitchData;
+	for (AudioSample* audioSample : *this->audioSampleArray)
+		delete audioSample;
 	
-	this->pitchDataArray->clear();
+	this->audioSampleArray->clear();
 }
 
 /*virtual*/ FileData* SoundFontData::Clone() const
@@ -45,23 +42,18 @@ void SoundFontData::Clear()
 	fprintf(fp, "Tool: %s\n", this->generalInfo->soundFontToolRecord.c_str());
 	fprintf(fp, "Wavetable engine: %s\n", this->generalInfo->waveTableSoundEngine.c_str());
 	fprintf(fp, "Wavetable ROM: %s\n", this->generalInfo->waveTableSoundDataROM.c_str());
-	fprintf(fp, "Num pitches: %d\n", uint32_t(this->pitchDataArray->size()));
+	fprintf(fp, "Num audio samples: %d\n", uint32_t(this->audioSampleArray->size()));
 
-	for (const PitchData* pitchData : *this->pitchDataArray)
+	for (const AudioSample* audioSample : *this->audioSampleArray)
 	{
-		Error error;
-		pitchData->CalcAnalyticalPitchAndVolume(error);
-
 		fprintf(fp, "========================================\n");
-		fprintf(fp, "MIDI Pitch: %d\n", pitchData->GetMIDIPitch());
-		fprintf(fp, "Analytical pitch: %f\n", pitchData->GetAnalyticalPitch());
-		fprintf(fp, "Analytical vol.: %f\n", pitchData->GetAnalyticalVolume());
-		fprintf(fp, "Channels: %d\n", pitchData->GetNumLoopedAudioDatas());
+		fprintf(fp, "MIDI Pitch: %d\n", audioSample->GetMIDIPitch());
+		fprintf(fp, "Channels: %d\n", audioSample->GetNumLoopedAudioDatas());
 
-		for (uint32_t i = 0; i < pitchData->GetNumLoopedAudioDatas(); i++)
+		for (uint32_t i = 0; i < audioSample->GetNumLoopedAudioDatas(); i++)
 		{
 			fprintf(fp, "-----------------------\n");
-			const LoopedAudioData* audioData = pitchData->GetLoopedAudioData(i);
+			const LoopedAudioData* audioData = audioSample->GetLoopedAudioData(i);
 			audioData->DumpInfo(fp);
 		}
 	}
@@ -69,38 +61,53 @@ void SoundFontData::Clear()
 
 /*virtual*/ void SoundFontData::DumpCSV(FILE* fp) const
 {
-	fprintf(fp, "Sample Name, Frequency\n");
+	fprintf(fp, "Sample Name, Frequency, Volume\n");
 
-	// TODO: Write this.
+	for (const AudioSample* audioSample : *this->audioSampleArray)
+	{
+		for (uint32_t i = 0; i < audioSample->GetNumLoopedAudioDatas(); i++)
+		{
+			const LoopedAudioData* audioData = audioSample->GetLoopedAudioData(i);
+			const LoopedAudioData::MetaData* metaData = audioData->GetMetaData();
+
+			fprintf(fp, "%s, %f, %f\n", audioData->GetName().c_str(), metaData->analyticalPitch, metaData->analyticalVolume);
+		}
+	}
 }
 
-const SoundFontData::PitchData* SoundFontData::GetPitchData(uint32_t i) const
+const SoundFontData::AudioSample* SoundFontData::GetAudioSample(uint32_t i) const
 {
-	if (i >= this->GetNumPitchDatas())
+	if (i >= this->GetNumAudioSamples())
 		return nullptr;
 
-	return (*this->pitchDataArray)[i];
+	return (*this->audioSampleArray)[i];
 }
 
-const SoundFontData::PitchData* SoundFontData::FindClosestPitchData(double givenPitch, double givenVolume) const
+const SoundFontData::AudioSample* SoundFontData::FindClosestAudioSample(double pitch, double volume) const
 {
-	const PitchData* closestPitchData = nullptr;
+	const AudioSample* closestAudioSample = nullptr;
 	double smallestDistance = std::numeric_limits<double>::max();
-	for (const PitchData* pitchData : *this->pitchDataArray)
+	for (const AudioSample* audioSample : *this->audioSampleArray)
 	{
-		double deltaPitch = pitchData->GetAnalyticalPitch() - givenPitch;
-		double deltaVol = pitchData->GetAnalyticalVolume() - givenVolume;
-
-		double distance = deltaPitch * deltaPitch + deltaVol * deltaVol;
-
-		if (distance < smallestDistance)
+		for (uint32_t i = 0; i < audioSample->GetNumLoopedAudioDatas(); i++)
 		{
-			smallestDistance = distance;
-			closestPitchData = pitchData;
+			const LoopedAudioData* audioData = audioSample->GetLoopedAudioData(i);
+			const LoopedAudioData::MetaData* metaData = audioData->GetMetaData();
+
+			double deltaPitch = metaData->analyticalPitch - pitch;
+			double deltaVol = metaData->analyticalVolume - volume;
+
+			double distance = deltaPitch * deltaPitch + deltaVol * deltaVol;
+
+			if (distance < smallestDistance)
+			{
+				smallestDistance = distance;
+				closestAudioSample = audioSample;
+			}
 		}
 	}
 
-	return closestPitchData;
+	return closestAudioSample;
 }
 
 //------------------------------- SoundFontData::LoopedAudioData -------------------------------
@@ -155,34 +162,30 @@ SoundFontData::LoopedAudioData::LoopedAudioData()
 	return loopedAudioData;
 }
 
-//------------------------------- SoundFontData::PitchData -------------------------------
+//------------------------------- SoundFontData::AudioSample -------------------------------
 
-SoundFontData::PitchData::PitchData()
+SoundFontData::AudioSample::AudioSample()
 {
 	this->midiPitch = 0;
 	this->loopedAudioDataArray = new std::vector<LoopedAudioData*>();
-	this->analyticalPitch = 0.0;
-	this->analyticalVolume = 0.0;
-	this->analyzed = false;
 }
 
-/*virtual*/ SoundFontData::PitchData::~PitchData()
+/*virtual*/ SoundFontData::AudioSample::~AudioSample()
 {
 	this->Clear();
 
 	delete this->loopedAudioDataArray;
 }
 
-void SoundFontData::PitchData::Clear()
+void SoundFontData::AudioSample::Clear()
 {
 	for (LoopedAudioData* audioData : *this->loopedAudioDataArray)
 		delete audioData;
 
 	this->loopedAudioDataArray->clear();
-	this->analyzed = false;
 }
 
-const SoundFontData::LoopedAudioData* SoundFontData::PitchData::GetLoopedAudioData(uint32_t i) const
+const SoundFontData::LoopedAudioData* SoundFontData::AudioSample::GetLoopedAudioData(uint32_t i) const
 {
 	if (i >= this->GetNumLoopedAudioDatas())
 		return nullptr;
@@ -190,46 +193,11 @@ const SoundFontData::LoopedAudioData* SoundFontData::PitchData::GetLoopedAudioDa
 	return (*this->loopedAudioDataArray)[i];
 }
 
-const SoundFontData::LoopedAudioData* SoundFontData::PitchData::FindLoopedAudioData(LoopedAudioData::ChannelType channelType) const
+const SoundFontData::LoopedAudioData* SoundFontData::AudioSample::FindLoopedAudioData(LoopedAudioData::ChannelType channelType) const
 {
 	for (const LoopedAudioData* audioData : *this->loopedAudioDataArray)
 		if (audioData->GetChannelType() == channelType)
 			return audioData;
 
 	return nullptr;
-}
-
-bool SoundFontData::PitchData::CalcAnalyticalPitchAndVolume(Error& error) const
-{
-	if (this->analyzed)
-		return true;
-
-	this->analyticalPitch = 0.0;
-	this->analyticalVolume = 0.0;
-
-	for (const LoopedAudioData* audioData : *this->loopedAudioDataArray)
-	{
-		const AudioData::Format& format = audioData->GetFormat();
-
-		WaveForm waveForm;
-		if (!waveForm.ConvertFromAudioBuffer(format, audioData->GetAudioBuffer(), audioData->GetAudioBufferSize(), 0, error))
-			return false;
-
-		// TODO: How do we estimate the volume of the sample?
-
-		FrequencyGraph frequencyGraph;
-		if (!frequencyGraph.FromWaveForm(waveForm, 16384, error))
-			return false;
-
-		this->analyticalPitch += frequencyGraph.EstimateFundamentalFrequency();
-	}
-
-	if (this->loopedAudioDataArray->size() > 0)
-	{
-		this->analyticalPitch /= double(this->loopedAudioDataArray->size());
-		this->analyticalVolume /= double(this->loopedAudioDataArray->size());
-	}
-	
-	this->analyzed = true;
-	return true;
 }

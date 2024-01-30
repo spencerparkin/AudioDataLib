@@ -175,11 +175,11 @@ SoundFontFormat::SoundFontFormat()
 						break;
 				}
 
-				SoundFontData::PitchData* pitchData = this->ConstructPitchData(pitchSampleHeaderArray, smplChunk, sm24Chunk, error);
-				if (!pitchData)
+				SoundFontData::AudioSample* audioSample = this->ConstructAudioSample(pitchSampleHeaderArray, smplChunk, sm24Chunk, error);
+				if (!audioSample)
 					break;
 
-				soundFontData->pitchDataArray->push_back(pitchData);
+				soundFontData->audioSampleArray->push_back(audioSample);
 			}
 
 			if (error)
@@ -338,7 +338,7 @@ bool SoundFontFormat::ReadCrazyData(ChunkParser& parser, char prefix, Error& err
 	return true;
 }
 
-SoundFontData::PitchData* SoundFontFormat::ConstructPitchData(const std::vector<SF_SampleHeader>& pitchSampleHeaderArray, const ChunkParser::Chunk* smplChunk, const ChunkParser::Chunk* sm24Chunk, Error& error)
+SoundFontData::AudioSample* SoundFontFormat::ConstructAudioSample(const std::vector<SF_SampleHeader>& pitchSampleHeaderArray, const ChunkParser::Chunk* smplChunk, const ChunkParser::Chunk* sm24Chunk, Error& error)
 {
 	if (pitchSampleHeaderArray.size() == 0)
 		return nullptr;
@@ -372,16 +372,16 @@ SoundFontData::PitchData* SoundFontFormat::ConstructPitchData(const std::vector<
 		return nullptr;
 	}
 
-	auto pitchData = new SoundFontData::PitchData();
+	auto audioSample = new SoundFontData::AudioSample();
 
 	// I'm not even going to check here that all the headers specify the same pitch.
 	// It seems as though this is always set to 60 no matter what.
-	pitchData->SetMIDIPitch(pitchSampleHeaderArray[0].originalPitch);
+	audioSample->SetMIDIPitch(pitchSampleHeaderArray[0].originalPitch);
 
 	for (const SF_SampleHeader& header : pitchSampleHeaderArray)
 	{
 		auto loopedAudioData = new SoundFontData::LoopedAudioData();
-		pitchData->loopedAudioDataArray->push_back(loopedAudioData);
+		audioSample->loopedAudioDataArray->push_back(loopedAudioData);
 
 		loopedAudioData->SetName((const char*)header.sampleName);
 
@@ -419,11 +419,11 @@ SoundFontData::PitchData* SoundFontFormat::ConstructPitchData(const std::vector<
 
 	if (error)
 	{
-		delete pitchData;
-		pitchData = nullptr;
+		delete audioSample;
+		audioSample = nullptr;
 	}
 
-	return pitchData;
+	return audioSample;
 }
 
 /*virtual*/ bool SoundFontFormat::WriteToStream(ByteStream& outputStream, const FileData* fileData, Error& error)

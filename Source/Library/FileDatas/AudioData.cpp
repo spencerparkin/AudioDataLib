@@ -1,4 +1,7 @@
 #include "AudioData.h"
+#include "WaveForm.h"
+#include "FrequencyGraph.h"
+#include "Error.h"
 
 using namespace AudioDataLib;
 
@@ -9,11 +12,13 @@ AudioData::AudioData()
 	::memset(&this->format, 0, sizeof(Format));
 	this->audioBuffer = nullptr;
 	this->audioBufferSize = 0;
+	this->metaData = nullptr;
 }
 
 /*virtual*/ AudioData::~AudioData()
 {
 	this->SetAudioBufferSize(0);
+	delete this->metaData;
 }
 
 /*static*/ AudioData* AudioData::Create()
@@ -54,12 +59,16 @@ AudioData::AudioData()
 
 	double durationSeconds = this->GetTimeSeconds();
 
+	this->GetMetaData();
+
 	fprintf(fp, "Sample-type: %s\n", sampleTypeStr);
 	fprintf(fp, "Bits-per-spample: %d\n", this->format.bitsPerSample);
 	fprintf(fp, "Frame-rate (FPS): %d\n", this->format.framesPerSecond);
 	fprintf(fp, "Channels: %d\n", this->format.numChannels);
 	fprintf(fp, "Buffer size: %lld\n", this->audioBufferSize);
 	fprintf(fp, "Duration (sec): %f\n", durationSeconds);
+	fprintf(fp, "Analytical pitch: %f\n", this->metaData->analyticalPitch);
+	fprintf(fp, "Analytical vol.: %f\n", this->metaData->analyticalVolume);
 }
 
 /*virtual*/ void AudioData::DumpCSV(FILE* fp) const
@@ -96,6 +105,29 @@ uint64_t AudioData::GetNumFrames() const
 double AudioData::GetTimeSeconds() const
 {
 	return this->format.BytesPerChannelToSeconds(this->format.BytesPerChannel(this->audioBufferSize));
+}
+
+const AudioData::MetaData* AudioData::GetMetaData() const
+{
+	if (!this->metaData)
+	{
+		this->metaData = new MetaData();
+
+		Error error;
+		WaveForm waveForm;
+		if (!waveForm.ConvertFromAudioBuffer(format, this->audioBuffer, this->audioBufferSize, 0, error))
+			return false;
+
+		this->metaData->analyticalVolume = waveForm.CalcAverageVolume();
+
+		FrequencyGraph frequencyGraph;
+		if (!frequencyGraph.FromWaveForm(waveForm, 16384, error))
+			return false;
+
+		this->metaData->analyticalPitch = frequencyGraph.EstimateFundamentalFrequency();
+	}
+
+	return this->metaData;
 }
 
 //----------------------------- AudioData::Format -----------------------------

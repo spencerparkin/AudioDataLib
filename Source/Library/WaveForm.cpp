@@ -401,6 +401,19 @@ double WaveForm::AverageSampleRate() const
 	return averageSamplesPerSeconds;
 }
 
+double WaveForm::CalcAverageVolume() const
+{
+	double averageVolume = 0.0;
+
+	for (const Sample& sample : *this->sampleArray)
+		averageVolume += ::fabs(sample.amplitude);
+
+	if (this->sampleArray->size() != 0)
+		averageVolume /= double(this->sampleArray->size());
+
+	return averageVolume;
+}
+
 double WaveForm::GetStartTime() const
 {
 	if (this->sampleArray->size() == 0)

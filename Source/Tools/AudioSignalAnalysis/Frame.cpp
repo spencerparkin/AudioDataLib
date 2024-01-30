@@ -151,12 +151,12 @@ void Frame::OnImportAudio(wxCommandEvent& event)
 				}
 				else if (soundFontData)
 				{
-					for (uint32_t i = 0; i < soundFontData->GetNumPitchDatas(); i++)
+					for (uint32_t i = 0; i < soundFontData->GetNumAudioSamples(); i++)
 					{
-						const SoundFontData::PitchData* pitchData = soundFontData->GetPitchData(i);
-						for (uint32_t j = 0; j < pitchData->GetNumLoopedAudioDatas(); j++)
+						const SoundFontData::AudioSample* audioSample = soundFontData->GetAudioSample(i);
+						for (uint32_t j = 0; j < audioSample->GetNumLoopedAudioDatas(); j++)
 						{
-							const SoundFontData::LoopedAudioData* audioData = pitchData->GetLoopedAudioData(j);
+							const SoundFontData::LoopedAudioData* audioData = audioSample->GetLoopedAudioData(j);
 							WaveFormAudio* audio = new WaveFormAudio();
 							audio->SetAudioData(dynamic_cast<AudioData*>(audioData->Clone()));
 							audio->SetName(wxFileName(audioFile).GetName() + wxString::Format("_%d_%s", i, audioData->GetName().c_str()));

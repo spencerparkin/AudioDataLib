@@ -62,15 +62,15 @@ SampleBasedSynth::SampleBasedSynth(bool ownsAudioStream, bool ownsSoundFontData)
 			double noteFrequency = this->MidiPitchToFrequency(pitchValue);
 			double noteVolume = this->MidiVelocityToAmplitude(velocityValue);
 
-			const SoundFontData::PitchData* pitchData = soundFontData->FindClosestPitchData(noteFrequency, noteVolume);
-			if (!pitchData)
+			const SoundFontData::AudioSample* audioSample = soundFontData->FindClosestAudioSample(noteFrequency, noteVolume);
+			if (!audioSample)
 			{
-				error.Add(FormatString("Failed to find pitch data for pitch %f and volume %f.", noteFrequency, noteVolume));
+				error.Add(FormatString("Failed to find audio sample for pitch %f and volume %f.", noteFrequency, noteVolume));
 				return false;
 			}
 
-			const SoundFontData::LoopedAudioData* leftAudioData = pitchData->FindLoopedAudioData(SoundFontData::LoopedAudioData::ChannelType::LEFT_EAR);
-			const SoundFontData::LoopedAudioData* rightAudioData = pitchData->FindLoopedAudioData(SoundFontData::LoopedAudioData::ChannelType::RIGHT_EAR);
+			const SoundFontData::LoopedAudioData* leftAudioData = audioSample->FindLoopedAudioData(SoundFontData::LoopedAudioData::ChannelType::LEFT_EAR);
+			const SoundFontData::LoopedAudioData* rightAudioData = audioSample->FindLoopedAudioData(SoundFontData::LoopedAudioData::ChannelType::RIGHT_EAR);
 
 			if (!leftAudioData || !rightAudioData)
 			{
@@ -159,8 +159,15 @@ void SampleBasedSynth::SetSoundFontData(uint16_t channel, SoundFontData* soundFo
 	}
 
 	Error error;
-	for (uint32_t i = 0; i < soundFontData->GetNumPitchDatas(); i++)
-		soundFontData->GetPitchData(i)->CalcAnalyticalPitchAndVolume(error);
+	for (uint32_t i = 0; i < soundFontData->GetNumAudioSamples(); i++)
+	{
+		const SoundFontData::AudioSample* audioSample = soundFontData->GetAudioSample(i);
+		for (uint32_t j = 0; j < audioSample->GetNumLoopedAudioDatas(); j++)
+		{
+			const SoundFontData::LoopedAudioData* audioData = audioSample->GetLoopedAudioData(j);
+			audioData->GetMetaData();		// We have to warm this cache before the synth starts up.
+		}
+	}
 
 	this->soundFontMap->insert(std::pair<uint16_t, SoundFontData*>(channel, soundFontData));
 }

@@ -36,6 +36,7 @@ int main(int argc, char** argv)
 	parser.RegisterArg("trim_end", 2, "Truncate the given WAV file by the given number of seconds.  This modifies the given file.");
 	parser.RegisterArg("help", 0, "Show the usage.");
 	parser.RegisterArg("dump_info", 1, "Load the given file and then dump some stats about it.");
+	parser.RegisterArg("dump_csv", 1, "Load the given file and then use it to dump a CSV to disk.");
 	parser.RegisterArg("unpack", 1, "Unpack the given sound-font file by generating from it a bunch of WAV files for all the samples it contains.");
 	
 	std::string error;
@@ -57,12 +58,17 @@ int main(int argc, char** argv)
 		return 0;
 	}
 
-	if (parser.ArgGiven("dump_info"))
+	if (parser.ArgGiven("dump_info") || parser.ArgGiven("dump_csv"))
 	{
-		const std::string& filePath = parser.GetArgValue("dump_info", 0);
+		std::string filePath;
+
+		if (parser.ArgGiven("dump_info"))
+			filePath = parser.GetArgValue("dump_info", 0);
+		else
+			filePath = parser.GetArgValue("dump_csv", 0);
 
 		Error error;
-		if (!DumpInfo(filePath, error))
+		if (!DumpInfo(filePath, parser.ArgGiven("dump_csv"), error))
 		{
 			fprintf(stderr, error.GetErrorMessage().c_str());
 			return -1;
@@ -664,7 +670,7 @@ bool MixAudio(const std::vector<std::string>& sourceFileArray, const std::string
 	return success;
 }
 
-bool DumpInfo(const std::string& filePath, AudioDataLib::Error& error)
+bool DumpInfo(const std::string& filePath, bool csv, AudioDataLib::Error& error)
 {
 	bool success = false;
 	FileFormat* fileFormat = nullptr;
@@ -692,7 +698,10 @@ bool DumpInfo(const std::string& filePath, AudioDataLib::Error& error)
 			break;
 		}
 
-		fileData->DumpInfo(stdout);
+		if (csv)
+			fileData->DumpCSV(stdout);
+		else
+			fileData->DumpInfo(stdout);
 
 		success = true;
 	} while (false);
@@ -745,21 +754,21 @@ bool UnpackSoundFont(const std::string& filePath, AudioDataLib::Error& error)
 			break;
 		}
 
-		if (soundFontData->GetNumPitchDatas() == 0)
+		if (soundFontData->GetNumAudioSamples() == 0)
 		{
-			error.Add("No pitch datas found in the sound font data!");
+			error.Add("No audio samples found in the sound font data!");
 			break;
 		}
 
 		WaveFileFormat waveFileFormat;
 
-		for (uint32_t i = 0; i < soundFontData->GetNumPitchDatas(); i++)
+		for (uint32_t i = 0; i < soundFontData->GetNumAudioSamples(); i++)
 		{
-			const SoundFontData::PitchData* pitchData = soundFontData->GetPitchData(i);
+			const SoundFontData::AudioSample* audioSample = soundFontData->GetAudioSample(i);
 			
-			for (uint32_t j = 0; j < pitchData->GetNumLoopedAudioDatas(); j++)
+			for (uint32_t j = 0; j < audioSample->GetNumLoopedAudioDatas(); j++)
 			{
-				const SoundFontData::LoopedAudioData* audioData = pitchData->GetLoopedAudioData(j);
+				const SoundFontData::LoopedAudioData* audioData = audioSample->GetLoopedAudioData(j);
 
 				std::string sampleFilePath = (std::filesystem::path(filePath).parent_path() / std::filesystem::path(filePath).stem()).string();
 				sampleFilePath += "__" + audioData->GetName();
