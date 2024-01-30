@@ -5,6 +5,7 @@
 #include "AttenuationModule.h"
 #include "MidiData.h"
 #include "MixerModule.h"
+#include "Function.h"
 #include "Error.h"
 
 using namespace AudioDataLib;
@@ -24,6 +25,14 @@ SampleBasedSynth::SampleBasedSynth(bool ownsAudioStream, bool ownsSoundFontData)
 	delete this->soundFontMap;
 	delete this->mixerModuleLeftEar;
 	delete this->mixerModuleRightEar;
+}
+
+/*virtual*/ bool SampleBasedSynth::GenerateAudio(Error& error)
+{
+	this->mixerModuleLeftEar->PruneDeadBranches();
+	this->mixerModuleRightEar->PruneDeadBranches();
+
+	return MidiSynth::GenerateAudio(error);
 }
 
 /*virtual*/ bool SampleBasedSynth::ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize, Error& error)
@@ -102,7 +111,22 @@ SampleBasedSynth::SampleBasedSynth(bool ownsAudioStream, bool ownsSoundFontData)
 		}
 		case MidiData::ChannelEvent::NOTE_OFF:
 		{
-			// TODO: Signal note to taper off...
+			uint8_t pitchValue = channelEvent.param1;
+
+			auto attenuationModuleLeft = dynamic_cast<AttenuationModule*>(this->mixerModuleLeftEar->GetModule(pitchValue));
+			auto attenuationModuleRight = dynamic_cast<AttenuationModule*>(this->mixerModuleRightEar->GetModule(pitchValue));
+
+			if (!attenuationModuleLeft || !attenuationModuleRight)
+			{
+				error.Add(FormatString("Failed to find attenuation modules for pitch %d.", pitchValue));
+				return false;
+			}
+
+			attenuationModuleLeft->SetAttenuationFunction(new LinearFallOffFunction(0.2));
+			attenuationModuleRight->SetAttenuationFunction(new LinearFallOffFunction(0.2));
+
+			attenuationModuleLeft->TriggerFallOff();
+			attenuationModuleRight->TriggerFallOff();
 
 			break;
 		}

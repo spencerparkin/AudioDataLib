@@ -43,6 +43,23 @@ void MixerModule::Clear()
 	this->synthModuleMap->clear();
 }
 
+void MixerModule::PruneDeadBranches()
+{
+	std::vector<uint32_t> doomedKeysArray;
+
+	for (auto pair : *this->synthModuleMap)
+	{
+		if (pair.second->CantGiveAnymoreSound())
+		{
+			doomedKeysArray.push_back(pair.first);
+			delete pair.second;
+		}
+	}
+
+	for (uint32_t key : doomedKeysArray)
+		this->synthModuleMap->erase(key);
+}
+
 void MixerModule::SetModule(uint32_t key, SynthModule* synthModule)
 {
 	SynthModuleMap::iterator iter = this->synthModuleMap->find(key);

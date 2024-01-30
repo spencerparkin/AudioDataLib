@@ -26,6 +26,8 @@ set(LIBRARY_SOURCES
     Math/ComplexNumber.h
     Math/ComplexVector.cpp
     Math/ComplexVector.h
+    Math/Function.cpp
+    Math/Function.h
     MIDI/LogSynth.cpp
     MIDI/LogSynth.h
     MIDI/MidiPlayer.cpp

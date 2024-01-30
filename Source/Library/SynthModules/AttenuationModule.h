@@ -4,7 +4,9 @@
 
 namespace AudioDataLib
 {
-		class AUDIO_DATA_LIB_API AttenuationModule : public SynthModule
+	class Function;
+
+	class AUDIO_DATA_LIB_API AttenuationModule : public SynthModule
 	{
 	public:
 		AttenuationModule();
@@ -16,8 +18,15 @@ namespace AudioDataLib
 		void SetDependentModule(SynthModule* synthModule);
 		SynthModule* GetDependentModule();
 
+		void SetAttenuationFunction(Function* function);
+		Function* GetAttenuationFunction() { return this->attenuationFunction; }
+
+		void TriggerFallOff();
+
 	private:
 		SynthModule* dependentModule;
 		bool fallOff;
+		Function* attenuationFunction;
+		double fallOffTimeSeconds;
 	};
 }

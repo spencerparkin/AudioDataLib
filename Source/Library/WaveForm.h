@@ -62,8 +62,8 @@ namespace AudioDataLib
 		double GetMinAmplitude() const;
 		InterpolationMethod GetInterpolationMethod() const { return this->interpMethod; }
 		void SetInterpolateionMethod(InterpolationMethod interpMethod) { this->interpMethod = interpMethod; }
-		bool CalcDominantFrequency(double& dominantFrequency, Error& error) const;
 		const std::vector<Sample>& GetSampleArray() const { return *this->sampleArray; }
+		std::vector<Sample>& GetSampleArray() { return *this->sampleArray; }
 
 	protected:
 

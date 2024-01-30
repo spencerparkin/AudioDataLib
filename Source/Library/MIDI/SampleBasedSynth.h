@@ -15,6 +15,7 @@ namespace AudioDataLib
 
 		virtual bool ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize, Error& error) override;
 		virtual SynthModule* GetRootModule(uint16_t channel) override;
+		virtual bool GenerateAudio(Error& error) override;
 
 		void SetSoundFontData(uint16_t channel, SoundFontData* soundFontData);
 		SoundFontData* GetSoundFontData(uint16_t channel);

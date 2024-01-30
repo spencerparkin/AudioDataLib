@@ -468,9 +468,3 @@ void WaveForm::Scale(double scale)
 	for (Sample& sample : *this->sampleArray)
 		sample.amplitude *= scale;
 }
-
-bool WaveForm::CalcDominantFrequency(double& dominantFrequency, Error& error) const
-{
-	error.Add("Not yet implimented.");
-	return false;
-}

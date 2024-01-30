@@ -21,6 +21,8 @@ namespace AudioDataLib
 
 		const SynthModuleMap& GetModuleMap() const { return *this->synthModuleMap; }
 
+		void PruneDeadBranches();
+
 	protected:
 		SynthModuleMap* synthModuleMap;
 	};

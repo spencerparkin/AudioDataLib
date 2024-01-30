@@ -14,4 +14,3 @@ bool MixAudio(const std::vector<std::string>& sourceFileArray, const std::string
 bool DumpInfo(const std::string& filePath, AudioDataLib::Error& error);
 bool UnpackSoundFont(const std::string& filePath, AudioDataLib::Error& error);
 bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error);
-void RunTest();
