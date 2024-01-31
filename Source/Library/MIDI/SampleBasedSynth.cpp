@@ -62,12 +62,17 @@ SampleBasedSynth::SampleBasedSynth(bool ownsAudioStream, bool ownsSoundFontData)
 			double noteFrequency = this->MidiPitchToFrequency(pitchValue);
 			double noteVolume = this->MidiVelocityToAmplitude(velocityValue);
 
+			printf("Frequency: %f Hz\n", noteFrequency);
+
 			const SoundFontData::AudioSample* audioSample = soundFontData->FindClosestAudioSample(noteFrequency, noteVolume);
 			if (!audioSample)
 			{
 				error.Add(FormatString("Failed to find audio sample for pitch %f and volume %f.", noteFrequency, noteVolume));
 				return false;
 			}
+
+			printf("Audio sample frequency: %f Hz\n", audioSample->GetLoopedAudioData(0)->GetMetaData()->analyticalPitch);
+			printf("Audio sample name: %s\n", audioSample->GetLoopedAudioData(0)->GetName().c_str());
 
 			const SoundFontData::LoopedAudioData* leftAudioData = audioSample->FindLoopedAudioData(SoundFontData::LoopedAudioData::ChannelType::LEFT_EAR);
 			const SoundFontData::LoopedAudioData* rightAudioData = audioSample->FindLoopedAudioData(SoundFontData::LoopedAudioData::ChannelType::RIGHT_EAR);
