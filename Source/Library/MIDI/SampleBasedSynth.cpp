@@ -92,6 +92,12 @@ SampleBasedSynth::SampleBasedSynth(bool ownsAudioStream, bool ownsSoundFontData)
 			auto attenuationModuleLeft = new AttenuationModule();
 			auto attenuationModuleRight = new AttenuationModule();
 
+			// TODO: There is a bug here.  If you trill, sometimes a note is created of the same pitch
+			//       as one that has not yet faded out, and so what we do here is cut that note off
+			//       prematurely.  I think we need to change how the mixer works as a container.  I
+			//       think the caller should have to maintain a handle to the added module for later
+			//       reference.  The mixer just maintains a list, not a map.  We will handle the map.
+			//       Modules in the list of the mixer can fade away and die as needed.
 			this->mixerModuleLeftEar->SetModule(pitchValue, attenuationModuleLeft);
 			this->mixerModuleRightEar->SetModule(pitchValue, attenuationModuleRight);
 
