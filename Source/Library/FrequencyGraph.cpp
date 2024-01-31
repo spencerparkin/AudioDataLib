@@ -112,7 +112,7 @@ void FrequencyGraph::GenerateSmootherGraph(FrequencyGraph& smootherGraph, double
 	}
 }
 
-double FrequencyGraph::EstimateFundamentalFrequency(double strengthThreshold /*= 26.0*/, double frequencyRadius /*= 8.0*/) const
+double FrequencyGraph::EstimateFundamentalFrequency(double strengthThreshold /*= 35.0*/) const
 {
 	for (uint32_t i = 1; i < this->plotArray->size() - 1; i++)
 	{

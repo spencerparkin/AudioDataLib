@@ -32,7 +32,7 @@ namespace AudioDataLib
 
 		// This assumes we're working with a monophonic signal.
 		// Note that the fundamental frequency is not necessarily the perceived pitch.
-		double EstimateFundamentalFrequency(double strengthThreshold = 26.0, double frequencyRadius = 8.0) const;
+		double EstimateFundamentalFrequency(double strengthThreshold = 35.0) const;
 
 	protected:
 		
