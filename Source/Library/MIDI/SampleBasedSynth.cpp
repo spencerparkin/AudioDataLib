@@ -101,16 +101,15 @@ SampleBasedSynth::SampleBasedSynth(bool ownsAudioStream, bool ownsSoundFontData)
 			pitchShiftModuleLeft->SetDependentModule(loopedAudioModuleLeft);
 			pitchShiftModuleRight->SetDependentModule(loopedAudioModuleRight);
 
-			// TODO: Will this be slow?
+			// This seems fast enough, but we could benefit from some caching here.
 			if (!loopedAudioModuleLeft->UseLoopedAudioData(leftAudioData, 0, error))
 				return false;
 
 			if (!loopedAudioModuleRight->UseLoopedAudioData(rightAudioData, 0, error))
 				return false;
 
-			// TODO: Enable these two lines when ready.
-			//pitchShiftModuleLeft->SetSourceAndTargetFrequencies(pitchData->GetAnalyticalPitch(), noteFrequency);
-			//pitchShiftModuleRight->SetSourceAndTargetFrequencies(pitchData->GetAnalyticalPitch(), noteFrequency);
+			pitchShiftModuleLeft->SetSourceAndTargetFrequencies(leftAudioData->GetMetaData()->analyticalPitch, noteFrequency);
+			pitchShiftModuleRight->SetSourceAndTargetFrequencies(rightAudioData->GetMetaData()->analyticalPitch, noteFrequency);
 
 			break;
 		}

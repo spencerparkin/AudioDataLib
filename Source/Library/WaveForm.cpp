@@ -220,7 +220,7 @@ bool WaveForm::ConvertToAudioBuffer(const AudioData::Format& format, uint8_t* au
 	return true;
 }
 
-double WaveForm::EvaluateAt(double timeSeconds) const
+/*virtual*/ double WaveForm::EvaluateAt(double timeSeconds) const
 {
 	SampleBounds sampleBounds{ nullptr, nullptr };
 	if (!this->FindTightestSampleBounds(timeSeconds, sampleBounds))

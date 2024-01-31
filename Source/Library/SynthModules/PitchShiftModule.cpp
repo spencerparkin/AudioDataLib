@@ -1,5 +1,6 @@
 #include "PitchShiftModule.h"
 #include "Error.h"
+#include "WaveForm.h"
 
 using namespace AudioDataLib;
 
@@ -27,16 +28,21 @@ PitchShiftModule::PitchShiftModule()
 		// We're just a no-op/pass-through in this case.
 		return this->dependentModule->GenerateSound(durationSeconds, samplesPerSecond, waveForm, error);
 	}
-	else if (this->targetFrequency > this->sourceFrequency)
+	
+	double neededTimeSeconds = (this->targetFrequency / this->sourceFrequency) * durationSeconds;
+	if (!this->dependentModule->GenerateSound(neededTimeSeconds, samplesPerSecond, waveForm, error))
+		return false;
+
+	double startTimeSeconds = waveForm.GetStartTime();
+	double endTimeSeconds = waveForm.GetEndTime();
+
+	for (WaveForm::Sample& sample : waveForm.GetSampleArray())
 	{
-		// TODO: Write this.
-	}
-	else if (this->targetFrequency < this->sourceFrequency)
-	{
-		// TODO: Write this.
+		double alpha = (sample.timeSeconds - startTimeSeconds) / (endTimeSeconds - startTimeSeconds);
+		sample.timeSeconds = alpha * durationSeconds;
 	}
 
-	return false;
+	return true;
 }
 
 void PitchShiftModule::SetSourceAndTargetFrequencies(double sourceFrequency, double targetFrequency)

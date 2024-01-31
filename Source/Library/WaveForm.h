@@ -2,13 +2,14 @@
 
 #include "AudioData.h"
 #include "ComplexNumber.h"
+#include "Function.h"
 
 namespace AudioDataLib
 {
 	class Error;
 
 	// To be more specific, this is a descrete wave-form.
-	class AUDIO_DATA_LIB_API WaveForm
+	class AUDIO_DATA_LIB_API WaveForm : public Function
 	{
 		friend class Index;
 
@@ -45,7 +46,7 @@ namespace AudioDataLib
 		void Copy(const WaveForm* waveForm);
 		void AddSample(const Sample& sample);
 		void MakeSilence(double samplesPerSecond, double totalSeconds);
-		double EvaluateAt(double timeSeconds) const;
+		virtual double EvaluateAt(double timeSeconds) const override;
 		void SumTogether(const std::list<WaveForm*>& waveFormList);
 		bool FindTightestSampleBounds(double timeSeconds, SampleBounds& sampleBounds) const;
 		bool Renormalize();
