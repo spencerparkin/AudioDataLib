@@ -90,6 +90,8 @@ namespace AudioDataLib
 			{
 				uint16_t minKey, maxKey;
 				uint16_t minVel, maxVel;
+
+				bool Contains(uint16_t key, uint16_t vel) const;
 			};
 
 			void SetLocation(const Location& location) { this->location = location; }
@@ -142,6 +144,7 @@ namespace AudioDataLib
 		const AudioSample* GetAudioSample(uint32_t i) const;
 
 		const AudioSample* FindClosestAudioSample(double pitch, double volume) const;
+		const AudioSample* FindRelevantAudioSample(uint16_t midiKey, uint16_t midiVelocity) const;
 
 	private:
 		GeneralInfo* generalInfo;

@@ -121,6 +121,26 @@ const SoundFontData::AudioSample* SoundFontData::FindClosestAudioSample(double p
 	return closestAudioSample;
 }
 
+const SoundFontData::AudioSample* SoundFontData::FindRelevantAudioSample(uint16_t midiKey, uint16_t midiVelocity) const
+{
+	for (const AudioSample* audioSample : *this->audioSampleArray)
+	{
+		uint32_t j = 0;
+
+		for (uint32_t i = 0; i < audioSample->GetNumLoopedAudioDatas(); i++)
+		{
+			const LoopedAudioData* audioData = audioSample->GetLoopedAudioData(i);
+			if (audioData->GetLocation().Contains(midiKey, midiVelocity))
+				j++;
+		}
+
+		if (j == audioSample->GetNumLoopedAudioDatas())
+			return audioSample;
+	}
+
+	return nullptr;
+}
+
 SoundFontData::LoopedAudioData* SoundFontData::FindLoopedAudioData(uint32_t sampleID)
 {
 	for (AudioSample* audioSample : *this->audioSampleArray)
@@ -146,6 +166,12 @@ SoundFontData::LoopedAudioData::LoopedAudioData()
 /*virtual*/ SoundFontData::LoopedAudioData::~LoopedAudioData()
 {
 	delete this->name;
+}
+
+bool SoundFontData::LoopedAudioData::Location::Contains(uint16_t key, uint16_t vel) const
+{
+	return this->minKey <= key && key <= this->maxKey &&
+			this->minVel <= vel && vel <= this->maxVel;
 }
 
 /*virtual*/ void SoundFontData::LoopedAudioData::DumpInfo(FILE* fp) const
