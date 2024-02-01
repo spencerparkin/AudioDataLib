@@ -97,13 +97,11 @@ SoundFontFormat::SoundFontFormat()
 		if (isftChunk)
 			generalInfo.soundFontToolRecord.assign((const char*)isftChunk->GetBuffer(), isftChunk->GetBufferSize());
 
-#if false		// TODO: Right now, I don't know how to make heads or tails of this data.
 		if (!this->ReadCrazyData(parser, 'i', error))
 			break;
 
 		if (!this->ReadCrazyData(parser, 'p', error))
 			break;
-#endif
 
 		const ChunkParser::Chunk* smplChunk = parser.FindChunk("smpl", false);
 		if (smplChunk)
@@ -303,7 +301,8 @@ bool SoundFontFormat::ReadCrazyData(ChunkParser& parser, char prefix, Error& err
 			baseBagIndex = preset.bagIndex;
 		}
 
-		for (uint32_t j = 0; j < numZones; j++)
+		// We always skip the first zone, because it doesn't seem to have a clearly defined termination of its generator list.
+		for (uint32_t j = 1; j < numZones; j++)
 		{
 			const SF_Bag& bag = bagArray[baseBagIndex + j];
 
@@ -313,17 +312,59 @@ bool SoundFontFormat::ReadCrazyData(ChunkParser& parser, char prefix, Error& err
 				break;
 			}
 
-			const SF_Generator& generator = generatorArray[bag.generatorIndex];
-			switch (generator.op)
+			printf("============================\n");
+			printf("Zone %d...\n", j);
+
+			// TODO: Parse crazy data after we've collected all the samples.  We can then
+			//       add pitch ranges and velocity ranges to that data as we scan it here.
+			//       These ranges can be used to look-up the correct sample when a MIDI key
+			//       is pressed on the keyboard!
+			const SF_Generator* generator = &generatorArray[bag.generatorIndex];
+			while (generator->op != ADL_GENERATOR_OP_END)
 			{
-			case ADL_GENERATOR_OP_KEY_RANGE:
-				printf("Key range: %d, %d\n", generator.range.min, generator.range.max);
+				switch (generator->op)
+				{
+				case ADL_GENERATOR_OP_KEY_RANGE:
+					printf("Key range: %d, %d\n", generator->range.min, generator->range.max);
+					break;
+				case ADL_GENERATOR_OP_VEL_RANGE:
+					printf("Vel range: %d, %d\n", generator->range.min, generator->range.max);
+					break;
+				case ADL_GENERATOR_OP_SAMPLE_ID:
+					printf("SampleID = %d\n", generator->amount);
+					break;
+				case ADL_GENERATOR_OP_INSTRUMENT:
+					printf("Instrument = %d\n", generator->amount);
+					break;
+				default:
+					printf("?\n");
+					break;
+				}
+
+				// It's extremely vague in the documentation, but this should mark the end of the zone's generator list.
+				if (generator->op == ADL_GENERATOR_OP_SAMPLE_ID)
+					break;
+
+				generator++;
+			}
+
+			if (bag.modulatorIndex >= numModulators)
+			{
+				error.Add("Modulator index out of range.");
 				break;
-			case ADL_GENERATOR_OP_VEL_RANGE:
-				printf("Vel range: %d, %d\n", generator.range.min, generator.range.max);
-				break;
+			}
+
+			const SF_Modulator& modulator = modulatorArray[bag.modulatorIndex];
+			switch (modulator.destinationOp)
+			{
 			case ADL_GENERATOR_OP_SAMPLE_ID:
-				printf("SampleID = %d\n", generator.amount);
+				printf("SampleID = %d\n", modulator.amount);
+				break;
+			case ADL_GENERATOR_OP_INSTRUMENT:
+				printf("Instrument = %d\n", modulator.amount);
+				break;
+			default:
+				printf("?\n");
 				break;
 			}
 		}
