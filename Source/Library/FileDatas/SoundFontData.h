@@ -74,6 +74,17 @@ namespace AudioDataLib
 			const Loop& GetLoop() const { return this->loop; }
 			void SetLoop(const Loop& loop) { this->loop = loop; }
 
+			enum Mode : uint8_t
+			{
+				NOT_LOOPED,
+				GETS_TRAPPED_IN_LOOP,
+				UNUSED,
+				EXIT_LOOP_ON_RELEASE
+			};
+
+			Mode GetMode() const { return this->mode; }
+			void SetMode(Mode mode) { this->mode = mode; }
+
 			enum ChannelType
 			{
 				MONO,
@@ -103,6 +114,7 @@ namespace AudioDataLib
 		protected:
 			std::string* name;
 			Loop loop;
+			Mode mode;
 			Location location;
 			ChannelType channelType;
 			uint32_t sampleID;

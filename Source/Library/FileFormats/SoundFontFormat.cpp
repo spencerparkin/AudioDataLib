@@ -198,6 +198,7 @@ SoundFontFormat::SoundFontFormat()
 		uint32_t numGenerators = igenChunk->GetBufferSize() / sizeof(SF_Generator);
 		SoundFontData::LoopedAudioData::Location location;
 		::memset(&location, 0, sizeof(location));
+		uint8_t looperMode = 0;
 		for (uint32_t i = 0; i < numGenerators; i++)
 		{
 			const SF_Generator* generator = &generatorArray[i];
@@ -218,6 +219,12 @@ SoundFontFormat::SoundFontFormat()
 					location.maxVel = generator->range.max;
 					break;
 				}
+				case ADL_GENERATOR_OP_SAMPLE_MODES:
+				{
+					// TODO: We don't seem to ever get here, so I'm not sure if this code is correct.  Maybe because it's only going to be found in the PMOD chunk?
+					looperMode = generator->amount & 0xFF;
+					break;
+				}
 				case ADL_GENERATOR_OP_SAMPLE_ID:
 				{
 					uint32_t sampleID = generator->amount;
@@ -229,6 +236,8 @@ SoundFontFormat::SoundFontFormat()
 					}
 
 					audioData->SetLocation(location);
+					//audioData->SetMode(SoundFontData::LoopedAudioData::Mode(looperMode));
+
 					::memset(&location, 0, sizeof(location));
 					break;
 				}
@@ -318,6 +327,11 @@ SoundFontData::AudioSample* SoundFontFormat::ConstructAudioSample(
 		loop.startFrame = header.sampleLoopStart - header.sampleStart;
 		loop.endFrame = header.sampleLoopEnd - header.sampleStart;
 		loopedAudioData->SetLoop(loop);
+
+		if (loop.startFrame == 0 || loop.endFrame == header.sampleEnd - header.sampleStart)
+			loopedAudioData->SetMode(SoundFontData::LoopedAudioData::Mode::NOT_LOOPED);
+		else
+			loopedAudioData->SetMode(SoundFontData::LoopedAudioData::Mode::GETS_TRAPPED_IN_LOOP);
 
 		AudioData::Format& format = loopedAudioData->GetFormat();
 

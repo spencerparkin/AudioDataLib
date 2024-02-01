@@ -85,5 +85,7 @@ bool LoopedAudioModule::UseLoopedAudioData(const SoundFontData::LoopedAudioData*
 
 	this->localTimeSeconds = 0.0;
 
+	// TODO: Obey the mode of the given looped audio.
+
 	return true;
 }

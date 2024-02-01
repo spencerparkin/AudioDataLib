@@ -163,6 +163,7 @@ SoundFontData::LoopedAudioData::LoopedAudioData()
 	this->loop.endFrame = 0;
 	this->name = new std::string();
 	this->channelType = ChannelType::MONO;
+	this->mode = Mode::GETS_TRAPPED_IN_LOOP;
 	::memset(&this->location, 0, sizeof(location));
 }
 
@@ -212,11 +213,27 @@ bool SoundFontData::LoopedAudioData::Location::Contains(uint16_t key, uint16_t v
 		break;
 	}
 
+	const char* modeStr = "?";
+
+	switch (this->mode)
+	{
+	case Mode::GETS_TRAPPED_IN_LOOP:
+		modeStr = "Gets trapped in looped.";
+		break;
+	case Mode::EXIT_LOOP_ON_RELEASE:
+		modeStr = "Exits loop on release.";
+		break;
+	case Mode::NOT_LOOPED:
+		modeStr = "Not looped.";
+		break;
+	}
+
 	fprintf(fp, "Name: %s\n", this->name->c_str());
 	fprintf(fp, "Loop start frame: %lld\n", this->loop.startFrame);
 	fprintf(fp, "Loop end frame: %lld\n", this->loop.endFrame);
 	fprintf(fp, "Num frames: %lld\n", this->GetNumFrames());
 	fprintf(fp, "Channel type: %s\n", channelTypeStr);
+	fprintf(fp, "Mode: %s\n", modeStr);
 	fprintf(fp, "Min/max keys: [%d, %d]\n", this->location.minKey, this->location.maxKey);
 	fprintf(fp, "Min/max vels: [%d, %d]\n", this->location.minVel, this->location.maxVel);
 
