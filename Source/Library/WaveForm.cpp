@@ -404,12 +404,26 @@ double WaveForm::AverageSampleRate() const
 double WaveForm::CalcAverageVolume() const
 {
 	double averageVolume = 0.0;
+	double numPeaksAndVallies = 0.0;
 
-	for (const Sample& sample : *this->sampleArray)
-		averageVolume += ::fabs(sample.amplitude);
+	for (uint32_t i = 1; i < this->sampleArray->size() - 1; i++)
+	{
+		const Sample& sampleA = (*this->sampleArray)[i - 1];
+		const Sample& sampleB = (*this->sampleArray)[i];
+		const Sample& sampleC = (*this->sampleArray)[i + 1];
 
-	if (this->sampleArray->size() != 0)
-		averageVolume /= double(this->sampleArray->size());
+		double slopeA = (sampleB.amplitude - sampleA.amplitude) / (sampleB.timeSeconds - sampleA.timeSeconds);
+		double slopeB = (sampleC.amplitude - sampleB.amplitude) / (sampleC.timeSeconds - sampleB.timeSeconds);
+
+		if (ADL_SIGN(slopeA) != ADL_SIGN(slopeB))
+		{
+			averageVolume += ::abs(sampleB.amplitude);
+			numPeaksAndVallies += 1.0;
+		}
+	}
+
+	if (numPeaksAndVallies != 0.0)
+		averageVolume /= numPeaksAndVallies;
 
 	return averageVolume;
 }
