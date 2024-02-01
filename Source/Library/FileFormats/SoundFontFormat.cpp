@@ -143,9 +143,9 @@ SoundFontFormat::SoundFontFormat()
 					continue;
 
 				processedHeaderSet.insert(i);
-				std::vector<SF_SampleHeader> pitchSampleHeaderArray;
+				std::vector<SF_SampleHeader> audioSampleHeaderArray;
 				const SF_SampleHeader* header = &sampleHeaderArray[i];
-				pitchSampleHeaderArray.push_back(*header);
+				audioSampleHeaderArray.push_back(*header);
 				
 				if ((header->sampleType & ADL_SAMPLE_TYPE_BIT_ROM) != 0)
 					continue;	// Just ignore ROM samples for now.
@@ -166,14 +166,14 @@ SoundFontFormat::SoundFontFormat()
 
 						processedHeaderSet.insert(j);
 						header = &sampleHeaderArray[j];
-						pitchSampleHeaderArray.push_back(*header);
+						audioSampleHeaderArray.push_back(*header);
 					}
 
 					if (error)
 						break;
 				}
 
-				SoundFontData::AudioSample* audioSample = this->ConstructAudioSample(pitchSampleHeaderArray, smplChunk, sm24Chunk, error);
+				SoundFontData::AudioSample* audioSample = this->ConstructAudioSample(audioSampleHeaderArray, smplChunk, sm24Chunk, error);
 				if (!audioSample)
 					break;
 
@@ -379,13 +379,13 @@ bool SoundFontFormat::ReadCrazyData(ChunkParser& parser, char prefix, Error& err
 	return true;
 }
 
-SoundFontData::AudioSample* SoundFontFormat::ConstructAudioSample(const std::vector<SF_SampleHeader>& pitchSampleHeaderArray, const ChunkParser::Chunk* smplChunk, const ChunkParser::Chunk* sm24Chunk, Error& error)
+SoundFontData::AudioSample* SoundFontFormat::ConstructAudioSample(const std::vector<SF_SampleHeader>& audioSampleHeaderArray, const ChunkParser::Chunk* smplChunk, const ChunkParser::Chunk* sm24Chunk, Error& error)
 {
-	if (pitchSampleHeaderArray.size() == 0)
+	if (audioSampleHeaderArray.size() == 0)
 		return nullptr;
 
 	// Sanity check the headers against the sample chunk.
-	for (const SF_SampleHeader& header : pitchSampleHeaderArray)
+	for (const SF_SampleHeader& header : audioSampleHeaderArray)
 	{
 		if (!(header.sampleStart <= header.sampleEnd && header.sampleEnd <= smplChunk->GetBufferSize() / sizeof(uint16_t)))
 		{
@@ -417,9 +417,9 @@ SoundFontData::AudioSample* SoundFontFormat::ConstructAudioSample(const std::vec
 
 	// I'm not even going to check here that all the headers specify the same pitch.
 	// It seems as though this is always set to 60 no matter what.
-	audioSample->SetMIDIPitch(pitchSampleHeaderArray[0].originalPitch);
+	audioSample->SetMIDIPitch(audioSampleHeaderArray[0].originalPitch);
 
-	for (const SF_SampleHeader& header : pitchSampleHeaderArray)
+	for (const SF_SampleHeader& header : audioSampleHeaderArray)
 	{
 		auto loopedAudioData = new SoundFontData::LoopedAudioData();
 		audioSample->loopedAudioDataArray->push_back(loopedAudioData);
