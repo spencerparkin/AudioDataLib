@@ -111,12 +111,16 @@ SampleBasedSynth::SampleBasedSynth(bool ownsAudioStream, bool ownsSoundFontData)
 			pitchShiftModuleLeft->SetDependentModule(loopedAudioModuleLeft);
 			pitchShiftModuleRight->SetDependentModule(loopedAudioModuleRight);
 
-			// This seems fast enough, but we could benefit from some caching here.
+			// TODO: I think this is too slow.  When we play a large chord, there is a very noticable delay.  Fix it.
 			if (!loopedAudioModuleLeft->UseLoopedAudioData(leftAudioData, 0, error))
 				return false;
 
 			if (!loopedAudioModuleRight->UseLoopedAudioData(rightAudioData, 0, error))
 				return false;
+
+			// TODO: There is a bug where a piano note left on will decay, but then play again before you've lifted the key.
+			//       I think that I need to review the looping rules and know when a sound sample is supposed to be done, at
+			//       which point, it should get pruned automatically even if there is no off-event given.
 
 			pitchShiftModuleLeft->SetSourceAndTargetFrequencies(leftAudioData->GetMetaData()->analyticalPitch, noteFrequency);
 			pitchShiftModuleRight->SetSourceAndTargetFrequencies(rightAudioData->GetMetaData()->analyticalPitch, noteFrequency);
