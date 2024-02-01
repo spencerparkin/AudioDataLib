@@ -97,12 +97,6 @@ SoundFontFormat::SoundFontFormat()
 		if (isftChunk)
 			generalInfo.soundFontToolRecord.assign((const char*)isftChunk->GetBuffer(), isftChunk->GetBufferSize());
 
-		if (!this->ReadCrazyData(parser, 'i', error))
-			break;
-
-		if (!this->ReadCrazyData(parser, 'p', error))
-			break;
-
 		const ChunkParser::Chunk* smplChunk = parser.FindChunk("smpl", false);
 		if (smplChunk)
 		{
@@ -143,9 +137,9 @@ SoundFontFormat::SoundFontFormat()
 					continue;
 
 				processedHeaderSet.insert(i);
-				std::vector<SF_SampleHeader> audioSampleHeaderArray;
+				std::vector<uint32_t> audioSampleIDArray;
 				const SF_SampleHeader* header = &sampleHeaderArray[i];
-				audioSampleHeaderArray.push_back(*header);
+				audioSampleIDArray.push_back(i);
 				
 				if ((header->sampleType & ADL_SAMPLE_TYPE_BIT_ROM) != 0)
 					continue;	// Just ignore ROM samples for now.
@@ -165,15 +159,15 @@ SoundFontFormat::SoundFontFormat()
 							break;
 
 						processedHeaderSet.insert(j);
+						audioSampleIDArray.push_back(j);
 						header = &sampleHeaderArray[j];
-						audioSampleHeaderArray.push_back(*header);
 					}
 
 					if (error)
 						break;
 				}
 
-				SoundFontData::AudioSample* audioSample = this->ConstructAudioSample(audioSampleHeaderArray, smplChunk, sm24Chunk, error);
+				SoundFontData::AudioSample* audioSample = this->ConstructAudioSample(sampleHeaderArray, audioSampleIDArray, smplChunk, sm24Chunk, error);
 				if (!audioSample)
 					break;
 
@@ -183,6 +177,69 @@ SoundFontFormat::SoundFontFormat()
 			if (error)
 				break;
 		}
+
+		if (error)
+			break;
+
+		const ChunkParser::Chunk* igenChunk = parser.FindChunk("igen", false);
+		if (!igenChunk)
+		{
+			error.Add("No \"igen\" chunk found.");
+			return false;
+		}
+
+		if (igenChunk->GetBufferSize() % sizeof(SF_Generator) != 0)
+		{
+			error.Add("The \"igen\" chunk is not a multiple in size of the generator structure.");
+			return false;
+		}
+
+		auto generatorArray = (const SF_Generator*)igenChunk->GetBuffer();
+		uint32_t numGenerators = igenChunk->GetBufferSize() / sizeof(SF_Generator);
+		SoundFontData::LoopedAudioData::Location location;
+		::memset(&location, 0, sizeof(location));
+		for (uint32_t i = 0; i < numGenerators; i++)
+		{
+			const SF_Generator* generator = &generatorArray[i];
+			if (generator->op == ADL_GENERATOR_OP_END)
+				break;
+
+			switch (generator->op)
+			{
+				case ADL_GENERATOR_OP_KEY_RANGE:
+				{
+					location.minKey = generator->range.min;
+					location.maxKey = generator->range.max;
+					break;
+				}
+				case ADL_GENERATOR_OP_VEL_RANGE:
+				{
+					location.minVel = generator->range.min;
+					location.maxVel = generator->range.max;
+					break;
+				}
+				case ADL_GENERATOR_OP_SAMPLE_ID:
+				{
+					uint32_t sampleID = generator->amount;
+					SoundFontData::LoopedAudioData* audioData = soundFontData->FindLoopedAudioData(sampleID);
+					if (!audioData)
+					{
+						error.Add(FormatString("Failed to find audio data with sample ID %d", sampleID));
+						break;
+					}
+
+					audioData->SetLocation(location);
+					::memset(&location, 0, sizeof(location));
+					break;
+				}
+			}
+
+			if (error)
+				break;
+		}
+
+		if (error)
+			break;
 
 		success = true;
 	} while (false);
@@ -195,198 +252,21 @@ SoundFontFormat::SoundFontFormat()
 	return success;
 }
 
-bool SoundFontFormat::ReadCrazyData(ChunkParser& parser, char prefix, Error& error)
+SoundFontData::AudioSample* SoundFontFormat::ConstructAudioSample(
+	const std::vector<SF_SampleHeader>& audioSampleHeaderArray,
+	const std::vector<uint32_t>& sampleIDArray,
+	const ChunkParser::Chunk* smplChunk,
+	const ChunkParser::Chunk* sm24Chunk,
+	Error& error)
 {
-	if (prefix != 'i' && prefix != 'p')
-	{
-		error.Add("Prefix must be 'i' or 'p'.");
-		return false;
-	}
-
-	const char* headerChunkName = (prefix == 'i') ? "inst" : "phdr";
-	uint32_t headerSize = (prefix == 'i') ? sizeof(SF_Instrument) : sizeof(SF_Preset);
-
-	const ChunkParser::Chunk* headerChunk = parser.FindChunk(headerChunkName, false);
-	if (!headerChunk)
-	{
-		error.Add(FormatString("No \"%s\" chunk found.", headerChunkName));
-		return false;
-	}
-
-	if (headerChunk->GetBufferSize() % headerSize != 0)
-	{
-		error.Add(FormatString("The \"%s\" chunk is not a multiple of the intrument structure size.", headerChunkName));
-		return false;
-	}
-
-	uint32_t numHeaders = headerChunk->GetBufferSize() / headerSize;
-
-	const char* bagChunkName = (prefix == 'i') ? "ibag" : "pbag";
-
-	const ChunkParser::Chunk* ibagChunk = parser.FindChunk(bagChunkName, false);
-	if (!ibagChunk)
-	{
-		error.Add(FormatString("No \"%s\" chunk found.", bagChunkName));
-		return false;
-	}
-
-	if (ibagChunk->GetBufferSize() % sizeof(SF_Bag) != 0)
-	{
-		error.Add(FormatString("The \"%s\" chunk is not a multiple of the bag structure size.", bagChunkName));
-		return false;
-	}
-
-	auto bagArray = (const SF_Bag*)ibagChunk->GetBuffer();
-	uint32_t numBags = ibagChunk->GetBufferSize() / sizeof(SF_Bag);
-
-	const char* modChunkName = (prefix == 'i') ? "imod" : "pmod";
-
-	const ChunkParser::Chunk* modChunk = parser.FindChunk(modChunkName, false);
-	if (!modChunk)
-	{
-		error.Add(FormatString("No \"%s\" chunk found.", modChunkName));
-		return false;
-	}
-
-	if (modChunk->GetBufferSize() % sizeof(SF_Modulator) != 0)
-	{
-		error.Add(FormatString("The \"%s\" chunk is not a multiple in size of the modulator structure.", modChunkName));
-		return false;
-	}
-
-	auto modulatorArray = (const SF_Modulator*)modChunk->GetBuffer();
-	uint32_t numModulators = modChunk->GetBufferSize() / sizeof(SF_Modulator);
-
-	const char* genChunkName = (prefix == 'i') ? "igen" : "pgen";
-
-	const ChunkParser::Chunk* igenChunk = parser.FindChunk(genChunkName, false);
-	if (!igenChunk)
-	{
-		error.Add(FormatString("No \"%s\" chunk found.", genChunkName));
-		return false;
-	}
-
-	if (igenChunk->GetBufferSize() % sizeof(SF_Generator) != 0)
-	{
-		error.Add(FormatString("The \"%s\" chunk is not a multiple in size of the generator structure.", genChunkName));
-		return false;
-	}
-
-	auto generatorArray = (const SF_Generator*)igenChunk->GetBuffer();
-	uint32_t numGenerators = igenChunk->GetBufferSize() / sizeof(SF_Generator);
-
-	for (uint32_t i = 0; i < numHeaders; i++)
-	{
-		uint32_t numZones = 0;
-		uint32_t baseBagIndex = 0;
-
-		if (prefix == 'i')
-		{
-			auto instrumentArray = (const SF_Instrument*)headerChunk->GetBuffer();
-			const SF_Instrument& instrument = instrumentArray[i];
-			if (::strcmp((const char*)instrument.name, "EOI") == 0)
-				break;
-
-			numZones = instrumentArray[i + 1].bagIndex - instrument.bagIndex;
-			baseBagIndex = instrument.bagIndex;
-		}
-		else if (prefix == 'p')
-		{
-			auto presetArray = (const SF_Preset*)headerChunk->GetBuffer();
-			const SF_Preset& preset = presetArray[i];
-			if (::strcmp((const char*)preset.name, "EOP") == 0)
-				break;
-
-			numZones = presetArray[i + 1].bagIndex - preset.bagIndex;
-			baseBagIndex = preset.bagIndex;
-		}
-
-		// We always skip the first zone, because it doesn't seem to have a clearly defined termination of its generator list.
-		for (uint32_t j = 1; j < numZones; j++)
-		{
-			const SF_Bag& bag = bagArray[baseBagIndex + j];
-
-			if (bag.generatorIndex >= numGenerators)
-			{
-				error.Add("Generator index out of range.");
-				break;
-			}
-
-			printf("============================\n");
-			printf("Zone %d...\n", j);
-
-			// TODO: Parse crazy data after we've collected all the samples.  We can then
-			//       add pitch ranges and velocity ranges to that data as we scan it here.
-			//       These ranges can be used to look-up the correct sample when a MIDI key
-			//       is pressed on the keyboard!
-			const SF_Generator* generator = &generatorArray[bag.generatorIndex];
-			while (generator->op != ADL_GENERATOR_OP_END)
-			{
-				switch (generator->op)
-				{
-				case ADL_GENERATOR_OP_KEY_RANGE:
-					printf("Key range: %d, %d\n", generator->range.min, generator->range.max);
-					break;
-				case ADL_GENERATOR_OP_VEL_RANGE:
-					printf("Vel range: %d, %d\n", generator->range.min, generator->range.max);
-					break;
-				case ADL_GENERATOR_OP_SAMPLE_ID:
-					printf("SampleID = %d\n", generator->amount);
-					break;
-				case ADL_GENERATOR_OP_INSTRUMENT:
-					printf("Instrument = %d\n", generator->amount);
-					break;
-				default:
-					printf("?\n");
-					break;
-				}
-
-				// It's extremely vague in the documentation, but this should mark the end of the zone's generator list.
-				if (generator->op == ADL_GENERATOR_OP_SAMPLE_ID)
-					break;
-
-				generator++;
-			}
-
-			if (bag.modulatorIndex >= numModulators)
-			{
-				error.Add("Modulator index out of range.");
-				break;
-			}
-
-			const SF_Modulator& modulator = modulatorArray[bag.modulatorIndex];
-			switch (modulator.destinationOp)
-			{
-			case ADL_GENERATOR_OP_SAMPLE_ID:
-				printf("SampleID = %d\n", modulator.amount);
-				break;
-			case ADL_GENERATOR_OP_INSTRUMENT:
-				printf("Instrument = %d\n", modulator.amount);
-				break;
-			default:
-				printf("?\n");
-				break;
-			}
-		}
-
-		if (error)
-			return false;
-	}
-
-	if (error)
-		return false;
-
-	return true;
-}
-
-SoundFontData::AudioSample* SoundFontFormat::ConstructAudioSample(const std::vector<SF_SampleHeader>& audioSampleHeaderArray, const ChunkParser::Chunk* smplChunk, const ChunkParser::Chunk* sm24Chunk, Error& error)
-{
-	if (audioSampleHeaderArray.size() == 0)
+	if (sampleIDArray.size() == 0)
 		return nullptr;
 
 	// Sanity check the headers against the sample chunk.
-	for (const SF_SampleHeader& header : audioSampleHeaderArray)
+	for (uint32_t i : sampleIDArray)
 	{
+		const SF_SampleHeader& header = audioSampleHeaderArray[i];
+
 		if (!(header.sampleStart <= header.sampleEnd && header.sampleEnd <= smplChunk->GetBufferSize() / sizeof(uint16_t)))
 		{
 			error.Add("Header boundaries not in range of the chunk.");
@@ -419,11 +299,14 @@ SoundFontData::AudioSample* SoundFontFormat::ConstructAudioSample(const std::vec
 	// It seems as though this is always set to 60 no matter what.
 	audioSample->SetMIDIPitch(audioSampleHeaderArray[0].originalPitch);
 
-	for (const SF_SampleHeader& header : audioSampleHeaderArray)
+	for (uint32_t i : sampleIDArray)
 	{
+		const SF_SampleHeader& header = audioSampleHeaderArray[i];
+
 		auto loopedAudioData = new SoundFontData::LoopedAudioData();
 		audioSample->loopedAudioDataArray->push_back(loopedAudioData);
 
+		loopedAudioData->SetSampleID(i);
 		loopedAudioData->SetName((const char*)header.sampleName);
 
 		if ((header.sampleType & ADL_SAMPLE_TYPE_BIT_LEFT) != 0)

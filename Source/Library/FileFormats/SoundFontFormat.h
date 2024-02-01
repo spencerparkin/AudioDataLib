@@ -39,8 +39,6 @@ namespace AudioDataLib
 			virtual bool ParseChunkData(ReadOnlyBufferStream& inputStream, Chunk* chunk, Error& error) override;
 		};
 
-		bool ReadCrazyData(ChunkParser& parser, char prefix, Error& error);
-
 #pragma pack(push, 1)
 		struct SF_Instrument
 		{
@@ -104,6 +102,11 @@ namespace AudioDataLib
 		};
 #pragma pack(pop)
 
-		SoundFontData::AudioSample* ConstructAudioSample(const std::vector<SF_SampleHeader>& audioSampleHeaderArray, const ChunkParser::Chunk* smplChunk, const ChunkParser::Chunk* sm24Chunk, Error& error);
+		SoundFontData::AudioSample* ConstructAudioSample(
+			const std::vector<SF_SampleHeader>& audioSampleHeaderArray,
+			const std::vector<uint32_t>& sampleIDArray,
+			const ChunkParser::Chunk* smplChunk,
+			const ChunkParser::Chunk* sm24Chunk,
+			Error& error);
 	};
 }

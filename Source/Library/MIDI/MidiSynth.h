@@ -26,10 +26,10 @@ namespace AudioDataLib
 		void SetAudioStream(AudioStream* audioStream);
 		AudioStream* GetAudioStream() { return this->audioStream; }
 
+		static double MidiPitchToFrequency(uint8_t pitchValue);
+		static double MidiVelocityToAmplitude(uint8_t velocityValue);
+
 	protected:
-		
-		double MidiPitchToFrequency(uint8_t pitchValue);
-		double MidiVelocityToAmplitude(uint8_t velocityValue);
 
 		AudioStream* audioStream;
 		bool ownsAudioStream;

@@ -1,4 +1,5 @@
 #include "SoundFontData.h"
+#include "MIDI/MidiSynth.h"
 
 using namespace AudioDataLib;
 
@@ -61,7 +62,7 @@ void SoundFontData::Clear()
 
 /*virtual*/ void SoundFontData::DumpCSV(FILE* fp) const
 {
-	fprintf(fp, "Sample Name, Frequency, Volume\n");
+	fprintf(fp, "Sample Name, Frequency, Min. Freq, Max. Freq., Volume, Min. Vol., Max. Vol.\n");
 
 	for (const AudioSample* audioSample : *this->audioSampleArray)
 	{
@@ -69,8 +70,18 @@ void SoundFontData::Clear()
 		{
 			const LoopedAudioData* audioData = audioSample->GetLoopedAudioData(i);
 			const LoopedAudioData::MetaData* metaData = audioData->GetMetaData();
+			const LoopedAudioData::Location& location = audioData->GetLocation();
 
-			fprintf(fp, "%s, %f, %f\n", audioData->GetName().c_str(), metaData->analyticalPitch, metaData->analyticalVolume);
+			double minFreq = MidiSynth::MidiPitchToFrequency(location.minKey);
+			double maxFreq = MidiSynth::MidiPitchToFrequency(location.maxKey);
+
+			double minVol = MidiSynth::MidiVelocityToAmplitude(location.minVel);
+			double maxVol = MidiSynth::MidiVelocityToAmplitude(location.maxVel);
+
+			fprintf(fp, "%s, %f, %f, %f, %f, %f, %f\n",
+				audioData->GetName().c_str(),
+				metaData->analyticalPitch, minFreq, maxFreq,
+				metaData->analyticalVolume, minVol, maxVol);
 		}
 	}
 }
@@ -110,14 +121,26 @@ const SoundFontData::AudioSample* SoundFontData::FindClosestAudioSample(double p
 	return closestAudioSample;
 }
 
+SoundFontData::LoopedAudioData* SoundFontData::FindLoopedAudioData(uint32_t sampleID)
+{
+	for (AudioSample* audioSample : *this->audioSampleArray)
+		for (LoopedAudioData* audioData : audioSample->GeLoopedAudioDataArray())
+			if (audioData->GetSampleID() == sampleID)
+				return audioData;
+
+	return nullptr;
+}
+
 //------------------------------- SoundFontData::LoopedAudioData -------------------------------
 
 SoundFontData::LoopedAudioData::LoopedAudioData()
 {
+	this->sampleID = 0;
 	this->loop.startFrame = 0;
 	this->loop.endFrame = 0;
 	this->name = new std::string();
 	this->channelType = ChannelType::MONO;
+	::memset(&this->location, 0, sizeof(location));
 }
 
 /*virtual*/ SoundFontData::LoopedAudioData::~LoopedAudioData()
@@ -147,6 +170,8 @@ SoundFontData::LoopedAudioData::LoopedAudioData()
 	fprintf(fp, "Loop end frame: %lld\n", this->loop.endFrame);
 	fprintf(fp, "Num frames: %lld\n", this->GetNumFrames());
 	fprintf(fp, "Channel type: %s\n", channelTypeStr);
+	fprintf(fp, "Min/max keys: [%d, %d]\n", this->location.minKey, this->location.maxKey);
+	fprintf(fp, "Min/max vels: [%d, %d]\n", this->location.minVel, this->location.maxVel);
 
 	AudioData::DumpInfo(fp);
 }

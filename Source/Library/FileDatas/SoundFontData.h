@@ -21,6 +21,10 @@ namespace AudioDataLib
 
 		void Clear();
 
+		class LoopedAudioData;
+
+		LoopedAudioData* FindLoopedAudioData(uint32_t sampleID);
+
 		struct VersionTag
 		{
 			uint16_t major;
@@ -79,10 +83,24 @@ namespace AudioDataLib
 			void SetChannelType(ChannelType channelType) { this->channelType = channelType; }
 			ChannelType GetChannelType() const { return this->channelType; }
 
+			uint32_t GetSampleID() const { return this->sampleID; }
+			void SetSampleID(uint32_t sampleID) { this->sampleID = sampleID; }
+
+			struct Location
+			{
+				uint16_t minKey, maxKey;
+				uint16_t minVel, maxVel;
+			};
+
+			void SetLocation(const Location& location) { this->location = location; }
+			const Location& GetLocation() const { return this->location; }
+
 		protected:
 			std::string* name;
 			Loop loop;
+			Location location;
 			ChannelType channelType;
+			uint32_t sampleID;
 		};
 
 		class AUDIO_DATA_LIB_API AudioSample
@@ -102,6 +120,8 @@ namespace AudioDataLib
 			const LoopedAudioData* GetLoopedAudioData(uint32_t i) const;
 
 			const LoopedAudioData* FindLoopedAudioData(LoopedAudioData::ChannelType channelType) const;
+
+			std::vector<LoopedAudioData*>& GeLoopedAudioDataArray() { return *this->loopedAudioDataArray; }
 
 		protected:
 
