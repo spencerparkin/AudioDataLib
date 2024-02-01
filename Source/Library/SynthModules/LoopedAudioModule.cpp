@@ -14,7 +14,6 @@ LoopedAudioModule::LoopedAudioModule()
 
 /*virtual*/ LoopedAudioModule::~LoopedAudioModule()
 {
-	delete this->loopedWaveForm;
 }
 
 /*virtual*/ bool LoopedAudioModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, Error& error)
@@ -61,22 +60,9 @@ LoopedAudioModule::LoopedAudioModule()
 
 bool LoopedAudioModule::UseLoopedAudioData(const SoundFontData::LoopedAudioData* loopedAudioData, uint16_t channel, Error& error)
 {
-	if (this->loopedWaveForm)
-	{
-		delete this->loopedWaveForm;
-		this->loopedWaveForm = nullptr;
-	}
-
-	if (!loopedAudioData)
-		return true;
-
-	this->loopedWaveForm = new WaveForm();
-
-	if (!this->loopedWaveForm->ConvertFromAudioBuffer(loopedAudioData->GetFormat(), loopedAudioData->GetAudioBuffer(), loopedAudioData->GetAudioBufferSize(), channel, error))
-	{
-		error.Add("Failed to convert looped audio buffer into a wave-form.");
+	this->loopedWaveForm = loopedAudioData->GetCachedWaveForm(channel, error);
+	if (!this->loopedWaveForm)
 		return false;
-	}
 
 	const AudioData::Format& format = loopedAudioData->GetFormat();
 

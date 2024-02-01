@@ -117,7 +117,6 @@ SampleBasedSynth::SampleBasedSynth(bool ownsAudioStream, bool ownsSoundFontData)
 			pitchShiftModuleLeft->SetDependentModule(loopedAudioModuleLeft);
 			pitchShiftModuleRight->SetDependentModule(loopedAudioModuleRight);
 
-			// TODO: I think this is too slow.  When we play a large chord, there is a very noticable delay.  Fix it.
 			if (!loopedAudioModuleLeft->UseLoopedAudioData(leftAudioData, 0, error))
 				return false;
 
@@ -198,7 +197,12 @@ void SampleBasedSynth::SetSoundFontData(uint16_t channel, SoundFontData* soundFo
 		for (uint32_t j = 0; j < audioSample->GetNumLoopedAudioDatas(); j++)
 		{
 			const SoundFontData::LoopedAudioData* audioData = audioSample->GetLoopedAudioData(j);
-			audioData->GetMetaData();		// We have to warm this cache before the synth starts up.
+			
+			printf("Analyzing %s... ", audioData->GetName().c_str());
+			const SoundFontData::LoopedAudioData::MetaData* metaData = audioData->GetMetaData();
+			printf("Estimated Pitch: %f Hz\n", metaData->analyticalPitch);
+
+			audioData->GetCachedWaveForm(0, error);
 		}
 	}
 

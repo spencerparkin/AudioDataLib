@@ -1,5 +1,7 @@
 #include "SoundFontData.h"
 #include "MIDI/MidiSynth.h"
+#include "WaveForm.h"
+#include "Error.h"
 
 using namespace AudioDataLib;
 
@@ -155,6 +157,7 @@ SoundFontData::LoopedAudioData* SoundFontData::FindLoopedAudioData(uint32_t samp
 
 SoundFontData::LoopedAudioData::LoopedAudioData()
 {
+	this->cachedWaveForm = nullptr;
 	this->sampleID = 0;
 	this->loop.startFrame = 0;
 	this->loop.endFrame = 0;
@@ -165,7 +168,25 @@ SoundFontData::LoopedAudioData::LoopedAudioData()
 
 /*virtual*/ SoundFontData::LoopedAudioData::~LoopedAudioData()
 {
+	delete this->cachedWaveForm;
 	delete this->name;
+}
+
+const WaveForm* SoundFontData::LoopedAudioData::GetCachedWaveForm(uint16_t channel, Error& error) const
+{
+	if (!this->cachedWaveForm)
+	{
+		this->cachedWaveForm = new WaveForm();
+
+		if (!this->cachedWaveForm->ConvertFromAudioBuffer(this->GetFormat(), this->GetAudioBuffer(), this->GetAudioBufferSize(), channel, error))
+		{
+			error.Add("Failed to convert looped audio buffer into a wave-form.");
+			delete this->cachedWaveForm;
+			this->cachedWaveForm = nullptr;
+		}
+	}
+
+	return this->cachedWaveForm;
 }
 
 bool SoundFontData::LoopedAudioData::Location::Contains(uint16_t key, uint16_t vel) const

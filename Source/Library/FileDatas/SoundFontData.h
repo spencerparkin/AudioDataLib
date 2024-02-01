@@ -6,6 +6,7 @@
 namespace AudioDataLib
 {
 	class AudioData;
+	class WaveForm;
 
 	class AUDIO_DATA_LIB_API SoundFontData : public FileData
 	{
@@ -97,12 +98,15 @@ namespace AudioDataLib
 			void SetLocation(const Location& location) { this->location = location; }
 			const Location& GetLocation() const { return this->location; }
 
+			const WaveForm* GetCachedWaveForm(uint16_t channel, Error& error) const;
+
 		protected:
 			std::string* name;
 			Loop loop;
 			Location location;
 			ChannelType channelType;
 			uint32_t sampleID;
+			mutable WaveForm* cachedWaveForm;
 		};
 
 		class AUDIO_DATA_LIB_API AudioSample
