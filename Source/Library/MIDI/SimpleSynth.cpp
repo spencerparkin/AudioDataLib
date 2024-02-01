@@ -9,17 +9,17 @@ using namespace AudioDataLib;
 SimpleSynth::SimpleSynth(bool ownsAudioStream) : MidiSynth(ownsAudioStream)
 {
 	this->mixerModule = new MixerModule();
+	this->noteMap = new NoteMap();
 }
 
 /*virtual*/ SimpleSynth::~SimpleSynth()
 {
-	delete mixerModule;
+	delete this->mixerModule;
+	delete this->noteMap;
 }
 
 /*virtual*/ SynthModule* SimpleSynth::GetRootModule(uint16_t channel)
 {
-	// TODO: Impliment stereo somehow?  For now, we output stereo in a mono form.
-	//       That is, we write channel 0, but leave channel 1 silent.
 	if(channel == 0)
 		return this->mixerModule;
 
@@ -50,17 +50,18 @@ SimpleSynth::SimpleSynth(bool ownsAudioStream) : MidiSynth(ownsAudioStream)
 			uint8_t pitchValue = channelEvent.param1;
 			uint8_t velocityValue = channelEvent.param2;
 
-			if (velocityValue == 0)
+			NoteMap::iterator iter = this->noteMap->find(pitchValue);
+			if (iter != this->noteMap->end())
 			{
-				// This is the same as a NOTE_OFF event.
-				this->mixerModule->SetModule(uint32_t(pitchValue), nullptr);
+				uint64_t moduleID = iter->second;
+				this->mixerModule->RemoveModule(moduleID);
+				this->noteMap->erase(iter);
 			}
-			else
+
+			if (velocityValue > 0)
 			{
 				double noteFrequency = this->MidiPitchToFrequency(pitchValue);
 				double noteVolume = this->MidiVelocityToAmplitude(velocityValue);
-
-				printf("Frequency: %f Hz\n", noteFrequency);
 				
 				OscillatorModule::WaveParams waveParams;
 				waveParams.waveType = OscillatorModule::WaveType::SAWTOOTH;
@@ -70,7 +71,8 @@ SimpleSynth::SimpleSynth(bool ownsAudioStream) : MidiSynth(ownsAudioStream)
 				auto oscillatorModule = new OscillatorModule();
 				oscillatorModule->SetWaveParams(waveParams);
 
-				this->mixerModule->SetModule(uint32_t(pitchValue), oscillatorModule);
+				uint64_t moduleID = this->mixerModule->AddModule(oscillatorModule);
+				this->noteMap->insert(std::pair<uint8_t, uint64_t>(pitchValue, moduleID));
 			}			
 
 			break;
@@ -79,11 +81,13 @@ SimpleSynth::SimpleSynth(bool ownsAudioStream) : MidiSynth(ownsAudioStream)
 		{
 			uint8_t pitchValue = channelEvent.param1;
 			
-			// Note that in a more sophisticated implimentation, we would just signal some
-			// module in the dependency chain to taper-off the oscillator module according
-			// to some pre-configured curve.  But the simple-synth should be just that (simple)
-			// so that it can serve as a proof-of-concept for the whole system.
-			this->mixerModule->SetModule(uint32_t(pitchValue), nullptr);
+			NoteMap::iterator iter = this->noteMap->find(pitchValue);
+			if (iter != this->noteMap->end())
+			{
+				uint64_t moduleID = iter->second;
+				this->mixerModule->RemoveModule(moduleID);
+				this->noteMap->erase(iter);
+			}
 			
 			break;
 		}

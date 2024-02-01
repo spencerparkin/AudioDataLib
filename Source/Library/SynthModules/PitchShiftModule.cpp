@@ -29,7 +29,20 @@ PitchShiftModule::PitchShiftModule()
 		return this->dependentModule->GenerateSound(durationSeconds, samplesPerSecond, waveForm, error);
 	}
 	
+	if (this->sourceFrequency == 0.0)
+	{
+		error.Add("Source frequency of zero encountered!");
+		return false;
+	}
+
 	double neededTimeSeconds = (this->targetFrequency / this->sourceFrequency) * durationSeconds;
+
+	if (::isinf(neededTimeSeconds) || ::isnan(neededTimeSeconds))
+	{
+		error.Add("Needed time calculation results in inf/nan.");
+		return false;
+	}
+
 	if (!this->dependentModule->GenerateSound(neededTimeSeconds, samplesPerSecond, waveForm, error))
 		return false;
 

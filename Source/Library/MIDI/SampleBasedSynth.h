@@ -28,6 +28,15 @@ namespace AudioDataLib
 		typedef std::map<uint16_t, SoundFontData*> SoundFontMap;
 		SoundFontMap* soundFontMap;
 
+		struct Note
+		{
+			uint64_t leftModuleID;
+			uint64_t rightModuleID;
+		};
+
+		typedef std::map<uint8_t, Note> NoteMap;
+		NoteMap* noteMap;
+
 		MixerModule* mixerModuleLeftEar;
 		MixerModule* mixerModuleRightEar;
 	};

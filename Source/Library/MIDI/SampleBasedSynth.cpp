@@ -14,6 +14,7 @@ SampleBasedSynth::SampleBasedSynth(bool ownsAudioStream, bool ownsSoundFontData)
 {
 	this->ownsSoundFontData = ownsSoundFontData;
 	this->soundFontMap = new SoundFontMap();
+	this->noteMap = new NoteMap();
 	this->mixerModuleLeftEar = new MixerModule();
 	this->mixerModuleRightEar = new MixerModule();
 }
@@ -23,6 +24,7 @@ SampleBasedSynth::SampleBasedSynth(bool ownsAudioStream, bool ownsSoundFontData)
 	this->Clear();
 
 	delete this->soundFontMap;
+	delete this->noteMap;
 	delete this->mixerModuleLeftEar;
 	delete this->mixerModuleRightEar;
 }
@@ -59,10 +61,17 @@ SampleBasedSynth::SampleBasedSynth(bool ownsAudioStream, bool ownsSoundFontData)
 			uint8_t pitchValue = channelEvent.param1;
 			uint8_t velocityValue = channelEvent.param2;
 
+			NoteMap::iterator iter = this->noteMap->find(pitchValue);
+			if (iter != this->noteMap->end())
+			{
+				// TODO: For a single pitch value, is it possible to get a NOTE_ON message twice without a NOTE_OFF message inbetween?
+				//       If so, then rather than treat this as an error, we should just cancel the existing note?
+				error.Add("Pitch value already in note map?");
+				return false;
+			}
+
 			double noteFrequency = this->MidiPitchToFrequency(pitchValue);
 			double noteVolume = this->MidiVelocityToAmplitude(velocityValue);
-
-			printf("Frequency: %f Hz\n", noteFrequency);
 
 			const SoundFontData::AudioSample* audioSample = soundFontData->FindRelevantAudioSample(pitchValue, velocityValue);
 			if (!audioSample)
@@ -73,10 +82,9 @@ SampleBasedSynth::SampleBasedSynth(bool ownsAudioStream, bool ownsSoundFontData)
 					error.Add(FormatString("Failed to find audio sample for pitch %f and volume %f.", noteFrequency, noteVolume));
 					return false;
 				}
-			}
 
-			printf("Audio sample frequency: %f Hz\n", audioSample->GetLoopedAudioData(0)->GetMetaData()->analyticalPitch);
-			printf("Audio sample name: %s\n", audioSample->GetLoopedAudioData(0)->GetName().c_str());
+				fprintf(stderr, "Warning: Had to look for closest audio sample rather than the one prescribed by the sound-font data.\n");
+			}
 
 			const SoundFontData::LoopedAudioData* leftAudioData = audioSample->FindLoopedAudioData(SoundFontData::LoopedAudioData::ChannelType::LEFT_EAR);
 			const SoundFontData::LoopedAudioData* rightAudioData = audioSample->FindLoopedAudioData(SoundFontData::LoopedAudioData::ChannelType::RIGHT_EAR);
@@ -96,14 +104,12 @@ SampleBasedSynth::SampleBasedSynth(bool ownsAudioStream, bool ownsSoundFontData)
 			auto attenuationModuleLeft = new AttenuationModule();
 			auto attenuationModuleRight = new AttenuationModule();
 
-			// TODO: There is a bug here.  If you trill, sometimes a note is created of the same pitch
-			//       as one that has not yet faded out, and so what we do here is cut that note off
-			//       prematurely.  I think we need to change how the mixer works as a container.  I
-			//       think the caller should have to maintain a handle to the added module for later
-			//       reference.  The mixer just maintains a list, not a map.  We will handle the map.
-			//       Modules in the list of the mixer can fade away and die as needed.
-			this->mixerModuleLeftEar->SetModule(pitchValue, attenuationModuleLeft);
-			this->mixerModuleRightEar->SetModule(pitchValue, attenuationModuleRight);
+			Note note;
+
+			note.leftModuleID = this->mixerModuleLeftEar->AddModule(attenuationModuleLeft);
+			note.rightModuleID = this->mixerModuleRightEar->AddModule(attenuationModuleRight);
+
+			this->noteMap->insert(std::pair<uint8_t, Note>(pitchValue, note));
 
 			attenuationModuleLeft->SetDependentModule(pitchShiftModuleLeft);
 			attenuationModuleRight->SetDependentModule(pitchShiftModuleRight);
@@ -131,20 +137,29 @@ SampleBasedSynth::SampleBasedSynth(bool ownsAudioStream, bool ownsSoundFontData)
 		{
 			uint8_t pitchValue = channelEvent.param1;
 
-			auto attenuationModuleLeft = dynamic_cast<AttenuationModule*>(this->mixerModuleLeftEar->GetModule(pitchValue));
-			auto attenuationModuleRight = dynamic_cast<AttenuationModule*>(this->mixerModuleRightEar->GetModule(pitchValue));
-
-			if (!attenuationModuleLeft || !attenuationModuleRight)
+			NoteMap::iterator iter = this->noteMap->find(pitchValue);
+			if (iter != this->noteMap->end())
 			{
-				error.Add(FormatString("Failed to find attenuation modules for pitch %d.", pitchValue));
-				return false;
+				const Note& note = iter->second;
+
+				auto attenuationModuleLeft = dynamic_cast<AttenuationModule*>(this->mixerModuleLeftEar->FindModule(note.leftModuleID));
+				auto attenuationModuleRight = dynamic_cast<AttenuationModule*>(this->mixerModuleRightEar->FindModule(note.rightModuleID));
+
+				if (!attenuationModuleLeft || !attenuationModuleRight)
+				{
+					error.Add(FormatString("Failed to find attenuation modules for pitch %d.", pitchValue));
+					return false;
+				}
+
+				attenuationModuleLeft->SetAttenuationFunction(new LinearFallOffFunction(0.2));
+				attenuationModuleRight->SetAttenuationFunction(new LinearFallOffFunction(0.2));
+
+				// We remove our note from our note-map, but the modules will continue to live on until they're pruned in due course.
+				attenuationModuleLeft->TriggerFallOff();
+				attenuationModuleRight->TriggerFallOff();
+
+				this->noteMap->erase(iter);
 			}
-
-			attenuationModuleLeft->SetAttenuationFunction(new LinearFallOffFunction(0.2));
-			attenuationModuleRight->SetAttenuationFunction(new LinearFallOffFunction(0.2));
-
-			attenuationModuleLeft->TriggerFallOff();
-			attenuationModuleRight->TriggerFallOff();
 
 			break;
 		}
@@ -206,4 +221,5 @@ void SampleBasedSynth::Clear()
 			delete pair.second;
 
 	this->soundFontMap->clear();
+	this->noteMap->clear();
 }

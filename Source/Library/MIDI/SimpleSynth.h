@@ -22,5 +22,8 @@ namespace AudioDataLib
 
 	private:
 		MixerModule* mixerModule;
+
+		typedef std::map<uint8_t, uint64_t> NoteMap;
+		NoteMap* noteMap;
 	};
 }

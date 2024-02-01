@@ -12,12 +12,13 @@ namespace AudioDataLib
 
 		virtual bool GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, Error& error) override;
 
-		typedef std::map<uint32_t, SynthModule*> SynthModuleMap;
-
 		void Clear();
 
-		void SetModule(uint32_t key, SynthModule* synthModule);
-		SynthModule* GetModule(uint32_t key);
+		uint64_t AddModule(SynthModule* synthModule);
+		bool RemoveModule(uint64_t moduleID);
+		SynthModule* FindModule(uint64_t moduleID);
+
+		typedef std::map<uint64_t, SynthModule*> SynthModuleMap;
 
 		const SynthModuleMap& GetModuleMap() const { return *this->synthModuleMap; }
 
@@ -25,5 +26,6 @@ namespace AudioDataLib
 
 	protected:
 		SynthModuleMap* synthModuleMap;
+		uint64_t nextModuleID;
 	};
 }

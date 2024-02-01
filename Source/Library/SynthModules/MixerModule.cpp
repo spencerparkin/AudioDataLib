@@ -6,6 +6,7 @@ using namespace AudioDataLib;
 
 MixerModule::MixerModule()
 {
+	this->nextModuleID = 0;
 	this->synthModuleMap = new SynthModuleMap();
 }
 
@@ -45,37 +46,44 @@ void MixerModule::Clear()
 
 void MixerModule::PruneDeadBranches()
 {
-	std::vector<uint32_t> doomedKeysArray;
+	std::vector<uint64_t> doomedIDArray;
 
 	for (auto pair : *this->synthModuleMap)
 	{
-		if (pair.second->CantGiveAnymoreSound())
+		SynthModule* synthModule = pair.second;
+
+		if (synthModule->CantGiveAnymoreSound())
 		{
-			doomedKeysArray.push_back(pair.first);
-			delete pair.second;
+			delete synthModule;
+			doomedIDArray.push_back(pair.first);
 		}
 	}
 
-	for (uint32_t key : doomedKeysArray)
-		this->synthModuleMap->erase(key);
+	for (uint64_t moduleID : doomedIDArray)
+		this->synthModuleMap->erase(moduleID);
 }
 
-void MixerModule::SetModule(uint32_t key, SynthModule* synthModule)
+uint64_t MixerModule::AddModule(SynthModule* synthModule)
 {
-	SynthModuleMap::iterator iter = this->synthModuleMap->find(key);
-	if (iter != this->synthModuleMap->end())
-	{
-		delete iter->second;
-		this->synthModuleMap->erase(iter);
-	}
-
-	if (synthModule != nullptr)
-		this->synthModuleMap->insert(std::pair<uint32_t, SynthModule*>(key, synthModule));
+	uint64_t moduleID = this->nextModuleID++;
+	this->synthModuleMap->insert(std::pair<uint32_t, SynthModule*>(moduleID, synthModule));
+	return moduleID;
 }
 
-SynthModule* MixerModule::GetModule(uint32_t key)
+bool MixerModule::RemoveModule(uint64_t moduleID)
 {
-	SynthModuleMap::iterator iter = this->synthModuleMap->find(key);
+	SynthModuleMap::iterator iter = this->synthModuleMap->find(moduleID);
+	if (iter == this->synthModuleMap->end())
+		return false;
+
+	delete iter->second;
+	this->synthModuleMap->erase(iter);
+	return true;
+}
+
+SynthModule* MixerModule::FindModule(uint64_t moduleID)
+{
+	SynthModuleMap::iterator iter = this->synthModuleMap->find(moduleID);
 	if (iter != this->synthModuleMap->end())
 		return iter->second;
 
