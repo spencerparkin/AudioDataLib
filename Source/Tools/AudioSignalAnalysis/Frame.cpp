@@ -88,7 +88,7 @@ void Frame::OnGenerateFrequencyGraph(wxCommandEvent& event)
 	const WaveForm* waveForm = waveFormAudio->GetWaveForm();
 	FrequencyGraph* frequencyGraph = new FrequencyGraph();
 	Error error;
-	if (!frequencyGraph->FromWaveForm(*waveForm, 16384, error))
+	if (!frequencyGraph->FromWaveForm(*waveForm, 32768, error))
 	{
 		wxMessageBox(error.GetErrorMessage(), "Error!", wxICON_ERROR | wxOK, this);
 		delete frequencyGraph;

@@ -120,8 +120,10 @@ const AudioData::MetaData* AudioData::GetMetaData() const
 
 		this->metaData->analyticalVolume = waveForm.CalcAverageVolume();
 
+		// Note that if the number of samples here is too low, we can lose accuracy.
+		// But the same is true if we request too many samples!  Maybe due to round-off error in the math?
 		FrequencyGraph frequencyGraph;
-		if (!frequencyGraph.FromWaveForm(waveForm, 16384, error))
+		if (!frequencyGraph.FromWaveForm(waveForm, 32768, error))
 			return false;
 
 		this->metaData->analyticalPitch = frequencyGraph.EstimateFundamentalFrequency();
