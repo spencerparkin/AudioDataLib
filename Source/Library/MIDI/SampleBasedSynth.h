@@ -17,7 +17,7 @@ namespace AudioDataLib
 		virtual SynthModule* GetRootModule(uint16_t channel) override;
 		virtual bool GenerateAudio(Error& error) override;
 
-		bool SetChannelInstrument(uint16_t channel, uint16_t instrument);
+		bool SetChannelInstrument(uint16_t channel, uint16_t instrument, Error& error);
 		bool GetChannelInstrument(uint16_t channel, uint16_t& instrument) const;
 
 		bool SetSoundFontData(uint16_t instrument, SoundFontData* soundFontData, bool estimateFrequencies, Error& error);

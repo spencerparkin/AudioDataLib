@@ -68,7 +68,8 @@ SampleBasedSynth::SampleBasedSynth(bool ownsAudioStream, bool ownsSoundFontData)
 		case MidiData::ChannelEvent::PROGRAM_CHANGE:
 		{
 			uint16_t instrument = channelEvent.param1;
-			this->SetChannelInstrument(channelEvent.channel + 1, instrument + 1);
+			if (!this->SetChannelInstrument(channelEvent.channel + 1, instrument + 1, error))
+				return false;
 			break;
 		}
 		case MidiData::ChannelEvent::NOTE_ON:
@@ -260,8 +261,14 @@ SoundFontData* SampleBasedSynth::GetSoundFontData(uint16_t instrument)
 	return iter->second;
 }
 
-bool SampleBasedSynth::SetChannelInstrument(uint16_t channel, uint16_t instrument)
+bool SampleBasedSynth::SetChannelInstrument(uint16_t channel, uint16_t instrument, Error& error)
 {
+	if (!(1 <= channel && channel <= 16))
+	{
+		error.Add(FormatString("Channel number (%d) out of range [1,16].", channel));
+		return false;
+	}
+
 	ChannelMap::iterator iter = this->channelMap->find(channel);
 	if (iter != this->channelMap->end())
 		this->channelMap->erase(iter);

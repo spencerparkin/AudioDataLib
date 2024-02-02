@@ -306,7 +306,11 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 					if (!sampleBasedSynth->SetSoundFontData(instrumentNumber, soundFontData, false, error))
 						break;
 
-					sampleBasedSynth->SetChannelInstrument(++i, instrumentNumber);
+					i++;
+
+					if (i <= 16)
+						if (!sampleBasedSynth->SetChannelInstrument(i, instrumentNumber, error))
+							break;
 				}
 
 				if (error)
