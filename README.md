@@ -5,14 +5,14 @@ for you is provide a way to send or receive an audio stream to or from the hardw
 is provide a way to load or save such audio data, convert it, mix it, buffer it, or even synthesize it for real-time consumption.
 *That*, however, is what this *this* library *does*.
 
-Current features (done or in the works) are as follows.
+Current features are as follows.
 
  * Load/save WAV files.
- * Load/save MIDI files.
- * Load/save SF2 (sound-font) files.
+ * Load MIDI files.
+ * Load SF2 (sound-font) files.
  * Mix/convert PCM/float audio for real-time playback of SFX.
- * Playback MIDI files to an output MIDI port.
- * Synthesize MIDI messages into real-time audio from an input MIDI port.
+ * Playback MIDI files.  (You provide access to the input MIDI port.)
+ * Synthesize MIDI messages into real-time, SF-based audio.  (You provide access to the output MIDI port.)
 
 ## Setup
 
