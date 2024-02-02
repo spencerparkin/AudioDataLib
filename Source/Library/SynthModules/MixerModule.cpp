@@ -6,7 +6,7 @@ using namespace AudioDataLib;
 
 MixerModule::MixerModule()
 {
-	this->nextModuleID = 0;
+	this->nextModuleID = 1;
 	this->synthModuleMap = new SynthModuleMap();
 }
 
@@ -66,7 +66,7 @@ void MixerModule::PruneDeadBranches()
 uint64_t MixerModule::AddModule(SynthModule* synthModule)
 {
 	uint64_t moduleID = this->nextModuleID++;
-	this->synthModuleMap->insert(std::pair<uint32_t, SynthModule*>(moduleID, synthModule));
+	this->synthModuleMap->insert(std::pair<uint64_t, SynthModule*>(moduleID, synthModule));
 	return moduleID;
 }
 

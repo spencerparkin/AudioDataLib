@@ -25,7 +25,7 @@ int main(int argc, char** argv)
 	parser.RegisterArg("play", 1, "Play the given file.  This can be a WAV or MIDI file.");
 	parser.RegisterArg("keyboard", 1, "Receive MIDI input from the given MIDI input port.  A MIDI keyboard is not necessarily connected to the port, but could be any MIDI device.");
 	parser.RegisterArg("synth", 1, "Synthesize MIDI input to the sound-card.  Use the given synth type: \"simple\", or \"sample\".");
-	parser.RegisterArg("soundfont", 2, "If using the \"sample\" synth, use this option to specify the sound-font to use on the given channel.");
+	parser.RegisterArg("soundfont", 2, "If using the \"sample\" synth, use this option to specify the sound-font to use on the given instrument [1, 128].");
 	parser.RegisterArg("record_midi", 1, "Record MIDI input to the given MIDI file.");
 	parser.RegisterArg("log_midi", 0, "Print MIDI input to the screen as it is given.");
 	parser.RegisterArg("record_wave", 1, "Record microphone input to the given WAV file.");
@@ -262,46 +262,55 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 			}
 			else if (synthType == "sample")
 			{
-				if (!parser.ArgGiven("soundfont"))
-				{
-					error.Add("Can't use \"sample\" synth type unless you also specify a sound-font.");
-					break;
-				}
-
-				std::string channelStr = parser.GetArgValue("soundfont", 0);
-				uint16_t channel = ::atoi(channelStr.c_str());
-				if (channel < 1 || channel > 16)
-				{
-					error.Add("Channel argument must be in [1,16].");
-					break;
-				}
-
-				std::string soundFontFile = parser.GetArgValue("soundfont", 1);
-				FileInputStream inputStream(soundFontFile.c_str());
-				SoundFontFormat soundFontFormat;
-
-				FileData* fileData = nullptr;
-				if (!soundFontFormat.ReadFromStream(inputStream, fileData, error))
-				{
-					error.Add("Failed to read file: " + soundFontFile);
-					break;
-				}
-
-				SoundFontData* soundFontData = dynamic_cast<SoundFontData*>(fileData);
-				if (!soundFontData)
-				{
-					error.Add("Expected sound font data; got something else!");
-					delete fileData;
-					break;
-				}
-
-				printf("Configurating synth to use sound font %s on channel %d...\n", soundFontFile.c_str(), channel);
 				auto sampleBasedSynth = new SampleBasedSynth(true, true);
 				synth->AddSynth(sampleBasedSynth);
-				if (!sampleBasedSynth->SetSoundFontData(channel - 1, soundFontData, false, error))
-					break;
-
 				midiSynth = sampleBasedSynth;
+
+				if (!parser.ArgGiven("soundfont"))
+				{
+					error.Add("Can't use \"sample\" synth type unless you also specify at least one sound-font.");
+					break;
+				}
+
+				int i = 0;
+				while (true)
+				{
+					std::string instrumentNumberStr = parser.GetArgValue("soundfont", 0, i);
+					if (instrumentNumberStr.length() == 0)
+						break;
+
+					uint16_t instrumentNumber = ::atoi(instrumentNumberStr.c_str());
+
+					std::string soundFontFile = parser.GetArgValue("soundfont", 1, i);
+					FileInputStream inputStream(soundFontFile.c_str());
+					SoundFontFormat soundFontFormat;
+
+					FileData* fileData = nullptr;
+					if (!soundFontFormat.ReadFromStream(inputStream, fileData, error))
+					{
+						error.Add("Failed to read file: " + soundFontFile);
+						break;
+					}
+
+					SoundFontData* soundFontData = dynamic_cast<SoundFontData*>(fileData);
+					if (!soundFontData)
+					{
+						error.Add("Expected sound font data; got something else!");
+						delete fileData;
+						break;
+					}
+					
+					// TODO: One problem with this is that I'm assuming there's just one instrument per sound-font,
+					//       and I don't think that's generally the case.  You can have multiple instruments in a
+					//       single sound-font file.
+					if (!sampleBasedSynth->SetSoundFontData(instrumentNumber, soundFontData, false, error))
+						break;
+
+					sampleBasedSynth->SetChannelInstrument(++i, instrumentNumber);
+				}
+
+				if (error)
+					break;
 			}
 
 			if (!midiSynth)

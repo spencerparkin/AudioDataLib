@@ -14,6 +14,7 @@ SampleBasedSynth::SampleBasedSynth(bool ownsAudioStream, bool ownsSoundFontData)
 {
 	this->ownsSoundFontData = ownsSoundFontData;
 	this->soundFontMap = new SoundFontMap();
+	this->channelMap = new ChannelMap();
 	this->noteMap = new NoteMap();
 	this->mixerModuleLeftEar = new MixerModule();
 	this->mixerModuleRightEar = new MixerModule();
@@ -24,6 +25,7 @@ SampleBasedSynth::SampleBasedSynth(bool ownsAudioStream, bool ownsSoundFontData)
 	this->Clear();
 
 	delete this->soundFontMap;
+	delete this->channelMap;
 	delete this->noteMap;
 	delete this->mixerModuleLeftEar;
 	delete this->mixerModuleRightEar;
@@ -47,15 +49,23 @@ SampleBasedSynth::SampleBasedSynth(bool ownsAudioStream, bool ownsSoundFontData)
 		return true;
 	}
 
-	SoundFontData* soundFontData = this->GetSoundFontData(channelEvent.channel);
+	uint16_t instrument = 0;
+	if (!this->GetChannelInstrument(channelEvent.channel + 1, instrument))
+	{
+		error.Add(FormatString("Could not get instrument for channel %d.", channelEvent.channel));
+		return false;
+	}
+
+	SoundFontData* soundFontData = this->GetSoundFontData(instrument);
 	if (!soundFontData)
 	{
-		error.Add(FormatString("No sound font loaded for MIDI channel %d.", channelEvent.channel));
+		error.Add(FormatString("No sound font loaded for instrument %d.", instrument));
 		return false;
 	}
 
 	switch (channelEvent.type)
 	{
+		// TODO: Respond to program change events.
 		case MidiData::ChannelEvent::NOTE_ON:
 		{
 			uint8_t pitchValue = channelEvent.param1;
@@ -86,8 +96,15 @@ SampleBasedSynth::SampleBasedSynth(bool ownsAudioStream, bool ownsSoundFontData)
 				fprintf(stderr, "Warning: Had to look for closest audio sample rather than the one prescribed by the sound-font data.\n");
 			}
 
+			Note note{ 0, 0 };
+
 			const SoundFontData::LoopedAudioData* leftAudioData = audioSample->FindLoopedAudioData(SoundFontData::LoopedAudioData::ChannelType::LEFT_EAR);
+			if (!leftAudioData)
+				leftAudioData = audioSample->FindLoopedAudioData(SoundFontData::LoopedAudioData::ChannelType::MONO);
+
 			const SoundFontData::LoopedAudioData* rightAudioData = audioSample->FindLoopedAudioData(SoundFontData::LoopedAudioData::ChannelType::RIGHT_EAR);
+			if (!rightAudioData)
+				rightAudioData = audioSample->FindLoopedAudioData(SoundFontData::LoopedAudioData::ChannelType::MONO);
 
 			if (!leftAudioData || !rightAudioData)
 			{
@@ -103,8 +120,6 @@ SampleBasedSynth::SampleBasedSynth(bool ownsAudioStream, bool ownsSoundFontData)
 
 			auto attenuationModuleLeft = new AttenuationModule();
 			auto attenuationModuleRight = new AttenuationModule();
-
-			Note note;
 
 			note.leftModuleID = this->mixerModuleLeftEar->AddModule(attenuationModuleLeft);
 			note.rightModuleID = this->mixerModuleRightEar->AddModule(attenuationModuleRight);
@@ -122,13 +137,6 @@ SampleBasedSynth::SampleBasedSynth(bool ownsAudioStream, bool ownsSoundFontData)
 
 			if (!loopedAudioModuleRight->UseLoopedAudioData(rightAudioData, 0, error))
 				return false;
-
-			printf("%1.3f Hz <== (L: %1.3f Hz; R: %1.3f Hz)\n",
-								noteFrequency,
-								leftAudioData->GetMetaData().pitch,
-								rightAudioData->GetMetaData().pitch);
-			printf("L: %s\n", leftAudioData->GetName().c_str());
-			printf("R: %s\n", rightAudioData->GetName().c_str());
 
 			pitchShiftModuleLeft->SetSourceAndTargetFrequencies(leftAudioData->GetMetaData().pitch, noteFrequency);
 			pitchShiftModuleRight->SetSourceAndTargetFrequencies(rightAudioData->GetMetaData().pitch, noteFrequency);
@@ -149,13 +157,15 @@ SampleBasedSynth::SampleBasedSynth(bool ownsAudioStream, bool ownsSoundFontData)
 
 				if (attenuationModuleLeft)
 				{
-					attenuationModuleLeft->SetAttenuationFunction(new LinearFallOffFunction(0.2));
+					// TODO: This fall-off should really come from the SF file.
+					attenuationModuleLeft->SetAttenuationFunction(new LinearFallOffFunction(0.05));
 					attenuationModuleLeft->TriggerFallOff();
 				}
 
 				if (attenuationModuleRight)
 				{
-					attenuationModuleRight->SetAttenuationFunction(new LinearFallOffFunction(0.2));
+					// TODO: This fall-off should really come from the SF file.
+					attenuationModuleRight->SetAttenuationFunction(new LinearFallOffFunction(0.05));
 					attenuationModuleRight->TriggerFallOff();
 				}
 
@@ -182,9 +192,15 @@ SampleBasedSynth::SampleBasedSynth(bool ownsAudioStream, bool ownsSoundFontData)
 	}
 }
 
-bool SampleBasedSynth::SetSoundFontData(uint16_t channel, SoundFontData* soundFontData, bool estimateFrequencies, Error& error)
+bool SampleBasedSynth::SetSoundFontData(uint16_t instrument, SoundFontData* soundFontData, bool estimateFrequencies, Error& error)
 {
-	SoundFontMap::iterator iter = this->soundFontMap->find(channel);
+	if (!(1 <= instrument && instrument <= 128))
+	{
+		error.Add(FormatString("Intrument number (%d) out of range [1,128].", instrument));
+		return false;
+	}
+
+	SoundFontMap::iterator iter = this->soundFontMap->find(instrument);
 	if (iter != this->soundFontMap->end())
 	{
 		if (this->ownsSoundFontData)
@@ -225,18 +241,40 @@ bool SampleBasedSynth::SetSoundFontData(uint16_t channel, SoundFontData* soundFo
 		}
 	}
 
-	this->soundFontMap->insert(std::pair<uint16_t, SoundFontData*>(channel, soundFontData));
+	this->soundFontMap->insert(std::pair<uint16_t, SoundFontData*>(instrument, soundFontData));
 
 	return true;
 }
 
-SoundFontData* SampleBasedSynth::GetSoundFontData(uint16_t channel)
+SoundFontData* SampleBasedSynth::GetSoundFontData(uint16_t instrument)
 {
-	SoundFontMap::iterator iter = this->soundFontMap->find(channel);
+	SoundFontMap::iterator iter = this->soundFontMap->find(instrument);
 	if (iter == this->soundFontMap->end())
 		return nullptr;
 
 	return iter->second;
+}
+
+bool SampleBasedSynth::SetChannelInstrument(uint16_t channel, uint16_t instrument)
+{
+	ChannelMap::iterator iter = this->channelMap->find(channel);
+	if (iter != this->channelMap->end())
+		this->channelMap->erase(iter);
+
+	this->channelMap->insert(std::pair<uint16_t, uint16_t>(channel, instrument));
+	return true;
+}
+
+bool SampleBasedSynth::GetChannelInstrument(uint16_t channel, uint16_t& instrument) const
+{
+	instrument = 0;
+
+	ChannelMap::iterator iter = this->channelMap->find(channel);
+	if (iter == this->channelMap->end())
+		return false;
+
+	instrument = iter->second;
+	return true;
 }
 
 void SampleBasedSynth::Clear()
@@ -246,5 +284,6 @@ void SampleBasedSynth::Clear()
 			delete pair.second;
 
 	this->soundFontMap->clear();
+	this->channelMap->clear();
 	this->noteMap->clear();
 }

@@ -40,13 +40,8 @@ SoundFontFormat::SoundFontFormat()
 		::memcpy(&generalInfo.versionTag, ifilChunk->GetBuffer(), sizeof(SoundFontData::VersionTag));
 
 		const ChunkParser::Chunk* isngChunk = parser.FindChunk("isng", false);
-		if (!isngChunk)
-		{
-			error.Add("No \"isng\" chunk found.");
-			break;
-		}
-
-		generalInfo.waveTableSoundEngine.assign((const char*)isngChunk->GetBuffer(), isngChunk->GetBufferSize());
+		if (isngChunk)
+			generalInfo.waveTableSoundEngine.assign((const char*)isngChunk->GetBuffer(), isngChunk->GetBufferSize());
 
 		const ChunkParser::Chunk* inamChunk = parser.FindChunk("INAM", false);
 		if (!inamChunk)
@@ -329,8 +324,10 @@ SoundFontData::AudioSample* SoundFontFormat::ConstructAudioSample(
 
 		if ((header.sampleType & ADL_SAMPLE_TYPE_BIT_LEFT) != 0)
 			loopedAudioData->SetChannelType(SoundFontData::LoopedAudioData::ChannelType::LEFT_EAR);
-		else if((header.sampleType & ADL_SAMPLE_TYPE_BIT_RIGHT) != 0)
+		else if ((header.sampleType & ADL_SAMPLE_TYPE_BIT_RIGHT) != 0)
 			loopedAudioData->SetChannelType(SoundFontData::LoopedAudioData::ChannelType::RIGHT_EAR);
+		else if (sampleIDArray.size() == 1)
+			loopedAudioData->SetChannelType(SoundFontData::LoopedAudioData::ChannelType::MONO);
 
 		SoundFontData::LoopedAudioData::Loop loop;
 		loop.startFrame = header.sampleLoopStart - header.sampleStart;

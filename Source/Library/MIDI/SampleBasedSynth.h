@@ -17,14 +17,22 @@ namespace AudioDataLib
 		virtual SynthModule* GetRootModule(uint16_t channel) override;
 		virtual bool GenerateAudio(Error& error) override;
 
-		bool SetSoundFontData(uint16_t channel, SoundFontData* soundFontData, bool estimateFrequencies, Error& error);
-		SoundFontData* GetSoundFontData(uint16_t channel);
+		bool SetChannelInstrument(uint16_t channel, uint16_t instrument);
+		bool GetChannelInstrument(uint16_t channel, uint16_t& instrument) const;
+
+		bool SetSoundFontData(uint16_t instrument, SoundFontData* soundFontData, bool estimateFrequencies, Error& error);
+		SoundFontData* GetSoundFontData(uint16_t instrument);
 
 		void Clear();
 
 	private:
 		bool ownsSoundFontData;
 
+		// This maps channel to instrument number.
+		typedef std::map<uint16_t, uint16_t> ChannelMap;
+		ChannelMap* channelMap;
+
+		// This maps instrument to sound-font data.
 		typedef std::map<uint16_t, SoundFontData*> SoundFontMap;
 		SoundFontMap* soundFontMap;
 
