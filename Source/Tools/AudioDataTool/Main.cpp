@@ -38,6 +38,7 @@ int main(int argc, char** argv)
 	parser.RegisterArg("dump_info", 1, "Load the given file and then dump some stats about it.");
 	parser.RegisterArg("dump_csv", 1, "Load the given file and then use it to dump a CSV to disk.");
 	parser.RegisterArg("unpack", 1, "Unpack the given sound-font file by generating from it a bunch of WAV files for all the samples it contains.");
+	parser.RegisterArg("device_substr", 1, "Specify a sub-string to look for when trying to select an audio device for input or output.");
 	
 	std::string error;
 	if (!parser.Parse(argc, argv, error))
@@ -129,7 +130,7 @@ int main(int argc, char** argv)
 		}
 		else if (audioData)
 		{
-			if (!PlayAudioData(audioData, error))
+			if (!PlayAudioData(audioData, parser, error))
 				retCode = -1;
 		}
 		else
@@ -312,7 +313,11 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 			player = new SDLAudioPlayer();
 			player->SetAudioStream(midiSynth->GetAudioStream());
 
-			if (!player->Setup(error))
+			std::string deviceSubStr;
+			if (parser.ArgGiven("device_substr"))
+				deviceSubStr = parser.GetArgValue("device_substr", 0);
+
+			if (!player->Setup(deviceSubStr, error))
 			{
 				error.Add("Failed to setup SDL audio player!");
 				break;
@@ -473,7 +478,7 @@ bool PlayMidiData(AudioDataLib::MidiData* midiData, AudioDataLib::Error& error)
 	return success;
 }
 
-bool PlayAudioData(AudioDataLib::AudioData* audioData, AudioDataLib::Error& error)
+bool PlayAudioData(AudioDataLib::AudioData* audioData, CmdLineParser& parser, AudioDataLib::Error& error)
 {
 	bool success = false;
 	SDLAudioPlayer player;
@@ -500,7 +505,11 @@ bool PlayAudioData(AudioDataLib::AudioData* audioData, AudioDataLib::Error& erro
 
 		player.SetAudioStream(audioSink.GetAudioOutput());
 
-		if (!player.Setup(error))
+		std::string deviceSubStr;
+		if (parser.ArgGiven("device_substr"))
+			deviceSubStr = parser.GetArgValue("device_substr", 0);
+
+		if (!player.Setup(deviceSubStr, error))
 		{
 			error.Add("Failed to setup player.");
 			break;

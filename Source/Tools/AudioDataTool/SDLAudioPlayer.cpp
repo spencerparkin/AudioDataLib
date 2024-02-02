@@ -15,7 +15,7 @@ SDLAudioPlayer::SDLAudioPlayer()
 {
 }
 
-bool SDLAudioPlayer::Setup(Error& error)
+bool SDLAudioPlayer::Setup(const std::string& deviceSubStr, Error& error)
 {
 	if (!this->audioStream)
 	{
@@ -38,13 +38,17 @@ bool SDLAudioPlayer::Setup(Error& error)
 	}
 
 	printf("Found %d output audio device(s)...\n", numAudioDevices);
+	int j = 0;
 	for (int i = 0; i < numAudioDevices; i++)
 	{
 		std::string audioDeviceName = SDL_GetAudioDeviceName(i, 0);
 		printf("%d: %s\n", i + 1, audioDeviceName.c_str());
+
+		if (deviceSubStr.length() > 0 && audioDeviceName.find(deviceSubStr) != std::string::npos)
+			j = i;
 	}
 
-	std::string chosenAudioDeviceName = SDL_GetAudioDeviceName(1, 0);		// TODO: Maybe let the user pick?
+	std::string chosenAudioDeviceName = SDL_GetAudioDeviceName(j, 0);
 	printf("\nChosen device: %s\n\n", chosenAudioDeviceName.c_str());
 
 	this->audioSpec.freq = 48000;

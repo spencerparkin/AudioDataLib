@@ -12,7 +12,7 @@ public:
 	SDLAudioPlayer();
 	virtual ~SDLAudioPlayer();
 
-	bool Setup(AudioDataLib::Error& error);
+	bool Setup(const std::string& deviceSubStr, AudioDataLib::Error& error);
 	bool Shutdown(AudioDataLib::Error& error);
 
 	void SetAudioStream(AudioDataLib::AudioStream* audioStream) { this->audioStream = audioStream; }
