@@ -114,25 +114,42 @@ void FrequencyGraph::GenerateSmootherGraph(FrequencyGraph& smootherGraph, double
 
 double FrequencyGraph::EstimateFundamentalFrequency(double strengthThreshold /*= 35.0*/) const
 {
-	for (uint32_t i = 1; i < this->plotArray->size() - 1; i++)
+	constexpr uint32_t maxScaleUpAttempts = 5;
+	double scale = 1.0;
+	std::vector<Plot> scaledPlotArray;
+
+	for (uint32_t i = 0; i < maxScaleUpAttempts; i++)
 	{
-		const Plot* plot[3] =
+		for (const Plot& plot : *this->plotArray)
 		{
-			&(*this->plotArray)[i - 1],
-			&(*this->plotArray)[i],
-			&(*this->plotArray)[i + 1]
-		};
+			Plot scaledPlot = plot;
+			scaledPlot.strength *= scale;
+			scaledPlotArray.push_back(scaledPlot);
+		}
 
-		if (plot[1]->strength >= strengthThreshold)
+		for (uint32_t j = 1; j < scaledPlotArray.size() - 1; j++)
 		{
-			double derivativeA = (plot[1]->strength - plot[0]->strength) / (plot[1]->frequency - plot[0]->frequency);
-			double derivativeB = (plot[2]->strength - plot[1]->strength) / (plot[2]->frequency - plot[1]->frequency);
-
-			if (derivativeA > 0.0 && derivativeB < 0.0)
+			const Plot* plot[3] =
 			{
-				return plot[1]->frequency;
+				&scaledPlotArray[j - 1],
+				&scaledPlotArray[j],
+				&scaledPlotArray[j + 1]
+			};
+
+			if (plot[1]->strength >= strengthThreshold)
+			{
+				double derivativeA = (plot[1]->strength - plot[0]->strength) / (plot[1]->frequency - plot[0]->frequency);
+				double derivativeB = (plot[2]->strength - plot[1]->strength) / (plot[2]->frequency - plot[1]->frequency);
+
+				if (derivativeA > 0.0 && derivativeB < 0.0)
+				{
+					return plot[1]->frequency;
+				}
 			}
 		}
+
+		scale += 0.5;
+		scaledPlotArray.clear();
 	}
 
 	return 0.0;
