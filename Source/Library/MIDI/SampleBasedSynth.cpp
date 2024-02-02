@@ -65,7 +65,12 @@ SampleBasedSynth::SampleBasedSynth(bool ownsAudioStream, bool ownsSoundFontData)
 
 	switch (channelEvent.type)
 	{
-		// TODO: Respond to program change events.
+		case MidiData::ChannelEvent::PROGRAM_CHANGE:
+		{
+			uint16_t instrument = channelEvent.param1;
+			this->SetChannelInstrument(channelEvent.channel + 1, instrument + 1);
+			break;
+		}
 		case MidiData::ChannelEvent::NOTE_ON:
 		{
 			uint8_t pitchValue = channelEvent.param1;
