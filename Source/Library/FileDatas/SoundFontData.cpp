@@ -192,8 +192,13 @@ const WaveForm* SoundFontData::LoopedAudioData::GetCachedWaveForm(uint16_t chann
 
 bool SoundFontData::LoopedAudioData::Location::Contains(uint16_t key, uint16_t vel) const
 {
-	return this->minKey <= key && key <= this->maxKey &&
-			this->minVel <= vel && vel <= this->maxVel;
+	if (!(this->minKey <= key && key <= this->maxKey))
+		return false;
+
+	if (this->minVel == this->maxVel)
+		return true;
+
+	return this->minVel <= vel && vel <= this->maxVel;
 }
 
 /*virtual*/ void SoundFontData::LoopedAudioData::DumpInfo(FILE* fp) const
