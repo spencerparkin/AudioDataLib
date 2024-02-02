@@ -130,7 +130,8 @@ const AudioData::MetaData* AudioData::GetMetaData() const
 		//       an ongoing problem.  More research is needed.  Also, is it really necessary?  Is there
 		//       perhaps more information I can dig out of the SF2 file that can serve as an alternative?
 		//       How does any software synthesizer utilize an SF2 file without doing an analysis if there
-		//       isn't more information in the file can be used to do it?
+		//       isn't more information in the file that can be used to do it?  E.g., look at "courseTune"
+		//       and "fineTune" in the documentation.  And maybe "keynum"?
 		this->metaData->analyticalPitch = frequencyGraph.EstimateFundamentalFrequency();
 	}
 
