@@ -10,6 +10,8 @@ LoopedAudioModule::LoopedAudioModule()
 	this->startTimeSeconds = 0.0;
 	this->endTimeSeconds = 0.0;
 	this->localTimeSeconds = 0.0;
+	this->totalTimeSeconds = 0.0;
+	this->loopEnabled = true;
 }
 
 /*virtual*/ LoopedAudioModule::~LoopedAudioModule()
@@ -51,11 +53,35 @@ LoopedAudioModule::LoopedAudioModule()
 
 		this->localTimeSeconds += deltaTimeSeconds;
 
-		if (this->localTimeSeconds > this->endTimeSeconds)
-			this->localTimeSeconds -= this->endTimeSeconds - this->startTimeSeconds;
+		if (this->loopEnabled)
+		{
+			if (this->localTimeSeconds > this->endTimeSeconds)
+				this->localTimeSeconds -= this->endTimeSeconds - this->startTimeSeconds;
+		}
+		else
+		{
+			if (this->localTimeSeconds > this->totalTimeSeconds)
+				this->localTimeSeconds = this->totalTimeSeconds;
+		}
 	}
 	
 	return true;
+}
+
+/*virtual*/ bool LoopedAudioModule::CantGiveAnymoreSound()
+{
+	if (this->loopEnabled)
+		return false;
+
+	if (this->localTimeSeconds < this->totalTimeSeconds)
+		return false;
+
+	return true;
+}
+
+void LoopedAudioModule::Release()
+{
+	this->loopEnabled = false;
 }
 
 bool LoopedAudioModule::UseLoopedAudioData(const SoundFontData::LoopedAudioData* loopedAudioData, uint16_t channel, Error& error)
@@ -66,7 +92,7 @@ bool LoopedAudioModule::UseLoopedAudioData(const SoundFontData::LoopedAudioData*
 
 	const AudioData::Format& format = loopedAudioData->GetFormat();
 
-	double totalTimeSeconds = loopedAudioData->GetTimeSeconds();
+	this->totalTimeSeconds = loopedAudioData->GetTimeSeconds();
 
 	this->startTimeSeconds = format.BytesPerChannelToSeconds(loopedAudioData->GetLoop().startFrame * format.BytesPerFrame());
 	this->endTimeSeconds = format.BytesPerChannelToSeconds(loopedAudioData->GetLoop().endFrame * format.BytesPerFrame());
@@ -77,15 +103,18 @@ bool LoopedAudioModule::UseLoopedAudioData(const SoundFontData::LoopedAudioData*
 		return false;
 	}
 
-	if (this->endTimeSeconds > totalTimeSeconds)
+	if (this->endTimeSeconds > this->totalTimeSeconds)
 	{
-		error.Add(FormatString("End time (%f) is greater than total time (%f) in looped audio sample.", this->endTimeSeconds, totalTimeSeconds));
+		error.Add(FormatString("End time (%f) is greater than total time (%f) in looped audio sample.", this->endTimeSeconds, this->totalTimeSeconds));
 		return false;
 	}
 
 	this->localTimeSeconds = 0.0;
 
-	// TODO: Obey the mode of the given looped audio.
+	if (loopedAudioData->GetMode() == SoundFontData::LoopedAudioData::Mode::NOT_LOOPED)
+		this->loopEnabled = false;
+	else
+		this->loopEnabled = true;
 
 	return true;
 }

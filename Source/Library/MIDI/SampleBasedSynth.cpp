@@ -144,18 +144,17 @@ SampleBasedSynth::SampleBasedSynth(bool ownsAudioStream, bool ownsSoundFontData)
 				auto attenuationModuleLeft = dynamic_cast<AttenuationModule*>(this->mixerModuleLeftEar->FindModule(note.leftModuleID));
 				auto attenuationModuleRight = dynamic_cast<AttenuationModule*>(this->mixerModuleRightEar->FindModule(note.rightModuleID));
 
-				if (!attenuationModuleLeft || !attenuationModuleRight)
+				if (attenuationModuleLeft)
 				{
-					error.Add(FormatString("Failed to find attenuation modules for pitch %d.", pitchValue));
-					return false;
+					attenuationModuleLeft->SetAttenuationFunction(new LinearFallOffFunction(0.2));
+					attenuationModuleLeft->TriggerFallOff();
 				}
 
-				attenuationModuleLeft->SetAttenuationFunction(new LinearFallOffFunction(0.2));
-				attenuationModuleRight->SetAttenuationFunction(new LinearFallOffFunction(0.2));
-
-				// We remove our note from our note-map, but the modules will continue to live on until they're pruned in due course.
-				attenuationModuleLeft->TriggerFallOff();
-				attenuationModuleRight->TriggerFallOff();
+				if (attenuationModuleRight)
+				{
+					attenuationModuleRight->SetAttenuationFunction(new LinearFallOffFunction(0.2));
+					attenuationModuleRight->TriggerFallOff();
+				}
 
 				this->noteMap->erase(iter);
 			}

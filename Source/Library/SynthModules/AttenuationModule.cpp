@@ -54,6 +54,9 @@ AttenuationModule::AttenuationModule()
 
 /*virtual*/ bool AttenuationModule::CantGiveAnymoreSound()
 {
+	if (!this->dependentModule || this->dependentModule->CantGiveAnymoreSound())
+		return true;
+
 	if (!this->fallOff)
 		return false;
 
