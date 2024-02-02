@@ -125,13 +125,13 @@ SampleBasedSynth::SampleBasedSynth(bool ownsAudioStream, bool ownsSoundFontData)
 
 			printf("%1.3f Hz <== (L: %1.3f Hz; R: %1.3f Hz\n",
 								noteFrequency,
-								leftAudioData->GetMetaData()->analyticalPitch,
-								rightAudioData->GetMetaData()->analyticalPitch);
+								leftAudioData->GetMetaData().pitch,
+								rightAudioData->GetMetaData().pitch);
 			printf("L: %s\n", leftAudioData->GetName().c_str());
 			printf("R: %s\n", rightAudioData->GetName().c_str());
 
-			pitchShiftModuleLeft->SetSourceAndTargetFrequencies(leftAudioData->GetMetaData()->analyticalPitch, noteFrequency);
-			pitchShiftModuleRight->SetSourceAndTargetFrequencies(rightAudioData->GetMetaData()->analyticalPitch, noteFrequency);
+			pitchShiftModuleLeft->SetSourceAndTargetFrequencies(leftAudioData->GetMetaData().pitch, noteFrequency);
+			pitchShiftModuleRight->SetSourceAndTargetFrequencies(rightAudioData->GetMetaData().pitch, noteFrequency);
 
 			break;
 		}
@@ -182,7 +182,7 @@ SampleBasedSynth::SampleBasedSynth(bool ownsAudioStream, bool ownsSoundFontData)
 	}
 }
 
-void SampleBasedSynth::SetSoundFontData(uint16_t channel, SoundFontData* soundFontData)
+bool SampleBasedSynth::SetSoundFontData(uint16_t channel, SoundFontData* soundFontData, bool estimateFrequencies, Error& error)
 {
 	SoundFontMap::iterator iter = this->soundFontMap->find(channel);
 	if (iter != this->soundFontMap->end())
@@ -192,23 +192,42 @@ void SampleBasedSynth::SetSoundFontData(uint16_t channel, SoundFontData* soundFo
 		this->soundFontMap->erase(iter);
 	}
 
-	Error error;
 	for (uint32_t i = 0; i < soundFontData->GetNumAudioSamples(); i++)
 	{
 		const SoundFontData::AudioSample* audioSample = soundFontData->GetAudioSample(i);
 		for (uint32_t j = 0; j < audioSample->GetNumLoopedAudioDatas(); j++)
 		{
 			const SoundFontData::LoopedAudioData* audioData = audioSample->GetLoopedAudioData(j);
-			
-			printf("Analyzing %s... ", audioData->GetName().c_str());
-			const SoundFontData::LoopedAudioData::MetaData* metaData = audioData->GetMetaData();
-			printf("Estimated Pitch: %f Hz\n", metaData->analyticalPitch);
+
+			if (estimateFrequencies)
+			{
+				// This option really only exists because for a long time, I didn't know that the SF2 file
+				// format embedded the frequencies of its samples.  I thought it was dumb that it didn't
+				// until I finally found out that it actually does.  In any case, learning to estimate the
+				// fundamental pitch of an audio sample was not a bad thing, so I guess it all worked out
+				// for the better anyway.  This estimate, however, is not always accurate, especially in
+				// the high upper or very low pitch ranges.
+				printf("Analyzing %s... ", audioData->GetName().c_str());
+				
+				if (!audioData->CalcMetaData(error))
+					return false;
+
+				printf("Estimated Pitch: %f Hz\n", audioData->GetMetaData().pitch);
+			}
+			else
+			{
+				SoundFontData::LoopedAudioData::MetaData metaData = audioData->GetMetaData();
+				metaData.pitch = MidiSynth::MidiPitchToFrequency(audioData->GetMidiKeyInfo().overridingRoot);
+				audioData->SetMetaData(metaData);
+			}
 
 			audioData->GetCachedWaveForm(0, error);
 		}
 	}
 
 	this->soundFontMap->insert(std::pair<uint16_t, SoundFontData*>(channel, soundFontData));
+
+	return true;
 }
 
 SoundFontData* SampleBasedSynth::GetSoundFontData(uint16_t channel)

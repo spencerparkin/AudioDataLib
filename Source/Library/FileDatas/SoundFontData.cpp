@@ -70,9 +70,12 @@ void SoundFontData::Clear()
 		for (uint32_t i = 0; i < audioSample->GetNumLoopedAudioDatas(); i++)
 		{
 			const LoopedAudioData* audioData = audioSample->GetLoopedAudioData(i);
-			const LoopedAudioData::MetaData* metaData = audioData->GetMetaData();
+			const LoopedAudioData::MetaData& metaData = audioData->GetMetaData();
 			const LoopedAudioData::Location& location = audioData->GetLocation();
 			const LoopedAudioData::MidiKeyInfo& keyInfo = audioData->GetMidiKeyInfo();
+
+			Error error;
+			audioData->CalcMetaData(error);
 
 			double minFreq = MidiSynth::MidiPitchToFrequency(location.minKey);
 			double maxFreq = MidiSynth::MidiPitchToFrequency(location.maxKey);
@@ -84,8 +87,8 @@ void SoundFontData::Clear()
 				audioData->GetName().c_str(),
 				keyInfo.original, keyInfo.overridingRoot,
 				MidiSynth::MidiPitchToFrequency(keyInfo.overridingRoot),
-				metaData->analyticalPitch, minFreq, maxFreq,
-				metaData->analyticalVolume, minVol, maxVol);
+				metaData.pitch, minFreq, maxFreq,
+				metaData.volume, minVol, maxVol);
 		}
 	}
 }
@@ -107,10 +110,10 @@ const SoundFontData::AudioSample* SoundFontData::FindClosestAudioSample(double p
 		for (uint32_t i = 0; i < audioSample->GetNumLoopedAudioDatas(); i++)
 		{
 			const LoopedAudioData* audioData = audioSample->GetLoopedAudioData(i);
-			const LoopedAudioData::MetaData* metaData = audioData->GetMetaData();
+			const LoopedAudioData::MetaData& metaData = audioData->GetMetaData();
 
-			double deltaPitch = metaData->analyticalPitch - pitch;
-			double deltaVol = metaData->analyticalVolume - volume;
+			double deltaPitch = metaData.pitch - pitch;
+			double deltaVol = metaData.volume - volume;
 
 			double distance = deltaPitch * deltaPitch + deltaVol * deltaVol;
 

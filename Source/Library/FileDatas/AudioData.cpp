@@ -10,15 +10,14 @@ using namespace AudioDataLib;
 AudioData::AudioData()
 {
 	::memset(&this->format, 0, sizeof(Format));
+	::memset(&this->metaData, 0, sizeof(MetaData));
 	this->audioBuffer = nullptr;
 	this->audioBufferSize = 0;
-	this->metaData = nullptr;
 }
 
 /*virtual*/ AudioData::~AudioData()
 {
 	this->SetAudioBufferSize(0);
-	delete this->metaData;
 }
 
 /*static*/ AudioData* AudioData::Create()
@@ -67,8 +66,8 @@ AudioData::AudioData()
 	fprintf(fp, "Channels: %d\n", this->format.numChannels);
 	fprintf(fp, "Buffer size: %lld\n", this->audioBufferSize);
 	fprintf(fp, "Duration (sec): %f\n", durationSeconds);
-	fprintf(fp, "Analytical pitch: %f\n", this->metaData->analyticalPitch);
-	fprintf(fp, "Analytical vol.: %f\n", this->metaData->analyticalVolume);
+	fprintf(fp, "Pitch: %f\n", this->metaData.pitch);
+	fprintf(fp, "Volume: %f\n", this->metaData.volume);
 }
 
 /*virtual*/ void AudioData::DumpCSV(FILE* fp) const
@@ -107,35 +106,26 @@ double AudioData::GetTimeSeconds() const
 	return this->format.BytesPerChannelToSeconds(this->format.BytesPerChannel(this->audioBufferSize));
 }
 
-const AudioData::MetaData* AudioData::GetMetaData() const
+bool AudioData::CalcMetaData(Error& error) const
 {
-	if (!this->metaData)
-	{
-		this->metaData = new MetaData();
+	WaveForm waveForm;
+	if (!waveForm.ConvertFromAudioBuffer(format, this->audioBuffer, this->audioBufferSize, 0, error))
+		return false;
 
-		Error error;
-		WaveForm waveForm;
-		if (!waveForm.ConvertFromAudioBuffer(format, this->audioBuffer, this->audioBufferSize, 0, error))
-			return false;
+	this->metaData.volume = waveForm.CalcAverageVolume();
 
-		this->metaData->analyticalVolume = waveForm.CalcAverageVolume();
+	// Note that if the number of samples here is too low, we can lose accuracy.
+	// But the same is true if we request too many samples!  Maybe due to round-off error in the math?
+	FrequencyGraph frequencyGraph;
+	if (!frequencyGraph.FromWaveForm(waveForm, 32768, error))
+		return false;
 
-		// Note that if the number of samples here is too low, we can lose accuracy.
-		// But the same is true if we request too many samples!  Maybe due to round-off error in the math?
-		FrequencyGraph frequencyGraph;
-		if (!frequencyGraph.FromWaveForm(waveForm, 32768, error))
-			return false;
+	// TODO: Being able to accurately estimate the fundamental frequency of a given wave-form is
+	//       an ongoing problem.  More research is needed.  Note that it shouldn't be necessary
+	//       to be able to use an SF file, because pitch information is embedded in the file.
+	this->metaData.pitch = frequencyGraph.EstimateFundamentalFrequency();
 
-		// TODO: Being able to accurately estimate the fundamental frequency of a given wave-form is
-		//       an ongoing problem.  More research is needed.  Also, is it really necessary?  Is there
-		//       perhaps more information I can dig out of the SF2 file that can serve as an alternative?
-		//       How does any software synthesizer utilize an SF2 file without doing an analysis if there
-		//       isn't more information in the file that can be used to do it?  E.g., look at "courseTune"
-		//       and "fineTune" in the documentation.  And maybe "keynum"?
-		this->metaData->analyticalPitch = frequencyGraph.EstimateFundamentalFrequency();
-	}
-
-	return this->metaData;
+	return true;
 }
 
 //----------------------------- AudioData::Format -----------------------------

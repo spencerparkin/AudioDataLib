@@ -4,6 +4,8 @@
 
 namespace AudioDataLib
 {
+	class Error;
+
 	class AUDIO_DATA_LIB_API AudioData : public FileData
 	{
 	public:
@@ -72,16 +74,18 @@ namespace AudioDataLib
 
 		struct MetaData
 		{
-			double analyticalPitch;
-			double analyticalVolume;
+			double pitch;
+			double volume;
 		};
 
-		const MetaData* GetMetaData() const;
+		const MetaData& GetMetaData() const { return this->metaData; }
+		void SetMetaData(const MetaData& metaData) const { this->metaData = metaData; }
+		bool CalcMetaData(Error& error) const;
 
 	protected:
 		Format format;
 		uint8_t* audioBuffer;
 		uint64_t audioBufferSize;
-		mutable MetaData* metaData;
+		mutable MetaData metaData;
 	};
 }
