@@ -123,10 +123,6 @@ SampleBasedSynth::SampleBasedSynth(bool ownsAudioStream, bool ownsSoundFontData)
 			if (!loopedAudioModuleRight->UseLoopedAudioData(rightAudioData, 0, error))
 				return false;
 
-			// TODO: There is a bug where a piano note left on will decay, but then play again before you've lifted the key.
-			//       I think that I need to review the looping rules and know when a sound sample is supposed to be done, at
-			//       which point, it should get pruned automatically even if there is no off-event given.
-
 			pitchShiftModuleLeft->SetSourceAndTargetFrequencies(leftAudioData->GetMetaData()->analyticalPitch, noteFrequency);
 			pitchShiftModuleRight->SetSourceAndTargetFrequencies(rightAudioData->GetMetaData()->analyticalPitch, noteFrequency);
 
