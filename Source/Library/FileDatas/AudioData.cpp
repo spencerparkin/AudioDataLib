@@ -126,6 +126,11 @@ const AudioData::MetaData* AudioData::GetMetaData() const
 		if (!frequencyGraph.FromWaveForm(waveForm, 32768, error))
 			return false;
 
+		// TODO: Being able to accurately estimate the fundamental frequency of a given wave-form is
+		//       an ongoing problem.  More research is needed.  Also, is it really necessary?  Is there
+		//       perhaps more information I can dig out of the SF2 file that can serve as an alternative?
+		//       How does any software synthesizer utilize an SF2 file without doing an analysis if there
+		//       isn't more information in the file can be used to do it?
 		this->metaData->analyticalPitch = frequencyGraph.EstimateFundamentalFrequency();
 	}
 
