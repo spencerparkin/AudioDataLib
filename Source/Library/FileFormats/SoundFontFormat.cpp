@@ -199,6 +199,7 @@ SoundFontFormat::SoundFontFormat()
 		SoundFontData::LoopedAudioData::Location location;
 		::memset(&location, 0, sizeof(location));
 		uint8_t looperMode = 0;
+		int8_t overridingRootKey = -1;
 		for (uint32_t i = 0; i < numGenerators; i++)
 		{
 			const SF_Generator* generator = &generatorArray[i];
@@ -225,6 +226,11 @@ SoundFontFormat::SoundFontFormat()
 					looperMode = generator->amount & 0xFF;
 					break;
 				}
+				case ADL_GENERATOR_OP_ROOT_KEY:
+				{
+					overridingRootKey = (int8_t)generator->signedAmount;
+					break;
+				}
 				case ADL_GENERATOR_OP_SAMPLE_ID:
 				{
 					uint32_t sampleID = generator->amount;
@@ -237,8 +243,14 @@ SoundFontFormat::SoundFontFormat()
 
 					audioData->SetLocation(location);
 					//audioData->SetMode(SoundFontData::LoopedAudioData::Mode(looperMode));
+					
+					SoundFontData::LoopedAudioData::MidiKeyInfo keyInfo = audioData->GetMidiKeyInfo();
+					keyInfo.overridingRoot = overridingRootKey;
+					audioData->SetMidiKeyInfo(keyInfo);
 
 					::memset(&location, 0, sizeof(location));
+					overridingRootKey = -1;
+					looperMode = 0;
 					break;
 				}
 			}
@@ -304,10 +316,6 @@ SoundFontData::AudioSample* SoundFontFormat::ConstructAudioSample(
 
 	auto audioSample = new SoundFontData::AudioSample();
 
-	// I'm not even going to check here that all the headers specify the same pitch.
-	// It seems as though this is always set to 60 no matter what.
-	audioSample->SetMIDIPitch(audioSampleHeaderArray[0].originalPitch);
-
 	for (uint32_t i : sampleIDArray)
 	{
 		const SF_SampleHeader& header = audioSampleHeaderArray[i];
@@ -317,6 +325,7 @@ SoundFontData::AudioSample* SoundFontFormat::ConstructAudioSample(
 
 		loopedAudioData->SetSampleID(i);
 		loopedAudioData->SetName((const char*)header.sampleName);
+		loopedAudioData->SetMidiKeyInfo({ (int8_t)header.originalPitch, -1 });
 
 		if ((header.sampleType & ADL_SAMPLE_TYPE_BIT_LEFT) != 0)
 			loopedAudioData->SetChannelType(SoundFontData::LoopedAudioData::ChannelType::LEFT_EAR);

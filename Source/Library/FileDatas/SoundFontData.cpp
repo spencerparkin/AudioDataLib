@@ -50,7 +50,6 @@ void SoundFontData::Clear()
 	for (const AudioSample* audioSample : *this->audioSampleArray)
 	{
 		fprintf(fp, "========================================\n");
-		fprintf(fp, "MIDI Pitch: %d\n", audioSample->GetMIDIPitch());
 		fprintf(fp, "Channels: %d\n", audioSample->GetNumLoopedAudioDatas());
 
 		for (uint32_t i = 0; i < audioSample->GetNumLoopedAudioDatas(); i++)
@@ -64,7 +63,7 @@ void SoundFontData::Clear()
 
 /*virtual*/ void SoundFontData::DumpCSV(FILE* fp) const
 {
-	fprintf(fp, "Sample Name, Frequency, Min. Freq, Max. Freq., Volume, Min. Vol., Max. Vol.\n");
+	fprintf(fp, "Sample Name, Org. Key, Over. Key, Over. Freq., Est. Freq., Min. Freq., Max. Freq., Est. Vol., Min. Vol., Max. Vol.\n");
 
 	for (const AudioSample* audioSample : *this->audioSampleArray)
 	{
@@ -73,6 +72,7 @@ void SoundFontData::Clear()
 			const LoopedAudioData* audioData = audioSample->GetLoopedAudioData(i);
 			const LoopedAudioData::MetaData* metaData = audioData->GetMetaData();
 			const LoopedAudioData::Location& location = audioData->GetLocation();
+			const LoopedAudioData::MidiKeyInfo& keyInfo = audioData->GetMidiKeyInfo();
 
 			double minFreq = MidiSynth::MidiPitchToFrequency(location.minKey);
 			double maxFreq = MidiSynth::MidiPitchToFrequency(location.maxKey);
@@ -80,8 +80,10 @@ void SoundFontData::Clear()
 			double minVol = MidiSynth::MidiVelocityToAmplitude(location.minVel);
 			double maxVol = MidiSynth::MidiVelocityToAmplitude(location.maxVel);
 
-			fprintf(fp, "%s, %f, %f, %f, %f, %f, %f\n",
+			fprintf(fp, "%s, %d, %d, %f, %f, %f, %f, %f, %f, %f\n",
 				audioData->GetName().c_str(),
+				keyInfo.original, keyInfo.overridingRoot,
+				MidiSynth::MidiPitchToFrequency(keyInfo.overridingRoot),
 				metaData->analyticalPitch, minFreq, maxFreq,
 				metaData->analyticalVolume, minVol, maxVol);
 		}
@@ -164,6 +166,8 @@ SoundFontData::LoopedAudioData::LoopedAudioData()
 	this->name = new std::string();
 	this->channelType = ChannelType::MONO;
 	this->mode = Mode::GETS_TRAPPED_IN_LOOP;
+	this->keyInfo.original = -1;
+	this->keyInfo.overridingRoot = -1;
 	::memset(&this->location, 0, sizeof(location));
 }
 
@@ -260,7 +264,6 @@ bool SoundFontData::LoopedAudioData::Location::Contains(uint16_t key, uint16_t v
 
 SoundFontData::AudioSample::AudioSample()
 {
-	this->midiPitch = 0;
 	this->loopedAudioDataArray = new std::vector<LoopedAudioData*>();
 }
 

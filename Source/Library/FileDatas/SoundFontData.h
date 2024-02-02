@@ -62,28 +62,11 @@ namespace AudioDataLib
 			virtual void DumpInfo(FILE* fp) const override;
 			virtual FileData* Clone() const override;
 
-			void SetName(const std::string& name) { *this->name = name; }
-			const std::string& GetName() const { return *this->name; }
-
 			struct Loop
 			{
 				uint64_t startFrame;
 				uint64_t endFrame;
 			};
-
-			const Loop& GetLoop() const { return this->loop; }
-			void SetLoop(const Loop& loop) { this->loop = loop; }
-
-			enum Mode : uint8_t
-			{
-				NOT_LOOPED,
-				GETS_TRAPPED_IN_LOOP,
-				UNUSED,
-				EXIT_LOOP_ON_RELEASE
-			};
-
-			Mode GetMode() const { return this->mode; }
-			void SetMode(Mode mode) { this->mode = mode; }
 
 			enum ChannelType
 			{
@@ -91,12 +74,6 @@ namespace AudioDataLib
 				LEFT_EAR,
 				RIGHT_EAR
 			};
-
-			void SetChannelType(ChannelType channelType) { this->channelType = channelType; }
-			ChannelType GetChannelType() const { return this->channelType; }
-
-			uint32_t GetSampleID() const { return this->sampleID; }
-			void SetSampleID(uint32_t sampleID) { this->sampleID = sampleID; }
 
 			struct Location
 			{
@@ -106,13 +83,39 @@ namespace AudioDataLib
 				bool Contains(uint16_t key, uint16_t vel) const;
 			};
 
-			void SetLocation(const Location& location) { this->location = location; }
-			const Location& GetLocation() const { return this->location; }
+			enum Mode : uint8_t
+			{
+				NOT_LOOPED,
+				GETS_TRAPPED_IN_LOOP,
+				UNUSED,
+				EXIT_LOOP_ON_RELEASE
+			};
+
+			struct MidiKeyInfo
+			{
+				int8_t original;
+				int8_t overridingRoot;
+			};
 
 			const WaveForm* GetCachedWaveForm(uint16_t channel, Error& error) const;
+			void SetName(const std::string& name) { *this->name = name; }
+			const std::string& GetName() const { return *this->name; }
+			const Loop& GetLoop() const { return this->loop; }
+			void SetLoop(const Loop& loop) { this->loop = loop; }
+			Mode GetMode() const { return this->mode; }
+			void SetMode(Mode mode) { this->mode = mode; }
+			void SetChannelType(ChannelType channelType) { this->channelType = channelType; }
+			ChannelType GetChannelType() const { return this->channelType; }
+			uint32_t GetSampleID() const { return this->sampleID; }
+			void SetSampleID(uint32_t sampleID) { this->sampleID = sampleID; }
+			void SetLocation(const Location& location) { this->location = location; }
+			const Location& GetLocation() const { return this->location; }
+			void SetMidiKeyInfo(const MidiKeyInfo& keyInfo) { this->keyInfo = keyInfo; }
+			const MidiKeyInfo& GetMidiKeyInfo() const { return this->keyInfo; }
 
 		protected:
 			std::string* name;
+			MidiKeyInfo keyInfo;
 			Loop loop;
 			Mode mode;
 			Location location;
@@ -131,9 +134,6 @@ namespace AudioDataLib
 
 			void Clear();
 
-			uint8_t GetMIDIPitch() const { return this->midiPitch; }
-			void SetMIDIPitch(uint8_t midiPitch) { this->midiPitch = midiPitch; }
-
 			uint32_t GetNumLoopedAudioDatas() const { return this->loopedAudioDataArray->size(); }
 			const LoopedAudioData* GetLoopedAudioData(uint32_t i) const;
 
@@ -145,12 +145,10 @@ namespace AudioDataLib
 
 			// This is looped audio data, one for each channel.  The channels are
 			// kept separate up until the moment of synthesis, because each one
-			// might have its own sample-rate and looping characteristics.
+			// might have its own sample-rate and looping characteristics.  Also,
+			// I'm not yet taking pan into account yet, but keeping it separate would
+			// be in preparation for that.
 			std::vector<LoopedAudioData*>* loopedAudioDataArray;
-
-			// This is typically zero, maybe because the application is expected
-			// to deduce the general frequency of the font sample itself?
-			uint8_t midiPitch;
 		};
 
 		const GeneralInfo& GetGeneralInfo() const { return *this->generalInfo; }
