@@ -123,7 +123,7 @@ SampleBasedSynth::SampleBasedSynth(bool ownsAudioStream, bool ownsSoundFontData)
 			if (!loopedAudioModuleRight->UseLoopedAudioData(rightAudioData, 0, error))
 				return false;
 
-			printf("%1.3f Hz <== (L: %1.3f Hz; R: %1.3f Hz\n",
+			printf("%1.3f Hz <== (L: %1.3f Hz; R: %1.3f Hz)\n",
 								noteFrequency,
 								leftAudioData->GetMetaData().pitch,
 								rightAudioData->GetMetaData().pitch);

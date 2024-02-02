@@ -122,7 +122,8 @@ bool AudioData::CalcMetaData(Error& error) const
 
 	// TODO: Being able to accurately estimate the fundamental frequency of a given wave-form is
 	//       an ongoing problem.  More research is needed.  Note that it shouldn't be necessary
-	//       to be able to use an SF file, because pitch information is embedded in the file.
+	//       to do this in order to be able to use an SF file, because pitch information is
+	//       embedded in the file.
 	this->metaData.pitch = frequencyGraph.EstimateFundamentalFrequency();
 
 	return true;
