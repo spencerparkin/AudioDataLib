@@ -37,11 +37,11 @@ namespace AudioDataLib
 		{
 			union
 			{
-				uint32_t ticksPerQuarterNote;
+				uint16_t ticksPerQuarterNote;
 				struct
 				{
-					int16_t framesPerSecond;
-					uint16_t ticksPerFrame;
+					int8_t framesPerSecond;
+					uint8_t ticksPerFrame;
 				};
 			};
 

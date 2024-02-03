@@ -474,7 +474,7 @@ MidiData::MetaEvent::TimeSignature::operator std::string() const
 	if (!MidiFileFormat::DecodeVariableLengthValue(dataLength, inputStream, error))
 		return false;
 
-	switch (type)
+	switch (this->type)
 	{
 		case Type::SEQUENCE_NUMBER:
 		{
@@ -671,7 +671,208 @@ MidiData::MetaEvent::TimeSignature::operator std::string() const
 
 /*virtual*/ bool MidiData::MetaEvent::Encode(ByteStream& outputStream, Error& error) const
 {
-	return false;
+	uint8_t eventType = 0xFF;
+	if (1 != outputStream.WriteBytesToStream((const uint8_t*)&eventType, 1))
+	{
+		error.Add("Could not write meta-event type.");
+		return false;
+	}
+
+	uint8_t subEventType = uint8_t(this->type);
+	if (1 != outputStream.WriteBytesToStream((const uint8_t*)&subEventType, 1))
+	{
+		error.Add("Could not write meta-event sub-type.");
+		return false;
+	}
+
+	bool successfulEncoding = false;
+	switch (this->type)
+	{
+		case Type::SEQUENCE_NUMBER:
+		{
+			uint64_t dataLength = 2;
+			if (!MidiFileFormat::EncodeVariableLengthValue(dataLength, outputStream, error))
+				break;
+
+			auto sequenceNumber = static_cast<const SequenceNumber*>(this->data);
+
+			if (1 != outputStream.WriteBytesToStream(&sequenceNumber->msb, 1))
+				break;
+
+			if (1 != outputStream.WriteBytesToStream(&sequenceNumber->lsb, 1))
+				break;
+
+			successfulEncoding = true;
+			break;
+		}
+		case Type::TEXT_EVENT:
+		case Type::COPYRIGHT_NOTICE:
+		case Type::TRACK_NAME:
+		case Type::INSTRUMENT_NAME:
+		case Type::LYRICS:
+		case Type::MARKER:
+		case Type::CUE_POINT:
+		{
+			auto text = static_cast<const Text*>(this->data);
+
+			uint64_t dataLength = ::strlen(text->buffer);
+			if (!MidiFileFormat::EncodeVariableLengthValue(dataLength, outputStream, error))
+				break;
+
+			if (dataLength != outputStream.WriteBytesToStream((const uint8_t*)text->buffer, dataLength))
+			{
+				error.Add("Failed to write text from meta event.");
+				break;
+			}
+
+			successfulEncoding = true;
+			break;
+		}
+		case Type::CHANNEL_PREFIX:
+		{
+			uint64_t dataLength = 1;
+			if (!MidiFileFormat::EncodeVariableLengthValue(dataLength, outputStream, error))
+				break;
+
+			auto channelPrefix = static_cast<const ChannelPrefix*>(this->data);
+
+			if (1 != outputStream.WriteBytesToStream((const uint8_t*)&channelPrefix->channel, 1))
+				break;
+
+			successfulEncoding = true;
+			break;
+		}
+		case Type::END_OF_TRACK:
+		{
+			successfulEncoding = true;
+			break;
+		}
+		case Type::SET_TEMPO:
+		{
+			uint64_t dataLength = 3;
+			if (!MidiFileFormat::EncodeVariableLengthValue(dataLength, outputStream, error))
+				break;
+
+			auto tempo = static_cast<const Tempo*>(this->data);
+
+			uint8_t msb = uint8_t((tempo->microsecondsPerQuarterNote >> 16) & 0xFF);
+			uint8_t nmsb = uint8_t((tempo->microsecondsPerQuarterNote >> 8) & 0xFF);
+			uint8_t lsb = uint8_t(tempo->microsecondsPerQuarterNote & 0xFF);
+
+			if (1 != outputStream.WriteBytesToStream((const uint8_t*)&msb, 1))
+				break;
+
+			if (1 != outputStream.WriteBytesToStream((const uint8_t*)&nmsb, 1))
+				break;
+
+			if (1 != outputStream.WriteBytesToStream((const uint8_t*)&lsb, 1))
+				break;
+
+			successfulEncoding = true;
+			break;
+		}
+		case Type::SMPTE_OFFSET:
+		{
+			uint64_t dataLength = 5;
+			if (!MidiFileFormat::EncodeVariableLengthValue(dataLength, outputStream, error))
+				break;
+
+			auto offset = static_cast<const SMPTEOffset*>(this->data);
+
+			if (1 != outputStream.WriteBytesToStream(&offset->hours, 1))
+				break;
+
+			if (1 != outputStream.WriteBytesToStream(&offset->minutes, 1))
+				break;
+
+			if (1 != outputStream.WriteBytesToStream(&offset->seconds, 1))
+				break;
+
+			if (1 != outputStream.WriteBytesToStream(&offset->frames, 1))
+				break;
+
+			if (1 != outputStream.WriteBytesToStream(&offset->subFrames, 1))
+				break;
+
+			successfulEncoding = true;
+			break;
+		}
+		case Type::TIME_SIGNATURE:
+		{
+			uint64_t dataLength = 4;
+			if (!MidiFileFormat::EncodeVariableLengthValue(dataLength, outputStream, error))
+				break;
+
+			auto timeSignature = static_cast<const TimeSignature*>(this->data);
+
+			if (1 != outputStream.WriteBytesToStream(&timeSignature->numerator, 1))
+				break;
+
+			if (1 != outputStream.WriteBytesToStream(&timeSignature->denominator, 1))
+				break;
+
+			if (1 != outputStream.WriteBytesToStream(&timeSignature->metro, 1))
+				break;
+
+			if (1 != outputStream.WriteBytesToStream(&timeSignature->__32nds, 1))
+				break;
+
+			successfulEncoding = true;
+			break;
+		}
+		case Type::KEY_SIGNATURE:
+		{
+			uint64_t dataLength = 2;
+			if (!MidiFileFormat::EncodeVariableLengthValue(dataLength, outputStream, error))
+				break;
+
+			auto keySignature = static_cast<const KeySignature*>(this->data);
+
+			if (1 != outputStream.WriteBytesToStream(&keySignature->key, 1))
+				break;
+
+			if (1 != outputStream.WriteBytesToStream(&keySignature->scale, 1))
+				break;
+
+			successfulEncoding = true;
+			break;
+		}
+		case Type::SEQUENCER_SPECIFIC:
+		{
+			auto opaque = static_cast<const Opaque*>(this->data);
+
+			uint64_t dataLength = opaque->bufferSize;
+			if (dataLength == 0)
+			{
+				error.Add("Got zero data size for manufacturer-specific data meta-event.");
+				break;
+			}
+
+			if (!MidiFileFormat::EncodeVariableLengthValue(dataLength, outputStream, error))
+				break;
+
+			if (dataLength != outputStream.WriteBytesToStream(opaque->buffer, dataLength))
+			{
+				error.Add("Failed to write manufacturer-specific data for meta-event.");
+				break;
+			}
+
+			successfulEncoding = true;
+			break;
+		}
+		default:
+		{
+			break;
+		}
+	}
+
+	if (!successfulEncoding)
+	{
+		error.Add("Failed to encode meta-event.");
+		return false;
+	}
+
+	return true;
 }
 
 /*virtual*/ std::string MidiData::MetaEvent::LogMessage() const

@@ -121,8 +121,148 @@ MidiFileFormat::MidiFileFormat()
 
 /*virtual*/ bool MidiFileFormat::WriteToStream(ByteStream& outputStream, const FileData* fileData, Error& error)
 {
-	error.Add("Not yet implimented.");
-	return true;
+	bool success = false;
+	const MidiData* midiData = nullptr;
+	ByteSwapper byteSwapper;
+	byteSwapper.swapsNeeded = true;
+
+	do
+	{
+		midiData = dynamic_cast<const MidiData*>(fileData);
+		if (!midiData)
+		{
+			error.Add("Can only write MIDI data to a MIDI file.");
+			break;
+		}
+
+		if (4 != outputStream.WriteBytesToStream((const uint8_t*)"MThd", 4))
+		{
+			error.Add("Failed to write header chunk ID.");
+			break;
+		}
+
+		uint32_t chunkSize = byteSwapper.Resolve(uint32_t(6));
+		if (4 != outputStream.WriteBytesToStream((const uint8_t*)&chunkSize, 4))
+		{
+			error.Add("Failed to write header chunk size.");
+			break;
+		}
+
+		uint16_t formatType = byteSwapper.Resolve(uint16_t(midiData->GetFormatType()));
+		if (2 != outputStream.WriteBytesToStream((const uint8_t*)&formatType, 2))
+			break;
+
+		uint16_t numTracks = midiData->GetNumTracks();
+		if (numTracks != 1 && midiData->GetFormatType() == MidiData::FormatType::SINGLE_TRACK)
+		{
+			error.Add(FormatString("MIDI data is set to single-tracks, but multiples tracks (%d) are stored.", numTracks));
+			break;
+		}
+
+		numTracks = byteSwapper.Resolve(numTracks);
+		if (2 != outputStream.WriteBytesToStream((const uint8_t*)&numTracks, 2))
+			break;
+
+		uint16_t timingDivision = 0;
+		const MidiData::Timing& timing = midiData->GetTiming();
+		if (timing.type == MidiData::Timing::TICKS_PER_QUARTER_NOTE)
+		{
+			if ((timing.ticksPerQuarterNote & 0x8000) != 0)
+			{
+				error.Add(FormatString("Ticks per quarter note value (%d) won't fit into a 15-bit unsigned integer.", timing.ticksPerQuarterNote));
+				break;
+			}
+
+			timingDivision = timing.ticksPerQuarterNote;
+		}
+		else if (timing.type == MidiData::Timing::FRAMES_PER_SECOND)
+		{
+			if ((timing.framesPerSecond & 0x80) != 0)
+			{
+				error.Add(FormatString("Frames per second (%d) won't fit into a 7-bit unsigned integer.", timing.framesPerSecond));
+				break;
+			}
+
+			timingDivision = (uint16_t(timing.framesPerSecond) << 8) | uint16_t(timing.ticksPerFrame) | 0x8000;
+		}
+		else
+		{
+			error.Add(FormatString("Timging type (%d) unknown.", timing.type));
+			break;
+		}
+
+		timingDivision = byteSwapper.Resolve(timingDivision);
+		if (2 != outputStream.WriteBytesToStream((const uint8_t*)&timingDivision, 2))
+		{
+			error.Add("Could not write timing division.");
+			break;
+		}
+
+		for (uint32_t i = 0; i < midiData->GetNumTracks(); i++)
+		{
+			const MidiData::Track* track = midiData->GetTrack(i);
+
+			MemoryStream memoryStream;
+			const std::vector<MidiData::Event*>& eventArray = track->GetEventArray();
+			for (const MidiData::Event* event : eventArray)
+			{
+				if (!EncodeEvent(memoryStream, event, error))
+				{
+					error.Add("Failed to encode track event.");
+					break;
+				}
+			}
+
+			if (error)
+				break;
+
+			if (4 != outputStream.WriteBytesToStream((const uint8_t*)"MTrk", 4))
+			{
+				error.Add("Could not write track chunk header ID.");
+				break;
+			}
+
+			uint64_t trackChunkSize64 = memoryStream.GetSize();
+			if ((trackChunkSize64 & 0xFFFFFFFF00000000) != 0)
+			{
+				error.Add(FormatString("Track chunk size (%lld) won't fit into 32-bit unsigned integer.", trackChunkSize64));
+				break;
+			}
+
+			uint32_t trackChunkSize = byteSwapper.Resolve(uint32_t(trackChunkSize64));
+			if (4 != outputStream.WriteBytesToStream((const uint8_t*)&trackChunkSize, 4))
+			{
+				error.Add("Could not write track chunk size.");
+				break;
+			}
+
+			while (memoryStream.GetSize() > 0)
+			{
+				uint8_t byte = 0;
+				if (1 != memoryStream.ReadBytesFromStream(&byte, 1))
+				{
+					error.Add("Failed to read track byte from stream.");
+					break;
+				}
+
+				if (1 != outputStream.WriteBytesToStream(&byte, 1))
+				{
+					error.Add("Failed to write track byte to stream.");
+					break;
+				}
+			}
+
+			if (error)
+				break;
+		}
+
+		if (error)
+			break;
+
+		success = true;
+	} while (false);
+
+	return success;
 }
 
 /*static*/ bool MidiFileFormat::DecodeVariableLengthValue(uint64_t& value, ByteStream& inputStream, Error& error)
@@ -239,5 +379,17 @@ MidiFileFormat::MidiFileFormat()
 
 /*static*/ bool MidiFileFormat::EncodeEvent(ByteStream& outputStream, const MidiData::Event* event, Error& error)
 {
-	return false;
+	if (!EncodeVariableLengthValue(event->deltaTimeTicks, outputStream, error))
+	{
+		error.Add("Failed to encode delta-time ticks.");
+		return false;
+	}
+
+	if (!event->Encode(outputStream, error))
+	{
+		error.Add("Failed to encode event.");
+		return false;
+	}
+
+	return true;
 }
