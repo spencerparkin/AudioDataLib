@@ -139,3 +139,13 @@ void MidiSynth::SetAudioStream(AudioStream* audioStream)
 {
 	return double(velocityValue) / 127.0;
 }
+
+/*virtual*/ bool MidiSynth::Initialize(Error& error)
+{
+	return true;
+}
+
+/*virtual*/ bool MidiSynth::Finalize(Error& error)
+{
+	return true;
+}

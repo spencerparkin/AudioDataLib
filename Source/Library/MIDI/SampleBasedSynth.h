@@ -16,6 +16,7 @@ namespace AudioDataLib
 		virtual bool ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize, Error& error) override;
 		virtual SynthModule* GetRootModule(uint16_t channel) override;
 		virtual bool GenerateAudio(Error& error) override;
+		virtual bool Initialize(Error& error) override;
 
 		bool SetChannelInstrument(uint16_t channel, uint16_t instrument, Error& error);
 		bool GetChannelInstrument(uint16_t channel, uint16_t& instrument) const;
@@ -27,6 +28,7 @@ namespace AudioDataLib
 
 	private:
 		bool ownsSoundFontData;
+		bool estimateFrequencies;
 
 		// This maps channel to instrument number.
 		typedef std::map<uint16_t, uint16_t> ChannelMap;

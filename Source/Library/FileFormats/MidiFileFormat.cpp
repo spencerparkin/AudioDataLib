@@ -153,6 +153,12 @@ MidiFileFormat::MidiFileFormat()
 			break;
 
 		uint16_t numTracks = midiData->GetNumTracks();
+		if (numTracks == 0)
+		{
+			error.Add("No MIDI tracks found in MIDI data object.");
+			break;
+		}
+
 		if (numTracks != 1 && midiData->GetFormatType() == MidiData::FormatType::SINGLE_TRACK)
 		{
 			error.Add(FormatString("MIDI data is set to single-tracks, but multiples tracks (%d) are stored.", numTracks));

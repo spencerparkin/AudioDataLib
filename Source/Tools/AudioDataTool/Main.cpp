@@ -422,6 +422,9 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 		delete recordedMidiOutStream;
 	}
 
+	if (error)
+		success = false;
+
 	return success;
 }
 

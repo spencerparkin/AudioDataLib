@@ -70,11 +70,23 @@ bool RtMidiSynth::Setup(const std::string& desiredPortName, AudioDataLib::Error&
 		return false;
 	}
 
+	for (MidiSynth* synth : this->synthArray)
+	{
+		if (!synth->Initialize(error))
+		{
+			error.Add("Failed to initialize synth.");
+			return false;
+		}
+	}
+
 	return true;
 }
 
 bool RtMidiSynth::Shutdown(AudioDataLib::Error& error)
 {
+	for (MidiSynth* synth : this->synthArray)
+		synth->Finalize(error);
+
 	if (this->midiIn)
 	{
 		try
@@ -91,7 +103,7 @@ bool RtMidiSynth::Shutdown(AudioDataLib::Error& error)
 		this->midiIn = nullptr;
 	}
 
-	return error;
+	return !error;
 }
 
 bool RtMidiSynth::Process(AudioDataLib::Error& error)

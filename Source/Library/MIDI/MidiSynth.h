@@ -22,7 +22,9 @@ namespace AudioDataLib
 		virtual bool ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize, Error& error);
 		virtual bool GenerateAudio(Error& error);
 		virtual SynthModule* GetRootModule(uint16_t channel);
-		
+		virtual bool Initialize(Error& error);
+		virtual bool Finalize(Error& error);
+
 		void SetAudioStream(AudioStream* audioStream);
 		AudioStream* GetAudioStream() { return this->audioStream; }
 

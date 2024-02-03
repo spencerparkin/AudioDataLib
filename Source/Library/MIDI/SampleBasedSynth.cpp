@@ -12,6 +12,7 @@ using namespace AudioDataLib;
 
 SampleBasedSynth::SampleBasedSynth(bool ownsAudioStream, bool ownsSoundFontData) : MidiSynth(ownsAudioStream)
 {
+	this->estimateFrequencies = false;
 	this->ownsSoundFontData = ownsSoundFontData;
 	this->soundFontMap = new SoundFontMap();
 	this->channelMap = new ChannelMap();
@@ -198,6 +199,50 @@ SampleBasedSynth::SampleBasedSynth(bool ownsAudioStream, bool ownsSoundFontData)
 	}
 }
 
+/*virtual*/ bool SampleBasedSynth::Initialize(Error& error)
+{
+	for (auto pair : *this->soundFontMap)
+	{
+		SoundFontData* soundFontData = pair.second;
+
+		for (uint32_t i = 0; i < soundFontData->GetNumAudioSamples(); i++)
+		{
+			const SoundFontData::AudioSample* audioSample = soundFontData->GetAudioSample(i);
+
+			for (uint32_t j = 0; j < audioSample->GetNumLoopedAudioDatas(); j++)
+			{
+				const SoundFontData::LoopedAudioData* audioData = audioSample->GetLoopedAudioData(j);
+
+				if (this->estimateFrequencies)
+				{
+					// This option really only exists because for a long time, I didn't know that the SF2 file
+					// format embedded the frequencies of its samples.  I thought it was dumb that it didn't
+					// until I finally found out that it actually does.  In any case, learning to estimate the
+					// fundamental pitch of an audio sample was not a bad thing, so I guess it all worked out
+					// for the better anyway.  This estimate, however, is not always accurate, especially in
+					// the high upper or very low pitch ranges.
+					printf("Analyzing %s... ", audioData->GetName().c_str());
+
+					if (!audioData->CalcMetaData(error))
+						return false;
+
+					printf("Estimated Pitch: %f Hz\n", audioData->GetMetaData().pitch);
+				}
+				else
+				{
+					SoundFontData::LoopedAudioData::MetaData metaData = audioData->GetMetaData();
+					metaData.pitch = MidiSynth::MidiPitchToFrequency(audioData->GetMidiKeyInfo().overridingRoot);
+					audioData->SetMetaData(metaData);
+				}
+
+				audioData->GetCachedWaveForm(0, error);
+			}
+		}
+	}
+
+	return true;
+}
+
 bool SampleBasedSynth::SetSoundFontData(uint16_t instrument, SoundFontData* soundFontData, bool estimateFrequencies, Error& error)
 {
 	if (!(1 <= instrument && instrument <= 128))
@@ -212,39 +257,6 @@ bool SampleBasedSynth::SetSoundFontData(uint16_t instrument, SoundFontData* soun
 		if (this->ownsSoundFontData)
 			delete iter->second;
 		this->soundFontMap->erase(iter);
-	}
-
-	for (uint32_t i = 0; i < soundFontData->GetNumAudioSamples(); i++)
-	{
-		const SoundFontData::AudioSample* audioSample = soundFontData->GetAudioSample(i);
-		for (uint32_t j = 0; j < audioSample->GetNumLoopedAudioDatas(); j++)
-		{
-			const SoundFontData::LoopedAudioData* audioData = audioSample->GetLoopedAudioData(j);
-
-			if (estimateFrequencies)
-			{
-				// This option really only exists because for a long time, I didn't know that the SF2 file
-				// format embedded the frequencies of its samples.  I thought it was dumb that it didn't
-				// until I finally found out that it actually does.  In any case, learning to estimate the
-				// fundamental pitch of an audio sample was not a bad thing, so I guess it all worked out
-				// for the better anyway.  This estimate, however, is not always accurate, especially in
-				// the high upper or very low pitch ranges.
-				printf("Analyzing %s... ", audioData->GetName().c_str());
-				
-				if (!audioData->CalcMetaData(error))
-					return false;
-
-				printf("Estimated Pitch: %f Hz\n", audioData->GetMetaData().pitch);
-			}
-			else
-			{
-				SoundFontData::LoopedAudioData::MetaData metaData = audioData->GetMetaData();
-				metaData.pitch = MidiSynth::MidiPitchToFrequency(audioData->GetMidiKeyInfo().overridingRoot);
-				audioData->SetMetaData(metaData);
-			}
-
-			audioData->GetCachedWaveForm(0, error);
-		}
 	}
 
 	this->soundFontMap->insert(std::pair<uint16_t, SoundFontData*>(instrument, soundFontData));
