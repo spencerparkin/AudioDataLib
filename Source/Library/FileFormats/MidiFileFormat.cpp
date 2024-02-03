@@ -208,47 +208,28 @@ MidiFileFormat::MidiFileFormat()
 	eventType = (eventType & 0xF0) >> 4;
 
 	if (0x8 <= eventType && eventType <= 0xE)
-	{
-		auto channelEvent = new MidiData::ChannelEvent();
-		if (!channelEvent->Decode(inputStream, error))
-		{
-			delete channelEvent;
-			channelEvent = nullptr;
-		}
-
-		event = channelEvent;
-	}
+		event = new MidiData::ChannelEvent();
 	else if (eventType == 0xF)
 	{
 		inputStream.PeekBytesFromStream(&eventType, 1);
 
 		if (eventType == 0xFF)
-		{
-			auto metaEvent = new MidiData::MetaEvent();
-			if (!metaEvent->Decode(inputStream, error))
-			{
-				delete metaEvent;
-				metaEvent = nullptr;
-			}
-
-			event = metaEvent;
-		}
+			event = new MidiData::MetaEvent();
 		else if (eventType == 0xF0 || eventType == 0xF7)
-		{
-			auto sysExEvent = new MidiData::SystemExclusiveEvent();
-			if (!sysExEvent->Decode(inputStream, error))
-			{
-				delete sysExEvent;
-				sysExEvent = nullptr;
-			}
-
-			event = sysExEvent;
-		}
+			event = new MidiData::SystemExclusiveEvent();
 	}
 
 	if (!event)
 	{
-		error.Add("Could not resolve event type.");
+		error.Add(FormatString("Could not resolve event type %d.", eventType));
+		return false;
+	}
+
+	if (!event->Decode(inputStream, error))
+	{
+		error.Add("Failed to decode event type.");
+		delete event;
+		event = nullptr;
 		return false;
 	}
 	
