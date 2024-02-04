@@ -49,6 +49,6 @@ namespace AudioDataLib
 	//       if I can make an echo effect, then to see if I can make a single comb-filter, then a single all-pass
 	//       filter, etc.  Instances of these latter two are combined in series and in parallel to make one of the
 	//       paper's proposed reverberators.  Filters in general are something of which I lack greatly in knowledge.
-	//       For example, how does a high-pass or low-pass filter work?  Does these require an FFT and an inverse FFT?
+	//       For example, how does a high-pass or low-pass filter work?  Do these require an FFT and an inverse FFT?
 	//       I have no idea.
 }
