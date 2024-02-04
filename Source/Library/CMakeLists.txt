@@ -22,6 +22,8 @@ set(LIBRARY_SOURCES
     FileFormats/SoundFontFormat.h
     FileFormats/WaveFileFormat.cpp
     FileFormats/WaveFileFormat.h
+    FileFormats/AiffFileFormat.cpp
+    FileFormats/AiffFileFormat.h
     Math/ComplexNumber.cpp
     Math/ComplexNumber.h
     Math/ComplexVector.cpp
