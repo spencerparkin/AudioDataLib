@@ -76,7 +76,8 @@ WindowsKeyboard::WindowsKeyboard()
 {
 	if (this->inputHandle)
 	{
-		::CloseHandle(this->inputHandle);
+		// I don't think we're supposed to close the handle.
+		//::CloseHandle(this->inputHandle);
 		this->inputHandle = INVALID_HANDLE_VALUE;
 	}
 

@@ -50,5 +50,7 @@ public:
 	virtual bool Process(AudioDataLib::Error& error) override;
 
 private:
+	bool SendNoteMessage(uint32_t note, bool onOff, AudioDataLib::Error& error);
+
 	Keyboard* keyboard;
 };
