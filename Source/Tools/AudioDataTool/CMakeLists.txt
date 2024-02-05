@@ -9,10 +9,10 @@ set(TOOL_SOURCES
     Main.h
     RtMidiPlayer.cpp
     RtMidiPlayer.h
-    RtMidiSynth.cpp
-    RtMidiSynth.h
-    SDLAudioPlayer.cpp
-    SDLAudioPlayer.h
+    MidiMessageSource.cpp
+    MidiMessageSource.h
+    SDLAudio.cpp
+    SDLAudio.h
 )
 
 set(SDL_ROOT "C:/ENG_DEV/driver/trunk/Main_8/apis/SDL2-2.28.5")

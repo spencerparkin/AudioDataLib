@@ -4,7 +4,7 @@
 #include "WaveFileFormat.h"
 #include "WaveForm.h"
 #include "Main.h"
-#include "RtMidiSynth.h"
+#include "MidiMessageSource.h"
 #include "LogSynth.h"
 #include "RecorderSynth.h"
 #include "MidiFileFormat.h"
@@ -185,10 +185,10 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 	bool success = false;
 	MidiData* recordedMidiData = nullptr;
 	FileOutputStream* recordedMidiOutStream = nullptr;
-	RtMidiSynth* synth = nullptr;
+	MidiMessageSource* source = nullptr;
 	std::string recordedMidiFilePath;
 	Keyboard* keyboard = nullptr;
-	SDLAudioPlayer* player = nullptr;
+	SDLAudio* player = nullptr;
 
 	do
 	{
@@ -210,7 +210,11 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 			break;
 		}
 
-		synth = new RtMidiSynth();
+		std::string desiredPortName = parser.GetArgValue("keyboard", 0);
+		if (desiredPortName == "none")
+			source = new KeyboardMidiMessageSource();
+		else
+			source = new RtMidiMessageSource(desiredPortName);
 
 		if (parser.ArgGiven("log_midi"))
 		{
@@ -223,7 +227,7 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 				}
 			};
 
-			synth->AddSynth(new StdoutLogSynth());
+			source->AddSynth(new StdoutLogSynth());
 		}
 
 		if (parser.ArgGiven("record_midi"))
@@ -245,7 +249,7 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 			recordedMidiData = new MidiData();
 			auto recorderSynth = new RecorderSynth();
 			recorderSynth->SetMidiData(recordedMidiData);
-			synth->AddSynth(recorderSynth);
+			source->AddSynth(recorderSynth);
 		}
 
 		if (parser.ArgGiven("synth"))
@@ -257,13 +261,13 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 			if (synthType == "simple")
 			{
 				auto simpleSynth = new SimpleSynth(true);
-				synth->AddSynth(simpleSynth);
+				source->AddSynth(simpleSynth);
 				midiSynth = simpleSynth;
 			}
 			else if (synthType == "sample")
 			{
 				auto sampleBasedSynth = new SampleBasedSynth(true, true);
-				synth->AddSynth(sampleBasedSynth);
+				source->AddSynth(sampleBasedSynth);
 				midiSynth = sampleBasedSynth;
 
 				if (!parser.ArgGiven("soundfont"))
@@ -325,7 +329,7 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 
 			midiSynth->SetAudioStream(new ThreadSafeAudioStream(new StandardMutex(), true));
 
-			player = new SDLAudioPlayer();
+			player = new SDLAudio(SDLAudio::AudioDirection::SOUND_OUT);
 			player->SetAudioStream(midiSynth->GetAudioStream());
 
 			std::string deviceSubStr;
@@ -339,8 +343,7 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 			}
 		}
 
-		std::string desiredPortName = parser.GetArgValue("keyboard", 0);
-		if (!synth->Setup(desiredPortName, error))
+		if (!source->Setup(error))
 		{
 			error.Add("MIDI input setup failed.");
 			break;
@@ -351,7 +354,7 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 		bool keepProcessing = true;
 		while (keepProcessing)
 		{
-			if (!synth->Process(error))
+			if (!source->Process(error))
 			{
 				error.Add(FormatString("Process error: %s\n", error.GetErrorMessage().c_str()));
 				break;
@@ -392,11 +395,11 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 		player = nullptr;
 	}
 
-	if (synth)
+	if (source)
 	{
-		synth->Shutdown(error);
-		delete synth;
-		synth = nullptr;
+		source->Shutdown(error);
+		delete source;
+		source = nullptr;
 	}
 
 	if (recordedMidiData)
@@ -499,7 +502,7 @@ bool PlayMidiData(AudioDataLib::MidiData* midiData, AudioDataLib::Error& error)
 bool PlayAudioData(AudioDataLib::AudioData* audioData, CmdLineParser& parser, AudioDataLib::Error& error)
 {
 	bool success = false;
-	SDLAudioPlayer player;
+	SDLAudio player(SDLAudio::AudioDirection::SOUND_OUT);
 	AudioSink audioSink(true, true);
 	Keyboard* keyboard = nullptr;
 	std::string keyboardError;

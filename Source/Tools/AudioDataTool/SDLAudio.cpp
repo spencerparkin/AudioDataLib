@@ -1,21 +1,22 @@
-#include "SDLAudioPlayer.h"
+#include "SDLAudio.h"
 
 using namespace AudioDataLib;
 
-//------------------------------------- SDLAudioPlayer -------------------------------------
+//------------------------------------- SDLAudio -------------------------------------
 
-SDLAudioPlayer::SDLAudioPlayer()
+SDLAudio::SDLAudio(AudioDirection audioDirection)
 {
+	this->audioDirection = audioDirection;
 	this->audioStream = nullptr;
 	this->audioDeviceID = 0;
 	::memset(&this->audioSpec, 0, sizeof(SDL_AudioSpec));
 }
 
-/*virtual*/ SDLAudioPlayer::~SDLAudioPlayer()
+/*virtual*/ SDLAudio::~SDLAudio()
 {
 }
 
-bool SDLAudioPlayer::Setup(const std::string& deviceSubStr, Error& error)
+bool SDLAudio::Setup(const std::string& deviceSubStr, Error& error)
 {
 	if (!this->audioStream)
 	{
@@ -30,45 +31,51 @@ bool SDLAudioPlayer::Setup(const std::string& deviceSubStr, Error& error)
 		return false;
 	}
 
-	int numAudioDevices = SDL_GetNumAudioDevices(0);
+	int isCapture = (this->audioDirection == AudioDirection::SOUND_IN) ? 1 : 0;
+	int numAudioDevices = SDL_GetNumAudioDevices(isCapture);
 	if (numAudioDevices == 0)
 	{
 		error.Add("SDL did not detect any audio output devices.");
 		return false;
 	}
 
-	printf("Found %d output audio device(s)...\n", numAudioDevices);
+	if (this->audioDirection == AudioDirection::SOUND_OUT)
+		printf("Configured to produce audio output.\n");
+	else
+		printf("Configured to receive audio input.\n");
+
+	printf("Found %d audio device(s)...\n", numAudioDevices);
 	int j = 0;
 	for (int i = 0; i < numAudioDevices; i++)
 	{
-		std::string audioDeviceName = SDL_GetAudioDeviceName(i, 0);
+		std::string audioDeviceName = SDL_GetAudioDeviceName(i, isCapture);
 		printf("%d: %s\n", i + 1, audioDeviceName.c_str());
 
 		if (deviceSubStr.length() > 0 && audioDeviceName.find(deviceSubStr) != std::string::npos)
 			j = i;
 	}
 
-	std::string chosenAudioDeviceName = SDL_GetAudioDeviceName(j, 0);
+	std::string chosenAudioDeviceName = SDL_GetAudioDeviceName(j, isCapture);
 	printf("\nChosen device: %s\n\n", chosenAudioDeviceName.c_str());
 
 	this->audioSpec.freq = 48000;
 	this->audioSpec.format = AUDIO_S16LSB;
 	this->audioSpec.channels = 1;
-	this->audioSpec.callback = &SDLAudioPlayer::AudioCallbackEntryPoint;
+	this->audioSpec.callback = &SDLAudio::AudioCallbackEntryPoint;
 	this->audioSpec.userdata = this;
 
 	this->audioDeviceID = SDL_OpenAudioDevice(chosenAudioDeviceName.c_str(), 0, &this->audioSpec, &this->audioSpec, SDL_AUDIO_ALLOW_ANY_CHANGE);
 	if (this->audioDeviceID == 0)
 	{
-		error.Add(FormatString("Failed to open output audio device: %s", SDL_GetError()));
+		error.Add(FormatString("Failed to open audio device: %s", SDL_GetError()));
 		return false;
 	}
-	
+
 	AudioData::Format format;
 	format.numChannels = this->audioSpec.channels;
 	format.bitsPerSample = SDL_AUDIO_BITSIZE(this->audioSpec.format);
 	format.framesPerSecond = this->audioSpec.freq;
-	
+
 	if (SDL_AUDIO_ISFLOAT(this->audioSpec.format))
 		format.sampleType = AudioData::Format::FLOAT;
 	else if (SDL_AUDIO_ISSIGNED(this->audioSpec.format))	// TODO: Our audio data is always signed.  Do I need to add support for the unsigned case?
@@ -87,7 +94,7 @@ bool SDLAudioPlayer::Setup(const std::string& deviceSubStr, Error& error)
 	return true;
 }
 
-bool SDLAudioPlayer::Shutdown(Error& error)
+bool SDLAudio::Shutdown(Error& error)
 {
 	if (this->audioDeviceID != 0)
 	{
@@ -101,15 +108,27 @@ bool SDLAudioPlayer::Shutdown(Error& error)
 	return true;
 }
 
-/*static*/ void SDLCALL SDLAudioPlayer::AudioCallbackEntryPoint(void* userData, Uint8* buffer, int length)
+/*static*/ void SDLCALL SDLAudio::AudioCallbackEntryPoint(void* userData, Uint8* buffer, int length)
 {
-	auto player = static_cast<SDLAudioPlayer*>(userData);
+	auto player = static_cast<SDLAudio*>(userData);
 	player->AudioCallback(buffer, length);
 }
 
-void SDLAudioPlayer::AudioCallback(Uint8* buffer, int length)
+/*virtual*/ void SDLAudio::AudioCallback(Uint8* buffer, int length)
 {
-	uint64_t numBytesRead = this->audioStream->ReadBytesFromStream(buffer, uint64_t(length));
-	for (uint64_t i = numBytesRead; i < uint64_t(length); i++)
-		buffer[i] = this->audioSpec.silence;
+	switch (this->audioDirection)
+	{
+		case AudioDirection::SOUND_OUT:
+		{
+			uint64_t numBytesRead = this->audioStream->ReadBytesFromStream(buffer, uint64_t(length));
+			for (uint64_t i = numBytesRead; i < uint64_t(length); i++)
+				buffer[i] = this->audioSpec.silence;
+			break;
+		}
+		case AudioDirection::SOUND_IN:
+		{
+			uint64_t numBytesWritten = this->audioStream->WriteBytesToStream(buffer, uint64_t(length));
+			break;
+		}
+	}
 }
