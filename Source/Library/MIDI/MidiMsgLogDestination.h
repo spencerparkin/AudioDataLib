@@ -1,17 +1,14 @@
 #pragma once
 
-#include "MidiSynth.h"
+#include "MidiMsgDestination.h"
 
 namespace AudioDataLib
 {
-	// This class is used mainly for diagnostic purposes.  It does
-	// nothing more than "synthesize" MIDI messages into log messages
-	// that the user can print to the screen or a file.
-	class AUDIO_DATA_LIB_API LogSynth : public MidiSynth
+	class AUDIO_DATA_LIB_API MidiMsgLogDestination : public MidiMsgDestination
 	{
 	public:
-		LogSynth();
-		virtual ~LogSynth();
+		MidiMsgLogDestination();
+		virtual ~MidiMsgLogDestination();
 
 		virtual bool ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize, Error& error) override;
 

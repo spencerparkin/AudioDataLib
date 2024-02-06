@@ -15,7 +15,7 @@ namespace AudioDataLib
 
 		virtual bool ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize, Error& error) override;
 		virtual SynthModule* GetRootModule(uint16_t channel) override;
-		virtual bool GenerateAudio(Error& error) override;
+		virtual bool Process(Error& error) override;
 		virtual bool Initialize(Error& error) override;
 
 		bool SetChannelInstrument(uint16_t channel, uint16_t instrument, Error& error);

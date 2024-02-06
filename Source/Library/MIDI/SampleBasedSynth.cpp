@@ -32,12 +32,12 @@ SampleBasedSynth::SampleBasedSynth(bool ownsAudioStream, bool ownsSoundFontData)
 	delete this->mixerModuleRightEar;
 }
 
-/*virtual*/ bool SampleBasedSynth::GenerateAudio(Error& error)
+/*virtual*/ bool SampleBasedSynth::Process(Error& error)
 {
 	this->mixerModuleLeftEar->PruneDeadBranches();
 	this->mixerModuleRightEar->PruneDeadBranches();
 
-	return MidiSynth::GenerateAudio(error);
+	return MidiSynth::Process(error);
 }
 
 /*virtual*/ bool SampleBasedSynth::ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize, Error& error)

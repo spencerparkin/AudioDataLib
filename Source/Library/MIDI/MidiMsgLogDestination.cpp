@@ -1,19 +1,19 @@
-#include "LogSynth.h"
+#include "MidiMsgLogDestination.h"
 #include "MidiData.h"
 #include "Error.h"
 
 using namespace AudioDataLib;
 
-LogSynth::LogSynth() : MidiSynth(false)
+MidiMsgLogDestination::MidiMsgLogDestination()
 {
 }
 
-/*virtual*/ LogSynth::~LogSynth()
+/*virtual*/ MidiMsgLogDestination::~MidiMsgLogDestination()
 {
 
 }
 
-/*virtual*/ bool LogSynth::ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize, Error& error)
+/*virtual*/ bool MidiMsgLogDestination::ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize, Error& error)
 {
 	ReadOnlyBufferStream messageStream(message, messageSize);
 

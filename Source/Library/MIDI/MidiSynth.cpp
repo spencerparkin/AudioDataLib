@@ -30,13 +30,7 @@ void MidiSynth::SetAudioStream(AudioStream* audioStream)
 	this->audioStream = audioStream;
 }
 
-/*virtual*/ bool MidiSynth::ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize, Error& error)
-{
-	error.Add("Method not overridden.");
-	return false;
-}
-
-/*virtual*/ bool MidiSynth::GenerateAudio(Error& error)
+/*virtual*/ bool MidiSynth::Process(Error& error)
 {
 	if (!this->audioStream)
 		return true;
@@ -116,11 +110,6 @@ void MidiSynth::SetAudioStream(AudioStream* audioStream)
 	return !error;
 }
 
-/*virtual*/ SynthModule* MidiSynth::GetRootModule(uint16_t channel)
-{
-	return nullptr;
-}
-
 /*static*/ double MidiSynth::MidiPitchToFrequency(uint8_t pitchValue)
 {
 	// 69 = A  = 440
@@ -138,14 +127,4 @@ void MidiSynth::SetAudioStream(AudioStream* audioStream)
 /*static*/ double MidiSynth::MidiVelocityToAmplitude(uint8_t velocityValue)
 {
 	return double(velocityValue) / 127.0;
-}
-
-/*virtual*/ bool MidiSynth::Initialize(Error& error)
-{
-	return true;
-}
-
-/*virtual*/ bool MidiSynth::Finalize(Error& error)
-{
-	return true;
 }

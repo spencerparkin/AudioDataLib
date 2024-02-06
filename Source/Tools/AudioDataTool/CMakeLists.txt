@@ -7,10 +7,12 @@ set(TOOL_SOURCES
     Keyboard.h
     Main.cpp
     Main.h
-    RtMidiPlayer.cpp
-    RtMidiPlayer.h
-    MidiMessageSource.cpp
-    MidiMessageSource.h
+    MidiPortDestination.cpp
+    MidiPortDestination.h
+    MidiPortSource.cpp
+    MidiPortSource.h
+    MidiDebugSource.cpp
+    MidiDebugSource.h
     SDLAudio.cpp
     SDLAudio.h
 )

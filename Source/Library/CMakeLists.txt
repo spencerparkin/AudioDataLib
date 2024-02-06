@@ -30,14 +30,18 @@ set(LIBRARY_SOURCES
     Math/ComplexVector.h
     Math/Function.cpp
     Math/Function.h
-    MIDI/LogSynth.cpp
-    MIDI/LogSynth.h
+    MIDI/MidiMsgLogDestination.cpp
+    MIDI/MidiMsgLogDestination.h
     MIDI/MidiPlayer.cpp
     MIDI/MidiPlayer.h
     MIDI/MidiSynth.cpp
     MIDI/MidiSynth.h
-    MIDI/RecorderSynth.cpp
-    MIDI/RecorderSynth.h
+    MIDI/MidiMsgSource.cpp
+    MIDI/MidiMsgSource.h
+    MIDI/MidiMsgDestination.cpp
+    MIDI/MidiMsgDestination.h
+    MIDI/MidiMsgRecorderDestination.cpp
+    MIDI/MidiMsgRecorderDestination.h
     MIDI/SimpleSynth.cpp
     MIDI/SimpleSynth.h
     MIDI/WaveTableSynth.cpp

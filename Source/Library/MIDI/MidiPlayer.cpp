@@ -16,6 +16,7 @@ MidiPlayer::MidiPlayer(Timer* timer, Mutex* mutex)
 	this->midiData = nullptr;
 	this->timeSeconds = 0.0;
 	this->trackPlayerArray = new std::vector<TrackPlayer*>();
+	this->tracksToPlaySet = new std::set<uint32_t>();
 }
 
 /*virtual*/ MidiPlayer::~MidiPlayer()
@@ -23,6 +24,7 @@ MidiPlayer::MidiPlayer(Timer* timer, Mutex* mutex)
 	this->Clear();
 
 	delete this->trackPlayerArray;
+	delete this->tracksToPlaySet;
 }
 
 void MidiPlayer::Clear()
@@ -31,25 +33,26 @@ void MidiPlayer::Clear()
 		delete trackPlayer;
 
 	this->trackPlayerArray->clear();
+	this->tracksToPlaySet->clear();
 }
 
-void MidiPlayer::GetSimultaneouslyPlayableTracks(std::set<uint32_t>& playableTracksSet) const
+void MidiPlayer::ConfigureToPlayAllTracks() const
 {
-    playableTracksSet.clear();
+    this->tracksToPlaySet->clear();
 
     if(this->midiData->GetFormatType() == MidiData::FormatType::SINGLE_TRACK)
     {
         if(this->midiData->GetNumTracks() == 1)
-            playableTracksSet.insert(0);
+			this->tracksToPlaySet->insert(0);
     }
     else if(this->midiData->GetFormatType() == MidiData::FormatType::MULTI_TRACK)
     {
         for(uint32_t i = 1; i < this->midiData->GetNumTracks(); i++)
-            playableTracksSet.insert(i);
+			this->tracksToPlaySet->insert(i);
     }
 }
 
-/*virtual*/ bool MidiPlayer::BeginPlayback(const std::set<uint32_t>& tracksToPlaySet, Error& error)
+/*virtual*/ bool MidiPlayer::Setup(Error& error)
 {
 	this->Clear();
 
@@ -75,7 +78,7 @@ void MidiPlayer::GetSimultaneouslyPlayableTracks(std::set<uint32_t>& playableTra
 			initialTempo = *tempoEvent->GetData<MidiData::MetaEvent::Tempo>();
 	}
 
-	for (uint32_t trackOffset : tracksToPlaySet)
+	for (uint32_t trackOffset : *this->tracksToPlaySet)
 	{
 		auto trackPlayer = new TrackPlayer(trackOffset, initialTempo);
 		this->trackPlayerArray->push_back(trackPlayer);
@@ -91,20 +94,27 @@ void MidiPlayer::GetSimultaneouslyPlayableTracks(std::set<uint32_t>& playableTra
 
 	this->timer->Start();
 	this->timer->SetMaxDeltaTimeSeconds(2.0);
+
+	if (!MidiMsgSource::Setup(error))
+		return false;
+
 	return true;
 }
 
-/*virtual*/ bool MidiPlayer::EndPlayback(Error& error)
+/*virtual*/ bool MidiPlayer::Shutdown(Error& error)
 {
+	MidiMsgSource::Shutdown(error);
 	this->SilenceAllChannels(error);
-
 	this->Clear();
 
-	return true;
+	return !error;
 }
 
-/*virtual*/ bool MidiPlayer::ManagePlayback(Error& error)
+/*virtual*/ bool MidiPlayer::Process(Error& error)
 {
+	if (!MidiMsgSource::Process(error))
+		return false;
+
 	double deltaTimeSeconds = this->timer->GetDeltaTimeSeconds();
 
 	this->timeSeconds += deltaTimeSeconds;
@@ -133,17 +143,9 @@ bool MidiPlayer::SilenceAllChannels(Error& error)
 			uint8_t messageBuffer[128];
 			WriteOnlyBufferStream messageStream(messageBuffer, sizeof(messageBuffer));
 			channelEvent.Encode(messageStream, error);
-			this->SendMessage(messageStream.GetBuffer(), messageStream.GetSize(), error);
+			this->BroadcastMidiMessage(0.0, messageStream.GetBuffer(), messageStream.GetSize(), error);
 		}
 	}
-
-	return true;
-}
-
-/*virtual*/ bool MidiPlayer::SendMessage(const uint8_t* message, uint64_t messageSize, Error& error)
-{
-	// We do nothing here by default.  The user needs to override this method.
-	// The override should send the given message to a MIDI device.
 
 	return true;
 }
@@ -252,9 +254,9 @@ bool MidiPlayer::TrackPlayer::ProcessEvent(const MidiData::Event* event, MidiPla
 			return false;
 
 		if (midiPlayer->mutex)
-			midiPlayer->mutex->Lock();
+			midiPlayer->mutex->Lock();	// TODO: After the big refactor, this mutex may be in the wrong place!
 
-		midiPlayer->SendMessage(bufferStream.GetBuffer(), bufferStream.GetSize(), error);
+		midiPlayer->BroadcastMidiMessage(0.0, bufferStream.GetBuffer(), bufferStream.GetSize(), error);
 
 		if (midiPlayer->mutex)
 			midiPlayer->mutex->Unlock();

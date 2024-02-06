@@ -4,10 +4,13 @@
 #include "WaveFileFormat.h"
 #include "WaveForm.h"
 #include "Main.h"
-#include "MidiMessageSource.h"
-#include "LogSynth.h"
-#include "RecorderSynth.h"
+#include "MidiPortSource.h"
+#include "MidiPortDestination.h"
+#include "MidiDebugSource.h"
+#include "MidiMsgLogDestination.h"
+#include "MidiMsgRecorderDestination.h"
 #include "MidiFileFormat.h"
+#include "MidiPlayer.h"
 #include "Keyboard.h"
 #include "Mutex.h"
 #include "SimpleSynth.h"
@@ -185,7 +188,7 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 	bool success = false;
 	MidiData* recordedMidiData = nullptr;
 	FileOutputStream* recordedMidiOutStream = nullptr;
-	MidiMessageSource* source = nullptr;
+	MidiMsgSource* source = nullptr;
 	std::string recordedMidiFilePath;
 	Keyboard* keyboard = nullptr;
 	SDLAudio* player = nullptr;
@@ -211,14 +214,14 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 		}
 
 		std::string desiredPortName = parser.GetArgValue("keyboard", 0);
-		if (desiredPortName == "none")
-			source = new KeyboardMidiMessageSource();
+		if (desiredPortName == "debug")
+			source = new MidiDebugSource();	// TODO: This doesn't yet work.  Too lazy to make it work right now.
 		else
-			source = new RtMidiMessageSource(desiredPortName);
+			source = new MidiPortSource(desiredPortName);
 
 		if (parser.ArgGiven("log_midi"))
 		{
-			class StdoutLogSynth : public LogSynth
+			class StdoutLogDestination : public MidiMsgLogDestination
 			{
 			public:
 				virtual void LogMessage(const std::string& logMessage) override
@@ -227,7 +230,7 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 				}
 			};
 
-			source->AddSynth(new StdoutLogSynth());
+			source->AddDestination(new StdoutLogDestination());
 		}
 
 		if (parser.ArgGiven("record_midi"))
@@ -247,9 +250,9 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 			}
 
 			recordedMidiData = new MidiData();
-			auto recorderSynth = new RecorderSynth();
-			recorderSynth->SetMidiData(recordedMidiData);
-			source->AddSynth(recorderSynth);
+			auto recorderDestination = new MidiMsgRecorderDestination();
+			recorderDestination->SetMidiData(recordedMidiData);
+			source->AddDestination(recorderDestination);
 		}
 
 		if (parser.ArgGiven("synth"))
@@ -261,13 +264,13 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 			if (synthType == "simple")
 			{
 				auto simpleSynth = new SimpleSynth(true);
-				source->AddSynth(simpleSynth);
+				source->AddDestination(simpleSynth);
 				midiSynth = simpleSynth;
 			}
 			else if (synthType == "sample")
 			{
 				auto sampleBasedSynth = new SampleBasedSynth(true, true);
-				source->AddSynth(sampleBasedSynth);
+				source->AddDestination(sampleBasedSynth);
 				midiSynth = sampleBasedSynth;
 
 				if (!parser.ArgGiven("soundfont"))
@@ -435,7 +438,7 @@ bool PlayMidiData(AudioDataLib::MidiData* midiData, AudioDataLib::Error& error)
 {
 	bool success = false;
 	SystemClockTimer timer;
-	RtMidiPlayer player(&timer);
+	MidiPlayer player(&timer, nullptr);
 	Keyboard* keyboard = nullptr;
 	std::string keyboardError;
 
@@ -454,19 +457,18 @@ bool PlayMidiData(AudioDataLib::MidiData* midiData, AudioDataLib::Error& error)
 			break;
 		}
 
+		player.AddDestination(new MidiPortDestination());
 		player.SetMidiData(midiData);
-		std::set<uint32_t> playableTrackSet;
-
-		player.GetSimultaneouslyPlayableTracks(playableTrackSet);
+		player.ConfigureToPlayAllTracks();
 		player.SetTimeSeconds(0.0);
-		if (!player.BeginPlayback(playableTrackSet, error))
+		if (!player.Setup(error))
 			break;
 
 		printf("MIDI file should be playing now... (Press ESCAPE to exit prematurely.\n");
 
 		while (!player.NoMoreToPlay())
 		{
-			if (!player.ManagePlayback(error))
+			if (!player.Process(error))
 				break;
 
 			if (!keyboard->Process(keyboardError))
@@ -484,7 +486,7 @@ bool PlayMidiData(AudioDataLib::MidiData* midiData, AudioDataLib::Error& error)
 		if (error)
 			break;
 
-		if (!player.EndPlayback(error))
+		if (!player.Shutdown(error))
 			break;
 
 		success = true;

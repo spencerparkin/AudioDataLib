@@ -1,17 +1,19 @@
-#include "RtMidiPlayer.h"
+#include "MidiPortDestination.h"
 #include "Error.h"
 
-RtMidiPlayer::RtMidiPlayer(AudioDataLib::Timer* timer) : MidiPlayer(timer, nullptr)
+using namespace AudioDataLib;
+
+MidiPortDestination::MidiPortDestination()
 {
 	this->midiOut = nullptr;
 }
 
-/*virtual*/ RtMidiPlayer::~RtMidiPlayer()
+/*virtual*/ MidiPortDestination::~MidiPortDestination()
 {
 	delete this->midiOut;
 }
 
-/*virtual*/ bool RtMidiPlayer::BeginPlayback(const std::set<uint32_t>& tracksToPlaySet, AudioDataLib::Error& error)
+/*virtual*/ bool MidiPortDestination::Initialize(AudioDataLib::Error& error)
 {
 	if (this->midiOut)
 	{
@@ -36,9 +38,6 @@ RtMidiPlayer::RtMidiPlayer(AudioDataLib::Timer* timer) : MidiPlayer(timer, nullp
 			// TODO: Maybe if there is more than one port, let the user pick which one???
 			this->midiOut->openPort(0);
 		}
-
-		if (!AudioDataLib::MidiPlayer::BeginPlayback(tracksToPlaySet, error))
-			success = false;
 	}
 	catch (RtMidiError& midiError)
 	{
@@ -55,7 +54,7 @@ RtMidiPlayer::RtMidiPlayer(AudioDataLib::Timer* timer) : MidiPlayer(timer, nullp
 	return success;
 }
 
-/*virtual*/ bool RtMidiPlayer::EndPlayback(AudioDataLib::Error& error)
+/*virtual*/ bool MidiPortDestination::Finalize(AudioDataLib::Error& error)
 {
 	if (!this->midiOut)
 	{
@@ -64,9 +63,6 @@ RtMidiPlayer::RtMidiPlayer(AudioDataLib::Timer* timer) : MidiPlayer(timer, nullp
 	}
 
 	bool success = true;
-
-	if (!AudioDataLib::MidiPlayer::EndPlayback(error))
-		success = false;
 
 	try
 	{
@@ -84,12 +80,7 @@ RtMidiPlayer::RtMidiPlayer(AudioDataLib::Timer* timer) : MidiPlayer(timer, nullp
 	return success;
 }
 
-/*virtual*/ bool RtMidiPlayer::ManagePlayback(AudioDataLib::Error& error)
-{
-	return MidiPlayer::ManagePlayback(error);
-}
-
-/*virtual*/ bool RtMidiPlayer::SendMessage(const uint8_t* message, uint64_t messageSize, AudioDataLib::Error& error)
+/*virtual*/ bool MidiPortDestination::ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize, Error& error)
 {
 	if (this->midiOut)
 	{

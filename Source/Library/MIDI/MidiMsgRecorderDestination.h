@@ -1,6 +1,6 @@
 #pragma once
 
-#include "MidiSynth.h"
+#include "MidiMsgDestination.h"
 
 namespace AudioDataLib
 {
@@ -8,11 +8,11 @@ namespace AudioDataLib
 	
 	// This class is designed to capture MIDI messages (e.g., from a MIDI keyboard) to
 	// be stored in the given MidiData object.
-	class AUDIO_DATA_LIB_API RecorderSynth : public MidiSynth
+	class AUDIO_DATA_LIB_API MidiMsgRecorderDestination : public MidiMsgDestination
 	{
 	public:
-		RecorderSynth();
-		virtual ~RecorderSynth();
+		MidiMsgRecorderDestination();
+		virtual ~MidiMsgRecorderDestination();
 
 		virtual bool ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize, Error& error) override;
 		virtual bool Finalize(Error& error) override;

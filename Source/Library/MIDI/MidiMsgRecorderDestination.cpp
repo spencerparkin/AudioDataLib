@@ -1,23 +1,23 @@
-#include "RecorderSynth.h"
+#include "MidiMsgRecorderDestination.h"
 #include "MidiData.h"
 #include "Error.h"
 
 using namespace AudioDataLib;
 
-RecorderSynth::RecorderSynth() : MidiSynth(false)
+MidiMsgRecorderDestination::MidiMsgRecorderDestination()
 {
 	this->midiData = nullptr;
 	this->messageDataArray = new std::vector<MessageData*>();
 }
 
-/*virtual*/ RecorderSynth::~RecorderSynth()
+/*virtual*/ MidiMsgRecorderDestination::~MidiMsgRecorderDestination()
 {
 	this->Clear();
 
 	delete this->messageDataArray;
 }
 
-void RecorderSynth::Clear()
+void MidiMsgRecorderDestination::Clear()
 {
 	for (MessageData* messageData : *this->messageDataArray)
 		delete messageData;
@@ -25,7 +25,7 @@ void RecorderSynth::Clear()
 	this->messageDataArray->clear();
 }
 
-/*virtual*/ bool RecorderSynth::ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize, Error& error)
+/*virtual*/ bool MidiMsgRecorderDestination::ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize, Error& error)
 {
 	if (!this->midiData)
 	{
@@ -46,7 +46,7 @@ void RecorderSynth::Clear()
 	return true;
 }
 
-/*virtual*/ bool RecorderSynth::Finalize(Error& error)
+/*virtual*/ bool MidiMsgRecorderDestination::Finalize(Error& error)
 {
 	// TODO: This is the trickiest part.  How do we process all the messages we've collected into
 	//       our configured MIDI data object?

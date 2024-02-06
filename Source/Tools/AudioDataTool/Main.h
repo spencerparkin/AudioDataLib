@@ -2,7 +2,6 @@
 
 #include "MidiFileFormat.h"
 #include "WaveFileFormat.h"
-#include "RtMidiPlayer.h"
 #include "SDLAudio.h"
 #include "Error.h"
 #include "Timer.h"
