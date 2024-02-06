@@ -55,6 +55,9 @@ void MidiPlayer::ConfigureToPlayAllTracks() const
 {
 	this->Clear();
 
+	if (!MidiMsgSource::Setup(error))
+		return false;
+
 	if (!this->midiData)
 	{
 		error.Add("No MIDI data set on player.  Can't play.");
@@ -93,9 +96,6 @@ void MidiPlayer::ConfigureToPlayAllTracks() const
 
 	this->timer->Start();
 	this->timer->SetMaxDeltaTimeSeconds(2.0);
-
-	if (!MidiMsgSource::Setup(error))
-		return false;
 
 	return true;
 }
