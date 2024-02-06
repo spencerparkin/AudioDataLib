@@ -31,6 +31,7 @@ namespace AudioDataLib
 
 		bool NoMoreToPlay();
         void ConfigureToPlayAllTracks() const;
+		std::set<uint32_t>& GetTracksConfiguredToPlay() { return *this->tracksToPlaySet; }
 
 		Timer* GetTimer() { return this->timer; }
 

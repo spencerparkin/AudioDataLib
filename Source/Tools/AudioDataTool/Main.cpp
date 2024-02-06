@@ -457,6 +457,8 @@ bool PlayMidiData(AudioDataLib::MidiData* midiData, AudioDataLib::Error& error)
 			break;
 		}
 
+		// TODO: This is playing my MIDI file correctly, but my file is all harps, yet it's playing the piano.  What's going on?
+		//       Maybe it's not getting the program change message?
 		player.AddDestination(new MidiPortDestination());
 		player.SetMidiData(midiData);
 		player.ConfigureToPlayAllTracks();

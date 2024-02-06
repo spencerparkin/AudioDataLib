@@ -33,7 +33,6 @@ void MidiPlayer::Clear()
 		delete trackPlayer;
 
 	this->trackPlayerArray->clear();
-	this->tracksToPlaySet->clear();
 }
 
 void MidiPlayer::ConfigureToPlayAllTracks() const
@@ -103,8 +102,10 @@ void MidiPlayer::ConfigureToPlayAllTracks() const
 
 /*virtual*/ bool MidiPlayer::Shutdown(Error& error)
 {
-	MidiMsgSource::Shutdown(error);
 	this->SilenceAllChannels(error);
+
+	MidiMsgSource::Shutdown(error);
+	
 	this->Clear();
 
 	return !error;
