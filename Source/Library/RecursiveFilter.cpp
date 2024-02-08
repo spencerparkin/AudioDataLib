@@ -4,7 +4,7 @@ using namespace AudioDataLib;
 
 //--------------------------------- RecursiveFilter ---------------------------------
 
-RecursiveFilter::RecursiveFilter()
+RecursiveFilter::RecursiveFilter() : originalSignal(2, 0.5), filteredSignal(2, 0.5)
 {
 	this->params.scale = 1.0;
 	this->params.timeDelaySeconds = 0.0;
@@ -22,21 +22,6 @@ RecursiveFilter::RecursiveFilter()
 /*virtual*/ void RecursiveFilter::AddSample(const WaveForm::Sample& sample)
 {
 	this->originalSignal.AddSample(sample);
-}
-
-void RecursiveFilter::TrimSignals(double timeSpanSeconds)
-{
-	double startTimeSeconds = this->originalSignal.GetStartTime();
-	double endTimeSeconds = this->originalSignal.GetEndTime();
-
-	double currentTimeSpanSeconds = endTimeSeconds - startTimeSeconds;
-	if (currentTimeSpanSeconds > 2.0 * timeSpanSeconds)
-	{
-		double splitTimeSeconds = endTimeSeconds - timeSpanSeconds;
-
-		this->originalSignal.QuickTrim(splitTimeSeconds, WaveForm::TrimSection::BEFORE);
-		this->filteredSignal.QuickTrim(splitTimeSeconds, WaveForm::TrimSection::BEFORE);
-	}
 }
 
 //--------------------------------- FeedBackwardCombFilter ---------------------------------
