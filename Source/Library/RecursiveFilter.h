@@ -32,7 +32,7 @@ namespace AudioDataLib
 		const Params& GetParams() const { return this->params; }
 
 		// This needs to be called occationally so that the original and filtered signals don't grow without bound.
-		bool TrimSignals(double timeSpanSeconds, Error& error);
+		void TrimSignals(double timeSpanSeconds);
 
 	protected:
 		WaveForm originalSignal;

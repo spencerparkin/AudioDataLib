@@ -44,6 +44,12 @@ namespace AudioDataLib
 			CUBIC
 		};
 
+		enum TrimSection
+		{
+			BEFORE,
+			AFTER
+		};
+
 		void Clear();
 		void Copy(const WaveForm* waveForm);
 		void AddSample(const Sample& sample);
@@ -54,6 +60,7 @@ namespace AudioDataLib
 		void Scale(double scale);
 		void Clamp(double minAmplitude, double maxAmplitude);
 		bool Trim(double startTimeSeconds, double stopTimeSeconds, bool rebaseTime, Error& error);
+		void QuickTrim(double timeSeconds, TrimSection trimSection);
 		void SortSamples();
 		double AverageSampleRate() const;
 		double GetStartTime() const;
@@ -67,6 +74,7 @@ namespace AudioDataLib
 		void SetInterpolateionMethod(InterpolationMethod interpMethod) { this->interpMethod = interpMethod; }
 		const std::vector<Sample>& GetSampleArray() const { return *this->sampleArray; }
 		std::vector<Sample>& GetSampleArray() { return *this->sampleArray; }
+		void Interpolate(const SampleBounds& sampleBounds, double timeSeconds, Sample& interpolatedSample) const;
 
 	protected:
 

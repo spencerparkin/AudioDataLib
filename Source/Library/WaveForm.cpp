@@ -220,30 +220,39 @@ bool WaveForm::ConvertToAudioBuffer(const AudioData::Format& format, uint8_t* au
 	return true;
 }
 
-/*virtual*/ double WaveForm::EvaluateAt(double timeSeconds) const
+void WaveForm::Interpolate(const SampleBounds& sampleBounds, double timeSeconds, Sample& interpolatedSample) const
 {
-	SampleBounds sampleBounds{ nullptr, nullptr };
-	if (!this->FindTightestSampleBounds(timeSeconds, sampleBounds))
-		return 0.0;
-
-	double interpolatedAmplitude = 0.0;
+	interpolatedSample.timeSeconds = timeSeconds;
 
 	switch (this->interpMethod)
 	{
 		case InterpolationMethod::LINEAR:
 		{
 			double lerpAlpha = (timeSeconds - sampleBounds.minSample->timeSeconds) / (sampleBounds.maxSample->timeSeconds - sampleBounds.minSample->timeSeconds);
-			interpolatedAmplitude = sampleBounds.minSample->amplitude + lerpAlpha * (sampleBounds.maxSample->amplitude - sampleBounds.minSample->amplitude);
+			interpolatedSample.amplitude = sampleBounds.minSample->amplitude + lerpAlpha * (sampleBounds.maxSample->amplitude - sampleBounds.minSample->amplitude);
 			break;
 		}
 		case InterpolationMethod::CUBIC:
 		{
+			uint64_t i = sampleBounds.minSample - this->sampleArray->data();
+			uint64_t j = sampleBounds.maxSample - this->sampleArray->data();
+
 			// TODO: Write this.  Extend given sample bounds left/right until we have 4 samples across which we can interpolate.  Invert Vandermonde matrix.
 			break;
 		}
 	}
+}
+
+/*virtual*/ double WaveForm::EvaluateAt(double timeSeconds) const
+{
+	SampleBounds sampleBounds{ nullptr, nullptr };
+	if (!this->FindTightestSampleBounds(timeSeconds, sampleBounds))
+		return 0.0;
+
+	Sample interpolatedSample;
+	this->Interpolate(sampleBounds, timeSeconds, interpolatedSample);
 	
-	return interpolatedAmplitude;
+	return interpolatedSample.amplitude;
 }
 
 bool WaveForm::SampleBounds::ContainsTime(double timeSeconds) const
@@ -327,6 +336,44 @@ bool WaveForm::Trim(double startTimeSeconds, double stopTimeSeconds, bool rebase
 	}
 
 	return true;
+}
+
+void WaveForm::QuickTrim(double timeSeconds, TrimSection trimSection)
+{
+	if (this->sampleArray->size() == 0)
+		return;
+
+	SampleBounds sampleBounds;
+	if (!this->FindTightestSampleBounds(timeSeconds, sampleBounds))
+	{
+		if ((timeSeconds < (*this->sampleArray)[0].timeSeconds && trimSection == TrimSection::AFTER) ||
+			(timeSeconds > (*this->sampleArray)[this->sampleArray->size() - 1].timeSeconds && trimSection == TrimSection::BEFORE))
+		{
+			this->Clear();
+		}
+	}
+	else
+	{
+		Sample interpolatedSample;
+		this->Interpolate(sampleBounds, timeSeconds, interpolatedSample);
+
+		uint64_t i = sampleBounds.minSample - this->sampleArray->data();
+		uint64_t j = sampleBounds.maxSample - this->sampleArray->data();
+
+		if (trimSection == TrimSection::AFTER)
+		{
+			this->sampleArray->resize(i);
+			this->sampleArray->push_back(interpolatedSample);
+		}
+		else if (trimSection == TrimSection::BEFORE)
+		{
+			// This doesn't necessarily have any better time complexity than the regular Trim routine does.
+			(*this->sampleArray)[0] = interpolatedSample;
+			for (uint64_t k = j; k < this->sampleArray->size(); k++)
+				(*this->sampleArray)[k - j + 1] = (*sampleArray)[k];
+			this->sampleArray->resize(this->sampleArray->size() - j + 1);
+		}
+	}
 }
 
 void WaveForm::SortSamples()

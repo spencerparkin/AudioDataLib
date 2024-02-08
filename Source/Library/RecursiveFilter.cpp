@@ -24,18 +24,19 @@ RecursiveFilter::RecursiveFilter()
 	this->originalSignal.AddSample(sample);
 }
 
-bool RecursiveFilter::TrimSignals(double timeSpanSeconds, Error& error)
+void RecursiveFilter::TrimSignals(double timeSpanSeconds)
 {
+	double startTimeSeconds = this->originalSignal.GetStartTime();
 	double endTimeSeconds = this->originalSignal.GetEndTime();
-	double startTimeSeconds = endTimeSeconds - timeSpanSeconds;
 
-	if (!this->originalSignal.Trim(startTimeSeconds, endTimeSeconds, false, error))
-		return false;
+	double currentTimeSpanSeconds = endTimeSeconds - startTimeSeconds;
+	if (currentTimeSpanSeconds > 2.0 * timeSpanSeconds)
+	{
+		double splitTimeSeconds = endTimeSeconds - timeSpanSeconds;
 
-	if (!this->filteredSignal.Trim(startTimeSeconds, endTimeSeconds, false, error))
-		return false;
-
-	return true;
+		this->originalSignal.QuickTrim(splitTimeSeconds, WaveForm::TrimSection::BEFORE);
+		this->filteredSignal.QuickTrim(splitTimeSeconds, WaveForm::TrimSection::BEFORE);
+	}
 }
 
 //--------------------------------- FeedBackwardCombFilter ---------------------------------
