@@ -542,3 +542,77 @@ void WaveForm::Scale(double scale)
 	for (Sample& sample : *this->sampleArray)
 		sample.amplitude *= scale;
 }
+
+bool WaveForm::ContainsTime(double timeSeconds) const
+{
+	double startTimeSeconds = this->GetStartTime();
+	double endTimeSeconds = this->GetEndTime();
+
+	return startTimeSeconds <= timeSeconds && timeSeconds <= endTimeSeconds;
+}
+
+//---------------------------------- WaveFormStream ----------------------------------
+
+WaveFormStream::WaveFormStream(uint32_t maxWaveForms, double maxWaveFormSizeSeconds)
+{
+	this->maxWaveForms = maxWaveForms;
+	this->maxWaveFormSizeSeconds = maxWaveFormSizeSeconds;
+	this->waveFormList = new std::list<WaveForm*>();
+}
+
+/*virtual*/ WaveFormStream::~WaveFormStream()
+{
+	this->Clear();
+
+	delete this->waveFormList;
+}
+
+void WaveFormStream::Clear()
+{
+	for (WaveForm* waveForm : *this->waveFormList)
+		delete waveForm;
+
+	this->waveFormList->clear();
+}
+
+/*virtual*/ double WaveFormStream::EvaluateAt(double timeSeconds) const
+{
+	// This is effectively an O(log N) operation if this->maxWaveForms is set to 2.
+	for (const WaveForm* waveForm : *this->waveFormList)
+		if (waveForm->ContainsTime(timeSeconds))
+			return waveForm->EvaluateAt(timeSeconds);	// This is O(log N).
+
+	return 0.0;
+}
+
+void WaveFormStream::AddSample(const WaveForm::Sample& sample)
+{
+	if (this->waveFormList->size() == 0)
+	{
+		auto waveForm = new WaveForm();
+		waveForm->AddSample(sample);
+		this->waveFormList->push_back(waveForm);
+		return;
+	}
+
+	WaveForm* waveForm = this->waveFormList->back();
+	if (waveForm->GetTimespan() < this->maxWaveFormSizeSeconds)
+	{
+		waveForm->AddSample(sample);
+		return;
+	}
+
+	const WaveForm::Sample& lastSample = waveForm->GetSampleArray()[waveForm->GetNumSamples() - 1];
+
+	waveForm = new WaveForm();
+	waveForm->AddSample(lastSample);		// Adjacent wave-forms need to share a sample where they meet.
+	waveForm->AddSample(sample);
+	this->waveFormList->push_back(waveForm);
+
+	if (this->waveFormList->size() > this->maxWaveForms)
+	{
+		waveForm = *this->waveFormList->begin();
+		delete waveForm;
+		this->waveFormList->pop_front();
+	}
+}

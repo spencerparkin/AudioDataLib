@@ -70,6 +70,7 @@ namespace AudioDataLib
 		double GetMaxAmplitude() const;
 		double GetMinAmplitude() const;
 		double CalcAverageVolume() const;
+		bool ContainsTime(double timeSeconds) const;
 		InterpolationMethod GetInterpolationMethod() const { return this->interpMethod; }
 		void SetInterpolateionMethod(InterpolationMethod interpMethod) { this->interpMethod = interpMethod; }
 		const std::vector<Sample>& GetSampleArray() const { return *this->sampleArray; }
@@ -132,5 +133,25 @@ namespace AudioDataLib
 		// We assume the samples are all in order according to time.
 		std::vector<Sample>* sampleArray;
 		InterpolationMethod interpMethod;
+	};
+
+	// If you want to continuously add samples to a wave-form, but you also
+	// don't want it to grow without bound, then this class may be helpful.
+	class AUDIO_DATA_LIB_API WaveFormStream : public Function
+	{
+	public:
+		WaveFormStream(uint32_t maxWaveForms, double maxWaveFormSizeSeconds);
+		virtual ~WaveFormStream();
+
+		virtual double EvaluateAt(double timeSeconds) const override;
+
+		void AddSample(const WaveForm::Sample& sample);
+		void Clear();
+
+	protected:
+		
+		uint32_t maxWaveForms;
+		double maxWaveFormSizeSeconds;
+		std::list<WaveForm*>* waveFormList;
 	};
 }
