@@ -17,6 +17,8 @@ namespace AudioDataLib
 		WaveForm();
 		virtual ~WaveForm();
 
+		virtual double EvaluateAt(double timeSeconds) const override;
+
 		uint64_t GetSizeBytes(const AudioData::Format& format, bool allChannels) const;
 
 		bool ConvertFromAudioBuffer(const AudioData::Format& format, const uint8_t* audioBuffer, uint64_t audioBufferSize, uint16_t channel, Error& error);
@@ -46,13 +48,12 @@ namespace AudioDataLib
 		void Copy(const WaveForm* waveForm);
 		void AddSample(const Sample& sample);
 		void MakeSilence(double samplesPerSecond, double totalSeconds);
-		virtual double EvaluateAt(double timeSeconds) const override;
 		void SumTogether(const std::list<WaveForm*>& waveFormList);
 		bool FindTightestSampleBounds(double timeSeconds, SampleBounds& sampleBounds) const;
 		bool Renormalize();
 		void Scale(double scale);
 		void Clamp(double minAmplitude, double maxAmplitude);
-		bool Trim(double startTimeSeconds, double stopTimeSeconds, Error& error);
+		bool Trim(double startTimeSeconds, double stopTimeSeconds, bool rebaseTime, Error& error);
 		void SortSamples();
 		double AverageSampleRate() const;
 		double GetStartTime() const;

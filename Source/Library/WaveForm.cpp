@@ -297,7 +297,7 @@ void WaveForm::Copy(const WaveForm* waveForm)
 		this->sampleArray->push_back(sample);
 }
 
-bool WaveForm::Trim(double startTimeSeconds, double stopTimeSeconds, Error& error)
+bool WaveForm::Trim(double startTimeSeconds, double stopTimeSeconds, bool rebaseTime, Error& error)
 {
 	if (this->sampleArray->size() == 0)
 	{
@@ -319,7 +319,7 @@ bool WaveForm::Trim(double startTimeSeconds, double stopTimeSeconds, Error& erro
 	delete this->sampleArray;
 	this->sampleArray = newSampleArray;
 
-	if (this->sampleArray->size() > 0)
+	if (rebaseTime && this->sampleArray->size() > 0)
 	{
 		double deltaTime = -(*this->sampleArray)[0].timeSeconds;
 		for (Sample& sample : *this->sampleArray)

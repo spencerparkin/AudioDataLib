@@ -87,6 +87,8 @@ set(LIBRARY_SOURCES
     Timer.h
     WaveForm.cpp
     WaveForm.h
+    RecursiveFilter.cpp
+    RecursiveFilter.h
 )
 
 source_group("Sources" TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${LIBRARY_SOURCES})
