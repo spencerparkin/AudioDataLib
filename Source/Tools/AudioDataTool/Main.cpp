@@ -262,10 +262,10 @@ bool AddReverb(const std::string& inFilePath, const std::string& outFilePath, Au
 				return this->synthModularArray[channel];
 			}
 
-			bool MoreSoundPending()
+			bool MoreSoundAvailable()
 			{
 				for (SynthModule* synthModule : this->synthModularArray)
-					if (!synthModule->CantGiveAnymoreSound())
+					if (synthModule->MoreSoundAvailable())
 						return true;
 
 				return false;
@@ -295,7 +295,7 @@ bool AddReverb(const std::string& inFilePath, const std::string& outFilePath, Au
 		if (error)
 			break;
 
-		while (reverbSynth.MoreSoundPending())
+		while (reverbSynth.MoreSoundAvailable())
 		{
 			if (!reverbSynth.Process(error))
 				break;

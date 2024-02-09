@@ -15,7 +15,7 @@ namespace AudioDataLib
 		virtual ~SynthModule();
 
 		virtual bool GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, Error& error) = 0;
-		virtual bool CantGiveAnymoreSound();		// TODO: Rename this so I'm not thinking of a double-negative everywhere.
+		virtual bool MoreSoundAvailable();
 	};
 
 	// TODO: It would be really interesting to try to provide a ReverbModule derivative.

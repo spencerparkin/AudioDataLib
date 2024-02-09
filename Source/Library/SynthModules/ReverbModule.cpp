@@ -7,7 +7,7 @@ using namespace AudioDataLib;
 ReverbModule::ReverbModule()
 {
 	this->dependentModule = nullptr;
-	this->noMoreSound = false;
+	this->moreSoundAvailable = true;
 
 	// See: https://www.dsprelated.com/freebooks/pasp/Schroeder_Reverberators.html
 
@@ -66,7 +66,7 @@ SynthModule* ReverbModule::GetDependentModule()
 			reverbSample.amplitude += this->combFilter[i].EvaluateAt(sample.timeSeconds);
 		}
 
-		reverbSample.amplitude /= double(ADL_REVERB_NUM_COMB_FILTERS);	// TODO: Do I need this?
+		reverbSample.amplitude /= double(ADL_REVERB_NUM_COMB_FILTERS);
 
 		for (uint32_t i = 0; i < ADL_REVERB_NUM_ALLPASS_FILTERS; i++)
 		{
@@ -80,14 +80,14 @@ SynthModule* ReverbModule::GetDependentModule()
 	double averageVolume = waveForm.CalcAverageVolume();
 	constexpr double threshold = 1e-7;
 	if (averageVolume < threshold)
-		this->noMoreSound = true;
+		this->moreSoundAvailable = false;
 	else
-		this->noMoreSound = false;
+		this->moreSoundAvailable = true;
 
 	return true;
 }
 
-/*virtual*/ bool ReverbModule::CantGiveAnymoreSound()
+/*virtual*/ bool ReverbModule::MoreSoundAvailable()
 {
-	return this->noMoreSound;
+	return this->moreSoundAvailable;
 }

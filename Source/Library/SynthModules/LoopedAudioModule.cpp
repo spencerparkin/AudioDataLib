@@ -71,15 +71,15 @@ LoopedAudioModule::LoopedAudioModule()
 	return true;
 }
 
-/*virtual*/ bool LoopedAudioModule::CantGiveAnymoreSound()
+/*virtual*/ bool LoopedAudioModule::MoreSoundAvailable()
 {
 	if (this->loopEnabled)
-		return false;
+		return true;
 
 	if (this->localTimeSeconds < this->totalTimeSeconds)
-		return false;
+		return true;
 
-	return true;
+	return false;
 }
 
 void LoopedAudioModule::Release()

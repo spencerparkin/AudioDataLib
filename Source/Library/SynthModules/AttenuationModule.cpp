@@ -52,15 +52,12 @@ AttenuationModule::AttenuationModule()
 	return true;
 }
 
-/*virtual*/ bool AttenuationModule::CantGiveAnymoreSound()
+/*virtual*/ bool AttenuationModule::MoreSoundAvailable()
 {
-	if (!this->dependentModule || this->dependentModule->CantGiveAnymoreSound())
-		return true;
-
-	if (!this->fallOff)
+	if (!this->dependentModule || !this->dependentModule->MoreSoundAvailable())
 		return false;
 
-	return this->attenuationFunction->EvaluateAt(this->fallOffTimeSeconds) <= 0.0;
+	return !this->fallOff || this->attenuationFunction->EvaluateAt(this->fallOffTimeSeconds) > 0.0;
 }
 
 void AttenuationModule::SetAttenuationFunction(Function* function)

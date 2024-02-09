@@ -13,7 +13,7 @@ namespace AudioDataLib
 		virtual ~LoopedAudioModule();
 
 		virtual bool GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, Error& error) override;
-		virtual bool CantGiveAnymoreSound() override;
+		virtual bool MoreSoundAvailable() override;
 
 		bool UseNonLoopedAudioData(const AudioData* audioData, uint16_t channel, Error& error);
 		bool UseLoopedAudioData(const SoundFontData::LoopedAudioData* loopedAudioData, uint16_t channel, Error& error);

@@ -52,7 +52,7 @@ void MixerModule::PruneDeadBranches()
 	{
 		SynthModule* synthModule = pair.second;
 
-		if (synthModule->CantGiveAnymoreSound())
+		if (!synthModule->MoreSoundAvailable())
 		{
 			delete synthModule;
 			doomedIDArray.push_back(pair.first);

@@ -58,12 +58,9 @@ PitchShiftModule::PitchShiftModule()
 	return true;
 }
 
-/*virtual*/ bool PitchShiftModule::CantGiveAnymoreSound()
+/*virtual*/ bool PitchShiftModule::MoreSoundAvailable()
 {
-	if (!this->dependentModule || this->dependentModule->CantGiveAnymoreSound())
-		return true;
-
-	return false;
+	return this->dependentModule && this->dependentModule->MoreSoundAvailable();
 }
 
 void PitchShiftModule::SetSourceAndTargetFrequencies(double sourceFrequency, double targetFrequency)
