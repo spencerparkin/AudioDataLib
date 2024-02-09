@@ -15,6 +15,8 @@
 #include "Mutex.h"
 #include "SimpleSynth.h"
 #include "SampleBasedSynth.h"
+#include "LoopedAudioModule.h"
+#include "ReverbModule.h"
 #include <memory>
 #include <filesystem>
 
@@ -42,6 +44,7 @@ int main(int argc, char** argv)
 	parser.RegisterArg("dump_csv", 1, "Load the given file and then use it to dump a CSV to disk.");
 	parser.RegisterArg("unpack", 1, "Unpack the given sound-font file by generating from it a bunch of WAV files for all the samples it contains.");
 	parser.RegisterArg("device_substr", 1, "Specify a sub-string to look for when trying to select an audio device for input or output.");
+	parser.RegisterArg("add_reverb", 2, "Add a reverb effect to the given WAV file.");
 	
 	std::string error;
 	if (!parser.Parse(argc, argv, error))
@@ -88,6 +91,20 @@ int main(int argc, char** argv)
 		if (!UnpackSoundFont(filePath, error))
 		{
 			fprintf(stderr, "Failed to unpack sound font...\n\n%s\n", error.GetErrorMessage().c_str());
+			return -1;
+		}
+
+		return 0;
+	}
+
+	if (parser.ArgGiven("add_reverb"))
+	{
+		const std::string& inFilePath = parser.GetArgValue("add_reverb", 0);
+		const std::string& outFilePath = parser.GetArgValue("add_reverb", 1);
+		Error error;
+		if (!AddReverb(inFilePath, outFilePath, error))
+		{
+			fprintf(stderr, error.GetErrorMessage().c_str());
 			return -1;
 		}
 
@@ -181,6 +198,125 @@ int main(int argc, char** argv)
 
 	fprintf(stderr, "Features not yet implimented for given arguments.  Sorry, bro.\n");
 	return -1;
+}
+
+bool AddReverb(const std::string& inFilePath, const std::string& outFilePath, AudioDataLib::Error& error)
+{
+	bool success = false;
+	FileFormat* fileFormat = nullptr;
+	FileData* fileData = nullptr;
+	ReverbModule* reverbModule = nullptr;
+	WaveForm** reverbWaveFormArray = nullptr;
+	uint32_t numChannels = 0;
+	AudioData* reverbAudioData = nullptr;
+
+	do
+	{
+		fileFormat = FileFormat::CreateForFile(inFilePath);
+		if (!fileFormat)
+		{
+			error.Add("Could not recognize file: " + inFilePath);
+			break;
+		}
+
+		FileInputStream inputStream(inFilePath.c_str());
+		if (!inputStream.IsOpen())
+		{
+			error.Add("Failed to open file: " + inFilePath);
+			break;
+		}
+
+		if (!fileFormat->ReadFromStream(inputStream, fileData, error))
+		{
+			error.Add("Failed to read file: " + inFilePath);
+			break;
+		}
+
+		auto audioData = dynamic_cast<AudioData*>(fileData);
+		if (!audioData)
+		{
+			error.Add("Expected to get audio data from file (" + inFilePath + "), but didn't");
+			break;
+		}
+
+		numChannels = audioData->GetFormat().numChannels;
+		if (numChannels == 0)
+		{
+			error.Add("No channels!");
+			break;
+		}
+
+		reverbWaveFormArray = new WaveForm*[numChannels];
+		::memset(reverbWaveFormArray, 0, numChannels * sizeof(WaveForm*));
+
+		reverbAudioData = new AudioData();
+		reverbAudioData->SetFormat(audioData->GetFormat());
+
+		double maxDurationSeconds = 0.0;
+
+		// Note that some reverb algorithm will cross-pollinate the channels, but we're not doing that here.
+		for (uint32_t i = 0; i < numChannels; i++)
+		{
+			auto loopedAudioModule = new LoopedAudioModule();
+			reverbModule = new ReverbModule();
+			reverbModule->SetDependentModule(loopedAudioModule);
+
+			if (!loopedAudioModule->UseNonLoopedAudioData(audioData, i, error))
+				break;
+
+			double durationSeconds = audioData->GetTimeSeconds();
+			double sampleRate = (double)audioData->GetFormat().SamplesPerSecondPerChannel();
+
+			reverbWaveFormArray[i] = new WaveForm();
+			if (!reverbModule->GenerateSound(durationSeconds, sampleRate, *reverbWaveFormArray[i], error))
+				break;
+
+			durationSeconds = reverbWaveFormArray[i]->GetTimespan();
+			if (durationSeconds > maxDurationSeconds)
+				maxDurationSeconds = durationSeconds;
+		}
+
+		if (error)
+			break;
+
+		reverbAudioData->SetAudioBufferSize(audioData->GetFormat().BytesFromSeconds(maxDurationSeconds));
+		for (uint32_t i = 0; i < numChannels; i++)
+			if (!reverbWaveFormArray[i]->ConvertToAudioBuffer(audioData->GetFormat(), reverbAudioData->GetAudioBuffer(), reverbAudioData->GetAudioBufferSize(), i, error))
+				break;
+
+		if (error)
+			break;
+
+		FileOutputStream outputStream(outFilePath.c_str());
+		if (!outputStream.IsOpen())
+		{
+			error.Add("Failed to open file: " + outFilePath);
+			break;
+		}
+
+		if (!fileFormat->WriteToStream(outputStream, reverbAudioData, error))
+		{
+			error.Add("Failed to write file: " + outFilePath);
+			break;
+		}
+
+		success = true;
+	} while (false);
+
+	if (fileFormat)
+		FileFormat::Destroy(fileFormat);
+
+	if (fileData)
+		delete fileData;
+
+	for (uint32_t i = 0; i < numChannels; i++)
+		delete reverbWaveFormArray[i];
+
+	delete[] reverbWaveFormArray;
+	delete reverbModule;
+	delete reverbAudioData;
+
+	return success;
 }
 
 bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)

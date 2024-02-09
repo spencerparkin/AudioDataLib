@@ -45,6 +45,7 @@ namespace AudioDataLib
 		virtual ~FileStream();
 
 		bool IsOpen();
+		void Close();
 
 	protected:
 		FILE* fp;

@@ -7,6 +7,7 @@ using namespace AudioDataLib;
 LoopedAudioModule::LoopedAudioModule()
 {
 	this->loopedWaveForm = nullptr;
+	this->ownsWaveForm = false;
 	this->startTimeSeconds = 0.0;
 	this->endTimeSeconds = 0.0;
 	this->localTimeSeconds = 0.0;
@@ -16,6 +17,8 @@ LoopedAudioModule::LoopedAudioModule()
 
 /*virtual*/ LoopedAudioModule::~LoopedAudioModule()
 {
+	if (this->ownsWaveForm)
+		delete this->loopedWaveForm;	// TODO: Start using shared pointers.  The DLL export crap is preventing me from doing it in the first place.
 }
 
 /*virtual*/ bool LoopedAudioModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, Error& error)
@@ -84,11 +87,34 @@ void LoopedAudioModule::Release()
 	this->loopEnabled = false;
 }
 
+bool LoopedAudioModule::UseNonLoopedAudioData(const AudioData* audioData, uint16_t channel, Error& error)
+{
+	WaveForm* waveForm = new WaveForm();
+	if (!waveForm->ConvertFromAudioBuffer(audioData->GetFormat(), audioData->GetAudioBuffer(), audioData->GetAudioBufferSize(), channel, error))
+	{
+		delete waveForm;
+		return false;
+	}
+
+	this->ownsWaveForm = true;
+
+	this->startTimeSeconds = 0.0;
+	this->endTimeSeconds = audioData->GetTimeSeconds();
+	this->totalTimeSeconds = audioData->GetTimeSeconds();
+	this->localTimeSeconds = 0.0;
+
+	this->loopEnabled = false;
+
+	return true;
+}
+
 bool LoopedAudioModule::UseLoopedAudioData(const SoundFontData::LoopedAudioData* loopedAudioData, uint16_t channel, Error& error)
 {
 	this->loopedWaveForm = loopedAudioData->GetCachedWaveForm(channel, error);
 	if (!this->loopedWaveForm)
 		return false;
+
+	this->ownsWaveForm = false;
 
 	const AudioData::Format& format = loopedAudioData->GetFormat();
 

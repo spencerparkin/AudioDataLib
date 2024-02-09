@@ -68,6 +68,8 @@ set(LIBRARY_SOURCES
     SynthModules/InterpolationModule.h
     SynthModules/AttenuationModule.cpp
     SynthModules/AttenuationModule.h
+    SynthModules/ReverbModule.cpp
+    SynthModules/ReverbModule.h
     AudioSink.cpp
     AudioSink.h
     ByteStream.cpp

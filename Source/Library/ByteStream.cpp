@@ -27,16 +27,21 @@ FileStream::FileStream(const char* filePath, const char* mode)
 
 /*virtual*/ FileStream::~FileStream()
 {
-	if (this->fp)
-	{
-		fclose(this->fp);
-		this->fp = nullptr;
-	}
+	this->Close();
 }
 
 bool FileStream::IsOpen()
 {
 	return this->fp != nullptr;
+}
+
+void FileStream::Close()
+{
+	if (this->fp)
+	{
+		fclose(this->fp);
+		this->fp = nullptr;
+	}
 }
 
 //------------------------- FileInputStream -------------------------
