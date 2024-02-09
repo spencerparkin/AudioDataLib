@@ -105,6 +105,11 @@ SampleBasedSynth::SampleBasedSynth()
 
 			Note note;
 
+			// TODO: We are definitely not ready to turn reverb on yet.  I think more testing is needed in the WAV conversion feature.
+			//       Specifically, we need to prove that a reasonable result can be produced with a stopping condition being that the
+			//       reverberated sound has died away.  For now, I'm just manually ending the process, but it needs to be able to end
+			//       on its own, or when we detect that the sounds have all faced away to silence.
+
 			if (!this->GenerateModuleGraph(audioSample, SoundFontData::LoopedAudioData::ChannelType::LEFT_EAR, false, noteFrequency, note.leftEarModule, error))
 				return false;
 
