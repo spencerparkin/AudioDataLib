@@ -10,7 +10,7 @@ namespace AudioDataLib
 	class AUDIO_DATA_LIB_API SampleBasedSynth : public MidiSynth
 	{
 	public:
-		SampleBasedSynth(bool ownsAudioStream, bool ownsSoundFontData);
+		SampleBasedSynth();
 		virtual ~SampleBasedSynth();
 
 		virtual bool ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize, Error& error) override;
@@ -27,7 +27,6 @@ namespace AudioDataLib
 		void Clear();
 
 	private:
-		bool ownsSoundFontData;
 		bool estimateFrequencies;
 
 		// This maps channel to instrument number.
@@ -35,7 +34,7 @@ namespace AudioDataLib
 		ChannelMap* channelMap;
 
 		// This maps instrument to sound-font data.
-		typedef std::map<uint16_t, SoundFontData*> SoundFontMap;
+		typedef std::map<uint16_t, std::shared_ptr<SoundFontData>> SoundFontMap;
 		SoundFontMap* soundFontMap;
 
 		struct Note

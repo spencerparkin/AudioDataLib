@@ -247,7 +247,7 @@ bool AddReverb(const std::string& inFilePath, const std::string& outFilePath, Au
 		class ReverbSynth : public MidiSynth
 		{
 		public:
-			ReverbSynth() : MidiSynth(false)
+			ReverbSynth()
 			{
 			}
 
@@ -274,11 +274,11 @@ bool AddReverb(const std::string& inFilePath, const std::string& outFilePath, Au
 			std::vector<SynthModule*> synthModularArray;
 		};
 
-		AudioStream reverbStream;
-		reverbStream.SetFormat(audioData->GetFormat());
+		std::shared_ptr<AudioStream> reverbStream(new AudioStream());
+		reverbStream->SetFormat(audioData->GetFormat());
 
 		ReverbSynth reverbSynth;
-		reverbSynth.SetAudioStream(&reverbStream);
+		reverbSynth.SetAudioStream(reverbStream);
 		reverbSynth.SetMinMaxLatency(2.0 * audioData->GetTimeSeconds(), 3.0 * audioData->GetTimeSeconds());
 		
 		for (uint16_t i = 0; i < audioData->GetFormat().numChannels; i++)
@@ -305,8 +305,8 @@ bool AddReverb(const std::string& inFilePath, const std::string& outFilePath, Au
 
 		reverbAudioData = new AudioData();
 		reverbAudioData->SetFormat(audioData->GetFormat());
-		reverbAudioData->SetAudioBufferSize(reverbStream.GetSize());
-		reverbStream.ReadBytesFromStream(reverbAudioData->GetAudioBuffer(), reverbStream.GetSize());
+		reverbAudioData->SetAudioBufferSize(reverbStream->GetSize());
+		reverbStream->ReadBytesFromStream(reverbAudioData->GetAudioBuffer(), reverbStream->GetSize());
 
 		FileOutputStream outputStream(outFilePath.c_str());
 		if (!outputStream.IsOpen())
@@ -416,13 +416,13 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 
 			if (synthType == "simple")
 			{
-				auto simpleSynth = new SimpleSynth(true);
+				auto simpleSynth = new SimpleSynth();
 				source->AddDestination(simpleSynth);
 				midiSynth = simpleSynth;
 			}
 			else if (synthType == "sample")
 			{
-				auto sampleBasedSynth = new SampleBasedSynth(true, true);
+				auto sampleBasedSynth = new SampleBasedSynth();
 				source->AddDestination(sampleBasedSynth);
 				midiSynth = sampleBasedSynth;
 
@@ -483,7 +483,9 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 				break;
 			}
 
-			midiSynth->SetAudioStream(new ThreadSafeAudioStream(new StandardMutex(), true));
+			std::shared_ptr<Mutex> mutex(new StandardMutex());
+			std::shared_ptr<AudioStream> audioStream(new ThreadSafeAudioStream(mutex));
+			midiSynth->SetAudioStream(audioStream);
 
 			player = new SDLAudio(SDLAudio::AudioDirection::SOUND_OUT);
 			player->SetAudioStream(midiSynth->GetAudioStream());
@@ -677,7 +679,8 @@ bool PlayAudioData(AudioDataLib::AudioData* audioData, CmdLineParser& parser, Au
 			break;
 		}
 
-		audioSink.SetAudioOutput(new ThreadSafeAudioStream(new StandardMutex(), true));
+		std::shared_ptr<Mutex> mutex(new StandardMutex());
+		audioSink.SetAudioOutput(new ThreadSafeAudioStream(mutex));
 
 		player.SetAudioStream(audioSink.GetAudioOutput());
 

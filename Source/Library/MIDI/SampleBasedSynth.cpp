@@ -10,10 +10,9 @@
 
 using namespace AudioDataLib;
 
-SampleBasedSynth::SampleBasedSynth(bool ownsAudioStream, bool ownsSoundFontData) : MidiSynth(ownsAudioStream)
+SampleBasedSynth::SampleBasedSynth()
 {
 	this->estimateFrequencies = false;
-	this->ownsSoundFontData = ownsSoundFontData;
 	this->soundFontMap = new SoundFontMap();
 	this->channelMap = new ChannelMap();
 	this->noteMap = new NoteMap();
@@ -205,7 +204,7 @@ SampleBasedSynth::SampleBasedSynth(bool ownsAudioStream, bool ownsSoundFontData)
 {
 	for (auto pair : *this->soundFontMap)
 	{
-		SoundFontData* soundFontData = pair.second;
+		SoundFontData* soundFontData = pair.second.get();
 
 		for (uint32_t i = 0; i < soundFontData->GetNumAudioSamples(); i++)
 		{
@@ -255,13 +254,9 @@ bool SampleBasedSynth::SetSoundFontData(uint16_t instrument, SoundFontData* soun
 
 	SoundFontMap::iterator iter = this->soundFontMap->find(instrument);
 	if (iter != this->soundFontMap->end())
-	{
-		if (this->ownsSoundFontData)
-			delete iter->second;
 		this->soundFontMap->erase(iter);
-	}
 
-	this->soundFontMap->insert(std::pair<uint16_t, SoundFontData*>(instrument, soundFontData));
+	this->soundFontMap->insert(std::pair<uint16_t, std::shared_ptr<SoundFontData>>(instrument, soundFontData));
 
 	return true;
 }
@@ -272,7 +267,7 @@ SoundFontData* SampleBasedSynth::GetSoundFontData(uint16_t instrument)
 	if (iter == this->soundFontMap->end())
 		return nullptr;
 
-	return iter->second;
+	return iter->second.get();
 }
 
 bool SampleBasedSynth::SetChannelInstrument(uint16_t channel, uint16_t instrument, Error& error)
@@ -305,10 +300,6 @@ bool SampleBasedSynth::GetChannelInstrument(uint16_t channel, uint16_t& instrume
 
 void SampleBasedSynth::Clear()
 {
-	if (this->ownsSoundFontData)
-		for (auto pair : *this->soundFontMap)
-			delete pair.second;
-
 	this->soundFontMap->clear();
 	this->channelMap->clear();
 	this->noteMap->clear();

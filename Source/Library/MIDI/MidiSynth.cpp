@@ -6,15 +6,11 @@
 
 using namespace AudioDataLib;
 
-MidiSynth::MidiSynth(bool ownsAudioStream)
+MidiSynth::MidiSynth()
 {
 	this->minLatencySeconds = 0.05;
 	this->maxLatencySeconds = 0.10;
-	this->ownsAudioStream = ownsAudioStream;
-	this->audioStream = nullptr;
-#ifdef ADL_DEBUG_SYNTH_AUDIO_STREAM
-	this->debugStream = nullptr;
-#endif //ADL_DEBUG_SYNTH_AUDIO_STREAM
+	this->audioStream = new std::shared_ptr<AudioStream>();
 }
 
 /*virtual*/ MidiSynth::~MidiSynth()
@@ -22,12 +18,9 @@ MidiSynth::MidiSynth(bool ownsAudioStream)
 	this->SetAudioStream(nullptr);
 }
 
-void MidiSynth::SetAudioStream(AudioStream* audioStream)
+void MidiSynth::SetAudioStream(std::shared_ptr<AudioStream> audioStream)
 {
-	if (this->ownsAudioStream)
-		delete this->audioStream;
-
-	this->audioStream = audioStream;
+	*this->audioStream = audioStream;
 }
 
 void MidiSynth::SetMinMaxLatency(double minLatencySeconds, double maxLatencySeconds)
@@ -53,8 +46,8 @@ void MidiSynth::GetMinMaxLatency(double& minLatencySeconds, double& maxLatencySe
 		return false;
 	}
 
-	const AudioData::Format& format = this->audioStream->GetFormat();
-	uint64_t currentStreamSizeBytes = this->audioStream->GetSize();
+	const AudioData::Format& format = (*this->audioStream)->GetFormat();
+	uint64_t currentStreamSizeBytes = (*this->audioStream)->GetSize();
 	double currentBufferedTimeSeconds = format.BytesToSeconds(currentStreamSizeBytes);
 	if (currentBufferedTimeSeconds >= this->minLatencySeconds)
 		return true;
@@ -86,36 +79,7 @@ void MidiSynth::GetMinMaxLatency(double& minLatencySeconds, double& maxLatencySe
 	}
 
 	if (!error)
-	{
-		this->audioStream->WriteBytesToStream(audioBuffer, audioBufferSize);
-
-#ifdef ADL_DEBUG_SYNTH_AUDIO_STREAM
-		if (!this->debugStream)
-		{
-			this->debugStream = new AudioStream();
-			this->debugStream->SetFormat(this->audioStream->GetFormat());
-		}
-
-		this->debugStream->WriteBytesToStream(audioBuffer, audioBufferSize);
-
-		static bool dumpDebugStream = false;
-		if (dumpDebugStream)
-		{
-			AudioData debugData;
-			debugData.SetFormat(this->debugStream->GetFormat());
-			uint64_t debugDataSize = this->debugStream->GetSize();
-			debugData.SetAudioBufferSize(debugDataSize);
-			this->debugStream->ReadBytesFromStream(debugData.GetAudioBuffer(), debugDataSize);
-			FileOutputStream outputStream("Debug.wav");
-			WaveFileFormat fileFormat;
-			bool wroteFile = fileFormat.WriteToStream(outputStream, &debugData, error);
-			if (!wroteFile)
-			{
-				wroteFile = false;
-			}
-		}
-#endif //ADL_DEBUG_SYNTH_AUDIO_STREAM
-	}
+		(*this->audioStream)->WriteBytesToStream(audioBuffer, audioBufferSize);
 
 	delete[] audioBuffer;
 

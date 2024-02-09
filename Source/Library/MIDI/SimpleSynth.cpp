@@ -6,7 +6,7 @@
 
 using namespace AudioDataLib;
 
-SimpleSynth::SimpleSynth(bool ownsAudioStream) : MidiSynth(ownsAudioStream)
+SimpleSynth::SimpleSynth()
 {
 	this->mixerModule = new MixerModule();
 	this->noteMap = new NoteMap();

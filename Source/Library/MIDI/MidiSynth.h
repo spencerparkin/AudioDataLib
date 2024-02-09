@@ -12,15 +12,15 @@ namespace AudioDataLib
 	class AUDIO_DATA_LIB_API MidiSynth : public MidiMsgDestination
 	{
 	public:
-		MidiSynth(bool ownsAudioStream);
+		MidiSynth();
 		virtual ~MidiSynth();
 
 		virtual bool Process(Error& error) override;
 
 		virtual SynthModule* GetRootModule(uint16_t channel) = 0;
 
-		void SetAudioStream(AudioStream* audioStream);
-		AudioStream* GetAudioStream() { return this->audioStream; }
+		void SetAudioStream(std::shared_ptr<AudioStream> audioStream);
+		AudioStream* GetAudioStream() { return this->audioStream->get(); }
 
 		static double MidiPitchToFrequency(uint8_t pitchValue);
 		static double MidiVelocityToAmplitude(uint8_t velocityValue);
@@ -30,12 +30,7 @@ namespace AudioDataLib
 
 	protected:
 
-		AudioStream* audioStream;
-		bool ownsAudioStream;
-
-#ifdef ADL_DEBUG_SYNTH_AUDIO_STREAM
-		AudioStream* debugStream;
-#endif //ADL_DEBUG_SYNTH_AUDIO_STREAM
+		std::shared_ptr<AudioStream>* audioStream;
 
 		double minLatencySeconds;
 		double maxLatencySeconds;

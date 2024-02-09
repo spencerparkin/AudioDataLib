@@ -168,7 +168,7 @@ namespace AudioDataLib
 	class AUDIO_DATA_LIB_API ThreadSafeAudioStream : public AudioStream
 	{
 	public:
-		ThreadSafeAudioStream(Mutex* mutex, bool ownsMutexMemory);
+		ThreadSafeAudioStream(std::shared_ptr<Mutex> mutex);
 		virtual ~ThreadSafeAudioStream();
 
 		virtual uint64_t WriteBytesToStream(const uint8_t* buffer, uint64_t bufferSize) override;
@@ -180,8 +180,8 @@ namespace AudioDataLib
 		virtual bool CanWrite() override;
 
 	protected:
-		Mutex* mutex;
-		bool ownsMutexMemory;
+		// I would prefer not to own a pointer to a shared pointer here, but it doesn't work when trying to make a DLL.
+		std::shared_ptr<Mutex>* mutex;
 	};
 
 	class AUDIO_DATA_LIB_API MemoryStream : public ByteStream

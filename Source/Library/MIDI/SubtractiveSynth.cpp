@@ -2,7 +2,7 @@
 
 using namespace AudioDataLib;
 
-SubtractiveSynth::SubtractiveSynth(bool ownsAudioStream) : MidiSynth(ownsAudioStream)
+SubtractiveSynth::SubtractiveSynth()
 {
 }
 

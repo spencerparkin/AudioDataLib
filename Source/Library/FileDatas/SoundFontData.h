@@ -97,7 +97,7 @@ namespace AudioDataLib
 				int8_t overridingRoot;
 			};
 
-			const WaveForm* GetCachedWaveForm(uint16_t channel, Error& error) const;
+			std::shared_ptr<WaveForm> GetCachedWaveForm(uint16_t channel, Error& error) const;
 			void SetName(const std::string& name) { *this->name = name; }
 			const std::string& GetName() const { return *this->name; }
 			const Loop& GetLoop() const { return this->loop; }
@@ -121,7 +121,7 @@ namespace AudioDataLib
 			Location location;
 			ChannelType channelType;
 			uint32_t sampleID;
-			mutable WaveForm* cachedWaveForm;
+			mutable std::shared_ptr<WaveForm>* cachedWaveForm;
 		};
 
 		class AUDIO_DATA_LIB_API AudioSample

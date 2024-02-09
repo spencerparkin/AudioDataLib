@@ -6,8 +6,7 @@ using namespace AudioDataLib;
 
 LoopedAudioModule::LoopedAudioModule()
 {
-	this->loopedWaveForm = nullptr;
-	this->ownsWaveForm = false;
+	this->loopedWaveForm = new std::shared_ptr<WaveForm>();
 	this->startTimeSeconds = 0.0;
 	this->endTimeSeconds = 0.0;
 	this->localTimeSeconds = 0.0;
@@ -17,8 +16,7 @@ LoopedAudioModule::LoopedAudioModule()
 
 /*virtual*/ LoopedAudioModule::~LoopedAudioModule()
 {
-	if (this->ownsWaveForm)
-		delete this->loopedWaveForm;	// TODO: Start using shared pointers.  The DLL export crap is preventing me from doing it in the first place.
+	delete this->loopedWaveForm;
 }
 
 /*virtual*/ bool LoopedAudioModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, Error& error)
@@ -38,7 +36,7 @@ LoopedAudioModule::LoopedAudioModule()
 	{
 		WaveForm::Sample sample;
 		sample.timeSeconds = generatedSoundTimeSeconds;
-		sample.amplitude = this->loopedWaveForm->EvaluateAt(this->localTimeSeconds);
+		sample.amplitude = (*this->loopedWaveForm)->EvaluateAt(this->localTimeSeconds);
 		waveForm.AddSample(sample);
 
 		if (generatedSoundTimeSeconds == durationSeconds)
@@ -89,15 +87,11 @@ void LoopedAudioModule::Release()
 
 bool LoopedAudioModule::UseNonLoopedAudioData(const AudioData* audioData, uint16_t channel, Error& error)
 {
-	WaveForm* waveForm = new WaveForm();
+	std::shared_ptr<WaveForm> waveForm(new WaveForm());
 	if (!waveForm->ConvertFromAudioBuffer(audioData->GetFormat(), audioData->GetAudioBuffer(), audioData->GetAudioBufferSize(), channel, error))
-	{
-		delete waveForm;
 		return false;
-	}
 
-	this->loopedWaveForm = waveForm;
-	this->ownsWaveForm = true;
+	*this->loopedWaveForm = waveForm;
 
 	this->startTimeSeconds = 0.0;
 	this->endTimeSeconds = audioData->GetTimeSeconds();
@@ -111,11 +105,9 @@ bool LoopedAudioModule::UseNonLoopedAudioData(const AudioData* audioData, uint16
 
 bool LoopedAudioModule::UseLoopedAudioData(const SoundFontData::LoopedAudioData* loopedAudioData, uint16_t channel, Error& error)
 {
-	this->loopedWaveForm = loopedAudioData->GetCachedWaveForm(channel, error);
-	if (!this->loopedWaveForm)
+	*this->loopedWaveForm = loopedAudioData->GetCachedWaveForm(channel, error);
+	if (!this->loopedWaveForm->get())
 		return false;
-
-	this->ownsWaveForm = false;
 
 	const AudioData::Format& format = loopedAudioData->GetFormat();
 

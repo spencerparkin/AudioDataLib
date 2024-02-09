@@ -285,45 +285,43 @@ AudioStream::AudioStream(const AudioData* audioData)
 
 //------------------------- ThreadSafeAudioStream -------------------------
 
-ThreadSafeAudioStream::ThreadSafeAudioStream(Mutex* mutex, bool ownsMutexMemory)
+ThreadSafeAudioStream::ThreadSafeAudioStream(std::shared_ptr<Mutex> mutex)
 {
-	this->mutex = mutex;
-	this->ownsMutexMemory = ownsMutexMemory;
+	this->mutex = new std::shared_ptr<Mutex>(mutex);
 }
 
 /*virtual*/ ThreadSafeAudioStream::~ThreadSafeAudioStream()
 {
-	if (this->ownsMutexMemory)
-		delete this->mutex;
+	delete this->mutex;
 }
 
 /*virtual*/ uint64_t ThreadSafeAudioStream::WriteBytesToStream(const uint8_t* buffer, uint64_t bufferSize)
 {
-	MutexScopeLock scopeLock(this->mutex);
+	MutexScopeLock scopeLock(this->mutex->get());
 	return AudioStream::WriteBytesToStream(buffer, bufferSize);
 }
 
 /*virtual*/ uint64_t ThreadSafeAudioStream::ReadBytesFromStream(uint8_t* buffer, uint64_t bufferSize)
 {
-	MutexScopeLock scopeLock(this->mutex);
+	MutexScopeLock scopeLock(this->mutex->get());
 	return AudioStream::ReadBytesFromStream(buffer, bufferSize);
 }
 
 /*virtual*/ uint64_t ThreadSafeAudioStream::GetSize() const
 {
-	MutexScopeLock scopeLock(this->mutex);
+	MutexScopeLock scopeLock(this->mutex->get());
 	return AudioStream::GetSize();
 }
 
 /*virtual*/ bool ThreadSafeAudioStream::CanRead()
 {
-	MutexScopeLock scopeLock(this->mutex);
+	MutexScopeLock scopeLock(this->mutex->get());
 	return AudioStream::CanRead();
 }
 
 /*virtual*/ bool ThreadSafeAudioStream::CanWrite()
 {
-	MutexScopeLock scopeLock(this->mutex);
+	MutexScopeLock scopeLock(this->mutex->get());
 	return AudioStream::CanWrite();
 }
 

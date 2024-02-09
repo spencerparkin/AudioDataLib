@@ -20,8 +20,7 @@ namespace AudioDataLib
 		void Release();
 
 	private:
-		const WaveForm* loopedWaveForm;
-		bool ownsWaveForm;
+		std::shared_ptr<WaveForm>* loopedWaveForm;
 		double startTimeSeconds;
 		double endTimeSeconds;
 		double localTimeSeconds;

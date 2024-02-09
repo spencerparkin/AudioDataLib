@@ -3,7 +3,7 @@
 
 using namespace AudioDataLib;
 
-WaveTableSynth::WaveTableSynth(bool ownsAudioStream, bool ownsSoundFontData) : MidiSynth(ownsAudioStream)
+WaveTableSynth::WaveTableSynth()
 {
 }
 

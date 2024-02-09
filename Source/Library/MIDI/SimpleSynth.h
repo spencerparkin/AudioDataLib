@@ -14,7 +14,7 @@ namespace AudioDataLib
 	class AUDIO_DATA_LIB_API SimpleSynth : public MidiSynth
 	{
 	public:
-		SimpleSynth(bool ownsAudioStream);
+		SimpleSynth();
 		virtual ~SimpleSynth();
 
 		virtual bool ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize, Error& error) override;

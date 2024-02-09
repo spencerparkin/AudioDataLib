@@ -162,7 +162,7 @@ SoundFontData::LoopedAudioData* SoundFontData::FindLoopedAudioData(uint32_t samp
 
 SoundFontData::LoopedAudioData::LoopedAudioData()
 {
-	this->cachedWaveForm = nullptr;
+	this->cachedWaveForm = new std::shared_ptr<WaveForm>();
 	this->sampleID = 0;
 	this->loop.startFrame = 0;
 	this->loop.endFrame = 0;
@@ -180,21 +180,20 @@ SoundFontData::LoopedAudioData::LoopedAudioData()
 	delete this->name;
 }
 
-const WaveForm* SoundFontData::LoopedAudioData::GetCachedWaveForm(uint16_t channel, Error& error) const
+std::shared_ptr<WaveForm> SoundFontData::LoopedAudioData::GetCachedWaveForm(uint16_t channel, Error& error) const
 {
-	if (!this->cachedWaveForm)
+	if (!this->cachedWaveForm->get())
 	{
-		this->cachedWaveForm = new WaveForm();
+		this->cachedWaveForm->reset(new WaveForm());
 
-		if (!this->cachedWaveForm->ConvertFromAudioBuffer(this->GetFormat(), this->GetAudioBuffer(), this->GetAudioBufferSize(), channel, error))
+		if (!(*this->cachedWaveForm)->ConvertFromAudioBuffer(this->GetFormat(), this->GetAudioBuffer(), this->GetAudioBufferSize(), channel, error))
 		{
 			error.Add("Failed to convert looped audio buffer into a wave-form.");
-			delete this->cachedWaveForm;
-			this->cachedWaveForm = nullptr;
+			this->cachedWaveForm->reset();
 		}
 	}
 
-	return this->cachedWaveForm;
+	return *this->cachedWaveForm;
 }
 
 bool SoundFontData::LoopedAudioData::Location::Contains(uint16_t key, uint16_t vel) const
