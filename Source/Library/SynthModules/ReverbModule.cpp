@@ -11,6 +11,9 @@ ReverbModule::ReverbModule()
 
 	// See: https://www.dsprelated.com/freebooks/pasp/Schroeder_Reverberators.html
 
+	// TODO: Maybe these delays can afford to be a bit longer (to increase the size of the room),
+	//       if we also make sure they're not too close to being multiples of one another?
+	//       The Schroeder guy said something about coprime-ness.
 	this->combFilter[0].SetParams(RecursiveFilter::Params{ 19.7 / 1000.0, 0.805 });
 	this->combFilter[1].SetParams(RecursiveFilter::Params{ 27.1 / 1000.0, 0.827 });
 	this->combFilter[2].SetParams(RecursiveFilter::Params{ 31.1 / 1000.0, 0.783 });
