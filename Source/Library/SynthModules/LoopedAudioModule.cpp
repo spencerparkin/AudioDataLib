@@ -96,6 +96,7 @@ bool LoopedAudioModule::UseNonLoopedAudioData(const AudioData* audioData, uint16
 		return false;
 	}
 
+	this->loopedWaveForm = waveForm;
 	this->ownsWaveForm = true;
 
 	this->startTimeSeconds = 0.0;

@@ -25,6 +25,9 @@ namespace AudioDataLib
 		static double MidiPitchToFrequency(uint8_t pitchValue);
 		static double MidiVelocityToAmplitude(uint8_t velocityValue);
 
+		void SetMinMaxLatency(double minLatencySeconds, double maxLatencySeconds);
+		void GetMinMaxLatency(double& minLatencySeconds, double& maxLatencySeconds) const;
+
 	protected:
 
 		AudioStream* audioStream;

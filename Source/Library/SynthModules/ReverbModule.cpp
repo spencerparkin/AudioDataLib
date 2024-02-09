@@ -63,6 +63,8 @@ SynthModule* ReverbModule::GetDependentModule()
 			reverbSample.amplitude += this->combFilter[i].EvaluateAt(sample.timeSeconds);
 		}
 
+		reverbSample.amplitude /= double(ADL_REVERB_NUM_COMB_FILTERS);	// TODO: Do I need this?
+
 		for (uint32_t i = 0; i < ADL_REVERB_NUM_ALLPASS_FILTERS; i++)
 		{
 			this->allPassFilter[i].AddSample(reverbSample);

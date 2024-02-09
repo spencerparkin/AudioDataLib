@@ -28,7 +28,7 @@ namespace AudioDataLib
 			double scale;
 		};
 
-		void SetParams(const Params& param) { this->params = params; }
+		void SetParams(const Params& params) { this->params = params; }
 		const Params& GetParams() const { return this->params; }
 
 	protected:

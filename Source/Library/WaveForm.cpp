@@ -224,6 +224,12 @@ void WaveForm::Interpolate(const SampleBounds& sampleBounds, double timeSeconds,
 {
 	interpolatedSample.timeSeconds = timeSeconds;
 
+	if (sampleBounds.minSample == sampleBounds.maxSample)
+	{
+		interpolatedSample = *sampleBounds.minSample;
+		return;
+	}
+
 	switch (this->interpMethod)
 	{
 		case InterpolationMethod::LINEAR:

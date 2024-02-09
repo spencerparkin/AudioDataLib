@@ -30,6 +30,18 @@ void MidiSynth::SetAudioStream(AudioStream* audioStream)
 	this->audioStream = audioStream;
 }
 
+void MidiSynth::SetMinMaxLatency(double minLatencySeconds, double maxLatencySeconds)
+{
+	this->minLatencySeconds = minLatencySeconds;
+	this->maxLatencySeconds = maxLatencySeconds;
+}
+
+void MidiSynth::GetMinMaxLatency(double& minLatencySeconds, double& maxLatencySeconds) const
+{
+	minLatencySeconds = this->minLatencySeconds;
+	maxLatencySeconds = this->maxLatencySeconds;
+}
+
 /*virtual*/ bool MidiSynth::Process(Error& error)
 {
 	if (!this->audioStream)

@@ -11,6 +11,7 @@
 #include "MidiMsgRecorderDestination.h"
 #include "MidiFileFormat.h"
 #include "MidiPlayer.h"
+#include "MidiSynth.h"
 #include "Keyboard.h"
 #include "Mutex.h"
 #include "SimpleSynth.h"
@@ -206,8 +207,6 @@ bool AddReverb(const std::string& inFilePath, const std::string& outFilePath, Au
 	FileFormat* fileFormat = nullptr;
 	FileData* fileData = nullptr;
 	ReverbModule* reverbModule = nullptr;
-	WaveForm** reverbWaveFormArray = nullptr;
-	uint32_t numChannels = 0;
 	AudioData* reverbAudioData = nullptr;
 
 	do
@@ -239,53 +238,75 @@ bool AddReverb(const std::string& inFilePath, const std::string& outFilePath, Au
 			break;
 		}
 
-		numChannels = audioData->GetFormat().numChannels;
-		if (numChannels == 0)
+		if (audioData->GetFormat().numChannels == 0)
 		{
 			error.Add("No channels!");
 			break;
 		}
 
-		reverbWaveFormArray = new WaveForm*[numChannels];
-		::memset(reverbWaveFormArray, 0, numChannels * sizeof(WaveForm*));
+		class ReverbSynth : public MidiSynth
+		{
+		public:
+			ReverbSynth() : MidiSynth(false)
+			{
+			}
 
-		reverbAudioData = new AudioData();
-		reverbAudioData->SetFormat(audioData->GetFormat());
+			virtual ~ReverbSynth()
+			{
+				for (SynthModule* synthModule : this->synthModularArray)
+					delete synthModule;
+			}
 
-		double maxDurationSeconds = 0.0;
+			virtual SynthModule* GetRootModule(uint16_t channel) override
+			{
+				return this->synthModularArray[channel];
+			}
 
-		// Note that some reverb algorithm will cross-pollinate the channels, but we're not doing that here.
-		for (uint32_t i = 0; i < numChannels; i++)
+			bool MoreSoundPending()
+			{
+				for (SynthModule* synthModule : this->synthModularArray)
+					if (!synthModule->CantGiveAnymoreSound())
+						return true;
+
+				return false;
+			}
+
+			std::vector<SynthModule*> synthModularArray;
+		};
+
+		AudioStream reverbStream;
+		reverbStream.SetFormat(audioData->GetFormat());
+
+		ReverbSynth reverbSynth;
+		reverbSynth.SetAudioStream(&reverbStream);
+		reverbSynth.SetMinMaxLatency(2.0 * audioData->GetTimeSeconds(), 3.0 * audioData->GetTimeSeconds());
+		
+		for (uint16_t i = 0; i < audioData->GetFormat().numChannels; i++)
 		{
 			auto loopedAudioModule = new LoopedAudioModule();
-			reverbModule = new ReverbModule();
+			auto reverbModule = new ReverbModule();
 			reverbModule->SetDependentModule(loopedAudioModule);
+			reverbSynth.synthModularArray.push_back(reverbModule);
 
 			if (!loopedAudioModule->UseNonLoopedAudioData(audioData, i, error))
 				break;
-
-			double durationSeconds = audioData->GetTimeSeconds();
-			double sampleRate = (double)audioData->GetFormat().SamplesPerSecondPerChannel();
-
-			reverbWaveFormArray[i] = new WaveForm();
-			if (!reverbModule->GenerateSound(durationSeconds, sampleRate, *reverbWaveFormArray[i], error))
-				break;
-
-			durationSeconds = reverbWaveFormArray[i]->GetTimespan();
-			if (durationSeconds > maxDurationSeconds)
-				maxDurationSeconds = durationSeconds;
 		}
 
 		if (error)
 			break;
 
-		reverbAudioData->SetAudioBufferSize(audioData->GetFormat().BytesFromSeconds(maxDurationSeconds));
-		for (uint32_t i = 0; i < numChannels; i++)
-			if (!reverbWaveFormArray[i]->ConvertToAudioBuffer(audioData->GetFormat(), reverbAudioData->GetAudioBuffer(), reverbAudioData->GetAudioBufferSize(), i, error))
+		while (reverbSynth.MoreSoundPending())
+		{
+			if (!reverbSynth.Process(error))
 				break;
 
-		if (error)
-			break;
+			break;	// Hack: Just break after the first iteration since I don't quite have the loop termination correct yet.
+		}
+
+		reverbAudioData = new AudioData();
+		reverbAudioData->SetFormat(audioData->GetFormat());
+		reverbAudioData->SetAudioBufferSize(reverbStream.GetSize());
+		reverbStream.ReadBytesFromStream(reverbAudioData->GetAudioBuffer(), reverbStream.GetSize());
 
 		FileOutputStream outputStream(outFilePath.c_str());
 		if (!outputStream.IsOpen())
@@ -309,10 +330,6 @@ bool AddReverb(const std::string& inFilePath, const std::string& outFilePath, Au
 	if (fileData)
 		delete fileData;
 
-	for (uint32_t i = 0; i < numChannels; i++)
-		delete reverbWaveFormArray[i];
-
-	delete[] reverbWaveFormArray;
 	delete reverbModule;
 	delete reverbAudioData;
 
