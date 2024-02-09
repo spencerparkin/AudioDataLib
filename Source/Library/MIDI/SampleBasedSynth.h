@@ -1,6 +1,7 @@
 #pragma once
 
 #include "MidiSynth.h"
+#include "SoundFontData.h"
 
 namespace AudioDataLib
 {
@@ -39,12 +40,19 @@ namespace AudioDataLib
 
 		struct Note
 		{
-			uint64_t leftModuleID;
-			uint64_t rightModuleID;
+			std::shared_ptr<SynthModule> leftEarModule;
+			std::shared_ptr<SynthModule> rightEarModule;
 		};
 
 		typedef std::map<uint8_t, Note> NoteMap;
 		NoteMap* noteMap;
+
+		bool GenerateModuleGraph(
+				const SoundFontData::AudioSample* audioSample,
+				SoundFontData::LoopedAudioData::ChannelType channelType,
+				bool reverb, double noteFrequency,
+				std::shared_ptr<SynthModule>& synthModule,
+				Error& error);
 
 		MixerModule* mixerModuleLeftEar;
 		MixerModule* mixerModuleRightEar;

@@ -7,7 +7,6 @@ using namespace AudioDataLib;
 
 AttenuationModule::AttenuationModule()
 {
-	this->dependentModule = nullptr;
 	this->attenuationFunction = nullptr;
 	this->fallOff = false;
 	this->fallOffTimeSeconds = 0.0;
@@ -15,19 +14,20 @@ AttenuationModule::AttenuationModule()
 
 /*virtual*/ AttenuationModule::~AttenuationModule()
 {
-	this->SetDependentModule(nullptr);
 	this->SetAttenuationFunction(nullptr);
 }
 
 /*virtual*/ bool AttenuationModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, Error& error)
 {
-	if (!this->dependentModule)
+	if (this->GetNumDependentModules() != 1)
 	{
-		error.Add("No dependent module set.");
+		error.Add("Attenuation module needs exactly one dependent module.");
 		return false;
 	}
 
-	if (!this->dependentModule->GenerateSound(durationSeconds, samplesPerSecond, waveForm, error))
+	SynthModule* dependentModule = (*this->dependentModulesArray)[0].get();
+
+	if (!dependentModule->GenerateSound(durationSeconds, samplesPerSecond, waveForm, error))
 		return false;
 
 	if (!this->fallOff)
@@ -54,7 +54,11 @@ AttenuationModule::AttenuationModule()
 
 /*virtual*/ bool AttenuationModule::MoreSoundAvailable()
 {
-	if (!this->dependentModule || !this->dependentModule->MoreSoundAvailable())
+	if (this->GetNumDependentModules() == 0)
+		return false;
+
+	SynthModule* dependentModule = (*this->dependentModulesArray)[0].get();
+	if (!dependentModule->MoreSoundAvailable())
 		return false;
 
 	return !this->fallOff || this->attenuationFunction->EvaluateAt(this->fallOffTimeSeconds) > 0.0;
@@ -64,17 +68,6 @@ void AttenuationModule::SetAttenuationFunction(Function* function)
 {
 	delete this->attenuationFunction;
 	this->attenuationFunction = function;
-}
-
-void AttenuationModule::SetDependentModule(SynthModule* synthModule)
-{
-	delete this->dependentModule;
-	this->dependentModule = synthModule;
-}
-
-SynthModule* AttenuationModule::GetDependentModule()
-{
-	return this->dependentModule;
 }
 
 void AttenuationModule::TriggerFallOff()

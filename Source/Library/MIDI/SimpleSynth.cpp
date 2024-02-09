@@ -43,6 +43,7 @@ SimpleSynth::SimpleSynth()
 	// in an overall audio stream (for mono, stereo, etc.)
 	uint8_t channel = channelEvent.channel;
 
+#if 0		// TODO: Fix this up.
 	switch (channelEvent.type)
 	{
 		case MidiData::ChannelEvent::NOTE_ON:
@@ -97,6 +98,7 @@ SimpleSynth::SimpleSynth()
 			return false;
 		}
 	}
+#endif
 
 	return true;
 }

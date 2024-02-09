@@ -16,19 +16,38 @@ namespace AudioDataLib
 
 		virtual bool GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, Error& error) = 0;
 		virtual bool MoreSoundAvailable();
-	};
 
-	// TODO: It would be really interesting to try to provide a ReverbModule derivative.
-	//       See: https://github.com/radoslawregula/reverb-algorithms
-	//       This source shows some work someone did in Python.  It's extremely cryptic, in my opinion.
-	//       I've also added a PDF to my repo: Moore-Reverb-CMJ-1979.pdf.  This explains some of the math involved
-	//       in various types of reverb algorithms, but using graphs and some notation that, again, seems very
-	//       cryptic to me.  There seems to be a language behind all this DSP (digital signal processing) stuff
-	//       that is completely alien to me.  I can kind-of glimpse some of the ideas, like taking a signal
-	//       and feeding it back on itself with a delay and scale.  Perhaps a good first step is just to see
-	//       if I can make an echo effect, then to see if I can make a single comb-filter, then a single all-pass
-	//       filter, etc.  Instances of these latter two are combined in series and in parallel to make one of the
-	//       paper's proposed reverberators.  Filters in general are something of which I lack greatly in knowledge.
-	//       For example, how does a high-pass or low-pass filter work?  Do these require an FFT and an inverse FFT?
-	//       I have no idea.
+		void AddDependentModule(std::shared_ptr<SynthModule> synthModule);
+		std::shared_ptr<SynthModule> GetDependentModule(uint32_t i);
+		uint32_t GetNumDependentModules() const;
+		void PruneDeadBranches();
+		void Clear();
+
+		template<typename T>
+		T* FindModule()
+		{
+			T* foundModule = dynamic_cast<T*>(this);
+			if (foundModule)
+				return foundModule;
+
+			for (std::shared_ptr<SynthModule>& synthModule : *this->dependentModulesArray)
+			{
+				foundModule = synthModule->FindModule<T>();
+				if (foundModule)
+					return foundModule;
+			}
+
+			return nullptr;
+		}
+
+	protected:
+
+		// Shared pointers are a reasonable choice here, because the life
+		// of a module can extend beyond the desire to own it in some of
+		// the calling code, such as when a key is released, but a sound is
+		// still reverberating.  Further, shared pointers can also make it
+		// possible to cross-pollinate between channels, e.g., for the purpose
+		// of implementing pan.
+		std::vector<std::shared_ptr<SynthModule>>* dependentModulesArray;
+	};
 }

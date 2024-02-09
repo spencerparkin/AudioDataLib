@@ -11,8 +11,5 @@ namespace AudioDataLib
 		virtual ~InterpolationModule();
 
 		virtual bool GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, Error& error) override;
-
-		SynthModule* dependentModuleA;
-		SynthModule* dependentModuleB;
 	};
 }

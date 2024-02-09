@@ -1,11 +1,10 @@
 #include "InterpolationModule.h"
+#include "Error.h"
 
 using namespace AudioDataLib;
 
 InterpolationModule::InterpolationModule()
 {
-	this->dependentModuleA = nullptr;
-	this->dependentModuleB = nullptr;
 }
 
 /*virtual*/ InterpolationModule::~InterpolationModule()
@@ -14,6 +13,13 @@ InterpolationModule::InterpolationModule()
 
 /*virtual*/ bool InterpolationModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, Error& error)
 {
-	// TODO: Not sure how exactly to interpolate between two sounds for the purpose of finding an intermediate pitch.
+	if (this->GetNumDependentModules() != 2)
+	{
+		error.Add("Interpolation module needs exactly two dependent modules.");
+		return false;
+	}
+
+	// TODO: Write this.
+	error.Add("Not yet implemented.");
 	return false;
 }

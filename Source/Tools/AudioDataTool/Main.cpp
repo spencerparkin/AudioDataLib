@@ -285,7 +285,7 @@ bool AddReverb(const std::string& inFilePath, const std::string& outFilePath, Au
 		{
 			auto loopedAudioModule = new LoopedAudioModule();
 			auto reverbModule = new ReverbModule();
-			reverbModule->SetDependentModule(loopedAudioModule);
+			reverbModule->AddDependentModule(std::shared_ptr<SynthModule>(loopedAudioModule));
 			reverbSynth.synthModularArray.push_back(reverbModule);
 
 			if (!loopedAudioModule->UseNonLoopedAudioData(audioData, i, error))

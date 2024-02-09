@@ -6,7 +6,6 @@ using namespace AudioDataLib;
 
 ReverbModule::ReverbModule()
 {
-	this->dependentModule = nullptr;
 	this->moreSoundAvailable = true;
 
 	// See: https://www.dsprelated.com/freebooks/pasp/Schroeder_Reverberators.html
@@ -26,30 +25,20 @@ ReverbModule::ReverbModule()
 
 /*virtual*/ ReverbModule::~ReverbModule()
 {
-	delete this->dependentModule;
-}
-
-void ReverbModule::SetDependentModule(SynthModule* synthModule)
-{
-	delete this->dependentModule;
-	this->dependentModule = synthModule;
-}
-
-SynthModule* ReverbModule::GetDependentModule()
-{
-	return this->dependentModule;
 }
 
 /*virtual*/ bool ReverbModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, Error& error)
 {
-	if (!this->dependentModule)
+	if (this->GetNumDependentModules() != 1)
 	{
-		error.Add("No dependent module set.");
+		error.Add("Reverb module needs exactly one dependent module.");
 		return false;
 	}
 
+	SynthModule* dependentModule = (*this->dependentModulesArray)[0].get();
+
 	WaveForm originalWaveForm;
-	if (!this->dependentModule->GenerateSound(durationSeconds, samplesPerSecond, originalWaveForm, error))
+	if (!dependentModule->GenerateSound(durationSeconds, samplesPerSecond, originalWaveForm, error))
 		return false;
 
 	waveForm.Clear();
@@ -78,7 +67,7 @@ SynthModule* ReverbModule::GetDependentModule()
 	}
 
 	double averageVolume = waveForm.CalcAverageVolume();
-	constexpr double threshold = 1e-7;
+	constexpr double threshold = 1e-7;		// TODO: This doesn't work.  Fix it.
 	if (averageVolume < threshold)
 		this->moreSoundAvailable = false;
 	else

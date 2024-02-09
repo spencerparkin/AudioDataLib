@@ -3,6 +3,7 @@
 #include "LoopedAudioModule.h"
 #include "PitchShiftModule.h"
 #include "AttenuationModule.h"
+#include "ReverbModule.h"
 #include "MidiData.h"
 #include "MixerModule.h"
 #include "Function.h"
@@ -102,52 +103,18 @@ SampleBasedSynth::SampleBasedSynth()
 				fprintf(stderr, "Warning: Had to look for closest audio sample rather than the one prescribed by the sound-font data.\n");
 			}
 
-			Note note{ 0, 0 };
+			Note note;
 
-			// TODO: I smell a subroutine here to get rid of some code duplication.
-
-			const SoundFontData::LoopedAudioData* leftAudioData = audioSample->FindLoopedAudioData(SoundFontData::LoopedAudioData::ChannelType::LEFT_EAR);
-			if (!leftAudioData)
-				leftAudioData = audioSample->FindLoopedAudioData(SoundFontData::LoopedAudioData::ChannelType::MONO);
-
-			const SoundFontData::LoopedAudioData* rightAudioData = audioSample->FindLoopedAudioData(SoundFontData::LoopedAudioData::ChannelType::RIGHT_EAR);
-			if (!rightAudioData)
-				rightAudioData = audioSample->FindLoopedAudioData(SoundFontData::LoopedAudioData::ChannelType::MONO);
-
-			if (!leftAudioData || !rightAudioData)
-			{
-				error.Add(FormatString("Could not get left and right audio data for pitch %f.", noteFrequency));
+			if (!this->GenerateModuleGraph(audioSample, SoundFontData::LoopedAudioData::ChannelType::LEFT_EAR, false, noteFrequency, note.leftEarModule, error))
 				return false;
-			}
 
-			auto loopedAudioModuleLeft = new LoopedAudioModule();
-			auto loopedAudioModuleRight = new LoopedAudioModule();
-
-			auto pitchShiftModuleLeft = new PitchShiftModule();
-			auto pitchShiftModuleRight = new PitchShiftModule();
-
-			auto attenuationModuleLeft = new AttenuationModule();
-			auto attenuationModuleRight = new AttenuationModule();
-
-			note.leftModuleID = this->mixerModuleLeftEar->AddModule(attenuationModuleLeft);
-			note.rightModuleID = this->mixerModuleRightEar->AddModule(attenuationModuleRight);
+			if (!this->GenerateModuleGraph(audioSample, SoundFontData::LoopedAudioData::ChannelType::RIGHT_EAR, false, noteFrequency, note.rightEarModule, error))
+				return false;
 
 			this->noteMap->insert(std::pair<uint8_t, Note>(pitchValue, note));
 
-			attenuationModuleLeft->SetDependentModule(pitchShiftModuleLeft);
-			attenuationModuleRight->SetDependentModule(pitchShiftModuleRight);
-
-			pitchShiftModuleLeft->SetDependentModule(loopedAudioModuleLeft);
-			pitchShiftModuleRight->SetDependentModule(loopedAudioModuleRight);
-
-			if (!loopedAudioModuleLeft->UseLoopedAudioData(leftAudioData, 0, error))
-				return false;
-
-			if (!loopedAudioModuleRight->UseLoopedAudioData(rightAudioData, 0, error))
-				return false;
-
-			pitchShiftModuleLeft->SetSourceAndTargetFrequencies(leftAudioData->GetMetaData().pitch, noteFrequency);
-			pitchShiftModuleRight->SetSourceAndTargetFrequencies(rightAudioData->GetMetaData().pitch, noteFrequency);
+			mixerModuleLeftEar->AddDependentModule(note.leftEarModule);
+			mixerModuleRightEar->AddDependentModule(note.rightEarModule);
 
 			break;
 		}
@@ -160,19 +127,18 @@ SampleBasedSynth::SampleBasedSynth()
 			{
 				const Note& note = iter->second;
 
-				auto attenuationModuleLeft = dynamic_cast<AttenuationModule*>(this->mixerModuleLeftEar->FindModule(note.leftModuleID));
-				auto attenuationModuleRight = dynamic_cast<AttenuationModule*>(this->mixerModuleRightEar->FindModule(note.rightModuleID));
+				// Some notes die before a key is released, while others die some time after the key is released.
 
+				auto attenuationModuleLeft = note.leftEarModule->FindModule<AttenuationModule>();
 				if (attenuationModuleLeft)
 				{
-					// TODO: This fall-off should really come from the SF file.
 					attenuationModuleLeft->SetAttenuationFunction(new LinearFallOffFunction(0.05));
 					attenuationModuleLeft->TriggerFallOff();
 				}
 
+				auto attenuationModuleRight = note.rightEarModule->FindModule<AttenuationModule>();
 				if (attenuationModuleRight)
 				{
-					// TODO: This fall-off should really come from the SF file.
 					attenuationModuleRight->SetAttenuationFunction(new LinearFallOffFunction(0.05));
 					attenuationModuleRight->TriggerFallOff();
 				}
@@ -182,6 +148,49 @@ SampleBasedSynth::SampleBasedSynth()
 
 			break;
 		}
+	}
+
+	return true;
+}
+
+bool SampleBasedSynth::GenerateModuleGraph(
+					const SoundFontData::AudioSample* audioSample,
+					SoundFontData::LoopedAudioData::ChannelType channelType,
+					bool reverb, double noteFrequency,
+					std::shared_ptr<SynthModule>& synthModule,
+					Error& error)
+{
+	const SoundFontData::LoopedAudioData* audioData = audioSample->FindLoopedAudioData(channelType);
+	if (!audioData)
+		audioData = audioSample->FindLoopedAudioData(SoundFontData::LoopedAudioData::ChannelType::MONO);
+
+	if (!audioData)
+	{
+		error.Add("Could not find audio data in given audio sample.");
+		return false;
+	}
+
+	auto loopedAudioModule = new LoopedAudioModule();
+	if (!loopedAudioModule->UseLoopedAudioData(audioData, 0, error))
+	{
+		delete loopedAudioModule;
+		return false;
+	}
+
+	auto pitchShiftModule = new PitchShiftModule();
+	pitchShiftModule->SetSourceAndTargetFrequencies(audioData->GetMetaData().pitch, noteFrequency);
+	pitchShiftModule->AddDependentModule(std::shared_ptr<SynthModule>(loopedAudioModule));
+
+	auto attenuationModule = new AttenuationModule();
+	attenuationModule->AddDependentModule(std::shared_ptr<SynthModule>(pitchShiftModule));
+
+	if (!reverb)
+		synthModule.reset(attenuationModule);
+	else
+	{
+		auto reverbModule = new ReverbModule();
+		reverbModule->AddDependentModule(std::shared_ptr<SynthModule>(attenuationModule));
+		synthModule.reset(reverbModule);
 	}
 
 	return true;

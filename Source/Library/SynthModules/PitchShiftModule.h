@@ -16,14 +16,8 @@ namespace AudioDataLib
 		double GetSourceFrequency() const { return this->sourceFrequency; }
 		double GetTargetFrequency() const { return this->targetFrequency; }
 
-		void SetDependentModule(SynthModule* synthModule) { this->dependentModule = synthModule; }
-		SynthModule* GetDependentModule() { return this->dependentModule; }
-		const SynthModule* GetDependentModule() const { return this->dependentModule; }
-
 	protected:
 		double sourceFrequency;
 		double targetFrequency;
-
-		SynthModule* dependentModule;
 	};
 }

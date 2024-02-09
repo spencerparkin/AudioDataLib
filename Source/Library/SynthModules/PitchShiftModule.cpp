@@ -8,7 +8,6 @@ PitchShiftModule::PitchShiftModule()
 {
 	this->sourceFrequency = 0.0;
 	this->targetFrequency = 0.0;
-	this->dependentModule = nullptr;
 }
 
 /*virtual*/ PitchShiftModule::~PitchShiftModule()
@@ -17,16 +16,18 @@ PitchShiftModule::PitchShiftModule()
 
 /*virtual*/ bool PitchShiftModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, Error& error)
 {
-	if (!this->dependentModule)
+	if (this->GetNumDependentModules() != 1)
 	{
-		error.Add("No dependent module set!");
+		error.Add("Pitch shift module needs exactly one dependent module.");
 		return false;
 	}
+
+	SynthModule* dependentModule = (*this->dependentModulesArray)[0].get();
 
 	if (this->targetFrequency == this->sourceFrequency)
 	{
 		// We're just a no-op/pass-through in this case.
-		return this->dependentModule->GenerateSound(durationSeconds, samplesPerSecond, waveForm, error);
+		return dependentModule->GenerateSound(durationSeconds, samplesPerSecond, waveForm, error);
 	}
 	
 	if (this->sourceFrequency == 0.0)
@@ -43,7 +44,7 @@ PitchShiftModule::PitchShiftModule()
 		return false;
 	}
 
-	if (!this->dependentModule->GenerateSound(neededTimeSeconds, samplesPerSecond, waveForm, error))
+	if (!dependentModule->GenerateSound(neededTimeSeconds, samplesPerSecond, waveForm, error))
 		return false;
 
 	double startTimeSeconds = waveForm.GetStartTime();
@@ -60,7 +61,11 @@ PitchShiftModule::PitchShiftModule()
 
 /*virtual*/ bool PitchShiftModule::MoreSoundAvailable()
 {
-	return this->dependentModule && this->dependentModule->MoreSoundAvailable();
+	if (this->dependentModulesArray->size() == 0)
+		return false;
+
+	SynthModule* dependentModule = (*this->dependentModulesArray)[0].get();
+	return dependentModule->MoreSoundAvailable();
 }
 
 void PitchShiftModule::SetSourceAndTargetFrequencies(double sourceFrequency, double targetFrequency)
