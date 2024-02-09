@@ -105,6 +105,8 @@ SampleBasedSynth::SampleBasedSynth(bool ownsAudioStream, bool ownsSoundFontData)
 
 			Note note{ 0, 0 };
 
+			// TODO: I smell a subroutine here to get rid of some code duplication.
+
 			const SoundFontData::LoopedAudioData* leftAudioData = audioSample->FindLoopedAudioData(SoundFontData::LoopedAudioData::ChannelType::LEFT_EAR);
 			if (!leftAudioData)
 				leftAudioData = audioSample->FindLoopedAudioData(SoundFontData::LoopedAudioData::ChannelType::MONO);
