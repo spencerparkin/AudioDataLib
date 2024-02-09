@@ -11,10 +11,10 @@ ReverbModule::ReverbModule()
 
 	// See: https://www.dsprelated.com/freebooks/pasp/Schroeder_Reverberators.html
 
-	this->combFilter[0].SetParams(RecursiveFilter::Params{ 29.7 / 1000.0, 0.805 });
-	this->combFilter[1].SetParams(RecursiveFilter::Params{ 37.1 / 1000.0, 0.827 });
-	this->combFilter[2].SetParams(RecursiveFilter::Params{ 41.1 / 1000.0, 0.783 });
-	this->combFilter[3].SetParams(RecursiveFilter::Params{ 43.7 / 1000.0, 0.764 });
+	this->combFilter[0].SetParams(RecursiveFilter::Params{ 19.7 / 1000.0, 0.805 });
+	this->combFilter[1].SetParams(RecursiveFilter::Params{ 27.1 / 1000.0, 0.827 });
+	this->combFilter[2].SetParams(RecursiveFilter::Params{ 31.1 / 1000.0, 0.783 });
+	this->combFilter[3].SetParams(RecursiveFilter::Params{ 33.7 / 1000.0, 0.764 });
 
 	this->allPassFilter[0].SetParams(RecursiveFilter::Params{ 5.0 / 1000.0, 0.7 });
 	this->allPassFilter[1].SetParams(RecursiveFilter::Params{ 1.7 / 1000.0, 0.7 });
