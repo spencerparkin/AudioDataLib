@@ -105,10 +105,11 @@ SampleBasedSynth::SampleBasedSynth()
 
 			Note note;
 
-			// TODO: We are definitely not ready to turn reverb on yet.  I think more testing is needed in the WAV conversion feature.
-			//       Specifically, we need to prove that a reasonable result can be produced with a stopping condition being that the
-			//       reverberated sound has died away.  For now, I'm just manually ending the process, but it needs to be able to end
-			//       on its own, or when we detect that the sounds have all faced away to silence.
+			// TODO: We are definitely not ready to turn reverb on yet.  I've been able to convert a WAV file from a regular sound
+			//       into one that has reverb (even if the reverb isn't great, it can still be recognized as such.)  However, when
+			//       I turn reverb on here, it doesn't sound right at all.  Maybe try unpacking the sound-font file and then apply
+			//       reverbe to the sample WAV files?  If those sound okay when reverb is applied, then the question is, why doesn't
+			//       it sound okay here?
 
 			if (!this->GenerateModuleGraph(audioSample, SoundFontData::LoopedAudioData::ChannelType::LEFT_EAR, false, noteFrequency, note.leftEarModule, error))
 				return false;
