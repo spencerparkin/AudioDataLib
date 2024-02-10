@@ -259,6 +259,7 @@ bool AddReverb(const std::string& inFilePath, const std::string& outFilePath, Au
 		std::shared_ptr<AudioStream> reverbStream(new AudioStream());
 		reverbStream->SetFormat(audioData->GetFormat());
 
+		// TODO: When I shrink this time window to 0.005, I get some audible artifacting.  Why?
 		double timeChunkSeconds = 0.5;
 		uint64_t reverbAudioBufferSize = audioData->GetFormat().BytesFromSeconds(timeChunkSeconds);
 		reverbAudioBuffer = new uint8_t[reverbAudioBufferSize];
