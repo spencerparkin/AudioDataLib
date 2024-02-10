@@ -110,6 +110,17 @@ SampleBasedSynth::SampleBasedSynth()
 			//       I turn reverb on here, it doesn't sound right at all.  Maybe try unpacking the sound-font file and then apply
 			//       reverbe to the sample WAV files?  If those sound okay when reverb is applied, then the question is, why doesn't
 			//       it sound okay here?
+			
+			// UPDATE: So I got a better result by restricting my output to mono and then just playing one note at a time (no two or
+			//         more playing at the same time.)  It seems that whenever there is more than one reverb module at play, the result
+			//         is really bad.  Maybe because combs from seperate reverbs are aligning on frequency boundaries or something like
+			//         that.  Anyhow, I got a better result, even if there was still (sadly) some artifacting, so maybe what I need to
+			//         do is make sure there is one and only one reverb module for everything, even across both ears, or maybe each
+			//         ear should get a reverb with delay times coprime with the delay times of the other reverb module.  In any case,
+			//         put the reverb module at the root before the mixer module, try mono, then try stereo, then try making sure the
+			//         reverbs across left and right have coprime delays.  Not yet sure how to solve the artifacting, but it seems to
+			//         be a symptom of short sound requests.  If the sound requests are in larger chunks (time-wise), I don't here any
+			//         artifacting.
 
 			if (!this->GenerateModuleGraph(audioSample, SoundFontData::LoopedAudioData::ChannelType::LEFT_EAR, false, noteFrequency, note.leftEarModule, error))
 				return false;
