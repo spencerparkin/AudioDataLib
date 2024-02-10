@@ -7,6 +7,7 @@ using namespace AudioDataLib;
 ReverbModule::ReverbModule()
 {
 	this->moreSoundAvailable = true;
+	this->localTimeBaseSeconds = 0.0;
 
 	// See: https://www.dsprelated.com/freebooks/pasp/Schroeder_Reverberators.html
 
@@ -45,14 +46,18 @@ ReverbModule::ReverbModule()
 
 	for (const WaveForm::Sample& sample : originalWaveForm.GetSampleArray())
 	{
+		WaveForm::Sample originalSample;
+		originalSample.amplitude = sample.amplitude;
+		originalSample.timeSeconds = sample.timeSeconds + this->localTimeBaseSeconds;
+
 		WaveForm::Sample reverbSample;
-		reverbSample.timeSeconds = sample.timeSeconds;
 		reverbSample.amplitude = 0.0;
+		reverbSample.timeSeconds = originalSample.timeSeconds;
 
 		for (uint32_t i = 0; i < ADL_REVERB_NUM_COMB_FILTERS; i++)
 		{
-			this->combFilter[i].AddSample(sample);
-			reverbSample.amplitude += this->combFilter[i].EvaluateAt(sample.timeSeconds);
+			this->combFilter[i].AddSample(originalSample);
+			reverbSample.amplitude += this->combFilter[i].EvaluateAt(originalSample.timeSeconds);
 		}
 
 		reverbSample.amplitude /= double(ADL_REVERB_NUM_COMB_FILTERS);
@@ -63,15 +68,22 @@ ReverbModule::ReverbModule()
 			reverbSample.amplitude = this->allPassFilter[i].EvaluateAt(reverbSample.timeSeconds);
 		}
 
+		reverbSample.timeSeconds -= this->localTimeBaseSeconds;
 		waveForm.AddSample(reverbSample);
 	}
 
-	double averageVolume = waveForm.CalcAverageVolume();
-	constexpr double threshold = 1e-7;		// TODO: This doesn't work.  Fix it.
-	if (averageVolume < threshold)
-		this->moreSoundAvailable = false;
-	else
-		this->moreSoundAvailable = true;
+	this->localTimeBaseSeconds += originalWaveForm.GetTimespan();
+
+	if (!dependentModule->MoreSoundAvailable())
+	{
+		// Wait for the reverberation to taper off.
+		double averageVolume = waveForm.CalcAverageVolume();
+		constexpr double threshold = 1e-3;
+		if (averageVolume < threshold)
+			this->moreSoundAvailable = false;
+		else
+			this->moreSoundAvailable = true;
+	}
 
 	return true;
 }

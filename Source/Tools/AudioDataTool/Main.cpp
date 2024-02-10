@@ -11,7 +11,6 @@
 #include "MidiMsgRecorderDestination.h"
 #include "MidiFileFormat.h"
 #include "MidiPlayer.h"
-#include "MidiSynth.h"
 #include "Keyboard.h"
 #include "Mutex.h"
 #include "SimpleSynth.h"
@@ -206,8 +205,7 @@ bool AddReverb(const std::string& inFilePath, const std::string& outFilePath, Au
 	bool success = false;
 	FileFormat* fileFormat = nullptr;
 	FileData* fileData = nullptr;
-	ReverbModule* reverbModule = nullptr;
-	AudioData* reverbAudioData = nullptr;
+	uint8_t* reverbAudioBuffer = nullptr;
 
 	do
 	{
@@ -244,50 +242,13 @@ bool AddReverb(const std::string& inFilePath, const std::string& outFilePath, Au
 			break;
 		}
 
-		class ReverbSynth : public MidiSynth
-		{
-		public:
-			ReverbSynth()
-			{
-			}
-
-			virtual ~ReverbSynth()
-			{
-				for (SynthModule* synthModule : this->synthModularArray)
-					delete synthModule;
-			}
-
-			virtual SynthModule* GetRootModule(uint16_t channel) override
-			{
-				return this->synthModularArray[channel];
-			}
-
-			bool MoreSoundAvailable()
-			{
-				for (SynthModule* synthModule : this->synthModularArray)
-					if (synthModule->MoreSoundAvailable())
-						return true;
-
-				return false;
-			}
-
-			std::vector<SynthModule*> synthModularArray;
-		};
-
-		std::shared_ptr<AudioStream> reverbStream(new AudioStream());
-		reverbStream->SetFormat(audioData->GetFormat());
-
-		ReverbSynth reverbSynth;
-		reverbSynth.SetAudioStream(reverbStream);
-		reverbSynth.SetMinMaxLatency(2.0 * audioData->GetTimeSeconds(), 3.0 * audioData->GetTimeSeconds());
-		
+		std::vector<std::shared_ptr<SynthModule>> synthModuleArray;
 		for (uint16_t i = 0; i < audioData->GetFormat().numChannels; i++)
 		{
 			auto loopedAudioModule = new LoopedAudioModule();
 			auto reverbModule = new ReverbModule();
 			reverbModule->AddDependentModule(std::shared_ptr<SynthModule>(loopedAudioModule));
-			reverbSynth.synthModularArray.push_back(reverbModule);
-
+			synthModuleArray.push_back(std::shared_ptr<SynthModule>(reverbModule));
 			if (!loopedAudioModule->UseNonLoopedAudioData(audioData, i, error))
 				break;
 		}
@@ -295,15 +256,51 @@ bool AddReverb(const std::string& inFilePath, const std::string& outFilePath, Au
 		if (error)
 			break;
 
-		while (reverbSynth.MoreSoundAvailable())
+		std::shared_ptr<AudioStream> reverbStream(new AudioStream());
+		reverbStream->SetFormat(audioData->GetFormat());
+
+		double timeChunkSeconds = 0.5;
+		uint64_t reverbAudioBufferSize = audioData->GetFormat().BytesFromSeconds(timeChunkSeconds);
+		reverbAudioBuffer = new uint8_t[reverbAudioBufferSize];
+		::memset(reverbAudioBuffer, 0, reverbAudioBufferSize);
+
+		while (true)
 		{
-			if (!reverbSynth.Process(error))
+			bool moreSoundAvailable = false;
+			for (std::shared_ptr<SynthModule>& synthModule : synthModuleArray)
+			{
+				if (synthModule->MoreSoundAvailable())
+				{
+					moreSoundAvailable = true;
+					break;
+				}
+			}
+
+			if (!moreSoundAvailable)
 				break;
 
-			break;	// Hack: Just break after the first iteration since I don't quite have the loop termination correct yet.
+			for (uint16_t i = 0; i < audioData->GetFormat().numChannels; i++)
+			{
+				SynthModule* synthModule = synthModuleArray[i].get();
+
+				WaveForm waveForm;
+				if (!synthModule->GenerateSound(timeChunkSeconds, audioData->GetFormat().framesPerSecond, waveForm, error))
+					break;
+
+				if (!waveForm.ConvertToAudioBuffer(audioData->GetFormat(), reverbAudioBuffer, reverbAudioBufferSize, i, error))
+					break;
+			}
+
+			if (error)
+				break;
+
+			reverbStream->WriteBytesToStream(reverbAudioBuffer, reverbAudioBufferSize);
 		}
 
-		reverbAudioData = new AudioData();
+		if (error)
+			break;
+
+		std::shared_ptr<AudioData> reverbAudioData(new AudioData());
 		reverbAudioData->SetFormat(audioData->GetFormat());
 		reverbAudioData->SetAudioBufferSize(reverbStream->GetSize());
 		reverbStream->ReadBytesFromStream(reverbAudioData->GetAudioBuffer(), reverbStream->GetSize());
@@ -315,7 +312,7 @@ bool AddReverb(const std::string& inFilePath, const std::string& outFilePath, Au
 			break;
 		}
 
-		if (!fileFormat->WriteToStream(outputStream, reverbAudioData, error))
+		if (!fileFormat->WriteToStream(outputStream, reverbAudioData.get(), error))
 		{
 			error.Add("Failed to write file: " + outFilePath);
 			break;
@@ -330,8 +327,7 @@ bool AddReverb(const std::string& inFilePath, const std::string& outFilePath, Au
 	if (fileData)
 		delete fileData;
 
-	delete reverbModule;
-	delete reverbAudioData;
+	delete[] reverbAudioBuffer;
 
 	return success;
 }

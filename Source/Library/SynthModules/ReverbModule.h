@@ -23,5 +23,6 @@ namespace AudioDataLib
 		AllPassFilter allPassFilter[ADL_REVERB_NUM_ALLPASS_FILTERS];
 
 		bool moreSoundAvailable;
+		double localTimeBaseSeconds;
 	};
 }

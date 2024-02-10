@@ -14,6 +14,9 @@ namespace AudioDataLib
 		SynthModule();
 		virtual ~SynthModule();
 
+		// Note that by convention, the returned wave-form should always be zero-based with respect to time.
+		// It's important to understand this when trying to make a synth module that maintains its own sense
+		// of continuity, call to call.
 		virtual bool GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, Error& error) = 0;
 		virtual bool MoreSoundAvailable();
 
