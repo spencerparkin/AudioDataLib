@@ -242,6 +242,7 @@ bool AddReverb(const std::string& inFilePath, const std::string& outFilePath, Au
 			break;
 		}
 
+		// TODO: I'm pretty sure this will NOT sound correct for anything other than mono based on my expiraments to-date.
 		std::vector<std::shared_ptr<SynthModule>> synthModuleArray;
 		for (uint16_t i = 0; i < audioData->GetFormat().numChannels; i++)
 		{
