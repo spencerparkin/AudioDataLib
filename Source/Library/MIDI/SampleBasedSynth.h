@@ -50,11 +50,10 @@ namespace AudioDataLib
 		bool GenerateModuleGraph(
 				const SoundFontData::AudioSample* audioSample,
 				SoundFontData::LoopedAudioData::ChannelType channelType,
-				bool reverb, double noteFrequency,
-				std::shared_ptr<SynthModule>& synthModule,
+				double noteFrequency, std::shared_ptr<SynthModule>& synthModule,
 				Error& error);
 
-		MixerModule* mixerModuleLeftEar;
-		MixerModule* mixerModuleRightEar;
+		std::shared_ptr<SynthModule>* leftEarRootModule;
+		std::shared_ptr<SynthModule>* rightEarRootModule;
 	};
 }

@@ -12,11 +12,14 @@ namespace AudioDataLib
 	class AUDIO_DATA_LIB_API ReverbModule : public SynthModule
 	{
 	public:
-		ReverbModule();
+		ReverbModule(uint8_t variation);
 		virtual ~ReverbModule();
 
 		virtual bool GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, Error& error) override;
 		virtual bool MoreSoundAvailable() override;
+
+		void SetEnabled(bool enabled) { this->enabled = enabled; }
+		bool GetEnabled() const { return this->enabled; }
 
 	private:
 		FeedBackwardCombFilter combFilter[ADL_REVERB_NUM_COMB_FILTERS];
@@ -24,5 +27,6 @@ namespace AudioDataLib
 
 		bool moreSoundAvailable;
 		double localTimeBaseSeconds;
+		bool enabled;
 	};
 }

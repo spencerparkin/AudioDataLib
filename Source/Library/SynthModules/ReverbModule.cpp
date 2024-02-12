@@ -4,8 +4,9 @@
 
 using namespace AudioDataLib;
 
-ReverbModule::ReverbModule()
+ReverbModule::ReverbModule(uint8_t variation)
 {
+	this->enabled = false;
 	this->moreSoundAvailable = true;
 	this->localTimeBaseSeconds = 0.0;
 
@@ -14,10 +15,22 @@ ReverbModule::ReverbModule()
 	// TODO: Maybe these delays can afford to be a bit longer (to increase the size of the room),
 	//       if we also make sure they're not too close to being multiples of one another?
 	//       The Schroeder guy said something about coprime-ness.
-	this->combFilter[0].SetParams(RecursiveFilter::Params{ 19.7 / 1000.0, 0.805 });
-	this->combFilter[1].SetParams(RecursiveFilter::Params{ 27.1 / 1000.0, 0.827 });
-	this->combFilter[2].SetParams(RecursiveFilter::Params{ 31.1 / 1000.0, 0.783 });
-	this->combFilter[3].SetParams(RecursiveFilter::Params{ 33.7 / 1000.0, 0.764 });
+
+	switch (variation)
+	{
+	case 0:
+		this->combFilter[0].SetParams(RecursiveFilter::Params{ 37.0 / 1000.0, 0.805 });
+		this->combFilter[1].SetParams(RecursiveFilter::Params{ 23.0 / 1000.0, 0.827 });
+		this->combFilter[2].SetParams(RecursiveFilter::Params{ 29.0 / 1000.0, 0.783 });
+		this->combFilter[3].SetParams(RecursiveFilter::Params{ 47.0 / 1000.0, 0.764 });
+		break;
+	case 1:
+		this->combFilter[0].SetParams(RecursiveFilter::Params{ 19.0 / 1000.0, 0.805 });
+		this->combFilter[1].SetParams(RecursiveFilter::Params{ 41.0 / 1000.0, 0.827 });
+		this->combFilter[2].SetParams(RecursiveFilter::Params{ 43.0 / 1000.0, 0.783 });
+		this->combFilter[3].SetParams(RecursiveFilter::Params{ 31.0 / 1000.0, 0.764 });
+		break;
+	}
 
 	this->allPassFilter[0].SetParams(RecursiveFilter::Params{ 5.0 / 1000.0, 0.7 });
 	this->allPassFilter[1].SetParams(RecursiveFilter::Params{ 1.7 / 1000.0, 0.7 });
@@ -38,9 +51,14 @@ ReverbModule::ReverbModule()
 
 	SynthModule* dependentModule = (*this->dependentModulesArray)[0].get();
 
+	if (!this->enabled)
+		return dependentModule->GenerateSound(durationSeconds, samplesPerSecond, waveForm, error);
+
 	WaveForm originalWaveForm;
 	if (!dependentModule->GenerateSound(durationSeconds, samplesPerSecond, originalWaveForm, error))
 		return false;
+
+	originalWaveForm.PadWithSilence(durationSeconds, samplesPerSecond);
 
 	waveForm.Clear();
 

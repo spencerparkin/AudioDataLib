@@ -247,7 +247,7 @@ bool AddReverb(const std::string& inFilePath, const std::string& outFilePath, Au
 		for (uint16_t i = 0; i < audioData->GetFormat().numChannels; i++)
 		{
 			auto loopedAudioModule = new LoopedAudioModule();
-			auto reverbModule = new ReverbModule();
+			auto reverbModule = new ReverbModule(0);
 			reverbModule->AddDependentModule(std::shared_ptr<SynthModule>(loopedAudioModule));
 			synthModuleArray.push_back(std::shared_ptr<SynthModule>(reverbModule));
 			if (!loopedAudioModule->UseNonLoopedAudioData(audioData, i, error))

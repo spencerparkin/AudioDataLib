@@ -17,8 +17,14 @@ SampleBasedSynth::SampleBasedSynth()
 	this->soundFontMap = new SoundFontMap();
 	this->channelMap = new ChannelMap();
 	this->noteMap = new NoteMap();
-	this->mixerModuleLeftEar = new MixerModule();
-	this->mixerModuleRightEar = new MixerModule();
+	this->leftEarRootModule = new std::shared_ptr<SynthModule>();
+	this->rightEarRootModule = new std::shared_ptr<SynthModule>();
+
+	this->leftEarRootModule->reset(new ReverbModule(0));
+	this->rightEarRootModule->reset(new ReverbModule(1));
+
+	(*this->leftEarRootModule)->AddDependentModule(std::shared_ptr<SynthModule>(new MixerModule()));
+	(*this->rightEarRootModule)->AddDependentModule(std::shared_ptr<SynthModule>(new MixerModule()));
 }
 
 /*virtual*/ SampleBasedSynth::~SampleBasedSynth()
@@ -28,14 +34,17 @@ SampleBasedSynth::SampleBasedSynth()
 	delete this->soundFontMap;
 	delete this->channelMap;
 	delete this->noteMap;
-	delete this->mixerModuleLeftEar;
-	delete this->mixerModuleRightEar;
+	delete this->leftEarRootModule;
+	delete this->rightEarRootModule;
 }
 
 /*virtual*/ bool SampleBasedSynth::Process(Error& error)
 {
-	this->mixerModuleLeftEar->PruneDeadBranches();
-	this->mixerModuleRightEar->PruneDeadBranches();
+	MixerModule* leftMixerModule = (*this->leftEarRootModule)->FindModule<MixerModule>();
+	leftMixerModule->PruneDeadBranches();
+
+	MixerModule* rightMixerModule = (*this->rightEarRootModule)->FindModule<MixerModule>();
+	rightMixerModule->PruneDeadBranches();
 
 	return MidiSynth::Process(error);
 }
@@ -105,33 +114,19 @@ SampleBasedSynth::SampleBasedSynth()
 
 			Note note;
 
-			// TODO: We are definitely not ready to turn reverb on yet.  I've been able to convert a WAV file from a regular sound
-			//       into one that has reverb (even if the reverb isn't great, it can still be recognized as such.)  However, when
-			//       I turn reverb on here, it doesn't sound right at all.  Maybe try unpacking the sound-font file and then apply
-			//       reverbe to the sample WAV files?  If those sound okay when reverb is applied, then the question is, why doesn't
-			//       it sound okay here?
-			
-			// UPDATE: So I got a better result by restricting my output to mono and then just playing one note at a time (no two or
-			//         more playing at the same time.)  It seems that whenever there is more than one reverb module at play, the result
-			//         is really bad.  Maybe because combs from seperate reverbs are aligning on frequency boundaries or something like
-			//         that.  Anyhow, I got a better result, even if there was still (sadly) some artifacting, so maybe what I need to
-			//         do is make sure there is one and only one reverb module for everything, even across both ears, or maybe each
-			//         ear should get a reverb with delay times coprime with the delay times of the other reverb module.  In any case,
-			//         put the reverb module at the root before the mixer module, try mono, then try stereo, then try making sure the
-			//         reverbs across left and right have coprime delays.  Not yet sure how to solve the artifacting, but it seems to
-			//         be a symptom of short sound requests.  If the sound requests are in larger chunks (time-wise), I don't here any
-			//         artifacting.
-
-			if (!this->GenerateModuleGraph(audioSample, SoundFontData::LoopedAudioData::ChannelType::LEFT_EAR, false, noteFrequency, note.leftEarModule, error))
+			if (!this->GenerateModuleGraph(audioSample, SoundFontData::LoopedAudioData::ChannelType::LEFT_EAR, noteFrequency, note.leftEarModule, error))
 				return false;
 
-			if (!this->GenerateModuleGraph(audioSample, SoundFontData::LoopedAudioData::ChannelType::RIGHT_EAR, false, noteFrequency, note.rightEarModule, error))
+			if (!this->GenerateModuleGraph(audioSample, SoundFontData::LoopedAudioData::ChannelType::RIGHT_EAR, noteFrequency, note.rightEarModule, error))
 				return false;
 
 			this->noteMap->insert(std::pair<uint8_t, Note>(pitchValue, note));
 
-			mixerModuleLeftEar->AddDependentModule(note.leftEarModule);
-			mixerModuleRightEar->AddDependentModule(note.rightEarModule);
+			MixerModule* leftMixerModule = (*this->leftEarRootModule)->FindModule<MixerModule>();
+			leftMixerModule->AddDependentModule(note.leftEarModule);
+
+			MixerModule* rightMixerModule = (*this->rightEarRootModule)->FindModule<MixerModule>();
+			rightMixerModule->AddDependentModule(note.rightEarModule);
 
 			break;
 		}
@@ -173,8 +168,7 @@ SampleBasedSynth::SampleBasedSynth()
 bool SampleBasedSynth::GenerateModuleGraph(
 					const SoundFontData::AudioSample* audioSample,
 					SoundFontData::LoopedAudioData::ChannelType channelType,
-					bool reverb, double noteFrequency,
-					std::shared_ptr<SynthModule>& synthModule,
+					double noteFrequency, std::shared_ptr<SynthModule>& synthModule,
 					Error& error)
 {
 	const SoundFontData::LoopedAudioData* audioData = audioSample->FindLoopedAudioData(channelType);
@@ -200,15 +194,7 @@ bool SampleBasedSynth::GenerateModuleGraph(
 
 	auto attenuationModule = new AttenuationModule();
 	attenuationModule->AddDependentModule(std::shared_ptr<SynthModule>(pitchShiftModule));
-
-	if (!reverb)
-		synthModule.reset(attenuationModule);
-	else
-	{
-		auto reverbModule = new ReverbModule();
-		reverbModule->AddDependentModule(std::shared_ptr<SynthModule>(attenuationModule));
-		synthModule.reset(reverbModule);
-	}
+	synthModule.reset(attenuationModule);
 
 	return true;
 }
@@ -218,9 +204,9 @@ bool SampleBasedSynth::GenerateModuleGraph(
 	switch (channel)
 	{
 	case 0:
-		return this->mixerModuleLeftEar;
+		return this->leftEarRootModule->get();
 	case 1:
-		return this->mixerModuleRightEar;
+		return this->rightEarRootModule->get();
 	default:
 		return nullptr;
 	}

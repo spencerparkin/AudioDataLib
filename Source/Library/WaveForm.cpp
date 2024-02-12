@@ -312,6 +312,31 @@ void WaveForm::Copy(const WaveForm* waveForm)
 		this->sampleArray->push_back(sample);
 }
 
+void WaveForm::PadWithSilence(double desiredDurationSeconds, double sampleRate)
+{
+	if (this->GetTimespan() < desiredDurationSeconds)
+	{
+		while (this->GetTimespan() < desiredDurationSeconds)
+		{
+			Sample sample;
+			sample.amplitude = 0.0;
+
+			if (this->sampleArray->size() == 0)
+				sample.timeSeconds = 0.0;
+			else
+				sample.timeSeconds = (*this->sampleArray)[this->sampleArray->size() - 1].timeSeconds + 1.0 / sampleRate;
+
+			this->sampleArray->push_back(sample);
+		}
+
+		if (this->GetTimespan() > desiredDurationSeconds && this->sampleArray->size() > 0)
+		{
+			Sample& sample = (*this->sampleArray)[this->sampleArray->size() - 1];
+			sample.timeSeconds -= this->GetTimespan() - desiredDurationSeconds;
+		}
+	}
+}
+
 bool WaveForm::Trim(double startTimeSeconds, double stopTimeSeconds, bool rebaseTime, Error& error)
 {
 	if (this->sampleArray->size() == 0)
