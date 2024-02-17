@@ -52,7 +52,13 @@ ReverbModule::ReverbModule(uint8_t variation)
 	SynthModule* dependentModule = (*this->dependentModulesArray)[0].get();
 
 	if (!this->enabled)
-		return dependentModule->GenerateSound(durationSeconds, samplesPerSecond, waveForm, error);
+	{
+		if (!dependentModule->GenerateSound(durationSeconds, samplesPerSecond, waveForm, error))
+			return false;
+
+		this->moreSoundAvailable = dependentModule->MoreSoundAvailable();
+		return true;
+	}
 
 	WaveForm originalWaveForm;
 	if (!dependentModule->GenerateSound(durationSeconds, samplesPerSecond, originalWaveForm, error))

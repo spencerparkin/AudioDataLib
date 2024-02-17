@@ -240,6 +240,7 @@ bool AddReverb(const std::string& inFilePath, const std::string& outFilePath, Au
 	{
 		auto loopedAudioModule = new LoopedAudioModule();
 		auto reverbModule = new ReverbModule(0);
+		reverbModule->SetEnabled(true);
 		reverbModule->AddDependentModule(std::shared_ptr<SynthModule>(loopedAudioModule));
 		synthModuleArray.push_back(std::shared_ptr<SynthModule>(reverbModule));
 		if (!loopedAudioModule->UseNonLoopedAudioData(audioData.get(), i, error))
@@ -284,12 +285,14 @@ bool AddReverb(const std::string& inFilePath, const std::string& outFilePath, Au
 		
 		if (!error)
 			reverbStream->WriteBytesToStream(reverbAudioBuffer, reverbAudioBufferSize);
-
-		delete[] reverbAudioBuffer;
-
-		if (error)
-			return false;
+		else
+			break;
 	}
+
+	delete[] reverbAudioBuffer;
+
+	if (error)
+		return false;
 
 	std::shared_ptr<AudioData> reverbAudioData(new AudioData());
 	reverbAudioData->SetFormat(audioData->GetFormat());
