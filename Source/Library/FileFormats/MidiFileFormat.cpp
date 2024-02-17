@@ -110,10 +110,11 @@ MidiFileFormat::MidiFileFormat()
 			break;
 
 		success = true;
-		fileData = midiData;
 	} while (false);
 
-	if (!success)
+	if(success)
+		fileData = midiData;
+	else
 		delete midiData;
 
 	return success;

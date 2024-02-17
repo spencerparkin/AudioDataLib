@@ -151,9 +151,9 @@ const SoundFontData::AudioSample* SoundFontData::FindRelevantAudioSample(uint16_
 SoundFontData::LoopedAudioData* SoundFontData::FindLoopedAudioData(uint32_t sampleID)
 {
 	for (AudioSample* audioSample : *this->audioSampleArray)
-		for (LoopedAudioData* audioData : audioSample->GeLoopedAudioDataArray())
+		for (std::shared_ptr<LoopedAudioData>& audioData : audioSample->GeLoopedAudioDataArray())
 			if (audioData->GetSampleID() == sampleID)
-				return audioData;
+				return audioData.get();
 
 	return nullptr;
 }
@@ -266,7 +266,7 @@ bool SoundFontData::LoopedAudioData::Location::Contains(uint16_t key, uint16_t v
 
 SoundFontData::AudioSample::AudioSample()
 {
-	this->loopedAudioDataArray = new std::vector<LoopedAudioData*>();
+	this->loopedAudioDataArray = new std::vector<std::shared_ptr<LoopedAudioData>>();
 }
 
 /*virtual*/ SoundFontData::AudioSample::~AudioSample()
@@ -278,9 +278,6 @@ SoundFontData::AudioSample::AudioSample()
 
 void SoundFontData::AudioSample::Clear()
 {
-	for (LoopedAudioData* audioData : *this->loopedAudioDataArray)
-		delete audioData;
-
 	this->loopedAudioDataArray->clear();
 }
 
@@ -289,14 +286,19 @@ const SoundFontData::LoopedAudioData* SoundFontData::AudioSample::GetLoopedAudio
 	if (i >= this->GetNumLoopedAudioDatas())
 		return nullptr;
 
+	return (*this->loopedAudioDataArray)[i].get();
+}
+
+std::shared_ptr<SoundFontData::LoopedAudioData> SoundFontData::AudioSample::GetLoopedAudioData(uint32_t i)
+{
 	return (*this->loopedAudioDataArray)[i];
 }
 
 const SoundFontData::LoopedAudioData* SoundFontData::AudioSample::FindLoopedAudioData(LoopedAudioData::ChannelType channelType) const
 {
-	for (const LoopedAudioData* audioData : *this->loopedAudioDataArray)
+	for (const std::shared_ptr<LoopedAudioData>& audioData : *this->loopedAudioDataArray)
 		if (audioData->GetChannelType() == channelType)
-			return audioData;
+			return audioData.get();
 
 	return nullptr;
 }

@@ -22,7 +22,7 @@ namespace AudioDataLib
 		bool SetChannelInstrument(uint16_t channel, uint16_t instrument, Error& error);
 		bool GetChannelInstrument(uint16_t channel, uint16_t& instrument) const;
 
-		bool SetSoundFontData(uint16_t instrument, SoundFontData* soundFontData, bool estimateFrequencies, Error& error);
+		bool SetSoundFontData(uint16_t instrument, std::shared_ptr<SoundFontData>& soundFontData, bool estimateFrequencies, Error& error);
 		SoundFontData* GetSoundFontData(uint16_t instrument);
 
 		void Clear();

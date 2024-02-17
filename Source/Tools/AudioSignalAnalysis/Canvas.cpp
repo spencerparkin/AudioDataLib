@@ -106,7 +106,7 @@ void Canvas::OnPaint(wxPaintEvent& event)
 
 	glEnd();
 
-	for (const Audio* audio : wxGetApp().GetAudioArray())
+	for (const auto& audio : wxGetApp().GetAudioArray())
 		if ((audio->GetFlags() & AUDIO_FLAG_VISIBLE) != 0)
 			audio->Render();
 

@@ -101,7 +101,7 @@ void Frame::OnGenerateFrequencyGraph(wxCommandEvent& event)
 	FrequencyGraphAudio* frequencyAudio = new FrequencyGraphAudio();
 	frequencyAudio->SetFrequencyGraph(frequencyGraph);
 	frequencyAudio->SetName("Freq. Graph of " + audio->GetName());
-	wxGetApp().AddAudio(frequencyAudio);
+	wxGetApp().AddAudio(std::shared_ptr<Audio>(frequencyAudio));
 
 	FrequencyGraph* smootherFreqGraph = new FrequencyGraph();
 	frequencyGraph->GenerateSmootherGraph(*smootherFreqGraph, 5.0);
@@ -109,7 +109,7 @@ void Frame::OnGenerateFrequencyGraph(wxCommandEvent& event)
 	frequencyAudio = new FrequencyGraphAudio();
 	frequencyAudio->SetFrequencyGraph(smootherFreqGraph);
 	frequencyAudio->SetName("Smooth Freq. Graph of " + audio->GetName());
-	wxGetApp().AddAudio(frequencyAudio);
+	wxGetApp().AddAudio(std::shared_ptr<Audio>(frequencyAudio));
 
 	this->Refresh();
 	this->audioList->Update();
@@ -126,8 +126,8 @@ void Frame::OnImportAudio(wxCommandEvent& event)
 
 	for (const wxString& audioFile : audioFileArray)
 	{
-		FileFormat* fileFormat = FileFormat::CreateForFile((const char*)audioFile.c_str());
-		if (!fileFormat)
+		std::shared_ptr<FileFormat> fileFormat = FileFormat::CreateForFile((const char*)audioFile.c_str());
+		if (!fileFormat.get())
 			continue;
 
 		FileInputStream inputStream(audioFile.c_str());
@@ -139,42 +139,37 @@ void Frame::OnImportAudio(wxCommandEvent& event)
 				wxMessageBox(error.GetErrorMessage(), "Error!", wxICON_ERROR | wxOK, this);
 			else
 			{
-				auto audioData = dynamic_cast<AudioData*>(fileData);
-				auto soundFontData = dynamic_cast<SoundFontData*>(fileData);
+				std::shared_ptr<AudioData> audioData(dynamic_cast<AudioData*>(fileData));
+				std::shared_ptr<SoundFontData> soundFontData(dynamic_cast<SoundFontData*>(fileData));
 
-				if (audioData)
+				if (audioData.get())
 				{
 					WaveFormAudio* audio = new WaveFormAudio();
 					audio->SetAudioData(audioData);
 					audio->SetName(wxFileName(audioFile).GetName());
-					wxGetApp().AddAudio(audio);
+					wxGetApp().AddAudio(std::shared_ptr<Audio>(audio));
 				}
-				else if (soundFontData)
+				else if (soundFontData.get())
 				{
 					for (uint32_t i = 0; i < soundFontData->GetNumAudioSamples(); i++)
 					{
-						const SoundFontData::AudioSample* audioSample = soundFontData->GetAudioSample(i);
+						SoundFontData::AudioSample* audioSample = const_cast<SoundFontData::AudioSample*>(soundFontData->GetAudioSample(i));
 						for (uint32_t j = 0; j < audioSample->GetNumLoopedAudioDatas(); j++)
 						{
-							const SoundFontData::LoopedAudioData* audioData = audioSample->GetLoopedAudioData(j);
+							std::shared_ptr<SoundFontData::LoopedAudioData> audioData = audioSample->GetLoopedAudioData(j);
 							WaveFormAudio* audio = new WaveFormAudio();
-							audio->SetAudioData(dynamic_cast<AudioData*>(audioData->Clone()));
+							audio->SetAudioData(std::shared_ptr<AudioData>(dynamic_cast<AudioData*>(audioData->Clone())));	// Can't see a way around having to do a clone here.
 							audio->SetName(wxFileName(audioFile).GetName() + wxString::Format("_%d_%s", i, audioData->GetName().c_str()));
-							wxGetApp().AddAudio(audio);
+							wxGetApp().AddAudio(std::shared_ptr<Audio>(audio));
 						}
 					}
-
-					delete soundFontData;
 				}
 				else
 				{
 					wxMessageBox("Could not use data from file: " + audioFile, "Error!", wxICON_ERROR | wxOK, this);
-					delete fileData;
 				}
 			}
 		}
-
-		delete fileFormat;
 	}
 
 	this->canvas->FitContent();
@@ -202,8 +197,8 @@ void Frame::OnMakeSound(wxCommandEvent& event)
 	if (wxID_OK != numberDialogB.ShowModal())
 		return;
 
-	WaveFormAudio* audio = new WaveFormAudio();
-	WaveForm* waveForm = new WaveForm();
+	std::shared_ptr<WaveFormAudio> audio(new WaveFormAudio());
+	std::shared_ptr<WaveForm> waveForm(new WaveForm());
 
 	uint32_t numSamples = 16384;
 	double frequencyAHz = double(numberDialogA.GetValue());
@@ -226,7 +221,7 @@ void Frame::OnMakeSound(wxCommandEvent& event)
 
 	audio->SetWaveForm(waveForm);
 	audio->SetFlags(audio->GetFlags() | AUDIO_FLAG_VISIBLE);
-	wxGetApp().AddAudio(audio);
+	wxGetApp().AddAudio(std::shared_ptr<Audio>(audio));
 	this->Refresh();
 	this->audioList->Update();
 }

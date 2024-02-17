@@ -32,13 +32,10 @@ App::App()
 
 void App::Clear()
 {
-	for (Audio* audio : this->audioArray)
-		delete audio;
-
 	this->audioArray.clear();
 }
 
-void App::AddAudio(Audio* audio)
+void App::AddAudio(std::shared_ptr<Audio>& audio)
 {
 	this->audioArray.push_back(audio);
 }
@@ -46,9 +43,9 @@ void App::AddAudio(Audio* audio)
 bool App::GetFlaggedAudio(std::vector<Audio*>& foundAudioArray, uint32_t flag)
 {
 	foundAudioArray.clear();
-	for (Audio* audio : this->audioArray)
+	for (auto& audio : this->audioArray)
 		if ((audio->GetFlags() & flag) != 0)
-			foundAudioArray.push_back(audio);
+			foundAudioArray.push_back(audio.get());
 
 	return foundAudioArray.size() > 0;
 }

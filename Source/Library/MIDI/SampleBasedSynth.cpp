@@ -256,7 +256,7 @@ bool SampleBasedSynth::GenerateModuleGraph(
 	return true;
 }
 
-bool SampleBasedSynth::SetSoundFontData(uint16_t instrument, SoundFontData* soundFontData, bool estimateFrequencies, Error& error)
+bool SampleBasedSynth::SetSoundFontData(uint16_t instrument, std::shared_ptr<SoundFontData>& soundFontData, bool estimateFrequencies, Error& error)
 {
 	if (!(1 <= instrument && instrument <= 128))
 	{

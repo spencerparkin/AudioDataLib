@@ -20,14 +20,10 @@ Audio::Audio()
 
 WaveFormAudio::WaveFormAudio()
 {
-	this->audioData = nullptr;
-	this->waveForm = nullptr;
 }
 
 /*virtual*/ WaveFormAudio::~WaveFormAudio()
 {
-	delete this->audioData;
-	delete this->waveForm;
 }
 
 /*virtual*/ void WaveFormAudio::Render() const
@@ -82,19 +78,13 @@ WaveFormAudio::WaveFormAudio()
 	return "?";
 }
 
-void WaveFormAudio::SetAudioData(AudioDataLib::AudioData* audioData)
+void WaveFormAudio::SetAudioData(std::shared_ptr<AudioDataLib::AudioData>& audioData)
 {
-	if (this->audioData)
-		delete this->audioData;
-
 	this->audioData = audioData;
 }
 
-void WaveFormAudio::SetWaveForm(AudioDataLib::WaveForm* waveForm)
+void WaveFormAudio::SetWaveForm(std::shared_ptr<AudioDataLib::WaveForm>& waveForm)
 {
-	if (this->waveForm)
-		delete this->waveForm;
-	
 	this->waveForm = waveForm;
 }
 
@@ -103,11 +93,11 @@ const AudioDataLib::WaveForm* WaveFormAudio::GetWaveForm() const
 	if (!this->waveForm && this->audioData)
 	{
 		Error error;
-		this->waveForm = new WaveForm();
+		this->waveForm.reset(new WaveForm());
 		this->waveForm->ConvertFromAudioBuffer(this->audioData->GetFormat(), this->audioData->GetAudioBuffer(), this->audioData->GetAudioBufferSize(), 0, error);
 	}
 
-	return this->waveForm;
+	return this->waveForm.get();
 }
 
 //--------------------------------- FrequencyGraphAudio ---------------------------------

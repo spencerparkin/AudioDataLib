@@ -136,10 +136,11 @@ namespace AudioDataLib
 
 			uint32_t GetNumLoopedAudioDatas() const { return this->loopedAudioDataArray->size(); }
 			const LoopedAudioData* GetLoopedAudioData(uint32_t i) const;
+			std::shared_ptr<LoopedAudioData> GetLoopedAudioData(uint32_t i);
 
 			const LoopedAudioData* FindLoopedAudioData(LoopedAudioData::ChannelType channelType) const;
 
-			std::vector<LoopedAudioData*>& GeLoopedAudioDataArray() { return *this->loopedAudioDataArray; }
+			std::vector<std::shared_ptr<LoopedAudioData>>& GeLoopedAudioDataArray() { return *this->loopedAudioDataArray; }
 
 		protected:
 
@@ -148,7 +149,7 @@ namespace AudioDataLib
 			// might have its own sample-rate and looping characteristics.  Also,
 			// I'm not yet taking pan into account yet, but keeping it separate would
 			// be in preparation for that.
-			std::vector<LoopedAudioData*>* loopedAudioDataArray;
+			std::vector<std::shared_ptr<LoopedAudioData>>* loopedAudioDataArray;
 		};
 
 		const GeneralInfo& GetGeneralInfo() const { return *this->generalInfo; }

@@ -15,8 +15,6 @@ WaveFileFormat::WaveFileFormat()
 
 /*virtual*/ bool WaveFileFormat::ReadFromStream(ByteStream& inputStream, FileData*& fileData, Error& error)
 {
-	fileData = nullptr;
-
 	WaveChunkParser parser;
 	if (!parser.ParseStream(inputStream, error))
 		return false;

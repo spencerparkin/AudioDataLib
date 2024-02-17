@@ -34,7 +34,7 @@ void AudioListControl::Update()
 
 void AudioListControl::OnItemSelected(wxListEvent& event)
 {
-	for (Audio* audio : wxGetApp().GetAudioArray())
+	for (auto& audio : wxGetApp().GetAudioArray())
 		audio->SetFlags(audio->GetFlags() & ~AUDIO_FLAG_SELECTED);
 
 	Audio* selectedAudio = this->GetAudio(event);
@@ -66,9 +66,9 @@ const Audio* AudioListControl::GetAudio(wxListEvent& event) const
 
 const Audio* AudioListControl::GetAudio(long item) const
 {
-	const std::vector<Audio*>& audioArray = wxGetApp().GetAudioArray();
+	const std::vector<std::shared_ptr<Audio>>& audioArray = wxGetApp().GetAudioArray();
 	if (0 <= item && item <= (signed)audioArray.size())
-		return audioArray[item];
+		return audioArray[item].get();
 
 	return nullptr;
 }
@@ -79,9 +79,9 @@ Audio* AudioListControl::GetAudio(wxListEvent& event)
 	// It is not clear to me at all how to get the application's data from the item without this search.
 	// You can cast the "event.GetItem()" call to a long integer in some cases, but not all.
 	// Also, *when* do you assign user-data to a list-item when using the list control in virtual mode?
-	for (Audio* audio : wxGetApp().GetAudioArray())
+	for (auto& audio : wxGetApp().GetAudioArray())
 		if (event.GetItem().GetText() == audio->GetColumnInfo(AUDIO_LIST_COLUMN_NAME))
-			return audio;
+			return audio.get();
 
 	return nullptr;
 }

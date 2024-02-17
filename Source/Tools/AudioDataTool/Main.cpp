@@ -114,8 +114,8 @@ int main(int argc, char** argv)
 	if (parser.ArgGiven("play"))
 	{
 		const std::string& filePath = parser.GetArgValue("play", 0);
-		FileFormat* fileFormat = FileFormat::CreateForFile(filePath);
-		if (!fileFormat)
+		std::shared_ptr<FileFormat> fileFormat = FileFormat::CreateForFile(filePath);
+		if (!fileFormat.get())
 		{
 			fprintf(stderr, "File format for file \"%s\" not recognized.\n", filePath.c_str());
 			return -1;
@@ -125,7 +125,6 @@ int main(int argc, char** argv)
 		if (!inputStream.IsOpen())
 		{
 			fprintf(stderr, "Could not open file: %s\n", filePath.c_str());
-			delete fileFormat;
 			return -1;
 		}
 
@@ -134,36 +133,34 @@ int main(int argc, char** argv)
 		if (!fileFormat->ReadFromStream(inputStream, fileData, error))
 		{
 			fprintf(stderr, ("Error: " + error.GetErrorMessage()).c_str());
-			delete fileFormat;
 			return -1;
 		}
 
 		int retCode = 0;
 
-		auto midiData = dynamic_cast<MidiData*>(fileData);
-		auto audioData = dynamic_cast<AudioData*>(fileData);
+		std::shared_ptr<MidiData> midiData(dynamic_cast<MidiData*>(fileData));
+		std::shared_ptr<AudioData> audioData(dynamic_cast<AudioData*>(fileData));
 
-		if (midiData)
+		if (midiData.get())
 		{
-			if (!PlayMidiData(midiData, error))
+			if (!PlayMidiData(midiData.get(), error))
 				retCode = -1;
 		}
-		else if (audioData)
+		else if (audioData.get())
 		{
-			if (!PlayAudioData(audioData, parser, error))
+			if (!PlayAudioData(audioData.get(), parser, error))
 				retCode = -1;
 		}
 		else
 		{
 			error.Add("Failed to cast file data!");
+			delete fileData;
 			retCode = -1;
 		}
 
 		if (error)
 			fprintf(stderr, "Error: %s\n", error.GetErrorMessage().c_str());
 
-		delete fileData;
-		delete fileFormat;
 		return retCode;
 	}
 	
@@ -202,136 +199,117 @@ int main(int argc, char** argv)
 
 bool AddReverb(const std::string& inFilePath, const std::string& outFilePath, AudioDataLib::Error& error)
 {
-	bool success = false;
-	FileFormat* fileFormat = nullptr;
-	FileData* fileData = nullptr;
-	uint8_t* reverbAudioBuffer = nullptr;
-
-	do
+	std::shared_ptr<FileFormat> fileFormat = FileFormat::CreateForFile(inFilePath);
+	if (!fileFormat)
 	{
-		fileFormat = FileFormat::CreateForFile(inFilePath);
-		if (!fileFormat)
+		error.Add("Could not recognize file: " + inFilePath);
+		return false;
+	}
+
+	FileInputStream inputStream(inFilePath.c_str());
+	if (!inputStream.IsOpen())
+	{
+		error.Add("Failed to open file: " + inFilePath);
+		return false;
+	}
+
+	FileData* fileData = nullptr;
+	if (!fileFormat->ReadFromStream(inputStream, fileData, error))
+	{
+		error.Add("Failed to read file: " + inFilePath);
+		return false;
+	}
+
+	std::shared_ptr<AudioData> audioData(dynamic_cast<AudioData*>(fileData));
+	if (!audioData.get())
+	{
+		error.Add("Expected to get audio data from file (" + inFilePath + "), but didn't");
+		delete fileData;
+		return false;
+	}
+
+	if (audioData->GetFormat().numChannels == 0)
+	{
+		error.Add("No channels!");
+		return false;
+	}
+
+	// TODO: I'm pretty sure this will NOT sound correct for anything other than mono based on my expiraments to-date.
+	std::vector<std::shared_ptr<SynthModule>> synthModuleArray;
+	for (uint16_t i = 0; i < audioData->GetFormat().numChannels; i++)
+	{
+		auto loopedAudioModule = new LoopedAudioModule();
+		auto reverbModule = new ReverbModule(0);
+		reverbModule->AddDependentModule(std::shared_ptr<SynthModule>(loopedAudioModule));
+		synthModuleArray.push_back(std::shared_ptr<SynthModule>(reverbModule));
+		if (!loopedAudioModule->UseNonLoopedAudioData(audioData.get(), i, error))
+			return false;
+	}
+
+	std::shared_ptr<AudioStream> reverbStream(new AudioStream());
+	reverbStream->SetFormat(audioData->GetFormat());
+
+	// TODO: When I shrink this time window to 0.005, I get some audible artifacting.  Why?
+	double timeChunkSeconds = 0.5;
+	uint64_t reverbAudioBufferSize = audioData->GetFormat().BytesFromSeconds(timeChunkSeconds);
+	uint8_t* reverbAudioBuffer = new uint8_t[reverbAudioBufferSize];
+	::memset(reverbAudioBuffer, 0, reverbAudioBufferSize);
+
+	while (true)
+	{
+		bool moreSoundAvailable = false;
+		for (std::shared_ptr<SynthModule>& synthModule : synthModuleArray)
 		{
-			error.Add("Could not recognize file: " + inFilePath);
-			break;
+			if (synthModule->MoreSoundAvailable())
+			{
+				moreSoundAvailable = true;
+				break;
+			}
 		}
 
-		FileInputStream inputStream(inFilePath.c_str());
-		if (!inputStream.IsOpen())
-		{
-			error.Add("Failed to open file: " + inFilePath);
+		if (!moreSoundAvailable)
 			break;
-		}
 
-		if (!fileFormat->ReadFromStream(inputStream, fileData, error))
-		{
-			error.Add("Failed to read file: " + inFilePath);
-			break;
-		}
-
-		auto audioData = dynamic_cast<AudioData*>(fileData);
-		if (!audioData)
-		{
-			error.Add("Expected to get audio data from file (" + inFilePath + "), but didn't");
-			break;
-		}
-
-		if (audioData->GetFormat().numChannels == 0)
-		{
-			error.Add("No channels!");
-			break;
-		}
-
-		// TODO: I'm pretty sure this will NOT sound correct for anything other than mono based on my expiraments to-date.
-		std::vector<std::shared_ptr<SynthModule>> synthModuleArray;
 		for (uint16_t i = 0; i < audioData->GetFormat().numChannels; i++)
 		{
-			auto loopedAudioModule = new LoopedAudioModule();
-			auto reverbModule = new ReverbModule(0);
-			reverbModule->AddDependentModule(std::shared_ptr<SynthModule>(loopedAudioModule));
-			synthModuleArray.push_back(std::shared_ptr<SynthModule>(reverbModule));
-			if (!loopedAudioModule->UseNonLoopedAudioData(audioData, i, error))
+			SynthModule* synthModule = synthModuleArray[i].get();
+
+			WaveForm waveForm;
+			if (!synthModule->GenerateSound(timeChunkSeconds, audioData->GetFormat().framesPerSecond, waveForm, error))
+				break;
+
+			if (!waveForm.ConvertToAudioBuffer(audioData->GetFormat(), reverbAudioBuffer, reverbAudioBufferSize, i, error))
 				break;
 		}
-
-		if (error)
-			break;
-
-		std::shared_ptr<AudioStream> reverbStream(new AudioStream());
-		reverbStream->SetFormat(audioData->GetFormat());
-
-		// TODO: When I shrink this time window to 0.005, I get some audible artifacting.  Why?
-		double timeChunkSeconds = 0.5;
-		uint64_t reverbAudioBufferSize = audioData->GetFormat().BytesFromSeconds(timeChunkSeconds);
-		reverbAudioBuffer = new uint8_t[reverbAudioBufferSize];
-		::memset(reverbAudioBuffer, 0, reverbAudioBufferSize);
-
-		while (true)
-		{
-			bool moreSoundAvailable = false;
-			for (std::shared_ptr<SynthModule>& synthModule : synthModuleArray)
-			{
-				if (synthModule->MoreSoundAvailable())
-				{
-					moreSoundAvailable = true;
-					break;
-				}
-			}
-
-			if (!moreSoundAvailable)
-				break;
-
-			for (uint16_t i = 0; i < audioData->GetFormat().numChannels; i++)
-			{
-				SynthModule* synthModule = synthModuleArray[i].get();
-
-				WaveForm waveForm;
-				if (!synthModule->GenerateSound(timeChunkSeconds, audioData->GetFormat().framesPerSecond, waveForm, error))
-					break;
-
-				if (!waveForm.ConvertToAudioBuffer(audioData->GetFormat(), reverbAudioBuffer, reverbAudioBufferSize, i, error))
-					break;
-			}
-
-			if (error)
-				break;
-
+		
+		if (!error)
 			reverbStream->WriteBytesToStream(reverbAudioBuffer, reverbAudioBufferSize);
-		}
+
+		delete[] reverbAudioBuffer;
 
 		if (error)
-			break;
+			return false;
+	}
 
-		std::shared_ptr<AudioData> reverbAudioData(new AudioData());
-		reverbAudioData->SetFormat(audioData->GetFormat());
-		reverbAudioData->SetAudioBufferSize(reverbStream->GetSize());
-		reverbStream->ReadBytesFromStream(reverbAudioData->GetAudioBuffer(), reverbStream->GetSize());
+	std::shared_ptr<AudioData> reverbAudioData(new AudioData());
+	reverbAudioData->SetFormat(audioData->GetFormat());
+	reverbAudioData->SetAudioBufferSize(reverbStream->GetSize());
+	reverbStream->ReadBytesFromStream(reverbAudioData->GetAudioBuffer(), reverbStream->GetSize());
 
-		FileOutputStream outputStream(outFilePath.c_str());
-		if (!outputStream.IsOpen())
-		{
-			error.Add("Failed to open file: " + outFilePath);
-			break;
-		}
+	FileOutputStream outputStream(outFilePath.c_str());
+	if (!outputStream.IsOpen())
+	{
+		error.Add("Failed to open file: " + outFilePath);
+		return false;
+	}
 
-		if (!fileFormat->WriteToStream(outputStream, reverbAudioData.get(), error))
-		{
-			error.Add("Failed to write file: " + outFilePath);
-			break;
-		}
+	if (!fileFormat->WriteToStream(outputStream, reverbAudioData.get(), error))
+	{
+		error.Add("Failed to write file: " + outFilePath);
+		return false;
+	}
 
-		success = true;
-	} while (false);
-
-	if (fileFormat)
-		FileFormat::Destroy(fileFormat);
-
-	if (fileData)
-		delete fileData;
-
-	delete[] reverbAudioBuffer;
-
-	return success;
+	return true;
 }
 
 bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
@@ -450,7 +428,7 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 						break;
 					}
 
-					SoundFontData* soundFontData = dynamic_cast<SoundFontData*>(fileData);
+					std::shared_ptr<SoundFontData> soundFontData(dynamic_cast<SoundFontData*>(fileData));
 					if (!soundFontData)
 					{
 						error.Add("Expected sound font data; got something else!");
@@ -732,263 +710,225 @@ bool PlayAudioData(AudioDataLib::AudioData* audioData, CmdLineParser& parser, Au
 
 bool MixAudio(const std::vector<std::string>& sourceFileArray, const std::string& destinationFile, AudioDataLib::Error& error)
 {
-	bool success = false;
+	std::vector<std::shared_ptr<FileFormat>> fileFormatArray;
+	std::vector<std::shared_ptr<AudioData>> audioDataArray;
 
-	std::vector<FileFormat*> fileFormatArray;
-	std::vector<FileData*> fileDataArray;
-
-	FileFormat* fileFormatOut = nullptr;
-
-	do
+	for (const std::string& sourceFile : sourceFileArray)
 	{
-		for (const std::string& sourceFile : sourceFileArray)
+		std::shared_ptr<FileFormat> fileFormat = FileFormat::CreateForFile(sourceFile);
+		if (!fileFormat.get())
 		{
-			FileFormat* fileFormat = FileFormat::CreateForFile(sourceFile);
-			if (!fileFormat)
-			{
-				error.Add("Did not recognize file type for file: " + sourceFile);
-				break;
-			}
-
-			fileFormatArray.push_back(fileFormat);
+			error.Add("Did not recognize file type for file: " + sourceFile);
+			return false;
 		}
 
-		if (fileFormatArray.size() != sourceFileArray.size())
+		fileFormatArray.push_back(fileFormat);
+	}
+
+	if (fileFormatArray.size() != sourceFileArray.size())
+	{
+		error.Add("Could not recognize all source file type.");
+		return false;
+	}
+
+	for (int i = 0; i < (signed)sourceFileArray.size(); i++)
+	{
+		FileFormat* fileFormat = fileFormatArray[i].get();
+		const std::string& sourceFile = sourceFileArray[i];
+
+		FileInputStream inputStream(sourceFile.c_str());
+		if (!inputStream.IsOpen())
 		{
-			error.Add("Could not recognize all source file type.");
-			break;
+			error.Add(FormatString("Failed to open file %s for reading.", sourceFile.c_str()));
+			return false;
 		}
 
-		for (int i = 0; i < (signed)sourceFileArray.size(); i++)
+		FileData* fileData = nullptr;
+		if (!fileFormat->ReadFromStream(inputStream, fileData, error))
 		{
-			FileFormat* fileFormat = fileFormatArray[i];
-			const std::string& sourceFile = sourceFileArray[i];
-
-			FileInputStream inputStream(sourceFile.c_str());
-			if (!inputStream.IsOpen())
-			{
-				error.Add(FormatString("Failed to open file %s for reading.", sourceFile.c_str()));
-				break;
-			}
-
-			FileData* fileData = nullptr;
-			if (!fileFormat->ReadFromStream(inputStream, fileData, error))
-			{
-				error.Add("Failed to read file: " + sourceFile);
-				break;
-			}
-
-			fileDataArray.push_back(fileData);
-
-			if (!dynamic_cast<AudioData*>(fileData))
-			{
-				error.Add(FormatString("File data for file %s is not audio data.", sourceFile.c_str()));
-				break;
-			}
+			error.Add("Failed to read file: " + sourceFile);
+			return false;
 		}
 
-		if (fileDataArray.size() != sourceFileArray.size())
+		std::shared_ptr<AudioData> audioData(dynamic_cast<AudioData*>(fileData));
+		if (!audioData.get())
 		{
-			error.Add("Could not load all source files.");
-			break;
+			error.Add(FormatString("File data for file %s is not audio data.", sourceFile.c_str()));
+			delete fileData;
+			return false;
 		}
 
-		AudioSink audioSink(true, true);
+		audioDataArray.push_back(audioData);
+	}
 
-		AudioData::Format format;
-		format.bitsPerSample = 0;
+	if (audioDataArray.size() != sourceFileArray.size())
+	{
+		error.Add("Could not load all source files.");
+		return false;
+	}
 
-		double maxTimeSeconds = 0.0;
-		for (FileData* fileData : fileDataArray)
-		{
-			auto audioData = dynamic_cast<AudioData*>(fileData);
-			double timeSeconds = audioData->GetTimeSeconds();
-			if (maxTimeSeconds < timeSeconds)
-				maxTimeSeconds = timeSeconds;
+	AudioSink audioSink(true, true);
 
-			audioSink.AddAudioInput(new AudioStream(audioData));
+	AudioData::Format format;
+	format.bitsPerSample = 0;
 
-			if (format.bitsPerSample == 0)
-				format = audioData->GetFormat();
-		}
+	double maxTimeSeconds = 0.0;
+	for (std::shared_ptr<AudioData>& audioData : audioDataArray)
+	{
+		double timeSeconds = audioData->GetTimeSeconds();
+		if (maxTimeSeconds < timeSeconds)
+			maxTimeSeconds = timeSeconds;
 
-		auto audioStreamOut = new AudioStream();
-		audioStreamOut->SetFormat(format);
-		audioSink.SetAudioOutput(audioStreamOut);
-		audioSink.GenerateAudio(maxTimeSeconds, 0.0);
+		audioSink.AddAudioInput(new AudioStream(audioData.get()));
 
-		AudioData generatedAudioData;
-		generatedAudioData.GetFormat() = audioStreamOut->GetFormat();
-		generatedAudioData.SetAudioBufferSize(audioStreamOut->GetSize());
-		audioStreamOut->ReadBytesFromStream(generatedAudioData.GetAudioBuffer(), generatedAudioData.GetAudioBufferSize());
+		if (format.bitsPerSample == 0)
+			format = audioData->GetFormat();
+	}
 
-		fileFormatOut = FileFormat::CreateForFile(destinationFile);
-		if (!fileFormatOut)
-		{
-			error.Add("Could not recognize file type for file: " + destinationFile);
-			break;
-		}
+	auto audioStreamOut = new AudioStream();
+	audioStreamOut->SetFormat(format);
+	audioSink.SetAudioOutput(audioStreamOut);
+	audioSink.GenerateAudio(maxTimeSeconds, 0.0);
 
-		FileOutputStream outputStream(destinationFile.c_str());
-		if (!outputStream.IsOpen())
-		{
-			error.Add(FormatString("Could not open file %s for writing.", destinationFile.c_str()));
-			break;
-		}
+	AudioData generatedAudioData;
+	generatedAudioData.GetFormat() = audioStreamOut->GetFormat();
+	generatedAudioData.SetAudioBufferSize(audioStreamOut->GetSize());
+	audioStreamOut->ReadBytesFromStream(generatedAudioData.GetAudioBuffer(), generatedAudioData.GetAudioBufferSize());
 
-		if (!fileFormatOut->WriteToStream(outputStream, &generatedAudioData, error))
-		{
-			error.Add("Failed to write file: " + destinationFile);
-			break;
-		}
+	std::shared_ptr<FileFormat> fileFormatOut = FileFormat::CreateForFile(destinationFile);
+	if (!fileFormatOut.get())
+	{
+		error.Add("Could not recognize file type for file: " + destinationFile);
+		return false;
+	}
 
-		success = true;
-	} while (false);
+	FileOutputStream outputStream(destinationFile.c_str());
+	if (!outputStream.IsOpen())
+	{
+		error.Add(FormatString("Could not open file %s for writing.", destinationFile.c_str()));
+		return false;
+	}
 
-	for (FileFormat* fileFormat : fileFormatArray)
-		delete fileFormat;
+	if (!fileFormatOut->WriteToStream(outputStream, &generatedAudioData, error))
+	{
+		error.Add("Failed to write file: " + destinationFile);
+		return false;
+	}
 
-	for (FileData* fileData : fileDataArray)
-		delete fileData;
-
-	delete fileFormatOut;
-
-	return success;
+	return true;
 }
 
 bool DumpInfo(const std::string& filePath, bool csv, AudioDataLib::Error& error)
 {
 	bool success = false;
-	FileFormat* fileFormat = nullptr;
-	FileData* fileData = nullptr;
-
-	do
+	
+	FileInputStream inputStream(filePath.c_str());
+	if (!inputStream.IsOpen())
 	{
-		FileInputStream inputStream(filePath.c_str());
-		if (!inputStream.IsOpen())
-		{
-			error.Add("Failed to open file: " + filePath);
-			break;
-		}
+		error.Add("Failed to open file: " + filePath);
+		return false;
+	}
 
-		fileFormat = FileFormat::CreateForFile(filePath.c_str());
-		if (!fileFormat)
-		{
-			error.Add("Failed type not recognized for file: " + filePath);
-			break;
-		}
+	std::shared_ptr<FileFormat> fileFormat = FileFormat::CreateForFile(filePath.c_str());
+	if (!fileFormat.get())
+	{
+		error.Add("Failed type not recognized for file: " + filePath);
+		return false;
+	}
 
-		if (!fileFormat->ReadFromStream(inputStream, fileData, error))
-		{
-			error.Add("Failed to read file: " + filePath);
-			break;
-		}
+	FileData* fileData = nullptr;
+	if (!fileFormat->ReadFromStream(inputStream, fileData, error))
+	{
+		error.Add("Failed to read file: " + filePath);
+		return false;
+	}
 
-		if (csv)
-			fileData->DumpCSV(stdout);
-		else
-			fileData->DumpInfo(stdout);
+	if (csv)
+		fileData->DumpCSV(stdout);
+	else
+		fileData->DumpInfo(stdout);
 
-		success = true;
-	} while (false);
-
-	delete fileFormat;
 	delete fileData;
 
-	return success;
+	return true;
 }
 
 bool UnpackSoundFont(const std::string& filePath, AudioDataLib::Error& error)
 {
 	bool success = false;
-	FileFormat* fileFormat = nullptr;
-	FileData* fileData = nullptr;
-
-	do
+	
+	std::shared_ptr<FileFormat> fileFormat = FileFormat::CreateForFile(filePath);
+	if (!fileFormat)
 	{
-		fileFormat = FileFormat::CreateForFile(filePath);
-		if (!fileFormat)
-		{
-			error.Add("Could not recognize file type: " + filePath);
-			break;
-		}
+		error.Add("Could not recognize file type: " + filePath);
+		return false;
+	}
 
-		auto soundFontFormat = dynamic_cast<SoundFontFormat*>(fileFormat);
-		if (!soundFontFormat)
-		{
-			error.Add("Not given a sound-font file: " + filePath);
-			break;
-		}
+	auto soundFontFormat = dynamic_cast<SoundFontFormat*>(fileFormat.get());
+	if (!soundFontFormat)
+	{
+		error.Add("Not given a sound-font file: " + filePath);
+		return false;
+	}
 
-		FileInputStream inputStream(filePath.c_str());
-		if (!inputStream.IsOpen())
-		{
-			error.Add("Failed to open file: " + filePath);
-			break;
-		}
+	FileInputStream inputStream(filePath.c_str());
+	if (!inputStream.IsOpen())
+	{
+		error.Add("Failed to open file: " + filePath);
+		return false;
+	}
 
-		if (!soundFontFormat->ReadFromStream(inputStream, fileData, error))
-		{
-			error.Add("Failed to read file: " + filePath);
-			break;
-		}
+	FileData* fileData = nullptr;
+	if (!soundFontFormat->ReadFromStream(inputStream, fileData, error))
+	{
+		error.Add("Failed to read file: " + filePath);
+		return false;
+	}
 
-		auto soundFontData = dynamic_cast<SoundFontData*>(fileData);
-		if (!soundFontData)
-		{
-			error.Add("Didn't get sound font data!");
-			break;
-		}
+	std::shared_ptr<SoundFontData> soundFontData(dynamic_cast<SoundFontData*>(fileData));
+	if (!soundFontData.get())
+	{
+		error.Add("Didn't get sound font data!");
+		return false;
+	}
 
-		if (soundFontData->GetNumAudioSamples() == 0)
-		{
-			error.Add("No audio samples found in the sound font data!");
-			break;
-		}
+	if (soundFontData->GetNumAudioSamples() == 0)
+	{
+		error.Add("No audio samples found in the sound font data!");
+		return false;
+	}
 
-		WaveFileFormat waveFileFormat;
+	WaveFileFormat waveFileFormat;
 
-		for (uint32_t i = 0; i < soundFontData->GetNumAudioSamples(); i++)
-		{
-			const SoundFontData::AudioSample* audioSample = soundFontData->GetAudioSample(i);
+	for (uint32_t i = 0; i < soundFontData->GetNumAudioSamples(); i++)
+	{
+		const SoundFontData::AudioSample* audioSample = soundFontData->GetAudioSample(i);
 			
-			for (uint32_t j = 0; j < audioSample->GetNumLoopedAudioDatas(); j++)
+		for (uint32_t j = 0; j < audioSample->GetNumLoopedAudioDatas(); j++)
+		{
+			const SoundFontData::LoopedAudioData* audioData = audioSample->GetLoopedAudioData(j);
+
+			std::string sampleFilePath = (std::filesystem::path(filePath).parent_path() / std::filesystem::path(filePath).stem()).string();
+			sampleFilePath += "__" + audioData->GetName();
+			sampleFilePath += ".wav";
+
+			std::replace(sampleFilePath.begin(), sampleFilePath.end(), ' ', '_');
+			std::replace(sampleFilePath.begin(), sampleFilePath.end(), '|', '_');
+			std::replace(sampleFilePath.begin(), sampleFilePath.end(), '(', '_');
+			std::replace(sampleFilePath.begin(), sampleFilePath.end(), ')', '_');
+			std::replace(sampleFilePath.begin(), sampleFilePath.end(), '#', 's');
+
+			FileOutputStream outputStream(sampleFilePath.c_str());
+			if (!outputStream.IsOpen())
 			{
-				const SoundFontData::LoopedAudioData* audioData = audioSample->GetLoopedAudioData(j);
-
-				std::string sampleFilePath = (std::filesystem::path(filePath).parent_path() / std::filesystem::path(filePath).stem()).string();
-				sampleFilePath += "__" + audioData->GetName();
-				sampleFilePath += ".wav";
-
-				std::replace(sampleFilePath.begin(), sampleFilePath.end(), ' ', '_');
-				std::replace(sampleFilePath.begin(), sampleFilePath.end(), '|', '_');
-				std::replace(sampleFilePath.begin(), sampleFilePath.end(), '(', '_');
-				std::replace(sampleFilePath.begin(), sampleFilePath.end(), ')', '_');
-				std::replace(sampleFilePath.begin(), sampleFilePath.end(), '#', 's');
-
-				FileOutputStream outputStream(sampleFilePath.c_str());
-				if (!outputStream.IsOpen())
-				{
-					error.Add(FormatString("Failed to open file %s for writing.", sampleFilePath.c_str()));
-					break;
-				}
-
-				if (!waveFileFormat.WriteToStream(outputStream, audioData, error))
-					break;
+				error.Add(FormatString("Failed to open file %s for writing.", sampleFilePath.c_str()));
+				return false;
 			}
 
-			if (error)
-				break;
+			if (!waveFileFormat.WriteToStream(outputStream, audioData, error))
+				return false;
 		}
+	}
 
-		if (error)
-			break;
-
-		success = true;
-	} while (false);
-
-	delete fileFormat;
-	delete fileData;
-
-	return success;
+	return true;
 }
