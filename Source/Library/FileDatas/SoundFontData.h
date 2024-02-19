@@ -134,22 +134,22 @@ namespace AudioDataLib
 
 			void Clear();
 
-			uint32_t GetNumLoopedAudioDatas() const { return this->loopedAudioDataArray->size(); }
-			const LoopedAudioData* GetLoopedAudioData(uint32_t i) const;
-			std::shared_ptr<LoopedAudioData> GetLoopedAudioData(uint32_t i);
+			uint32_t GetNumAudioDatas() const { return this->audioDataArray->size(); }
+			const AudioData* GetAudioData(uint32_t i) const;
+			std::shared_ptr<AudioData> GetAudioData(uint32_t i);
 
 			const LoopedAudioData* FindLoopedAudioData(LoopedAudioData::ChannelType channelType) const;
 
-			std::vector<std::shared_ptr<LoopedAudioData>>& GeLoopedAudioDataArray() { return *this->loopedAudioDataArray; }
+			std::vector<std::shared_ptr<AudioData>>& GetAudioDataArray() { return *this->audioDataArray; }
 
 		protected:
 
 			// This is looped audio data, one for each channel.  The channels are
 			// kept separate up until the moment of synthesis, because each one
 			// might have its own sample-rate and looping characteristics.  Also,
-			// I'm not yet taking pan into account yet, but keeping it separate would
-			// be in preparation for that.
-			std::vector<std::shared_ptr<LoopedAudioData>>* loopedAudioDataArray;
+			// I'm not yet taking pan into account, but keeping it separate would
+			// be in preparation for that as well.
+			std::vector<std::shared_ptr<AudioData>>* audioDataArray;
 		};
 
 		const GeneralInfo& GetGeneralInfo() const { return *this->generalInfo; }

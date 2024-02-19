@@ -50,12 +50,12 @@ void SoundFontData::Clear()
 	for (const AudioSample* audioSample : *this->audioSampleArray)
 	{
 		fprintf(fp, "========================================\n");
-		fprintf(fp, "Channels: %d\n", audioSample->GetNumLoopedAudioDatas());
+		fprintf(fp, "Channels: %d\n", audioSample->GetNumAudioDatas());
 
-		for (uint32_t i = 0; i < audioSample->GetNumLoopedAudioDatas(); i++)
+		for (uint32_t i = 0; i < audioSample->GetNumAudioDatas(); i++)
 		{
 			fprintf(fp, "-----------------------\n");
-			const LoopedAudioData* audioData = audioSample->GetLoopedAudioData(i);
+			const AudioData* audioData = audioSample->GetAudioData(i);
 			audioData->DumpInfo(fp);
 		}
 	}
@@ -67,9 +67,12 @@ void SoundFontData::Clear()
 
 	for (const AudioSample* audioSample : *this->audioSampleArray)
 	{
-		for (uint32_t i = 0; i < audioSample->GetNumLoopedAudioDatas(); i++)
+		for (uint32_t i = 0; i < audioSample->GetNumAudioDatas(); i++)
 		{
-			const LoopedAudioData* audioData = audioSample->GetLoopedAudioData(i);
+			const LoopedAudioData* audioData = dynamic_cast<const LoopedAudioData*>(audioSample->GetAudioData(i));
+			if (!audioData)
+				continue;
+
 			const LoopedAudioData::MetaData& metaData = audioData->GetMetaData();
 			const LoopedAudioData::Location& location = audioData->GetLocation();
 			const LoopedAudioData::MidiKeyInfo& keyInfo = audioData->GetMidiKeyInfo();
@@ -107,9 +110,12 @@ const SoundFontData::AudioSample* SoundFontData::FindClosestAudioSample(double p
 	double smallestDistance = std::numeric_limits<double>::max();
 	for (const AudioSample* audioSample : *this->audioSampleArray)
 	{
-		for (uint32_t i = 0; i < audioSample->GetNumLoopedAudioDatas(); i++)
+		for (uint32_t i = 0; i < audioSample->GetNumAudioDatas(); i++)
 		{
-			const LoopedAudioData* audioData = audioSample->GetLoopedAudioData(i);
+			auto audioData = dynamic_cast<const LoopedAudioData*>(audioSample->GetAudioData(i));
+			if (!audioData)
+				continue;
+
 			const LoopedAudioData::MetaData& metaData = audioData->GetMetaData();
 
 			double deltaPitch = metaData.pitch - pitch;
@@ -134,14 +140,17 @@ const SoundFontData::AudioSample* SoundFontData::FindRelevantAudioSample(uint16_
 	{
 		uint32_t j = 0;
 
-		for (uint32_t i = 0; i < audioSample->GetNumLoopedAudioDatas(); i++)
+		for (uint32_t i = 0; i < audioSample->GetNumAudioDatas(); i++)
 		{
-			const LoopedAudioData* audioData = audioSample->GetLoopedAudioData(i);
+			auto audioData = dynamic_cast<const LoopedAudioData*>(audioSample->GetAudioData(i));
+			if (!audioData)
+				continue;
+
 			if (audioData->GetLocation().Contains(midiKey, midiVelocity))
 				j++;
 		}
 
-		if (j == audioSample->GetNumLoopedAudioDatas())
+		if (j == audioSample->GetNumAudioDatas())
 			return audioSample;
 	}
 
@@ -151,9 +160,16 @@ const SoundFontData::AudioSample* SoundFontData::FindRelevantAudioSample(uint16_
 SoundFontData::LoopedAudioData* SoundFontData::FindLoopedAudioData(uint32_t sampleID)
 {
 	for (AudioSample* audioSample : *this->audioSampleArray)
-		for (std::shared_ptr<LoopedAudioData>& audioData : audioSample->GeLoopedAudioDataArray())
-			if (audioData->GetSampleID() == sampleID)
-				return audioData.get();
+	{
+		for (std::shared_ptr<AudioData>& audioData : audioSample->GetAudioDataArray())
+		{
+			auto loopedAudioData = dynamic_cast<LoopedAudioData*>(audioData.get());
+			if (loopedAudioData && loopedAudioData->GetSampleID() == sampleID)
+			{
+				return loopedAudioData;
+			}
+		}
+	}
 
 	return nullptr;
 }
@@ -266,39 +282,42 @@ bool SoundFontData::LoopedAudioData::Location::Contains(uint16_t key, uint16_t v
 
 SoundFontData::AudioSample::AudioSample()
 {
-	this->loopedAudioDataArray = new std::vector<std::shared_ptr<LoopedAudioData>>();
+	this->audioDataArray = new std::vector<std::shared_ptr<AudioData>>();
 }
 
 /*virtual*/ SoundFontData::AudioSample::~AudioSample()
 {
 	this->Clear();
 
-	delete this->loopedAudioDataArray;
+	delete this->audioDataArray;
 }
 
 void SoundFontData::AudioSample::Clear()
 {
-	this->loopedAudioDataArray->clear();
+	this->audioDataArray->clear();
 }
 
-const SoundFontData::LoopedAudioData* SoundFontData::AudioSample::GetLoopedAudioData(uint32_t i) const
+const AudioData* SoundFontData::AudioSample::GetAudioData(uint32_t i) const
 {
-	if (i >= this->GetNumLoopedAudioDatas())
+	if (i >= this->GetNumAudioDatas())
 		return nullptr;
 
-	return (*this->loopedAudioDataArray)[i].get();
+	return (*this->audioDataArray)[i].get();
 }
 
-std::shared_ptr<SoundFontData::LoopedAudioData> SoundFontData::AudioSample::GetLoopedAudioData(uint32_t i)
+std::shared_ptr<AudioData> SoundFontData::AudioSample::GetAudioData(uint32_t i)
 {
-	return (*this->loopedAudioDataArray)[i];
+	return (*this->audioDataArray)[i];
 }
 
 const SoundFontData::LoopedAudioData* SoundFontData::AudioSample::FindLoopedAudioData(LoopedAudioData::ChannelType channelType) const
 {
-	for (const std::shared_ptr<LoopedAudioData>& audioData : *this->loopedAudioDataArray)
-		if (audioData->GetChannelType() == channelType)
-			return audioData.get();
+	for (const std::shared_ptr<AudioData>& audioData : *this->audioDataArray)
+	{
+		auto loopedAudioData = dynamic_cast<LoopedAudioData*>(audioData.get());
+		if (loopedAudioData->GetChannelType() == channelType)
+			return loopedAudioData;
+	}
 
 	return nullptr;
 }

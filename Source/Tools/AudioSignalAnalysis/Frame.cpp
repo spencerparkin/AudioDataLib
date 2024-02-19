@@ -154,12 +154,14 @@ void Frame::OnImportAudio(wxCommandEvent& event)
 					for (uint32_t i = 0; i < soundFontData->GetNumAudioSamples(); i++)
 					{
 						SoundFontData::AudioSample* audioSample = const_cast<SoundFontData::AudioSample*>(soundFontData->GetAudioSample(i));
-						for (uint32_t j = 0; j < audioSample->GetNumLoopedAudioDatas(); j++)
+						for (uint32_t j = 0; j < audioSample->GetNumAudioDatas(); j++)
 						{
-							std::shared_ptr<SoundFontData::LoopedAudioData> audioData = audioSample->GetLoopedAudioData(j);
+							std::shared_ptr<AudioData> audioData = audioSample->GetAudioData(j);
+							auto loopedAudioData = dynamic_cast<SoundFontData::LoopedAudioData*>(audioData.get());
+							std::string name = loopedAudioData ? loopedAudioData->GetName() : "";
 							WaveFormAudio* audio = new WaveFormAudio();
-							audio->SetAudioData(std::shared_ptr<AudioData>(dynamic_cast<AudioData*>(audioData->Clone())));	// Can't see a way around having to do a clone here.
-							audio->SetName(wxFileName(audioFile).GetName() + wxString::Format("_%d_%s", i, audioData->GetName().c_str()));
+							audio->SetAudioData(audioData);
+							audio->SetName(wxFileName(audioFile).GetName() + wxString::Format("_%d_%s", i, name.c_str()));
 							wxGetApp().AddAudio(std::shared_ptr<Audio>(audio));
 						}
 					}

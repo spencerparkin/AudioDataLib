@@ -222,9 +222,11 @@ bool SampleBasedSynth::GenerateModuleGraph(
 		{
 			const SoundFontData::AudioSample* audioSample = soundFontData->GetAudioSample(i);
 
-			for (uint32_t j = 0; j < audioSample->GetNumLoopedAudioDatas(); j++)
+			for (uint32_t j = 0; j < audioSample->GetNumAudioDatas(); j++)
 			{
-				const SoundFontData::LoopedAudioData* audioData = audioSample->GetLoopedAudioData(j);
+				auto audioData = dynamic_cast<const SoundFontData::LoopedAudioData*>(audioSample->GetAudioData(j));
+				if (!audioData)
+					continue;
 
 				if (this->estimateFrequencies)
 				{

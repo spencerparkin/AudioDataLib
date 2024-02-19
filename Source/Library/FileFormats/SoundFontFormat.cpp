@@ -316,7 +316,7 @@ SoundFontData::AudioSample* SoundFontFormat::ConstructAudioSample(
 		const SF_SampleHeader& header = audioSampleHeaderArray[i];
 
 		std::shared_ptr<SoundFontData::LoopedAudioData> loopedAudioData(new SoundFontData::LoopedAudioData());
-		audioSample->loopedAudioDataArray->push_back(loopedAudioData);
+		audioSample->audioDataArray->push_back(loopedAudioData);
 
 		loopedAudioData->SetSampleID(i);
 		loopedAudioData->SetName((const char*)header.sampleName);

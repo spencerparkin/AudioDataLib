@@ -907,9 +907,14 @@ bool UnpackSoundFont(const std::string& filePath, AudioDataLib::Error& error)
 	{
 		const SoundFontData::AudioSample* audioSample = soundFontData->GetAudioSample(i);
 			
-		for (uint32_t j = 0; j < audioSample->GetNumLoopedAudioDatas(); j++)
+		for (uint32_t j = 0; j < audioSample->GetNumAudioDatas(); j++)
 		{
-			const SoundFontData::LoopedAudioData* audioData = audioSample->GetLoopedAudioData(j);
+			auto audioData = dynamic_cast<const SoundFontData::LoopedAudioData*>(audioSample->GetAudioData(j));
+			if (!audioData)
+			{
+				error.Add(FormatString("Sample %d is not looped audio data.", i));
+				return false;
+			}
 
 			std::string sampleFilePath = (std::filesystem::path(filePath).parent_path() / std::filesystem::path(filePath).stem()).string();
 			sampleFilePath += "__" + audioData->GetName();
