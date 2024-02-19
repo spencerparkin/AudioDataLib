@@ -13,6 +13,8 @@ set(APP_SOURCES
     Frame.h
     Math2D.cpp
     Math2D.h
+    Color.cpp
+    Color.h
 )
 
 source_group("Sources" TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${APP_SOURCES})

@@ -143,7 +143,7 @@ void Canvas::OnMouseMotion(wxMouseEvent& event)
 	{
 		Vector2D mousePoint = this->MousePosToWorld(event.GetPosition());
 		wxStatusBar* statusBar = wxGetApp().GetFrame()->GetStatusBar();
-		statusBar->SetStatusText(wxString::Format("Mouse at (%1.3f, %1.3f)", mousePoint.x, mousePoint.y));
+		statusBar->SetStatusText(wxString::Format("Mouse at (%1.5f, %1.5f)", mousePoint.x, mousePoint.y));
 	}
 }
 

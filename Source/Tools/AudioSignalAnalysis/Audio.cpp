@@ -7,9 +7,26 @@ using namespace AudioDataLib;
 
 //--------------------------------- Audio ---------------------------------
 
+Color Audio::nextColor(1.0, 0.0, 0.0, 1.0);
+
 Audio::Audio()
 {
 	this->flags = 0;
+	this->color = nextColor;
+
+	nextColor.r += 0.31;
+	if (nextColor.r > 1.0)
+	{
+		nextColor.r -= 1.0;
+		nextColor.g += 0.79;
+		if (nextColor.g > 1.0)
+		{
+			nextColor.g -= 1.0;
+			nextColor.b += 0.47;
+			if (nextColor.b > 1.0)
+				nextColor.b -= 1.0;
+		}
+	}
 }
 
 /*virtual*/ Audio::~Audio()
@@ -31,7 +48,7 @@ WaveFormAudio::WaveFormAudio()
 	this->GetWaveForm();
 
 	glBegin(GL_LINE_STRIP);
-	glColor3f(1.0f, 0.0f, 0.0f);
+	glColor3d(this->color.r, this->color.g, this->color.b);
 
 	const std::vector<WaveForm::Sample>& sampleArray = this->waveForm->GetSampleArray();
 	for (const WaveForm::Sample& sample : sampleArray)
@@ -123,7 +140,7 @@ void FrequencyGraphAudio::SetFrequencyGraph(AudioDataLib::FrequencyGraph* freque
 /*virtual*/ void FrequencyGraphAudio::Render() const
 {
 	glBegin(GL_LINE_STRIP);
-	glColor3f(0.0f, 1.0f, 0.0f);
+	glColor3d(this->color.r, this->color.g, this->color.b);
 
 	const std::vector<FrequencyGraph::Plot>& plotArray = this->frequencyGraph->GetPlotArray();
 	for(const FrequencyGraph::Plot& plot : plotArray)

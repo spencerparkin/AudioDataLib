@@ -4,6 +4,7 @@
 #include "WaveForm.h"
 #include "FrequencyGraph.h"
 #include "Math2D.h"
+#include "Color.h"
 #include <wx/string.h>
 
 #define AUDIO_FLAG_SELECTED			0x00000001
@@ -28,6 +29,8 @@ public:
 protected:
 	uint32_t flags;
 	wxString name;
+	Color color;
+	static Color nextColor;
 };
 
 class WaveFormAudio : public Audio
