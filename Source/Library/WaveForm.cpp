@@ -312,8 +312,10 @@ void WaveForm::Copy(const WaveForm* waveForm)
 		this->sampleArray->push_back(sample);
 }
 
-void WaveForm::PadWithSilence(double desiredDurationSeconds, double sampleRate)
+uint64_t WaveForm::PadWithSilence(double desiredDurationSeconds, double sampleRate)
 {
+	uint64_t numSamplesAdded = 0;
+
 	if (this->GetTimespan() < desiredDurationSeconds)
 	{
 		while (this->GetTimespan() < desiredDurationSeconds)
@@ -327,6 +329,7 @@ void WaveForm::PadWithSilence(double desiredDurationSeconds, double sampleRate)
 				sample.timeSeconds = (*this->sampleArray)[this->sampleArray->size() - 1].timeSeconds + 1.0 / sampleRate;
 
 			this->sampleArray->push_back(sample);
+			numSamplesAdded++;
 		}
 
 		if (this->GetTimespan() > desiredDurationSeconds && this->sampleArray->size() > 0)
@@ -335,6 +338,8 @@ void WaveForm::PadWithSilence(double desiredDurationSeconds, double sampleRate)
 			sample.timeSeconds -= this->GetTimespan() - desiredDurationSeconds;
 		}
 	}
+
+	return numSamplesAdded;
 }
 
 bool WaveForm::Trim(double startTimeSeconds, double stopTimeSeconds, bool rebaseTime, Error& error)

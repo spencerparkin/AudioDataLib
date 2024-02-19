@@ -62,7 +62,7 @@ namespace AudioDataLib
 		bool Trim(double startTimeSeconds, double stopTimeSeconds, bool rebaseTime, Error& error);
 		void QuickTrim(double timeSeconds, TrimSection trimSection);
 		void SortSamples();
-		void PadWithSilence(double desiredDurationSeconds, double sampleRate);
+		uint64_t PadWithSilence(double desiredDurationSeconds, double sampleRate);
 		double AverageSampleRate() const;
 		double GetStartTime() const;
 		double GetEndTime() const;
