@@ -39,3 +39,11 @@ void Color::Mix(const Color& colorA, const Color& colorB)
 	if (this->a > 1.0)
 		this->a = 1.0;
 }
+
+void Color::Invert(const Color& color)
+{
+	this->r = 1.0 - color.r;
+	this->g = 1.0 - color.g;
+	this->b = 1.0 - color.b;
+	this->a = color.a;
+}

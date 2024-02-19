@@ -19,6 +19,7 @@ public:
 		ID_ExportAudio,
 		ID_Clear,
 		ID_GenerateFrequencyGraph,
+		ID_ToggleRenderStyle,
 		ID_MakeSound
 	};
 
@@ -28,6 +29,7 @@ public:
 	void OnExportAudio(wxCommandEvent& event);
 	void OnClear(wxCommandEvent& event);
 	void OnGenerateFrequencyGraph(wxCommandEvent& event);
+	void OnToggleRenderStyle(wxCommandEvent& event);
 	void OnMakeSound(wxCommandEvent& event);
 
 private:

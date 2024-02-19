@@ -32,6 +32,7 @@ Frame::Frame(const wxPoint& pos, const wxSize& size) : wxFrame(nullptr, wxID_ANY
 
 	wxMenu* analyzeMenu = new wxMenu();
 	analyzeMenu->Append(new wxMenuItem(analyzeMenu, ID_GenerateFrequencyGraph, "Generate Frequency Graph", "Convert from the time-domain of the wave-form to the frequency domain."));
+	analyzeMenu->Append(new wxMenuItem(analyzeMenu, ID_ToggleRenderStyle, "Toggle Render Style", "Render normal or render line-segments."));
 
 	wxMenu* helpMenu = new wxMenu();
 	helpMenu->Append(new wxMenuItem(helpMenu, ID_About, "About", "Show the about-box."));
@@ -48,6 +49,7 @@ Frame::Frame(const wxPoint& pos, const wxSize& size) : wxFrame(nullptr, wxID_ANY
 	this->Bind(wxEVT_MENU, &Frame::OnExportAudio, this, ID_ExportAudio);
 	this->Bind(wxEVT_MENU, &Frame::OnClear, this, ID_Clear);
 	this->Bind(wxEVT_MENU, &Frame::OnGenerateFrequencyGraph, this, ID_GenerateFrequencyGraph);
+	this->Bind(wxEVT_MENU, &Frame::OnToggleRenderStyle, this, ID_ToggleRenderStyle);
 	this->Bind(wxEVT_MENU, &Frame::OnMakeSound, this, ID_MakeSound);
 
 	this->SetStatusBar(new wxStatusBar(this));
@@ -66,6 +68,30 @@ Frame::Frame(const wxPoint& pos, const wxSize& size) : wxFrame(nullptr, wxID_ANY
 
 /*virtual*/ Frame::~Frame()
 {
+}
+
+void Frame::OnToggleRenderStyle(wxCommandEvent& event)
+{
+	std::vector<Audio*> selectedAudioArray;
+	if (!wxGetApp().GetFlaggedAudio(selectedAudioArray, AUDIO_FLAG_SELECTED))
+	{
+		wxMessageBox("Select some audio first.", "Error!", wxICON_ERROR | wxOK, this);
+		return;
+	}
+
+	for (Audio* audio : selectedAudioArray)
+	{
+		uint32_t flags = audio->GetFlags();
+
+		if ((flags & AUDIO_FLAG_SHOW_SEGMENTS) != 0)
+			flags &= ~AUDIO_FLAG_SHOW_SEGMENTS;
+		else
+			flags |= AUDIO_FLAG_SHOW_SEGMENTS;
+
+		audio->SetFlags(flags);
+	}
+
+	this->canvas->Refresh();
 }
 
 void Frame::OnGenerateFrequencyGraph(wxCommandEvent& event)

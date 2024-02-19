@@ -47,16 +47,33 @@ WaveFormAudio::WaveFormAudio()
 {
 	this->GetWaveForm();
 
-	glBegin(GL_LINE_STRIP);
-	glColor3d(this->color.r, this->color.g, this->color.b);
-
 	const std::vector<WaveForm::Sample>& sampleArray = this->waveForm->GetSampleArray();
-	for (const WaveForm::Sample& sample : sampleArray)
-	{
-		glVertex2d(sample.timeSeconds, sample.amplitude);
-	}
 
-	glEnd();
+	if ((this->GetFlags() & AUDIO_FLAG_SHOW_SEGMENTS) != 0)
+	{
+		Color alternatingColors[2];
+		alternatingColors[0] = this->color;
+		alternatingColors[1].Invert(alternatingColors[0]);
+		glBegin(GL_LINES);
+		for (uint64_t i = 0; i < sampleArray.size() - 1; i++)
+		{
+			const WaveForm::Sample& sampleA = sampleArray[i];
+			const WaveForm::Sample& sampleB = sampleArray[i + 1];
+			const Color* segmentColor = &alternatingColors[i % 2];
+			glColor3d(segmentColor->r, segmentColor->g, segmentColor->b);
+			glVertex2d(sampleA.timeSeconds, sampleA.amplitude);
+			glVertex2d(sampleB.timeSeconds, sampleB.amplitude);
+		}
+		glEnd();
+	}
+	else
+	{
+		glBegin(GL_LINE_STRIP);
+		glColor3d(this->color.r, this->color.g, this->color.b);
+		for (const WaveForm::Sample& sample : sampleArray)
+			glVertex2d(sample.timeSeconds, sample.amplitude);
+		glEnd();
+	}
 }
 
 /*virtual*/ Box2D WaveFormAudio::CalcBoundingBox() const

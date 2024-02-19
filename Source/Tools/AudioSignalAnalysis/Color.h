@@ -8,6 +8,7 @@ public:
 	virtual ~Color();
 
 	void Mix(const Color& colorA, const Color& colorB);
+	void Invert(const Color& color);
 
 	double r, g, b, a;
 };
