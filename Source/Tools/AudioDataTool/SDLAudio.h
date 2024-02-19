@@ -21,15 +21,20 @@ public:
 	virtual bool Setup(const std::string& deviceSubStr, AudioDataLib::Error& error);
 	virtual bool Shutdown(AudioDataLib::Error& error);
 
-	void SetAudioStream(AudioDataLib::AudioStream* audioStream) { this->audioStream = audioStream; }
-	AudioDataLib::AudioStream* GetAudioStream() { return this->audioStream; }
+	void SetAudioStream(std::shared_ptr<AudioDataLib::AudioStream> audioStream) { this->audioStream = audioStream; }
+	std::shared_ptr<AudioDataLib::AudioStream> GetAudioStream() { return this->audioStream; }
+
+	void SetRecordedAudioStream(std::shared_ptr<AudioDataLib::AudioStream> recordedAudioStream) { this->recordedAudioStream = recordedAudioStream; }
+	std::shared_ptr<AudioDataLib::AudioStream> GetRecordedAudioStream() { return this->recordedAudioStream; }
 
 protected:
 
 	static void SDLCALL AudioCallbackEntryPoint(void* userData, Uint8* buffer, int length);
 	virtual void AudioCallback(Uint8* buffer, int length);
 
-	AudioDataLib::AudioStream* audioStream;
+	std::shared_ptr<AudioDataLib::AudioStream> audioStream;
+	std::shared_ptr<AudioDataLib::AudioStream> recordedAudioStream;
+
 	SDL_AudioSpec audioSpec;
 	SDL_AudioDeviceID audioDeviceID;
 

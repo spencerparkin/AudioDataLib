@@ -8,34 +8,25 @@ AudioSink::AudioSink(bool ownInputStreams, bool ownOutputStream)
 {
 	this->ownInputStreams = ownInputStreams;
 	this->ownOutputStream = ownOutputStream;
-	this->audioStreamInArray = new std::vector<AudioStream*>();
-	this->audioStreamOut = nullptr;
+	this->audioStreamInArray = new std::vector<std::shared_ptr<AudioStream>>();
+	this->audioStreamOut = new std::shared_ptr<AudioStream>();
 }
 
 /*virtual*/ AudioSink::~AudioSink()
 {
-	this->Clear();
-
 	delete this->audioStreamInArray;
+	delete this->audioStreamOut;
 }
 
 void AudioSink::Clear()
 {
-	if (this->ownInputStreams)
-		for (AudioStream* audioStream : *this->audioStreamInArray)
-			delete audioStream;
-
 	this->audioStreamInArray->clear();
-
-	this->SetAudioOutput(nullptr);
+	this->audioStreamOut->reset();
 }
 
-void AudioSink::SetAudioOutput(AudioStream* audioStreamOut)
+void AudioSink::SetAudioOutput(std::shared_ptr<AudioStream> audioStreamOut)
 {
-	if (this->ownOutputStream)
-		delete this->audioStreamOut;
-	
-	this->audioStreamOut = audioStreamOut;
+	*this->audioStreamOut = audioStreamOut;
 }
 
 void AudioSink::GenerateAudio(double desiredSecondsAvailable, double minSecondsAddedPerMix)
@@ -45,17 +36,17 @@ void AudioSink::GenerateAudio(double desiredSecondsAvailable, double minSecondsA
 		return;
 
 	// Early out here if there is already enough data available.
-	uint64_t numDesiredBytesAvailable = this->audioStreamOut->GetFormat().BytesFromSeconds(desiredSecondsAvailable);
-	uint64_t numActualBytesAvailable = this->audioStreamOut->GetSize();
+	uint64_t numDesiredBytesAvailable = (*this->audioStreamOut)->GetFormat().BytesFromSeconds(desiredSecondsAvailable);
+	uint64_t numActualBytesAvailable = (*this->audioStreamOut)->GetSize();
 	if (numDesiredBytesAvailable <= numActualBytesAvailable)
 		return;
 
 	// How much data do we need to add to the output stream?
 	uint64_t numBytesNeeded = numDesiredBytesAvailable - numActualBytesAvailable;
-	uint64_t minBytesAddedPerMix = this->audioStreamOut->GetFormat().BytesFromSeconds(minSecondsAddedPerMix);
+	uint64_t minBytesAddedPerMix = (*this->audioStreamOut)->GetFormat().BytesFromSeconds(minSecondsAddedPerMix);
 	if (numBytesNeeded < minBytesAddedPerMix)
 		numBytesNeeded = minBytesAddedPerMix;
-	numBytesNeeded = this->audioStreamOut->GetFormat().RoundUpToNearestFrameMultiple(numBytesNeeded);
+	numBytesNeeded = (*this->audioStreamOut)->GetFormat().RoundUpToNearestFrameMultiple(numBytesNeeded);
 
 	// In the trivial case, we need only write a bunch of silence to the stream.
 	if (this->audioStreamInArray->size() == 0)
@@ -67,7 +58,7 @@ void AudioSink::GenerateAudio(double desiredSecondsAvailable, double minSecondsA
         {
             uint8_t* silenceBuffer = new uint8_t[(uint32_t)numBytesNeeded];
             ::memset(silenceBuffer, 0, (size_t)numBytesNeeded);
-            this->audioStreamOut->WriteBytesToStream(silenceBuffer, numBytesNeeded);
+            (*this->audioStreamOut)->WriteBytesToStream(silenceBuffer, numBytesNeeded);
             delete[] silenceBuffer;
         }
 		return;
@@ -75,9 +66,9 @@ void AudioSink::GenerateAudio(double desiredSecondsAvailable, double minSecondsA
 
 	// Are all the formats the same?
 	bool allSameFormat = true;
-	for (AudioStream* audioStreamIn : *this->audioStreamInArray)
+	for (auto& audioStreamIn : *this->audioStreamInArray)
 	{
-		if (audioStreamIn->GetFormat() != this->audioStreamOut->GetFormat())
+		if (audioStreamIn->GetFormat() != (*this->audioStreamOut)->GetFormat())
 		{
 			allSameFormat = false;
 			break;
@@ -91,15 +82,15 @@ void AudioSink::GenerateAudio(double desiredSecondsAvailable, double minSecondsA
 	// Handle this case specifically, because it's easy and fast.
 	if (allSameFormat)
 	{
-		uint64_t numSamples = numBytesNeeded / this->audioStreamOut->GetFormat().BytesPerSample();
-		uint64_t bytesPerSample = this->audioStreamOut->GetFormat().BytesPerSample();
+		uint64_t numSamples = numBytesNeeded / (*this->audioStreamOut)->GetFormat().BytesPerSample();
+		uint64_t bytesPerSample = (*this->audioStreamOut)->GetFormat().BytesPerSample();
 		for (uint64_t i = 0; i < numSamples; i++)
 		{
 			uint8_t* sampleBuffer = &generatedAudioBuffer[i * bytesPerSample];
 
-			if (this->audioStreamOut->GetFormat().sampleType == AudioData::Format::SIGNED_INTEGER)
+			if ((*this->audioStreamOut)->GetFormat().sampleType == AudioData::Format::SIGNED_INTEGER)
 			{
-				switch (this->audioStreamOut->GetFormat().bitsPerSample)
+				switch ((*this->audioStreamOut)->GetFormat().bitsPerSample)
 				{
 					case 8:
 					{
@@ -121,9 +112,9 @@ void AudioSink::GenerateAudio(double desiredSecondsAvailable, double minSecondsA
 					}
 				}
 			}
-			else if (this->audioStreamOut->GetFormat().sampleType == AudioData::Format::FLOAT)
+			else if ((*this->audioStreamOut)->GetFormat().sampleType == AudioData::Format::FLOAT)
 			{
-				switch (this->audioStreamOut->GetFormat().bitsPerSample)
+				switch ((*this->audioStreamOut)->GetFormat().bitsPerSample)
 				{
 					case 32:
 					{
@@ -146,9 +137,9 @@ void AudioSink::GenerateAudio(double desiredSecondsAvailable, double minSecondsA
 	{
 		// Grab audio buffers from all the inputs and transform them into wave form space.
 		Error error;
-		double secondsNeeded = this->audioStreamOut->GetFormat().BytesToSeconds(numBytesNeeded);
-		auto waveFormListArray = new std::list<WaveForm*>[this->audioStreamOut->GetFormat().numChannels];
-		for (AudioStream* audioStreamIn : *this->audioStreamInArray)
+		double secondsNeeded = (*this->audioStreamOut)->GetFormat().BytesToSeconds(numBytesNeeded);
+		auto waveFormListArray = new std::list<WaveForm*>[(*this->audioStreamOut)->GetFormat().numChannels];
+		for (auto& audioStreamIn : *this->audioStreamInArray)
 		{
 			uint64_t audioBufferSize = audioStreamIn->GetFormat().BytesFromSeconds(secondsNeeded);
 			audioBufferSize = audioStreamIn->GetFormat().RoundUpToNearestFrameMultiple(audioBufferSize);
@@ -157,7 +148,7 @@ void AudioSink::GenerateAudio(double desiredSecondsAvailable, double minSecondsA
 			for (uint64_t i = numBytesRead; i < audioBufferSize; i++)
 				audioBuffer[i] = 0;
 
-			for (uint32_t i = 0; i < this->audioStreamOut->GetFormat().numChannels; i++)
+			for (uint32_t i = 0; i < (*this->audioStreamOut)->GetFormat().numChannels; i++)
 			{
 				WaveForm* waveForm = new WaveForm();
 				if(!waveForm->ConvertFromAudioBuffer(audioStreamIn->GetFormat(), audioBuffer, audioBufferSize, i, error))
@@ -169,13 +160,13 @@ void AudioSink::GenerateAudio(double desiredSecondsAvailable, double minSecondsA
 		}
 
 		// Build each channel in the audio output stream.
-		for (uint32_t i = 0; i < this->audioStreamOut->GetFormat().numChannels; i++)
+		for (uint32_t i = 0; i < (*this->audioStreamOut)->GetFormat().numChannels; i++)
 		{
 			// If we're not mixing audio, just convert/resample.
 			if (waveFormListArray[i].size() == 1)
 			{
 				const WaveForm* waveForm = *waveFormListArray[i].begin();
-				waveForm->ConvertToAudioBuffer(this->audioStreamOut->GetFormat(), generatedAudioBuffer, numBytesNeeded, i, error);
+				waveForm->ConvertToAudioBuffer((*this->audioStreamOut)->GetFormat(), generatedAudioBuffer, numBytesNeeded, i, error);
 			}
 			else
 			{
@@ -186,7 +177,7 @@ void AudioSink::GenerateAudio(double desiredSecondsAvailable, double minSecondsA
 					delete waveForm;
 
 				// Convert the aggregated wave form into audio data in the target format.
-				mixedWave.ConvertToAudioBuffer(this->audioStreamOut->GetFormat(), generatedAudioBuffer, numBytesNeeded, i, error);
+				mixedWave.ConvertToAudioBuffer((*this->audioStreamOut)->GetFormat(), generatedAudioBuffer, numBytesNeeded, i, error);
 			}
 		}
 
@@ -194,7 +185,7 @@ void AudioSink::GenerateAudio(double desiredSecondsAvailable, double minSecondsA
 	}
 
 	// Write the generated audio data to the output stream.
-	this->audioStreamOut->WriteBytesToStream(generatedAudioBuffer, numBytesNeeded);
+	(*this->audioStreamOut)->WriteBytesToStream(generatedAudioBuffer, numBytesNeeded);
 
 	// Free any remaining memory we used.
 	delete[] generatedAudioBuffer;
@@ -203,7 +194,7 @@ void AudioSink::GenerateAudio(double desiredSecondsAvailable, double minSecondsA
 	uint32_t i = 0;
 	while (i < this->audioStreamInArray->size())
 	{
-		AudioStream* audioStreamIn = (*this->audioStreamInArray)[i];
+		AudioStream* audioStreamIn = (*this->audioStreamInArray)[i].get();
 		uint64_t audioStreamInSize = audioStreamIn->GetSize();
 		if (audioStreamInSize > 0)
 			i++;
@@ -219,7 +210,7 @@ void AudioSink::GenerateAudio(double desiredSecondsAvailable, double minSecondsA
 	}
 }
 
-void AudioSink::AddAudioInput(AudioStream* AudioStream)
+void AudioSink::AddAudioInput(std::shared_ptr<AudioStream> audioStream)
 {
-	this->audioStreamInArray->push_back(AudioStream);
+	this->audioStreamInArray->push_back(audioStream);
 }

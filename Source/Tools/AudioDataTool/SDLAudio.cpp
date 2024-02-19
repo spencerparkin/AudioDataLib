@@ -88,6 +88,9 @@ bool SDLAudio::Setup(const std::string& deviceSubStr, Error& error)
 
 	this->audioStream->SetFormat(format);
 
+	if (this->recordedAudioStream.get())
+		this->recordedAudioStream->SetFormat(format);
+
 	// This will cause our callback to start getting called.
 	SDL_PauseAudioDevice(this->audioDeviceID, 0);
 
@@ -123,6 +126,10 @@ bool SDLAudio::Shutdown(Error& error)
 			uint64_t numBytesRead = this->audioStream->ReadBytesFromStream(buffer, uint64_t(length));
 			for (uint64_t i = numBytesRead; i < uint64_t(length); i++)
 				buffer[i] = this->audioSpec.silence;
+
+			if (this->recordedAudioStream.get())
+				this->recordedAudioStream->WriteBytesToStream(buffer, length);
+
 			break;
 		}
 		case AudioDirection::SOUND_IN:

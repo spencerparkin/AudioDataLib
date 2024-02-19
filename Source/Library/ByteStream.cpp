@@ -245,6 +245,7 @@ void WriteOnlyBufferStream::Reset()
 AudioStream::AudioStream()
 {
 	this->byteStream = new MemoryStream();
+	::memset(&this->format, 0, sizeof(AudioData::Format));
 }
 
 AudioStream::AudioStream(const AudioData* audioData)

@@ -20,7 +20,7 @@ namespace AudioDataLib
 		virtual SynthModule* GetRootModule(uint16_t channel) = 0;
 
 		void SetAudioStream(std::shared_ptr<AudioStream> audioStream);
-		AudioStream* GetAudioStream() { return this->audioStream->get(); }
+		std::shared_ptr<AudioStream> GetAudioStream() { return *this->audioStream; }
 
 		static double MidiPitchToFrequency(uint8_t pitchValue);
 		static double MidiVelocityToAmplitude(uint8_t velocityValue);
