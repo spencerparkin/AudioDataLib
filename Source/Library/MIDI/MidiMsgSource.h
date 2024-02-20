@@ -19,12 +19,25 @@ namespace AudioDataLib
 		virtual bool Shutdown(Error& error);
 		virtual bool Process(Error& error);
 
-		void AddDestination(MidiMsgDestination* destination);
+		void AddDestination(std::shared_ptr<MidiMsgDestination> destination);
 		void Clear();
+
+		template<typename T>
+		T* FindDestination()
+		{
+			for (auto& destination : *this->destinationArray)
+			{
+				T* foundDestination = dynamic_cast<T*>(destination.get());
+				if (foundDestination)
+					return foundDestination;
+			}
+
+			return nullptr;
+		}
 
 	protected:
 		bool BroadcastMidiMessage(double deltaTimeSeconds, const uint8_t* messageBuffer, uint64_t messageBufferSize, Error& error);
 
-		std::vector<MidiMsgDestination*>* destinationArray;
+		std::vector<std::shared_ptr<MidiMsgDestination>>* destinationArray;
 	};
 }

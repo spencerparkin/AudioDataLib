@@ -205,11 +205,29 @@ bool SampleBasedSynth::GenerateModuleGraph(
 	{
 	case 0:
 		return this->leftEarRootModule->get();
-	case 1:
-		return this->rightEarRootModule->get();
+//	case 1:
+//		return this->rightEarRootModule->get();		TODO: How do we enable both channels and have reverb work at the same time?
 	default:
 		return nullptr;
 	}
+}
+
+bool SampleBasedSynth::ToggleReverb()
+{
+	bool enabled = false;
+
+	ReverbModule* leftReverbModule = (*this->leftEarRootModule)->FindModule<ReverbModule>();
+	if (leftReverbModule)
+	{
+		enabled = !leftReverbModule->GetEnabled();
+		leftReverbModule->SetEnabled(enabled);
+
+		ReverbModule* rightReverbModule = (*this->rightEarRootModule)->FindModule<ReverbModule>();
+		if (rightReverbModule)
+			rightReverbModule->SetEnabled(enabled);
+	}
+
+	return enabled;
 }
 
 /*virtual*/ bool SampleBasedSynth::Initialize(Error& error)

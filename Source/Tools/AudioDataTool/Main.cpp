@@ -365,7 +365,7 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 				}
 			};
 
-			source->AddDestination(new StdoutLogDestination());
+			source->AddDestination(std::shared_ptr<MidiMsgDestination>(new StdoutLogDestination()));
 		}
 
 		if (parser.ArgGiven("record_midi"))
@@ -387,7 +387,7 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 			recordedMidiData = new MidiData();
 			auto recorderDestination = new MidiMsgRecorderDestination();
 			recorderDestination->SetMidiData(recordedMidiData);
-			source->AddDestination(recorderDestination);
+			source->AddDestination(std::shared_ptr<MidiMsgDestination>(recorderDestination));
 		}
 
 		if (parser.ArgGiven("synth"))
@@ -399,13 +399,13 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 			if (synthType == "simple")
 			{
 				auto simpleSynth = new SimpleSynth();
-				source->AddDestination(simpleSynth);
+				source->AddDestination(std::shared_ptr<MidiMsgDestination>(simpleSynth));
 				midiSynth = simpleSynth;
 			}
 			else if (synthType == "sample")
 			{
 				auto sampleBasedSynth = new SampleBasedSynth();
-				source->AddDestination(sampleBasedSynth);
+				source->AddDestination(std::shared_ptr<MidiMsgDestination>(sampleBasedSynth));
 				midiSynth = sampleBasedSynth;
 
 				if (!parser.ArgGiven("soundfont"))
@@ -525,8 +525,28 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 			Keyboard::Event event;
 			while (keyboard->GetKeyboardEvent(event))
 			{
-				if (event.type == Keyboard::Event::Type::KEY_PRESSED && event.keyCode == (int32_t)Keyboard::Key::KEY_ESCAPE)
-					keepProcessing = false;
+				if (event.type == Keyboard::Event::Type::KEY_RELEASED)
+				{
+					switch (event.keyCode)
+					{
+						case int32_t(Keyboard::Key::KEY_ESCAPE):
+						{
+							keepProcessing = false;
+							break;
+						}
+						case 'R':
+						case 'r':
+						{
+							SampleBasedSynth* synth = source->FindDestination<SampleBasedSynth>();
+							if (synth)
+							{
+								bool enabled = synth->ToggleReverb();
+								printf("Reverb %s\n", (enabled ? "ON" : "OFF"));
+							}
+							break;
+						}
+					}
+				}
 			}
 		}
 
@@ -624,7 +644,7 @@ bool PlayMidiData(AudioDataLib::MidiData* midiData, AudioDataLib::Error& error)
 			break;
 		}
 
-		player.AddDestination(new MidiPortDestination());
+		player.AddDestination(std::shared_ptr<MidiMsgDestination>(new MidiPortDestination()));
 		player.SetMidiData(midiData);
 		player.ConfigureToPlayAllTracks();
 		player.SetTimeSeconds(0.0);

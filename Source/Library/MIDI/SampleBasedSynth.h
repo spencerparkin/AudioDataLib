@@ -26,6 +26,7 @@ namespace AudioDataLib
 		SoundFontData* GetSoundFontData(uint16_t instrument);
 
 		void Clear();
+		bool ToggleReverb();
 
 	private:
 		bool estimateFrequencies;

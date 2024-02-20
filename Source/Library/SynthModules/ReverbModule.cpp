@@ -6,7 +6,7 @@ using namespace AudioDataLib;
 
 ReverbModule::ReverbModule(uint8_t variation)
 {
-	this->enabled = false;
+	this->enabled = true;
 	this->moreSoundAvailable = true;
 	this->localTimeBaseSeconds = 0.0;
 
