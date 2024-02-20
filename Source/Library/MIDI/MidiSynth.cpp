@@ -8,8 +8,8 @@ using namespace AudioDataLib;
 
 MidiSynth::MidiSynth()
 {
-	this->minLatencySeconds = 0.05;
-	this->maxLatencySeconds = 0.10;
+	this->minLatencySeconds = 0.10;
+	this->maxLatencySeconds = 0.15;
 	this->audioStream = new std::shared_ptr<AudioStream>();
 }
 
