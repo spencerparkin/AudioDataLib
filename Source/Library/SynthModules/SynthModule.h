@@ -7,22 +7,6 @@ namespace AudioDataLib
 	class WaveForm;
 	class Error;
 
-	// TODO: It has just occurred to me that, although it was intended, it is not possible
-	//       for two different modules to depend upon the same module.  I can think of a
-	//       way to do it, but it would really require a major rework of the entire module
-	//       system.  Instead of a single call to GenerateSound() recursing through a tree,
-	//       we might need an algorithm that evaulates a dependency graph until all root
-	//       nodes have the needed sound.  I think you would also need some special stream-like
-	//       data-structures to handle the communication between the nodes.  Also, I think I
-	//       can make this possible with what I have now, but it would require a special module
-	//       specifically designed to take a single input and produce multiple copies of that
-	//       input for multiple outputs.  An additional parameter would be need for the module
-	//       to know "who's asking" for the sound.  This might not be an unreasonable approach,
-	//       since the more generalized solution I was thinking of may be overkill when in most
-	//       cases, what I already have here is sofficient, and no graph algorithm is needed;
-	//       we can still just make a single call to GenerateSound() that recursive the graph.
-	//       When the said node is encountered, it can use its cache to produce a result.
-
 	// These are the building-blocks of sound synthesis.
 	class AUDIO_DATA_LIB_API SynthModule
 	{
