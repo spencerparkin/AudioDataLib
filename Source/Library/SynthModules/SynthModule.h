@@ -16,11 +16,8 @@ namespace AudioDataLib
 
 		// Note that by convention, the returned wave-form should always be zero-based with respect to time.
 		// It's important to understand this when trying to make a synth module that maintains its own sense
-		// of continuity, call to call.  Typically, a module generates just a single wave-form by populating
-		// the samples for the single given wave-form pointer.  If, however, a module returns two or more
-		// wave-form results, then those can be put into the given array, if any.  It's up to the module to
-		// decide what it returns and how the results are to be interpreted.
-		virtual bool GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm* waveForm, std::vector<WaveForm>* waveFormsArray, Error& error) = 0;
+		// of continuity, call to call.
+		virtual bool GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, Error& error) = 0;
 		virtual bool MoreSoundAvailable();
 
 		void AddDependentModule(std::shared_ptr<SynthModule> synthModule);

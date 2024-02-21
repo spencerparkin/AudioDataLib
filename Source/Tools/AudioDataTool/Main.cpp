@@ -236,7 +236,6 @@ bool AddReverb(const std::string& inFilePath, const std::string& outFilePath, Au
 	}
 
 	// TODO: I'm pretty sure this will NOT sound correct for anything other than mono based on my expiraments to-date.
-	//       Can I make use the stereo module here?
 	std::vector<std::shared_ptr<SynthModule>> synthModuleArray;
 	for (uint16_t i = 0; i < audioData->GetFormat().numChannels; i++)
 	{
@@ -252,6 +251,7 @@ bool AddReverb(const std::string& inFilePath, const std::string& outFilePath, Au
 	std::shared_ptr<AudioStream> reverbStream(new AudioStream());
 	reverbStream->SetFormat(audioData->GetFormat());
 
+	// TODO: When I shrink this time window to 0.005, I get some audible artifacting.  Why?
 	double timeChunkSeconds = 0.5;
 	uint64_t reverbAudioBufferSize = audioData->GetFormat().BytesFromSeconds(timeChunkSeconds);
 	uint8_t* reverbAudioBuffer = new uint8_t[reverbAudioBufferSize];
@@ -277,7 +277,7 @@ bool AddReverb(const std::string& inFilePath, const std::string& outFilePath, Au
 			SynthModule* synthModule = synthModuleArray[i].get();
 
 			WaveForm waveForm;
-			if (!synthModule->GenerateSound(timeChunkSeconds, audioData->GetFormat().framesPerSecond, &waveForm, nullptr, error))
+			if (!synthModule->GenerateSound(timeChunkSeconds, audioData->GetFormat().framesPerSecond, waveForm, error))
 				break;
 
 			if (!waveForm.ConvertToAudioBuffer(audioData->GetFormat(), reverbAudioBuffer, reverbAudioBufferSize, i, error))

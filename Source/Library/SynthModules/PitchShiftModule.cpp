@@ -14,7 +14,7 @@ PitchShiftModule::PitchShiftModule()
 {
 }
 
-/*virtual*/ bool PitchShiftModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm* waveForm, std::vector<WaveForm>* waveFormsArray, Error& error)
+/*virtual*/ bool PitchShiftModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, Error& error)
 {
 	if (this->GetNumDependentModules() != 1)
 	{
@@ -27,7 +27,7 @@ PitchShiftModule::PitchShiftModule()
 	if (this->targetFrequency == this->sourceFrequency)
 	{
 		// We're just a no-op/pass-through in this case.
-		return dependentModule->GenerateSound(durationSeconds, samplesPerSecond, waveForm, nullptr, error);
+		return dependentModule->GenerateSound(durationSeconds, samplesPerSecond, waveForm, error);
 	}
 	
 	if (this->sourceFrequency == 0.0)
@@ -44,13 +44,13 @@ PitchShiftModule::PitchShiftModule()
 		return false;
 	}
 
-	if (!dependentModule->GenerateSound(neededTimeSeconds, samplesPerSecond, waveForm, nullptr, error))
+	if (!dependentModule->GenerateSound(neededTimeSeconds, samplesPerSecond, waveForm, error))
 		return false;
 
-	double startTimeSeconds = waveForm->GetStartTime();
-	double endTimeSeconds = waveForm->GetEndTime();
+	double startTimeSeconds = waveForm.GetStartTime();
+	double endTimeSeconds = waveForm.GetEndTime();
 
-	for (WaveForm::Sample& sample : waveForm->GetSampleArray())
+	for (WaveForm::Sample& sample : waveForm.GetSampleArray())
 	{
 		double alpha = (sample.timeSeconds - startTimeSeconds) / (endTimeSeconds - startTimeSeconds);
 		sample.timeSeconds = alpha * durationSeconds;

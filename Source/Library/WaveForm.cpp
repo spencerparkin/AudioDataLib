@@ -652,23 +652,3 @@ void WaveFormStream::AddSample(const WaveForm::Sample& sample)
 		this->waveFormList->pop_front();
 	}
 }
-
-double WaveFormStream::GetDurationSeconds() const
-{
-	if (this->waveFormList->size() == 0)
-		return 0.0;
-
-	const WaveForm* firstWaveForm = *this->waveFormList->begin();
-	const WaveForm* lastWaveForm = this->waveFormList->back();
-
-	if (firstWaveForm->GetSampleArray().size() == 0)
-		return 0.0;
-
-	if (lastWaveForm->GetSampleArray().size() == 0)
-		return 0.0;
-
-	const WaveForm::Sample& firstSample = firstWaveForm->GetSampleArray()[0];
-	const WaveForm::Sample& lastSample = lastWaveForm->GetSampleArray()[lastWaveForm->GetSampleArray().size() - 1];
-
-	return lastSample.timeSeconds - firstSample.timeSeconds;
-}

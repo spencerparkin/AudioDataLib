@@ -17,7 +17,7 @@ AttenuationModule::AttenuationModule()
 	this->SetAttenuationFunction(nullptr);
 }
 
-/*virtual*/ bool AttenuationModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm* waveForm, std::vector<WaveForm>* waveFormsArray, Error& error)
+/*virtual*/ bool AttenuationModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, Error& error)
 {
 	if (this->GetNumDependentModules() != 1)
 	{
@@ -27,7 +27,7 @@ AttenuationModule::AttenuationModule()
 
 	SynthModule* dependentModule = (*this->dependentModulesArray)[0].get();
 
-	if (!dependentModule->GenerateSound(durationSeconds, samplesPerSecond, waveForm, nullptr, error))
+	if (!dependentModule->GenerateSound(durationSeconds, samplesPerSecond, waveForm, error))
 		return false;
 
 	if (!this->fallOff)
@@ -39,7 +39,7 @@ AttenuationModule::AttenuationModule()
 		return false;
 	}
 
-	std::vector<WaveForm::Sample>& sampleArray = waveForm->GetSampleArray();
+	std::vector<WaveForm::Sample>& sampleArray = waveForm.GetSampleArray();
 	for (uint32_t i = 0; i < sampleArray.size(); i++)
 	{
 		double attenuationFactor = this->attenuationFunction->EvaluateAt(this->fallOffTimeSeconds);

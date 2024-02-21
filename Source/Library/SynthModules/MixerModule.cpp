@@ -12,7 +12,7 @@ MixerModule::MixerModule()
 {
 }
 
-/*virtual*/ bool MixerModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm* waveForm, std::vector<WaveForm>* waveFormsArray, Error& error)
+/*virtual*/ bool MixerModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, Error& error)
 {
 	std::list<WaveForm*> waveFormList;
 
@@ -21,14 +21,14 @@ MixerModule::MixerModule()
 		if (synthModule->MoreSoundAvailable())
 		{
 			WaveForm* waveFormComponent = new WaveForm;
-			if (synthModule->GenerateSound(durationSeconds, samplesPerSecond, waveFormComponent, nullptr, error))
+			if (synthModule->GenerateSound(durationSeconds, samplesPerSecond, *waveFormComponent, error))
 				waveFormList.push_back(waveFormComponent);
 			else
 				delete waveFormComponent;
 		}
 	}
 
-	waveForm->SumTogether(waveFormList);
+	waveForm.SumTogether(waveFormList);
 	// TODO: Scale sum by 1.0 / waveFormList.size()?
 
 	for (WaveForm* waveFormComponent : waveFormList)

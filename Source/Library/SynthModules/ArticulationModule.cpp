@@ -11,7 +11,7 @@ ArticulationModule::ArticulationModule()
 {
 }
 
-/*virtual*/ bool ArticulationModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm* waveForm, std::vector<WaveForm>* waveFormsArray, Error& error)
+/*virtual*/ bool ArticulationModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, Error& error)
 {
 	// TODO: Here we run the dependent module's wave-form through an LFO to modulate volume.  (Tromolo.)
 	//       Can a similar thing be done to modulate pitch by up- or down-sampling the dependent module's wave-form?  (Vibrato.)
