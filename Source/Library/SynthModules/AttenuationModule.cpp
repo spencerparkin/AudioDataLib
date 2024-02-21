@@ -17,7 +17,7 @@ AttenuationModule::AttenuationModule()
 	this->SetAttenuationFunction(nullptr);
 }
 
-/*virtual*/ bool AttenuationModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, Error& error)
+/*virtual*/ bool AttenuationModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, SynthModule* callingModule, Error& error)
 {
 	if (this->GetNumDependentModules() != 1)
 	{
@@ -27,7 +27,7 @@ AttenuationModule::AttenuationModule()
 
 	SynthModule* dependentModule = (*this->dependentModulesArray)[0].get();
 
-	if (!dependentModule->GenerateSound(durationSeconds, samplesPerSecond, waveForm, error))
+	if (!dependentModule->GenerateSound(durationSeconds, samplesPerSecond, waveForm, this, error))
 		return false;
 
 	if (!this->fallOff)

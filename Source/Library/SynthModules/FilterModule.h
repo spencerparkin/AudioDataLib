@@ -16,6 +16,6 @@ namespace AudioDataLib
 		FilterModule();
 		virtual ~FilterModule();
 
-		virtual bool GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, Error& error) override;
+		virtual bool GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, SynthModule* callingModule, Error& error) override;
 	};
 }

@@ -15,7 +15,7 @@ namespace AudioDataLib
 		ReverbModule(uint8_t variation);
 		virtual ~ReverbModule();
 
-		virtual bool GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, Error& error) override;
+		virtual bool GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, SynthModule* callingModule, Error& error) override;
 		virtual bool MoreSoundAvailable() override;
 
 		void SetEnabled(bool enabled) { this->enabled = enabled; }

@@ -19,7 +19,7 @@ LoopedAudioModule::LoopedAudioModule()
 	delete this->loopedWaveForm;
 }
 
-/*virtual*/ bool LoopedAudioModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, Error& error)
+/*virtual*/ bool LoopedAudioModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, SynthModule* callingModule, Error& error)
 {
 	if (!this->loopedWaveForm)
 	{

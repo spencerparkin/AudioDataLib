@@ -65,7 +65,7 @@ void MidiSynth::GetMinMaxLatency(double& minLatencySeconds, double& maxLatencySe
 			continue;
 
 		WaveForm waveForm;
-		if (!synthModule->GenerateSound(timeNeededSeconds, format.SamplesPerSecondPerChannel(), waveForm, error))
+		if (!synthModule->GenerateSound(timeNeededSeconds, format.SamplesPerSecondPerChannel(), waveForm, nullptr, error))
 		{
 			error.Add(FormatString("Failed to generate wave-form for channel %d.", i));
 			break;

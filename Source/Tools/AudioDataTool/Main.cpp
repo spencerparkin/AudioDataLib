@@ -277,7 +277,7 @@ bool AddReverb(const std::string& inFilePath, const std::string& outFilePath, Au
 			SynthModule* synthModule = synthModuleArray[i].get();
 
 			WaveForm waveForm;
-			if (!synthModule->GenerateSound(timeChunkSeconds, audioData->GetFormat().framesPerSecond, waveForm, error))
+			if (!synthModule->GenerateSound(timeChunkSeconds, audioData->GetFormat().framesPerSecond, waveForm, nullptr, error))
 				break;
 
 			if (!waveForm.ConvertToAudioBuffer(audioData->GetFormat(), reverbAudioBuffer, reverbAudioBufferSize, i, error))

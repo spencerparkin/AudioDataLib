@@ -22,6 +22,7 @@ SynthModule::SynthModule()
 
 void SynthModule::AddDependentModule(std::shared_ptr<SynthModule> synthModule)
 {
+	// TODO: Check for circular reference and, if found, return an error?
 	this->dependentModulesArray->push_back(synthModule);
 }
 

@@ -41,7 +41,7 @@ ReverbModule::ReverbModule(uint8_t variation)
 {
 }
 
-/*virtual*/ bool ReverbModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, Error& error)
+/*virtual*/ bool ReverbModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, SynthModule* callingModule, Error& error)
 {
 	if (this->GetNumDependentModules() != 1)
 	{
@@ -53,7 +53,7 @@ ReverbModule::ReverbModule(uint8_t variation)
 
 	if (!this->enabled)
 	{
-		if (!dependentModule->GenerateSound(durationSeconds, samplesPerSecond, waveForm, error))
+		if (!dependentModule->GenerateSound(durationSeconds, samplesPerSecond, waveForm, this, error))
 			return false;
 
 		this->moreSoundAvailable = dependentModule->MoreSoundAvailable();
@@ -61,7 +61,7 @@ ReverbModule::ReverbModule(uint8_t variation)
 	}
 
 	WaveForm originalWaveForm;
-	if (!dependentModule->GenerateSound(durationSeconds, samplesPerSecond, originalWaveForm, error))
+	if (!dependentModule->GenerateSound(durationSeconds, samplesPerSecond, originalWaveForm, this, error))
 		return false;
 
 	originalWaveForm.PadWithSilence(durationSeconds, samplesPerSecond);

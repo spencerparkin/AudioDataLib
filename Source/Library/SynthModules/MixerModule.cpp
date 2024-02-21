@@ -12,7 +12,7 @@ MixerModule::MixerModule()
 {
 }
 
-/*virtual*/ bool MixerModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, Error& error)
+/*virtual*/ bool MixerModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, SynthModule* callingModule, Error& error)
 {
 	std::list<WaveForm*> waveFormList;
 
@@ -21,7 +21,7 @@ MixerModule::MixerModule()
 		if (synthModule->MoreSoundAvailable())
 		{
 			WaveForm* waveFormComponent = new WaveForm;
-			if (synthModule->GenerateSound(durationSeconds, samplesPerSecond, *waveFormComponent, error))
+			if (synthModule->GenerateSound(durationSeconds, samplesPerSecond, *waveFormComponent, this, error))
 				waveFormList.push_back(waveFormComponent);
 			else
 				delete waveFormComponent;

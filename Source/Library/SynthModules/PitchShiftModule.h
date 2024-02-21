@@ -8,7 +8,7 @@ namespace AudioDataLib
 		PitchShiftModule();
 		virtual ~PitchShiftModule();
 
-		virtual bool GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, Error& error) override;
+		virtual bool GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, SynthModule* callingModule, Error& error) override;
 		virtual bool MoreSoundAvailable() override;
 
 		void SetSourceAndTargetFrequencies(double sourceFrequency, double targetFrequency);

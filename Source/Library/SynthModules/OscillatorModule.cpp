@@ -15,7 +15,7 @@ OscillatorModule::OscillatorModule()
 {
 }
 
-/*virtual*/ bool OscillatorModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, Error& error)
+/*virtual*/ bool OscillatorModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, SynthModule* callingModule, Error& error)
 {
 	waveForm.Clear();
 

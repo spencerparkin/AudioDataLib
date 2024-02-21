@@ -11,7 +11,7 @@ InterpolationModule::InterpolationModule()
 {
 }
 
-/*virtual*/ bool InterpolationModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, Error& error)
+/*virtual*/ bool InterpolationModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, SynthModule* callingModule, Error& error)
 {
 	if (this->GetNumDependentModules() != 2)
 	{

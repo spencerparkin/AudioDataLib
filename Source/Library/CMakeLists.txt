@@ -70,6 +70,10 @@ set(LIBRARY_SOURCES
     SynthModules/AttenuationModule.h
     SynthModules/ReverbModule.cpp
     SynthModules/ReverbModule.h
+    SynthModules/DuplicationModule.cpp
+    SynthModules/DuplicationModule.h
+    SynthModules/DelayModule.cpp
+    SynthModules/DelayModule.h
     AudioSink.cpp
     AudioSink.h
     ByteStream.cpp

@@ -16,8 +16,9 @@ namespace AudioDataLib
 
 		// Note that by convention, the returned wave-form should always be zero-based with respect to time.
 		// It's important to understand this when trying to make a synth module that maintains its own sense
-		// of continuity, call to call.
-		virtual bool GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, Error& error) = 0;
+		// of continuity, call to call.  In most cases, the callingModule parameter is not used.  If it is used,
+		// then its usage is defined by the module implimentation.
+		virtual bool GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, SynthModule* callingModule, Error& error) = 0;
 		virtual bool MoreSoundAvailable();
 
 		void AddDependentModule(std::shared_ptr<SynthModule> synthModule);
