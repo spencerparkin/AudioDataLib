@@ -41,8 +41,10 @@ ReverbModule::ReverbModule(uint8_t variation)
 {
 }
 
-/*virtual*/ bool ReverbModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, Error& error)
+/*virtual*/ bool ReverbModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm* waveForm, std::vector<WaveForm>* waveFormsArray, Error& error)
 {
+	// TODO: Maybe allow for 1 or more dependent modules?  Maybe these are distributed across the comb filters?
+	//       In practice, I might have one for each of the different SF sample channels (left and right).
 	if (this->GetNumDependentModules() != 1)
 	{
 		error.Add("Reverb module needs exactly one dependent module.");
@@ -53,7 +55,7 @@ ReverbModule::ReverbModule(uint8_t variation)
 
 	if (!this->enabled)
 	{
-		if (!dependentModule->GenerateSound(durationSeconds, samplesPerSecond, waveForm, error))
+		if (!dependentModule->GenerateSound(durationSeconds, samplesPerSecond, waveForm, nullptr, error))
 			return false;
 
 		this->moreSoundAvailable = dependentModule->MoreSoundAvailable();
@@ -61,12 +63,12 @@ ReverbModule::ReverbModule(uint8_t variation)
 	}
 
 	WaveForm originalWaveForm;
-	if (!dependentModule->GenerateSound(durationSeconds, samplesPerSecond, originalWaveForm, error))
+	if (!dependentModule->GenerateSound(durationSeconds, samplesPerSecond, &originalWaveForm, nullptr, error))
 		return false;
 
 	originalWaveForm.PadWithSilence(durationSeconds, samplesPerSecond);
 
-	waveForm.Clear();
+	waveForm->Clear();
 
 	for (const WaveForm::Sample& sample : originalWaveForm.GetSampleArray())
 	{
@@ -93,7 +95,7 @@ ReverbModule::ReverbModule(uint8_t variation)
 		}
 
 		reverbSample.timeSeconds -= this->localTimeBaseSeconds;
-		waveForm.AddSample(reverbSample);
+		waveForm->AddSample(reverbSample);
 	}
 
 	this->localTimeBaseSeconds += originalWaveForm.GetTimespan();
@@ -101,7 +103,7 @@ ReverbModule::ReverbModule(uint8_t variation)
 	if (!dependentModule->MoreSoundAvailable())
 	{
 		// Wait for the reverberation to taper off.
-		double averageVolume = waveForm.CalcAverageVolume();
+		double averageVolume = waveForm->CalcAverageVolume();
 		constexpr double threshold = 1e-3;
 		if (averageVolume < threshold)
 			this->moreSoundAvailable = false;

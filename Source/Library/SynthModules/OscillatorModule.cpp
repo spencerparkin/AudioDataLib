@@ -15,9 +15,9 @@ OscillatorModule::OscillatorModule()
 {
 }
 
-/*virtual*/ bool OscillatorModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, Error& error)
+/*virtual*/ bool OscillatorModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm* waveForm, std::vector<WaveForm>* waveFormsArray, Error& error)
 {
-	waveForm.Clear();
+	waveForm->Clear();
 
 	uint64_t numSamples = ::floor(durationSeconds * samplesPerSecond);
 
@@ -30,7 +30,7 @@ OscillatorModule::OscillatorModule()
 				WaveForm::Sample sample;
 				sample.timeSeconds = (double(i) / double(numSamples)) * durationSeconds;
 				sample.amplitude = this->waveParams.amplitude * ::sin(2.0 * ADL_PI * (this->lifeTimeSeconds + sample.timeSeconds) * this->waveParams.frequency);
-				waveForm.AddSample(sample);
+				waveForm->AddSample(sample);
 			}
 			break;
 		}
@@ -45,7 +45,7 @@ OscillatorModule::OscillatorModule()
 					sample.amplitude = this->waveParams.amplitude;
 				else
 					sample.amplitude = -this->waveParams.amplitude;
-				waveForm.AddSample(sample);
+				waveForm->AddSample(sample);
 			}
 			break;
 		}
@@ -57,7 +57,7 @@ OscillatorModule::OscillatorModule()
 				sample.timeSeconds = (double(i) / double(numSamples)) * durationSeconds;
 				double angle = ::fmod(2.0 * ADL_PI * (this->lifeTimeSeconds + sample.timeSeconds) * this->waveParams.frequency, 2.0 * ADL_PI);
 				sample.amplitude = (1.0 - angle / ADL_PI) * this->waveParams.amplitude;
-				waveForm.AddSample(sample);
+				waveForm->AddSample(sample);
 			}
 			break;
 		}

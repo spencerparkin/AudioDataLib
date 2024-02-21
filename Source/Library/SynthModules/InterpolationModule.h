@@ -10,6 +10,6 @@ namespace AudioDataLib
 		InterpolationModule();
 		virtual ~InterpolationModule();
 
-		virtual bool GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, Error& error) override;
+		virtual bool GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm* waveForm, std::vector<WaveForm>* waveFormsArray, Error& error) override;
 	};
 }

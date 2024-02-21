@@ -19,7 +19,7 @@ LoopedAudioModule::LoopedAudioModule()
 	delete this->loopedWaveForm;
 }
 
-/*virtual*/ bool LoopedAudioModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, Error& error)
+/*virtual*/ bool LoopedAudioModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm* waveForm, std::vector<WaveForm>* waveFormsArray, Error& error)
 {
 	if (!this->loopedWaveForm)
 	{
@@ -27,7 +27,7 @@ LoopedAudioModule::LoopedAudioModule()
 		return false;
 	}
 
-	waveForm.Clear();
+	waveForm->Clear();
 
 	double generatedSoundTimeSeconds = 0.0;
 	double deltaTimeSeconds = 1.0 / samplesPerSecond;
@@ -37,7 +37,7 @@ LoopedAudioModule::LoopedAudioModule()
 		WaveForm::Sample sample;
 		sample.timeSeconds = generatedSoundTimeSeconds;
 		sample.amplitude = (*this->loopedWaveForm)->EvaluateAt(this->localTimeSeconds);
-		waveForm.AddSample(sample);
+		waveForm->AddSample(sample);
 
 		if (generatedSoundTimeSeconds == durationSeconds)
 			break;
