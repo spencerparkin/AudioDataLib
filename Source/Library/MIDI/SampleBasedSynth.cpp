@@ -4,6 +4,8 @@
 #include "PitchShiftModule.h"
 #include "AttenuationModule.h"
 #include "ReverbModule.h"
+#include "DuplicationModule.h"
+#include "DelayModule.h"
 #include "MidiData.h"
 #include "MixerModule.h"
 #include "Function.h"
@@ -13,6 +15,7 @@ using namespace AudioDataLib;
 
 SampleBasedSynth::SampleBasedSynth()
 {
+	this->reverbEnabled = false;
 	this->estimateFrequencies = false;
 	this->soundFontMap = new SoundFontMap();
 	this->channelMap = new ChannelMap();
@@ -20,11 +23,7 @@ SampleBasedSynth::SampleBasedSynth()
 	this->leftEarRootModule = new std::shared_ptr<SynthModule>();
 	this->rightEarRootModule = new std::shared_ptr<SynthModule>();
 
-	this->leftEarRootModule->reset(new ReverbModule(0));
-	this->rightEarRootModule->reset(new ReverbModule(1));
-
-	(*this->leftEarRootModule)->AddDependentModule(std::shared_ptr<SynthModule>(new MixerModule()));
-	(*this->rightEarRootModule)->AddDependentModule(std::shared_ptr<SynthModule>(new MixerModule()));
+	this->SetReverbEnabled(false);
 }
 
 /*virtual*/ SampleBasedSynth::~SampleBasedSynth()
@@ -117,8 +116,9 @@ SampleBasedSynth::SampleBasedSynth()
 			if (!this->GenerateModuleGraph(audioSample, SoundFontData::LoopedAudioData::ChannelType::LEFT_EAR, noteFrequency, note.leftEarModule, error))
 				return false;
 
-			if (!this->GenerateModuleGraph(audioSample, SoundFontData::LoopedAudioData::ChannelType::RIGHT_EAR, noteFrequency, note.rightEarModule, error))
-				return false;
+			if(!this->reverbEnabled)
+				if (!this->GenerateModuleGraph(audioSample, SoundFontData::LoopedAudioData::ChannelType::RIGHT_EAR, noteFrequency, note.rightEarModule, error))
+					return false;
 
 			this->noteMap->insert(std::pair<uint8_t, Note>(pitchValue, note));
 
@@ -126,7 +126,16 @@ SampleBasedSynth::SampleBasedSynth()
 			leftMixerModule->AddDependentModule(note.leftEarModule);
 
 			MixerModule* rightMixerModule = (*this->rightEarRootModule)->FindModule<MixerModule>();
-			rightMixerModule->AddDependentModule(note.rightEarModule);
+			if(!this->reverbEnabled)
+				rightMixerModule->AddDependentModule(note.rightEarModule);
+			else
+			{
+				if (rightMixerModule != leftMixerModule)
+				{
+					error.Add("Expected only one mixer module in the reverb case!");
+					return false;
+				}
+			}
 
 			break;
 		}
@@ -141,18 +150,24 @@ SampleBasedSynth::SampleBasedSynth()
 
 				// Some notes die before a key is released, while others die some time after the key is released.
 
-				auto attenuationModuleLeft = note.leftEarModule->FindModule<AttenuationModule>();
-				if (attenuationModuleLeft)
+				if (note.leftEarModule.get())
 				{
-					attenuationModuleLeft->SetAttenuationFunction(new LinearFallOffFunction(0.05));
-					attenuationModuleLeft->TriggerFallOff();
+					auto attenuationModuleLeft = note.leftEarModule->FindModule<AttenuationModule>();
+					if (attenuationModuleLeft)
+					{
+						attenuationModuleLeft->SetAttenuationFunction(new LinearFallOffFunction(0.05));
+						attenuationModuleLeft->TriggerFallOff();
+					}
 				}
 
-				auto attenuationModuleRight = note.rightEarModule->FindModule<AttenuationModule>();
-				if (attenuationModuleRight)
+				if (note.rightEarModule.get())
 				{
-					attenuationModuleRight->SetAttenuationFunction(new LinearFallOffFunction(0.05));
-					attenuationModuleRight->TriggerFallOff();
+					auto attenuationModuleRight = note.rightEarModule->FindModule<AttenuationModule>();
+					if (attenuationModuleRight)
+					{
+						attenuationModuleRight->SetAttenuationFunction(new LinearFallOffFunction(0.05));
+						attenuationModuleRight->TriggerFallOff();
+					}
 				}
 
 				this->noteMap->erase(iter);
@@ -205,29 +220,47 @@ bool SampleBasedSynth::GenerateModuleGraph(
 	{
 	case 0:
 		return this->leftEarRootModule->get();
-//	case 1:
-//		return this->rightEarRootModule->get();		TODO: How do we enable both channels and have reverb work at the same time?
+	case 1:
+		return this->rightEarRootModule->get();
 	default:
 		return nullptr;
 	}
 }
 
-bool SampleBasedSynth::ToggleReverb()
+void SampleBasedSynth::SetReverbEnabled(bool reverbEnabled)
 {
-	bool enabled = false;
+	this->reverbEnabled = reverbEnabled;
 
-	ReverbModule* leftReverbModule = (*this->leftEarRootModule)->FindModule<ReverbModule>();
-	if (leftReverbModule)
+	this->leftEarRootModule->reset();
+	this->rightEarRootModule->reset();
+
+	if (this->reverbEnabled)
 	{
-		enabled = !leftReverbModule->GetEnabled();
-		leftReverbModule->SetEnabled(enabled);
+		auto leftDelayModule = new DelayModule();
+		auto rightDelayModule = new DelayModule();
 
-		ReverbModule* rightReverbModule = (*this->rightEarRootModule)->FindModule<ReverbModule>();
-		if (rightReverbModule)
-			rightReverbModule->SetEnabled(enabled);
+		leftDelayModule->SetDelay(0.0);
+		rightDelayModule->SetDelay(12.0 / 1000.0);
+
+		this->leftEarRootModule->reset(leftDelayModule);
+		this->rightEarRootModule->reset(rightDelayModule);
+
+		auto mixerModule = new MixerModule();
+
+		auto reverbModule = new ReverbModule(0);
+		reverbModule->AddDependentModule(std::shared_ptr<SynthModule>(mixerModule));
+
+		std::shared_ptr<SynthModule> duplicationModule(new DuplicationModule());
+		duplicationModule->AddDependentModule(std::shared_ptr<SynthModule>(reverbModule));
+
+		leftDelayModule->AddDependentModule(duplicationModule);
+		rightDelayModule->AddDependentModule(duplicationModule);
 	}
-
-	return enabled;
+	else
+	{
+		this->leftEarRootModule->reset(new MixerModule());
+		this->rightEarRootModule->reset(new MixerModule());
+	}
 }
 
 /*virtual*/ bool SampleBasedSynth::Initialize(Error& error)

@@ -48,6 +48,9 @@ DelayModule::DelayModule() : waveFormStream(2, 0.5)
 		WaveForm::Sample delayedSample;
 		delayedSample.timeSeconds = timeSeconds;
 		delayedSample.amplitude = this->waveFormStream.EvaluateAt(this->localTimeSeconds - this->delaySeconds + timeSeconds);
+		waveForm.AddSample(delayedSample);
+		if (timeSeconds == durationSeconds)
+			break;
 		timeSeconds += deltaTimeSeconds;
 		if (timeSeconds > durationSeconds)
 			timeSeconds = durationSeconds;

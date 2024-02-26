@@ -26,10 +26,12 @@ namespace AudioDataLib
 		SoundFontData* GetSoundFontData(uint16_t instrument);
 
 		void Clear();
-		bool ToggleReverb();
+		void SetReverbEnabled(bool reverbEnabled);
+		bool GetReverbEnabled() { return this->reverbEnabled; }
 
 	private:
 		bool estimateFrequencies;
+		bool reverbEnabled;
 
 		// This maps channel to instrument number.
 		typedef std::map<uint16_t, uint16_t> ChannelMap;

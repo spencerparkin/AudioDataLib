@@ -540,7 +540,8 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 							SampleBasedSynth* synth = source->FindDestination<SampleBasedSynth>();
 							if (synth)
 							{
-								bool enabled = synth->ToggleReverb();
+								bool enabled = !synth->GetReverbEnabled();
+								synth->SetReverbEnabled(enabled);
 								printf("Reverb %s\n", (enabled ? "ON" : "OFF"));
 							}
 							break;
