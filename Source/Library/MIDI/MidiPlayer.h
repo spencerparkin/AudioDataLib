@@ -45,11 +45,11 @@ namespace AudioDataLib
 			TrackPlayer(uint32_t trackOffset, const MidiData::MetaEvent::Tempo& tempo);
 			virtual ~TrackPlayer();
 
-			bool Advance(double deltaTimeSeconds, MidiPlayer* midiPlayer, bool makeSound, Error& error);
+			bool Advance(double deltaTimeSeconds, MidiPlayer* midiPlayer, Error& error);
 			bool MoreToPlay(MidiPlayer* midiPlayer);
 
 		private:
-			bool ProcessEvent(const MidiData::Event* event, MidiPlayer* midiPlayer, bool makeSound, Error& error);
+			bool ProcessEvent(const MidiData::Event* event, MidiPlayer* midiPlayer, Error& error);
 
 			uint32_t trackOffset;
 			uint32_t nextTrackEventOffset;

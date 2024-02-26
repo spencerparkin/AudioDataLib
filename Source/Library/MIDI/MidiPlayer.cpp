@@ -93,8 +93,6 @@ void MidiPlayer::ConfigureToPlayAllTracks() const
 	{
 		auto trackPlayer = new TrackPlayer(trackOffset, initialTempo);
 		this->trackPlayerArray->push_back(trackPlayer);
-		if (!trackPlayer->Advance(this->timeSeconds, this, false, error))
-			return false;
 	}
 
 	if (!this->timer)
@@ -131,7 +129,7 @@ void MidiPlayer::ConfigureToPlayAllTracks() const
 
 	// Synchronization between the tracks here is called into question in my mind.  Hmmmmm.
 	for (TrackPlayer* trackPlayer : *this->trackPlayerArray)
-		if (!trackPlayer->Advance(deltaTimeSeconds, this, true, error))
+		if (!trackPlayer->Advance(deltaTimeSeconds, this, error))
 			return false;
 
 	return true;
@@ -193,7 +191,7 @@ bool MidiPlayer::TrackPlayer::MoreToPlay(MidiPlayer* midiPlayer)
 	return this->nextTrackEventOffset < track->GetEventArray().size();
 }
 
-bool MidiPlayer::TrackPlayer::Advance(double deltaTimeSeconds, MidiPlayer* midiPlayer, bool makeSound, Error& error)
+bool MidiPlayer::TrackPlayer::Advance(double deltaTimeSeconds, MidiPlayer* midiPlayer, Error& error)
 {
 	const MidiData::Track* track = midiPlayer->midiData->GetTrack(this->trackOffset);
 	if (!track)
@@ -227,7 +225,7 @@ bool MidiPlayer::TrackPlayer::Advance(double deltaTimeSeconds, MidiPlayer* midiP
 		{
 			this->timeSinceLastEventSeconds -= timeBeforeNextEventSeconds;
 
-			if (!this->ProcessEvent(event, midiPlayer, makeSound, error))
+			if (!this->ProcessEvent(event, midiPlayer, error))
 				return false;
 
 			this->nextTrackEventOffset++;
@@ -237,7 +235,7 @@ bool MidiPlayer::TrackPlayer::Advance(double deltaTimeSeconds, MidiPlayer* midiP
 	return true;
 }
 
-bool MidiPlayer::TrackPlayer::ProcessEvent(const MidiData::Event* event, MidiPlayer* midiPlayer, bool makeSound, Error& error)
+bool MidiPlayer::TrackPlayer::ProcessEvent(const MidiData::Event* event, MidiPlayer* midiPlayer, Error& error)
 {
 	const MidiData::MetaEvent* metaEvent = dynamic_cast<const MidiData::MetaEvent*>(event);
 	const MidiData::ChannelEvent* channelEvent = dynamic_cast<const MidiData::ChannelEvent*>(event);
@@ -255,9 +253,6 @@ bool MidiPlayer::TrackPlayer::ProcessEvent(const MidiData::Event* event, MidiPla
 	}
 	else if (channelEvent)
 	{
-		if (channelEvent->type == MidiData::ChannelEvent::Type::NOTE_ON && !makeSound)
-			return true;
-
 		WriteOnlyBufferStream bufferStream(this->messageBuffer, ADL_MIDI_MESSAGE_BUFFER_SIZE);
 
 		if (!channelEvent->Encode(bufferStream, error))
