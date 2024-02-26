@@ -149,6 +149,9 @@ namespace AudioDataLib
 		void AddSample(const WaveForm::Sample& sample);
 		void Clear();
 		double GetDurationSeconds() const;
+		double GetStartTimeSeconds() const;
+		double GetEndTimeSeconds() const;
+		bool AnyAudibleSampleFound() const;
 
 	protected:
 		

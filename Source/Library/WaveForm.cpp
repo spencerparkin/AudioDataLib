@@ -655,20 +655,46 @@ void WaveFormStream::AddSample(const WaveForm::Sample& sample)
 
 double WaveFormStream::GetDurationSeconds() const
 {
+	return this->GetEndTimeSeconds() - this->GetStartTimeSeconds();
+}
+
+double WaveFormStream::GetStartTimeSeconds() const
+{
 	if (this->waveFormList->size() == 0)
 		return 0.0;
 
 	const WaveForm* firstWaveForm = *this->waveFormList->begin();
-	const WaveForm* lastWaveForm = this->waveFormList->back();
-
 	if (firstWaveForm->GetSampleArray().size() == 0)
 		return 0.0;
 
+	const WaveForm::Sample& firstSample = firstWaveForm->GetSampleArray()[0];
+	return firstSample.timeSeconds;
+}
+
+double WaveFormStream::GetEndTimeSeconds() const
+{
+	if (this->waveFormList->size() == 0)
+		return 0.0;
+
+	const WaveForm* lastWaveForm = this->waveFormList->back();
 	if (lastWaveForm->GetSampleArray().size() == 0)
 		return 0.0;
 
-	const WaveForm::Sample& firstSample = firstWaveForm->GetSampleArray()[0];
 	const WaveForm::Sample& lastSample = lastWaveForm->GetSampleArray()[lastWaveForm->GetSampleArray().size() - 1];
+	return lastSample.timeSeconds;
+}
 
-	return lastSample.timeSeconds - firstSample.timeSeconds;
+bool WaveFormStream::AnyAudibleSampleFound() const
+{
+	for (const WaveForm* waveForm : *this->waveFormList)
+	{
+		for (const WaveForm::Sample& sample : waveForm->GetSampleArray())
+		{
+			constexpr double threshold = 1e-3;	// TODO: Should this be a global define somewhere?
+			if (::fabs(sample.amplitude) >= threshold)
+				return true;
+		}
+	}
+
+	return false;
 }
