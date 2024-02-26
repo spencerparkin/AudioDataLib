@@ -744,6 +744,9 @@ MidiData::MetaEvent::TimeSignature::operator std::string() const
 		}
 		case Type::END_OF_TRACK:
 		{
+			if (!MidiFileFormat::EncodeVariableLengthValue(0, outputStream, error))
+				break;
+
 			successfulEncoding = true;
 			break;
 		}
