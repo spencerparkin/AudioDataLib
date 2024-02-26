@@ -312,6 +312,7 @@ namespace AudioDataLib
 		};
 
 		FormatType GetFormatType() const { return this->formatType; }
+		void SetFormatType(FormatType formatType) { this->formatType = formatType; }
 		const Timing& GetTiming() const { return this->timing; }
 		void SetTiming(Timing timing) { this->timing = timing; }
 		const Track* GetTrack(uint32_t i) const;

@@ -64,21 +64,30 @@ void MidiPlayer::ConfigureToPlayAllTracks() const
 		return false;
 	}
 
-	MidiData::MetaEvent::Tempo initialTempo{ 500000 };
-
-	if (this->midiData->GetFormatType() == MidiData::FormatType::MULTI_TRACK)
+	if (this->tracksToPlaySet->size() == 0)
 	{
-		const MidiData::Track* infoTrack = this->midiData->GetTrack(0);
-		if (!infoTrack)
-		{
-			error.Add("Could not get info track for multi-track MIDI data.");
-			return false;
-		}
-
-		const MidiData::MetaEvent* tempoEvent = infoTrack->FindMetaEventOfType(MidiData::MetaEvent::Type::SET_TEMPO);
-		if (tempoEvent)
-			initialTempo = *tempoEvent->GetData<MidiData::MetaEvent::Tempo>();
+		error.Add("Given tracks-to-play set is empty.");
+		return false;
 	}
+
+	if (this->midiData->GetFormatType() != MidiData::FormatType::MULTI_TRACK &&
+		this->midiData->GetFormatType() != MidiData::FormatType::SINGLE_TRACK)
+	{
+		error.Add(FormatString("MIDI type (%d) not yet supported.", uint32_t(this->midiData->GetFormatType())));
+		return false;
+	}
+
+	const MidiData::Track* infoTrack = this->midiData->GetTrack(0);
+	if (!infoTrack)
+	{
+		error.Add("Could not get info track from MIDI data.");
+		return false;
+	}
+
+	MidiData::MetaEvent::Tempo initialTempo{ 500000 };
+	const MidiData::MetaEvent* tempoEvent = infoTrack->FindMetaEventOfType(MidiData::MetaEvent::Type::SET_TEMPO);
+	if (tempoEvent)
+		initialTempo = *tempoEvent->GetData<MidiData::MetaEvent::Tempo>();
 
 	for (uint32_t trackOffset : *this->tracksToPlaySet)
 	{

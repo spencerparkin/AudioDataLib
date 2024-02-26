@@ -7,7 +7,6 @@
 #include "MidiPortSource.h"
 #include "MidiPortDestination.h"
 #include "MidiDebugSource.h"
-#include "MidiMsgLogDestination.h"
 #include "MidiMsgRecorderDestination.h"
 #include "MidiFileFormat.h"
 #include "MidiPlayer.h"
@@ -144,7 +143,7 @@ int main(int argc, char** argv)
 
 		if (midiData.get())
 		{
-			if (!PlayMidiData(midiData.get(), error))
+			if (!PlayMidiData(midiData.get(), parser.ArgGiven("log_midi"), error))
 				retCode = -1;
 		}
 		else if (audioData.get())
@@ -355,18 +354,7 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 			source = new MidiPortSource(desiredPortName);
 
 		if (parser.ArgGiven("log_midi"))
-		{
-			class StdoutLogDestination : public MidiMsgLogDestination
-			{
-			public:
-				virtual void LogMessage(const std::string& logMessage) override
-				{
-					printf("MIDI LOG: %s\n", logMessage.c_str());
-				}
-			};
-
 			source->AddDestination(std::shared_ptr<MidiMsgDestination>(new StdoutLogDestination()));
-		}
 
 		if (parser.ArgGiven("record_midi"))
 		{
@@ -622,7 +610,7 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 	return success;
 }
 
-bool PlayMidiData(AudioDataLib::MidiData* midiData, AudioDataLib::Error& error)
+bool PlayMidiData(AudioDataLib::MidiData* midiData, bool logMidiMessages, AudioDataLib::Error& error)
 {
 	bool success = false;
 	SystemClockTimer timer;
@@ -644,6 +632,9 @@ bool PlayMidiData(AudioDataLib::MidiData* midiData, AudioDataLib::Error& error)
 			error.Add(keyboardError);
 			break;
 		}
+
+		if (logMidiMessages)
+			player.AddDestination(std::shared_ptr<MidiMsgDestination>(new StdoutLogDestination()));
 
 		player.AddDestination(std::shared_ptr<MidiMsgDestination>(new MidiPortDestination()));
 		player.SetMidiData(midiData);
