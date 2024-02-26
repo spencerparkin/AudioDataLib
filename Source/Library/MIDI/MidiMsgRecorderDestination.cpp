@@ -96,7 +96,7 @@ void MidiMsgRecorderDestination::Clear()
 	metaEvent->data = tempo;
 	track->AddEvent(metaEvent);
 
-	double ticksPerMillisecond = double(timing.ticksPerQuarterNote) / double(tempo->microsecondsPerQuarterNote);
+	double ticksPerMicrosecond = double(timing.ticksPerQuarterNote) / double(tempo->microsecondsPerQuarterNote);
 
 	for (const MessageData* messageData : *this->messageDataArray)
 	{
@@ -137,8 +137,8 @@ void MidiMsgRecorderDestination::Clear()
 			return false;
 		}
 
-		double deltaTimeMilliseconds = messageData->deltaTimeSeconds * 1000.0;
-		event->deltaTimeTicks = uint64_t(deltaTimeMilliseconds * ticksPerMillisecond);
+		double deltaTimeMicroseconds = messageData->deltaTimeSeconds * 1000000.0;
+		event->deltaTimeTicks = uint64_t(deltaTimeMicroseconds * ticksPerMicrosecond);
 
 		track->AddEvent(event);
 	}
