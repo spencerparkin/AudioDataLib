@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SynthModule.h"
+#include "WaveForm.h"
 
 namespace AudioDataLib
 {
@@ -18,5 +19,9 @@ namespace AudioDataLib
 
 		virtual bool GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, SynthModule* callingModule, Error& error) override;
 		virtual bool MoreSoundAvailable() override;
+
+	private:
+		SynthModule* masterModule;
+		WaveForm cachedWaveForm;
 	};
 }
