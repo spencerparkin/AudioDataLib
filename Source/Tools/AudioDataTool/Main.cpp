@@ -684,7 +684,7 @@ bool PlayAudioData(AudioDataLib::AudioData* audioData, CmdLineParser& parser, Au
 {
 	bool success = false;
 	SDLAudio player(SDLAudio::AudioDirection::SOUND_OUT);
-	AudioSink audioSink(true, true);
+	AudioSink audioSink;
 	Keyboard* keyboard = nullptr;
 	std::string keyboardError;
 
@@ -817,7 +817,7 @@ bool MixAudio(const std::vector<std::string>& sourceFileArray, const std::string
 		return false;
 	}
 
-	AudioSink audioSink(true, true);
+	AudioSink audioSink;
 
 	AudioData::Format format;
 	format.bitsPerSample = 0;

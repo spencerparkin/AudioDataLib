@@ -12,7 +12,7 @@ namespace AudioDataLib
 	class AUDIO_DATA_LIB_API AudioSink
 	{
 	public:
-		AudioSink(bool ownInputStreams, bool ownOutputStream);
+		AudioSink();
 		virtual ~AudioSink();
 
 		void Clear();
@@ -95,7 +95,5 @@ namespace AudioDataLib
 
 		std::vector<std::shared_ptr<AudioStream>>* audioStreamInArray;
 		std::shared_ptr<AudioStream>* audioStreamOut;
-		bool ownInputStreams;
-		bool ownOutputStream;
 	};
 }
