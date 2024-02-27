@@ -11,8 +11,8 @@ Current features are as follows.
  * Load MIDI files.
  * Load SF2 (sound-font) files.
  * Mix/convert PCM/float audio for real-time playback of SFX.  (You provide the audio callback.)
- * Playback MIDI files.  (You provide access to the input MIDI port.)
- * Synthesize MIDI messages into real-time, SF-based audio.  (You provide access to the output MIDI port.)
+ * Playback MIDI files.  (You provide access to the MIDI port where messages are sent.)
+ * Synthesize MIDI messages into real-time, SF-based audio.  (You provide access to the MIDI port where message are received.)
 
 ## Documentation
 

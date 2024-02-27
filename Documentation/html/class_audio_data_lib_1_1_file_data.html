@@ -99,6 +99,9 @@ $(function(){initNavTree('class_audio_data_lib_1_1_file_data.html',''); initResi
 </div><!--header-->
 <div class="contents">
 
+<p>The base class for any kind of data (typically audio data) loaded from a file.  
+ <a href="#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="_file_data_8h_source.html">FileData.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for AudioDataLib::FileData:</div>
@@ -106,9 +109,9 @@ Inheritance diagram for AudioDataLib::FileData:</div>
  <div class="center">
   <img src="class_audio_data_lib_1_1_file_data.png" usemap="#AudioDataLib::FileData_map" alt=""/>
   <map id="AudioDataLib::FileData_map" name="AudioDataLib::FileData_map">
-<area href="class_audio_data_lib_1_1_audio_data.html" alt="AudioDataLib::AudioData" shape="rect" coords="0,56,288,80"/>
-<area href="class_audio_data_lib_1_1_midi_data.html" alt="AudioDataLib::MidiData" shape="rect" coords="298,56,586,80"/>
-<area href="class_audio_data_lib_1_1_sound_font_data.html" alt="AudioDataLib::SoundFontData" shape="rect" coords="596,56,884,80"/>
+<area href="class_audio_data_lib_1_1_audio_data.html" title="This is a container for raw audio data in a particular format, ready to be sent to a sound card,..." alt="AudioDataLib::AudioData" shape="rect" coords="0,56,288,80"/>
+<area href="class_audio_data_lib_1_1_midi_data.html" title="This data representing the contents of a MIDI file." alt="AudioDataLib::MidiData" shape="rect" coords="298,56,586,80"/>
+<area href="class_audio_data_lib_1_1_sound_font_data.html" title="An instance of this class represents all the data you can find in a single sound-font file." alt="AudioDataLib::SoundFontData" shape="rect" coords="596,56,884,80"/>
 <area href="class_audio_data_lib_1_1_sound_font_data_1_1_looped_audio_data.html" alt="AudioDataLib::SoundFontData::LoopedAudioData" shape="rect" coords="0,112,288,136"/>
   </map>
 </div></div>
@@ -126,7 +129,10 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a627e23a4b9418d8625997362feeb69e1" id="r_a627e23a4b9418d8625997362feeb69e1"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="class_audio_data_lib_1_1_file_data.html">FileData</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a627e23a4b9418d8625997362feeb69e1">Clone</a> () const =0</td></tr>
 <tr class="separator:a627e23a4b9418d8625997362feeb69e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>The base class for any kind of data (typically audio data) loaded from a file. </p>
+<p>Dynamic casts are typically used to decypher what kind of data the user is given when handed a pointer to this base class. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a30b20e96f6ac9712a9e3c161b949112f" name="a30b20e96f6ac9712a9e3c161b949112f"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a30b20e96f6ac9712a9e3c161b949112f">&#9670;&#160;</a></span>FileData()</h2>
 
@@ -192,6 +198,7 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>The derived implimentation should return a new derived instance of the class in question with identical, but separate data. </p>
 
 <p>Implemented in <a class="el" href="class_audio_data_lib_1_1_audio_data.html#a47f89915de8be90d1c8f947ce0b2dd89">AudioDataLib::AudioData</a>, <a class="el" href="class_audio_data_lib_1_1_midi_data.html#a6c86f5f33901316b97903f95ed70c864">AudioDataLib::MidiData</a>, <a class="el" href="class_audio_data_lib_1_1_sound_font_data.html#a7999bd1bbb89f550b6810a7e5e657f5c">AudioDataLib::SoundFontData</a>, and <a class="el" href="class_audio_data_lib_1_1_sound_font_data_1_1_looped_audio_data.html#acb5765732abaf63a15ae33098bdc27b4">AudioDataLib::SoundFontData::LoopedAudioData</a>.</p>
 
@@ -219,6 +226,13 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Derivative implimentations should produce a command-separated list of human-readable data which can also be loaded as a CVS in spreadsheet software.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">fp</td><td>A pointer to a FILE object to which the text should be written. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 <p>Implemented in <a class="el" href="class_audio_data_lib_1_1_audio_data.html#aaf8bd01bd58d7208384c06645df57419">AudioDataLib::AudioData</a>, <a class="el" href="class_audio_data_lib_1_1_midi_data.html#adabd60d7c9689fff39db444b1f84baaa">AudioDataLib::MidiData</a>, and <a class="el" href="class_audio_data_lib_1_1_sound_font_data.html#ac8cb3b332adec885f1ee8cadd619c5c2">AudioDataLib::SoundFontData</a>.</p>
 
@@ -246,6 +260,13 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Derivative implimentations should produce informative, human-readable text about the file data.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">fp</td><td>A pointer to a FILE object to which the text should be written. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 <p>Implemented in <a class="el" href="class_audio_data_lib_1_1_audio_data.html#a56b4bdcd705c67a2df0510688cb25743">AudioDataLib::AudioData</a>, <a class="el" href="class_audio_data_lib_1_1_midi_data.html#a4787276fc6e4b58d0be6c0e5006b49b8">AudioDataLib::MidiData</a>, <a class="el" href="class_audio_data_lib_1_1_sound_font_data.html#a4529658d471aaf04962b893665baba31">AudioDataLib::SoundFontData</a>, and <a class="el" href="class_audio_data_lib_1_1_sound_font_data_1_1_looped_audio_data.html#abf004b90beee207a15fb8569a5d8438d">AudioDataLib::SoundFontData::LoopedAudioData</a>.</p>
 

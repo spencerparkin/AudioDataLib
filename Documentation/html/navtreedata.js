@@ -25,6 +25,8 @@
 var NAVTREE =
 [
   [ "AudioDataLib", "index.html", [
+    [ "Introduction & Motivation", "index.html#intro_sec", null ],
+    [ "Capabilities", "index.html#caps_sec", null ],
     [ "Namespaces", "namespaces.html", [
       [ "Namespace List", "namespaces.html", "namespaces_dup" ],
       [ "Namespace Members", "namespacemembers.html", [
@@ -65,7 +67,7 @@ var NAVTREEINDEX =
 "class_audio_data_lib_1_1_recursive_filter.html#ae41eb34611c63f900b06ceef29d920f1",
 "class_audio_data_lib_1_1_thread_safe_audio_stream.html#a2403432fb9e00b61b41ca2343f531388",
 "functions_func_b.html",
-"struct_audio_data_lib_1_1_sound_font_data_1_1_looped_audio_data_1_1_midi_key_info.html"
+"struct_audio_data_lib_1_1_sound_font_data_1_1_looped_audio_data_1_1_loop.html#ad21950e94e51a96bbf70557fcedf1490"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

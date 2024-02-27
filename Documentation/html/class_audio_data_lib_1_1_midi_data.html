@@ -104,6 +104,9 @@ $(function(){initNavTree('class_audio_data_lib_1_1_midi_data.html',''); initResi
 </div><!--header-->
 <div class="contents">
 
+<p>This data representing the contents of a MIDI file.  
+ <a href="#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="_midi_data_8h_source.html">MidiData.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for AudioDataLib::MidiData:</div>
@@ -111,7 +114,7 @@ Inheritance diagram for AudioDataLib::MidiData:</div>
  <div class="center">
   <img src="class_audio_data_lib_1_1_midi_data.png" usemap="#AudioDataLib::MidiData_map" alt=""/>
   <map id="AudioDataLib::MidiData_map" name="AudioDataLib::MidiData_map">
-<area href="class_audio_data_lib_1_1_file_data.html" alt="AudioDataLib::FileData" shape="rect" coords="0,0,144,24"/>
+<area href="class_audio_data_lib_1_1_file_data.html" title="The base class for any kind of data (typically audio data) loaded from a file." alt="AudioDataLib::FileData" shape="rect" coords="0,0,144,24"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -128,6 +131,7 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_audio_data_lib_1_1_midi_data_1_1_timing.html">Timing</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_audio_data_lib_1_1_midi_data_1_1_track.html">Track</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">This is a single time-line of MIDI messages (also called events), or a sequence of MIDI messages meant to execute one after another.  <a href="class_audio_data_lib_1_1_midi_data_1_1_track.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
@@ -199,7 +203,10 @@ Friends</h2></td></tr>
 <tr class="memitem:a00a73aea5861dc6cdc5a5ecd9a8cad31" id="r_a00a73aea5861dc6cdc5a5ecd9a8cad31"><td class="memItemLeft" align="right" valign="top">class&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a00a73aea5861dc6cdc5a5ecd9a8cad31">MidiFileFormat</a></td></tr>
 <tr class="separator:a00a73aea5861dc6cdc5a5ecd9a8cad31"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Member Enumeration Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>This data representing the contents of a MIDI file. </p>
+<p>Instances of this class can be used to read or write MIDI file data. They can also be passed to the <a class="el" href="class_audio_data_lib_1_1_midi_player.html">MidiPlayer</a> class or the <a class="el" href="class_audio_data_lib_1_1_midi_msg_recorder_destination.html">MidiMsgRecorderDestination</a> class for playback or recording, respectively. </p>
+</div><h2 class="groupheader">Member Enumeration Documentation</h2>
 <a id="a1127058abc73c6cb4115791a072f6573" name="a1127058abc73c6cb4115791a072f6573"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a1127058abc73c6cb4115791a072f6573">&#9670;&#160;</a></span>FormatType</h2>
 
@@ -211,6 +218,7 @@ Friends</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>This is the type of MIDI data you're dealing with. As of this writing, there is no support for VARIOUS_TRACKS, but the others are supported. </p>
 <table class="fieldtable">
 <tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a1127058abc73c6cb4115791a072f6573a50f7b65e47117b33aad42cd920758f08" name="a1127058abc73c6cb4115791a072f6573a50f7b65e47117b33aad42cd920758f08"></a>SINGLE_TRACK&#160;</td><td class="fielddoc"></td></tr>
 <tr><td class="fieldname"><a id="a1127058abc73c6cb4115791a072f6573ae86f79fb54e223257014ecc18f08ae4b" name="a1127058abc73c6cb4115791a072f6573ae86f79fb54e223257014ecc18f08ae4b"></a>MULTI_TRACK&#160;</td><td class="fielddoc"></td></tr>
@@ -303,6 +311,16 @@ Friends</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Calculate and return the time duration (in seconds) of the MIDI data for a given track.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">i</td><td>This is the zero-based track number. Use GetNumTracks to know how many tracks there are. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">totalTimeSeconds</td><td>The playback length of the track measured in seconds. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">error</td><td>An <a class="el" href="class_audio_data_lib_1_1_error.html">Error</a> object instance containing error information if something went wrong. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True is returned on success, otherwise false, and the error parameter should have reasons for the failure. </dd></dl>
 
 </div>
 </div>
@@ -320,6 +338,7 @@ Friends</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Remove all tracks from this MIDI file data object. </p>
 
 </div>
 </div>
@@ -345,6 +364,7 @@ Friends</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>The derived implimentation should return a new derived instance of the class in question with identical, but separate data. </p>
 
 <p>Implements <a class="el" href="class_audio_data_lib_1_1_file_data.html#a627e23a4b9418d8625997362feeb69e1">AudioDataLib::FileData</a>.</p>
 
@@ -422,6 +442,13 @@ Friends</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Derivative implimentations should produce a command-separated list of human-readable data which can also be loaded as a CVS in spreadsheet software.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">fp</td><td>A pointer to a FILE object to which the text should be written. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 <p>Implements <a class="el" href="class_audio_data_lib_1_1_file_data.html#ad4d4dacc77a3a47c0748fe621836868a">AudioDataLib::FileData</a>.</p>
 
@@ -449,6 +476,13 @@ Friends</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Derivative implimentations should produce informative, human-readable text about the file data.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">fp</td><td>A pointer to a FILE object to which the text should be written. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 <p>Implements <a class="el" href="class_audio_data_lib_1_1_file_data.html#ad2558ef80b21fdc2daefbcd35ce185bc">AudioDataLib::FileData</a>.</p>
 

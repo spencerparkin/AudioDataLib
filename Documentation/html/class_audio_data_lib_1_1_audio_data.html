@@ -102,6 +102,9 @@ $(function(){initNavTree('class_audio_data_lib_1_1_audio_data.html',''); initRes
 </div><!--header-->
 <div class="contents">
 
+<p>This is a container for raw audio data in a particular format, ready to be sent to a sound card, or of how such data would appear coming from the sound card using a microphone.  
+ <a href="#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="_audio_data_8h_source.html">AudioData.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for AudioDataLib::AudioData:</div>
@@ -109,7 +112,7 @@ Inheritance diagram for AudioDataLib::AudioData:</div>
  <div class="center">
   <img src="class_audio_data_lib_1_1_audio_data.png" usemap="#AudioDataLib::AudioData_map" alt=""/>
   <map id="AudioDataLib::AudioData_map" name="AudioDataLib::AudioData_map">
-<area href="class_audio_data_lib_1_1_file_data.html" alt="AudioDataLib::FileData" shape="rect" coords="0,0,288,24"/>
+<area href="class_audio_data_lib_1_1_file_data.html" title="The base class for any kind of data (typically audio data) loaded from a file." alt="AudioDataLib::FileData" shape="rect" coords="0,0,288,24"/>
 <area href="class_audio_data_lib_1_1_sound_font_data_1_1_looped_audio_data.html" alt="AudioDataLib::SoundFontData::LoopedAudioData" shape="rect" coords="0,112,288,136"/>
   </map>
 </div></div>
@@ -117,6 +120,7 @@ Inheritance diagram for AudioDataLib::AudioData:</div>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_audio_data_lib_1_1_audio_data_1_1_format.html">Format</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">This structure contains all the information you need to decipher the data in a given stream of raw audio data.  <a href="struct_audio_data_lib_1_1_audio_data_1_1_format.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_audio_data_lib_1_1_audio_data_1_1_meta_data.html">MetaData</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -185,7 +189,12 @@ Protected Attributes</h2></td></tr>
 <tr class="memitem:ac15038d62f33be028accb3090ae40777" id="r_ac15038d62f33be028accb3090ae40777"><td class="memItemLeft" align="right" valign="top"><a class="el" href="struct_audio_data_lib_1_1_audio_data_1_1_meta_data.html">MetaData</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac15038d62f33be028accb3090ae40777">metaData</a></td></tr>
 <tr class="separator:ac15038d62f33be028accb3090ae40777"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>This is a container for raw audio data in a particular format, ready to be sent to a sound card, or of how such data would appear coming from the sound card using a microphone. </p>
+<p>Note that this kind of data is not tied to any particular file format. As of this writing, the <a class="el" href="class_audio_data_lib_1_1_wave_file_format.html">WaveFileFormat</a> and <a class="el" href="class_audio_data_lib_1_1_aiff_file_format.html">AiffFileFormat</a> classes both produce this kind of data from file. Indirectly, an <a class="el" href="class_audio_data_lib_1_1_audio_data.html" title="This is a container for raw audio data in a particular format, ready to be sent to a sound card,...">AudioData</a> class instances is also produced from a sound-font file using the <a class="el" href="class_audio_data_lib_1_1_sound_font_format.html">SoundFontFormat</a> class.</p>
+<p>In contrast, the <a class="el" href="class_audio_data_lib_1_1_wave_form.html">WaveForm</a> class is used as a format-independent space where math calculations and transforms on audio data can more easily be performed. A typical use-case is that of resampling, or converting from one format to another. <a class="el" href="struct_audio_data_lib_1_1_audio_data_1_1_format.html" title="This structure contains all the information you need to decipher the data in a given stream of raw au...">Format</a> conversion proceeds by simply converting first, a given <a class="el" href="class_audio_data_lib_1_1_audio_data.html" title="This is a container for raw audio data in a particular format, ready to be sent to a sound card,...">AudioData</a> instance, into a <a class="el" href="class_audio_data_lib_1_1_wave_form.html">WaveForm</a> class instance, and then back to an <a class="el" href="class_audio_data_lib_1_1_audio_data.html" title="This is a container for raw audio data in a particular format, ready to be sent to a sound card,...">AudioData</a> instance of the desired audio format.</p>
+<p>Note that audio data is not typically handed to a sound-card using this class directly. Rather, an instance of the <a class="el" href="class_audio_data_lib_1_1_audio_stream.html">AudioStream</a> class in concert with the <a class="el" href="class_audio_data_lib_1_1_audio_sink.html">AudioSink</a> class is used to do that. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a8bb6ddb671a324453713570496f54e59" name="a8bb6ddb671a324453713570496f54e59"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a8bb6ddb671a324453713570496f54e59">&#9670;&#160;</a></span>AudioData()</h2>
 
@@ -243,6 +252,14 @@ Protected Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Calculate and cache meta-data (owned by this class instance) detailing information gleaned by an analysis of the audio data. See the <a class="el" href="struct_audio_data_lib_1_1_audio_data_1_1_meta_data.html">MetaData</a> class.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">error</td><td>An <a class="el" href="class_audio_data_lib_1_1_error.html">Error</a> class instance detailing error information if false is returned. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True is returned on success; false otherwise. </dd></dl>
 
 </div>
 </div>
@@ -268,6 +285,7 @@ Protected Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>The derived implimentation should return a new derived instance of the class in question with identical, but separate data. </p>
 
 <p>Implements <a class="el" href="class_audio_data_lib_1_1_file_data.html#a627e23a4b9418d8625997362feeb69e1">AudioDataLib::FileData</a>.</p>
 
@@ -297,6 +315,7 @@ Protected Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Allocate an instance of the <a class="el" href="class_audio_data_lib_1_1_audio_data.html" title="This is a container for raw audio data in a particular format, ready to be sent to a sound card,...">AudioData</a> class using the default constructor and return it. The main purpose of this is to make sure that memory is allocated or freed in the proper heap. It can also be useful when writing template functions. </p>
 
 </div>
 </div>
@@ -322,6 +341,7 @@ Protected Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Delete an instance of the <a class="el" href="class_audio_data_lib_1_1_audio_data.html" title="This is a container for raw audio data in a particular format, ready to be sent to a sound card,...">AudioData</a> class (or one of its derivatives.) The main purpose of this is to make sure that memory is allocated or freed in the proper heap. It can also be useful when writing template functions. </p>
 
 </div>
 </div>
@@ -347,6 +367,13 @@ Protected Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Derivative implimentations should produce a command-separated list of human-readable data which can also be loaded as a CVS in spreadsheet software.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">fp</td><td>A pointer to a FILE object to which the text should be written. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 <p>Implements <a class="el" href="class_audio_data_lib_1_1_file_data.html#ad4d4dacc77a3a47c0748fe621836868a">AudioDataLib::FileData</a>.</p>
 
@@ -374,6 +401,13 @@ Protected Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Derivative implimentations should produce informative, human-readable text about the file data.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">fp</td><td>A pointer to a FILE object to which the text should be written. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 <p>Implements <a class="el" href="class_audio_data_lib_1_1_file_data.html#ad2558ef80b21fdc2daefbcd35ce185bc">AudioDataLib::FileData</a>.</p>
 
@@ -453,6 +487,7 @@ Protected Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Get the size in bytes of this audio data. </p>
 
 </div>
 </div>
@@ -528,6 +563,7 @@ Protected Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Return the cached meta-data for this audio data. See the CalcMetaData function. </p>
 
 </div>
 </div>
@@ -545,6 +581,7 @@ Protected Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>This is really just the same thing as GetNumSamplesPerChannel, put another way. (Unless my brain is failing me right now.) </p>
 
 </div>
 </div>
@@ -562,6 +599,7 @@ Protected Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Return the number of samples in the audio stream across all channels. </p>
 
 </div>
 </div>
@@ -579,6 +617,7 @@ Protected Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Return the number of samples in a single channel of the audio stream. </p>
 
 </div>
 </div>
@@ -596,6 +635,7 @@ Protected Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Return the length of this audio data in seconds. </p>
 
 </div>
 </div>
@@ -613,6 +653,7 @@ Protected Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Set the size in bytes of this audio data. Any present audio data is destroyed by this operation. </p>
 
 </div>
 </div>
@@ -663,6 +704,7 @@ Protected Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Set the cached meta-data for this audio data. See also the CalcMetaData function. </p>
 
 </div>
 </div>

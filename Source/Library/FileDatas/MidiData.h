@@ -7,6 +7,13 @@ namespace AudioDataLib
 {
 	class Error;
 
+	/**
+	 * @brief This data representing the contents of a MIDI file.
+	 * 
+	 * Instances of this class can be used to read or write MIDI file data.  They can also be
+	 * passed to the MidiPlayer class or the MidiMsgRecorderDestination class for playback or
+	 * recording, respectively.
+	 */
 	class AUDIO_DATA_LIB_API MidiData : public FileData
 	{
 		friend class MidiFileFormat;
@@ -19,13 +26,28 @@ namespace AudioDataLib
 		virtual void DumpCSV(FILE* fp) const override;
 		virtual FileData* Clone() const override;
 
+		/**
+		 * Remove all tracks from this MIDI file data object.
+		 */
 		void Clear();
 
+		/**
+		 * Calculate and return the time duration (in seconds) of the MIDI data for a given track.
+		 * 
+		 * @param[in] i This is the zero-based track number.  Use GetNumTracks to know how many tracks there are.
+		 * @param[out] totalTimeSeconds The playback length of the track measured in seconds.
+		 * @param[out] error An Error object instance containing error information if something went wrong.
+		 * @return True is returned on success, otherwise false, and the error parameter should have reasons for the failure.
+		 */
 		bool CalculateTrackLengthInSeconds(uint32_t i, double& totalTimeSeconds, Error& error) const;
 
 		static MidiData* Create();
 		static void Destroy(MidiData* midiData);
 
+		/**
+		 * This is the type of MIDI data you're dealing with.  As of this writing,
+		 * there is no support for VARIOUS_TRACKS, but the others are supported.
+		 */
 		enum FormatType
 		{
 			SINGLE_TRACK = 0,
@@ -33,6 +55,14 @@ namespace AudioDataLib
 			VARIOUS_TRACKS = 2
 		};
 
+		/**
+		 * This structure defines how the MIDI data is timed.  MIDI files can be
+		 * timed in two different ways.  As of this writing, only the TICKS_PER_QUARTER_NOTE
+		 * method is supported.  For now, there isn't much care about how many ticks there
+		 * are in a given quarter-note.  Rather, this value, in combination with the tempo
+		 * (expressed in microseconds per quarter-note), helps us determine the number of
+		 * ticks per microsecond which, in turn, helps us know when to execute MIDI messages.
+		 */
 		struct Timing
 		{
 			union
@@ -57,14 +87,30 @@ namespace AudioDataLib
 		class Event;
 		class MetaEvent;
 
+		/**
+		 * @brief This is a single time-line of MIDI messages (also called events), or a sequence of MIDI messages meant to execute one after another.
+		 * 
+		 * A MIDI file can contain one or more tracks, all meant to play in parallel with one another.
+		 * That is, unless the FormatType is VARIOUS_TRACKS, in which case, the tracks are independent, I believe.
+		 */
 		class AUDIO_DATA_LIB_API Track
 		{
 		public:
 			Track();
 			virtual ~Track();
 
+			/**
+			 * Remove all MIDI messages from this track.
+			 */
 			void Clear();
 
+			/**
+			 * Find a MIDI message in the track of the given type using the given predicate.
+			 * 
+			 * @param[in] T The type of MIDI message.
+			 * @param[in] matchFunc A lambda to return true if the given event is the one for which you are looking.
+			 * @return Returns a pointer to the found event, if any, or nullptr if not found.
+			 */
 			template<typename T>
 			const T* FindEvent(std::function<bool(T*)> matchFunc) const
 			{
@@ -78,34 +124,85 @@ namespace AudioDataLib
 				return nullptr;
 			}
 
+			/**
+			 * Find a meta-event of the given type in this track.
+			 * 
+			 * @param[in] type The type of meta-event.  See the MetaEvent::Type enumeration.
+			 * @return Returns a pointer to the found event, if any, or nullptr if not found.
+			 */
 			const MetaEvent* FindMetaEventOfType(uint8_t type) const
 			{
 				return this->FindEvent<MetaEvent>([=](MetaEvent* event) -> bool { return event->type == type; });
 			}
 
+			/**
+			 * Get a pointer to an event in the track at the given offset.
+			 * 
+			 * @param[in] i Events are stored in an array.  This is the offset into that array to the desired event.
+			 * @return The desired event at the given offset is returned, or nullptr if the given offset is out of range.
+			 */
 			const Event* GetEvent(uint32_t i) const;
+
+			/**
+			 * For convenient, get a reference to the event array owned by the Track class.
+			 */
 			const std::vector<Event*>& GetEventArray() const { return *this->eventArray; }
+
+			/**
+			 * Append the given event object to this track's event array.  Note that this
+			 * class takes ownership of the event memory, and it is expected that the given
+			 * event is allocated on the heap.
+			 */
 			void AddEvent(Event* event) { this->eventArray->push_back(event); }
 
 		private:
 			std::vector<Event*>* eventArray;
 		};
 
-		// Encoding/decoding of events seems like it's something that should only
-		// be part of the MidiFileFormat class, but we may need to encode an event
-		// before we send it down to the MIDI device on a MIDI port for synthesis,
-		// and similarly, we also need to be able to decode a MIDI message that we
-		// receive from a MIDI port for storage.
-
+		/**
+		 * Instances of the Event class are MIDI messages.  There are three different
+		 * types of such messages, and so there are three derivatives of this class;
+		 * namely, MetaEvent, ChannelEvent and SystemExclusiveEvent.  A common base
+		 * ensures here that each derivative impliments an encoder and a decoder
+		 * for data typically seen going to, or coming from, a MIDI port.
+		 * 
+		 * Encoding/decoding of events seems like it's something that should only
+		 * be part of the MidiFileFormat class, but in other contexts we need to be
+		 * able to encode an event (e.g., before we send it down to a MIDI device on
+		 * a MIDI port for synthesis); and similarly, we also need to be able to decode
+		 * a MIDI message (e.g., that we receive from a MIDI port for storage.)
+		 */
 		class AUDIO_DATA_LIB_API Event
 		{
 		public:
 			Event();
 			virtual ~Event();
 
+			/**
+			 * Try to read and interpret bytes from the given stream as a MIDI message
+			 * of the derived class type.
+			 * 
+			 * @param[in,out] inputStream The byte stream from which to read bytes.
+			 * @param[out] error An error object containing reasons for failure if false is returned.
+			 * @return True is returned on success; false on failure.
+			 */
 			virtual bool Decode(ByteStream& inputStream, Error& error) = 0;
+
+			/**
+			 * Try to write this MIDI message (of the derived class type) as a sequence
+			 * of bytes to the given stream.  This is how the message should be stored in
+			 * a MIDI file or how it should appear when handed to, or received from, a
+			 * MIDI device.
+			 * 
+			 * @param[in,out] outputStream The byte stream to which bytes are to be written.
+			 * @param[out] error An error object containing reasons for failure if false is returned.
+			 * @return True is returned on success; false on failure.
+			 */
 			virtual bool Encode(ByteStream& outputStream, Error& error) const = 0;
 
+			/**
+			 * Return a one-line, human-readable message for logging purposes.
+			 */
 			virtual std::string LogMessage() const = 0;
 
 			uint64_t deltaTimeTicks;

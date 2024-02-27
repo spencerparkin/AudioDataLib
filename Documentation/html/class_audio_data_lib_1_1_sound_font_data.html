@@ -101,6 +101,9 @@ $(function(){initNavTree('class_audio_data_lib_1_1_sound_font_data.html',''); in
 </div><!--header-->
 <div class="contents">
 
+<p>An instance of this class represents all the data you can find in a single sound-font file.  
+ <a href="#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="_sound_font_data_8h_source.html">SoundFontData.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for AudioDataLib::SoundFontData:</div>
@@ -108,7 +111,7 @@ Inheritance diagram for AudioDataLib::SoundFontData:</div>
  <div class="center">
   <img src="class_audio_data_lib_1_1_sound_font_data.png" usemap="#AudioDataLib::SoundFontData_map" alt=""/>
   <map id="AudioDataLib::SoundFontData_map" name="AudioDataLib::SoundFontData_map">
-<area href="class_audio_data_lib_1_1_file_data.html" alt="AudioDataLib::FileData" shape="rect" coords="0,0,181,24"/>
+<area href="class_audio_data_lib_1_1_file_data.html" title="The base class for any kind of data (typically audio data) loaded from a file." alt="AudioDataLib::FileData" shape="rect" coords="0,0,181,24"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -162,7 +165,11 @@ Friends</h2></td></tr>
 <tr class="memitem:ace892f148ef9c77bbf5e96f0d50d8dc3" id="r_ace892f148ef9c77bbf5e96f0d50d8dc3"><td class="memItemLeft" align="right" valign="top">class&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ace892f148ef9c77bbf5e96f0d50d8dc3">SoundFontFormat</a></td></tr>
 <tr class="separator:ace892f148ef9c77bbf5e96f0d50d8dc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>An instance of this class represents all the data you can find in a single sound-font file. </p>
+<p>As of this writing, not <em>all</em> the data in a given sound-font file is loaded into this class, so not all data is preserved. Also, there is currently an assumption that a single sound-font file corresponds to a single instrument, which is not generally true of the file format.</p>
+<p>An instance of this class is essentially just a set of audio samples, each sample consisting of one or more <a class="el" href="class_audio_data_lib_1_1_audio_data.html" title="This is a container for raw audio data in a particular format, ready to be sent to a sound card,...">AudioData</a> class instances, one for each channel of the sample. Yes, a single instance of <a class="el" href="class_audio_data_lib_1_1_audio_data.html" title="This is a container for raw audio data in a particular format, ready to be sent to a sound card,...">AudioData</a> can have multiple channels, but the <a class="el" href="class_audio_data_lib_1_1_audio_data.html" title="This is a container for raw audio data in a particular format, ready to be sent to a sound card,...">AudioData</a> instances (which are actually <a class="el" href="class_audio_data_lib_1_1_sound_font_data_1_1_looped_audio_data.html">LoopedAudioData</a> instances) put into the <a class="el" href="class_audio_data_lib_1_1_sound_font_data.html" title="An instance of this class represents all the data you can find in a single sound-font file.">SoundFontData</a> instance will always be mono, and then organized by instance of the embedded <a class="el" href="class_audio_data_lib_1_1_sound_font_data_1_1_audio_sample.html">AudioSample</a> class. Each <a class="el" href="class_audio_data_lib_1_1_sound_font_data_1_1_audio_sample.html">AudioSample</a> corresponds to a specific pitch and velocity pair, though, oddly, such information is still just specified at the <a class="el" href="class_audio_data_lib_1_1_sound_font_data_1_1_looped_audio_data.html">LoopedAudioData</a> level of the data hierarchy. This follows the structure of the sound-font file format, even if it doesn't seem (to me, at least) to make the most sense. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a36c888684cef377f58a7ca30c2b3801c" name="a36c888684cef377f58a7ca30c2b3801c"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a36c888684cef377f58a7ca30c2b3801c">&#9670;&#160;</a></span>SoundFontData()</h2>
 
@@ -220,6 +227,7 @@ Friends</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Delete all <a class="el" href="class_audio_data_lib_1_1_sound_font_data_1_1_audio_sample.html">AudioSample</a> instances from the owned array of such. </p>
 
 </div>
 </div>
@@ -245,6 +253,7 @@ Friends</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>The derived implimentation should return a new derived instance of the class in question with identical, but separate data. </p>
 
 <p>Implements <a class="el" href="class_audio_data_lib_1_1_file_data.html#a627e23a4b9418d8625997362feeb69e1">AudioDataLib::FileData</a>.</p>
 
@@ -272,6 +281,13 @@ Friends</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Derivative implimentations should produce a command-separated list of human-readable data which can also be loaded as a CVS in spreadsheet software.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">fp</td><td>A pointer to a FILE object to which the text should be written. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 <p>Implements <a class="el" href="class_audio_data_lib_1_1_file_data.html#ad4d4dacc77a3a47c0748fe621836868a">AudioDataLib::FileData</a>.</p>
 
@@ -299,6 +315,13 @@ Friends</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Derivative implimentations should produce informative, human-readable text about the file data.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">fp</td><td>A pointer to a FILE object to which the text should be written. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 <p>Implements <a class="el" href="class_audio_data_lib_1_1_file_data.html#ad2558ef80b21fdc2daefbcd35ce185bc">AudioDataLib::FileData</a>.</p>
 
@@ -339,6 +362,7 @@ Friends</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Find the <a class="el" href="class_audio_data_lib_1_1_sound_font_data_1_1_looped_audio_data.html">LoopedAudioData</a> instance in this sound-font data having the given sample ID. This is mainly useful during load of a sound-font file, and may not have much practical purpose outside of that context. </p>
 
 </div>
 </div>

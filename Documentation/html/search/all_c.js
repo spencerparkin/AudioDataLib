@@ -60,12 +60,13 @@ var searchData=
   ['mono_57',['MONO',['../class_audio_data_lib_1_1_sound_font_data_1_1_looped_audio_data.html#a3548380554663e8463ec1055f4f1cd36ad3f6d7b5c93e87caa51c183130d505a6',1,'AudioDataLib::SoundFontData::LoopedAudioData']]],
   ['moresoundavailable_58',['MoreSoundAvailable',['../class_audio_data_lib_1_1_attenuation_module.html#a2a3ed983a81be7e82afff8589ab5719c',1,'AudioDataLib::AttenuationModule::MoreSoundAvailable()'],['../class_audio_data_lib_1_1_delay_module.html#af108aea103981e25dbca997643855dff',1,'AudioDataLib::DelayModule::MoreSoundAvailable()'],['../class_audio_data_lib_1_1_duplication_module.html#a48fad878b0a964132aa2b58dfd3380ef',1,'AudioDataLib::DuplicationModule::MoreSoundAvailable()'],['../class_audio_data_lib_1_1_looped_audio_module.html#af0c5110c2f2041d361fef3de4c21d371',1,'AudioDataLib::LoopedAudioModule::MoreSoundAvailable()'],['../class_audio_data_lib_1_1_pitch_shift_module.html#a08959f0a6fafcfa1612a9a779bedfa48',1,'AudioDataLib::PitchShiftModule::MoreSoundAvailable()'],['../class_audio_data_lib_1_1_reverb_module.html#a51da13c310c2b991930c4dcae7a7d728',1,'AudioDataLib::ReverbModule::MoreSoundAvailable()'],['../class_audio_data_lib_1_1_synth_module.html#abfebcd97dabe7e4ccfc554204e91c43b',1,'AudioDataLib::SynthModule::MoreSoundAvailable()']]],
   ['moretoplay_59',['MoreToPlay',['../class_audio_data_lib_1_1_midi_player_1_1_track_player.html#af61e17994b461d4e13917758d06b5884',1,'AudioDataLib::MidiPlayer::TrackPlayer']]],
-  ['msb_60',['msb',['../struct_audio_data_lib_1_1_midi_data_1_1_meta_event_1_1_sequence_number.html#af55d91cd56e8e53bc0c29b5784f0d88b',1,'AudioDataLib::MidiData::MetaEvent::SequenceNumber']]],
-  ['multi_5ftrack_61',['MULTI_TRACK',['../class_audio_data_lib_1_1_midi_data.html#a1127058abc73c6cb4115791a072f6573ae86f79fb54e223257014ecc18f08ae4b',1,'AudioDataLib::MidiData']]],
-  ['mutex_62',['Mutex',['../class_audio_data_lib_1_1_mutex.html',1,'AudioDataLib']]],
-  ['mutex_63',['mutex',['../class_audio_data_lib_1_1_thread_safe_audio_stream.html#a7e895bb2bacedbf5b9f2b489729694f8',1,'AudioDataLib::ThreadSafeAudioStream::mutex'],['../class_audio_data_lib_1_1_midi_player.html#a27fd0e786917700b54ddd2b593307232',1,'AudioDataLib::MidiPlayer::mutex']]],
-  ['mutex_64',['Mutex',['../class_audio_data_lib_1_1_mutex.html#a593423d868daf926c7b0d63a833ae29a',1,'AudioDataLib::Mutex']]],
-  ['mutex_2ecpp_65',['Mutex.cpp',['../_mutex_8cpp.html',1,'']]],
-  ['mutex_2eh_66',['Mutex.h',['../_mutex_8h.html',1,'']]],
-  ['mutexscopelock_67',['MutexScopeLock',['../class_audio_data_lib_1_1_mutex_scope_lock.html',1,'AudioDataLib::MutexScopeLock'],['../class_audio_data_lib_1_1_mutex_scope_lock.html#a81a1d3b0dcc389e20b54f216e2dfea47',1,'AudioDataLib::MutexScopeLock::MutexScopeLock()']]]
+  ['motivation_60',['Introduction &amp; Motivation',['../index.html#intro_sec',1,'']]],
+  ['msb_61',['msb',['../struct_audio_data_lib_1_1_midi_data_1_1_meta_event_1_1_sequence_number.html#af55d91cd56e8e53bc0c29b5784f0d88b',1,'AudioDataLib::MidiData::MetaEvent::SequenceNumber']]],
+  ['multi_5ftrack_62',['MULTI_TRACK',['../class_audio_data_lib_1_1_midi_data.html#a1127058abc73c6cb4115791a072f6573ae86f79fb54e223257014ecc18f08ae4b',1,'AudioDataLib::MidiData']]],
+  ['mutex_63',['Mutex',['../class_audio_data_lib_1_1_mutex.html',1,'AudioDataLib']]],
+  ['mutex_64',['mutex',['../class_audio_data_lib_1_1_thread_safe_audio_stream.html#a7e895bb2bacedbf5b9f2b489729694f8',1,'AudioDataLib::ThreadSafeAudioStream::mutex'],['../class_audio_data_lib_1_1_midi_player.html#a27fd0e786917700b54ddd2b593307232',1,'AudioDataLib::MidiPlayer::mutex']]],
+  ['mutex_65',['Mutex',['../class_audio_data_lib_1_1_mutex.html#a593423d868daf926c7b0d63a833ae29a',1,'AudioDataLib::Mutex']]],
+  ['mutex_2ecpp_66',['Mutex.cpp',['../_mutex_8cpp.html',1,'']]],
+  ['mutex_2eh_67',['Mutex.h',['../_mutex_8h.html',1,'']]],
+  ['mutexscopelock_68',['MutexScopeLock',['../class_audio_data_lib_1_1_mutex_scope_lock.html',1,'AudioDataLib::MutexScopeLock'],['../class_audio_data_lib_1_1_mutex_scope_lock.html#a81a1d3b0dcc389e20b54f216e2dfea47',1,'AudioDataLib::MutexScopeLock::MutexScopeLock()']]]
 ];

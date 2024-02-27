@@ -51,7 +51,7 @@ var searchData=
   ['audiodata_2ecpp_48',['AudioData.cpp',['../_audio_data_8cpp.html',1,'']]],
   ['audiodata_2eh_49',['AudioData.h',['../_audio_data_8h.html',1,'']]],
   ['audiodataarray_50',['audioDataArray',['../class_audio_data_lib_1_1_sound_font_data_1_1_audio_sample.html#a31e44e5ff12a68cc00403dd4d95f0696',1,'AudioDataLib::SoundFontData::AudioSample']]],
-  ['audiodatalib_51',['AudioDataLib',['../namespace_audio_data_lib.html',1,'']]],
+  ['audiodatalib_51',['AudioDataLib',['../namespace_audio_data_lib.html',1,'AudioDataLib'],['../index.html',1,'AudioDataLib']]],
   ['audiosample_52',['AudioSample',['../class_audio_data_lib_1_1_sound_font_data_1_1_audio_sample.html',1,'AudioDataLib::SoundFontData::AudioSample'],['../class_audio_data_lib_1_1_sound_font_data_1_1_audio_sample.html#adefa94cd8f85ee5408bb3994c8707fdb',1,'AudioDataLib::SoundFontData::AudioSample::AudioSample()']]],
   ['audiosink_53',['AudioSink',['../class_audio_data_lib_1_1_audio_sink.html',1,'AudioDataLib::AudioSink'],['../class_audio_data_lib_1_1_audio_sink.html#a3408d19bd7b166a6e19bbca2090e1333',1,'AudioDataLib::AudioSink::AudioSink()']]],
   ['audiosink_2ecpp_54',['AudioSink.cpp',['../_audio_sink_8cpp.html',1,'']]],

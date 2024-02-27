@@ -101,6 +101,9 @@ $(function(){initNavTree('struct_audio_data_lib_1_1_audio_data_1_1_format.html',
 </div><!--header-->
 <div class="contents">
 
+<p>This structure contains all the information you need to decipher the data in a given stream of raw audio data.  
+ <a href="#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="_audio_data_8h_source.html">AudioData.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
@@ -148,15 +151,23 @@ Public Member Functions</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:a776ee8fa48d516244a57689237a9d227" id="r_a776ee8fa48d516244a57689237a9d227"><td class="memItemLeft" align="right" valign="top">uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a776ee8fa48d516244a57689237a9d227">bitsPerSample</a></td></tr>
+<tr class="memdesc:a776ee8fa48d516244a57689237a9d227"><td class="mdescLeft">&#160;</td><td class="mdescRight">This is the bit-depth of each sample.  <br /></td></tr>
 <tr class="separator:a776ee8fa48d516244a57689237a9d227"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a13e2f15db80ec37b1e57375527144a24" id="r_a13e2f15db80ec37b1e57375527144a24"><td class="memItemLeft" align="right" valign="top">uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a13e2f15db80ec37b1e57375527144a24">numChannels</a></td></tr>
+<tr class="memdesc:a13e2f15db80ec37b1e57375527144a24"><td class="mdescLeft">&#160;</td><td class="mdescRight">This is the number of channels in the stream (1=mono; 2=stereo, etc.)  <br /></td></tr>
 <tr class="separator:a13e2f15db80ec37b1e57375527144a24"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6fa465d67eea4a1ddc582a0cdd5d4549" id="r_a6fa465d67eea4a1ddc582a0cdd5d4549"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6fa465d67eea4a1ddc582a0cdd5d4549">framesPerSecond</a></td></tr>
+<tr class="memdesc:a6fa465d67eea4a1ddc582a0cdd5d4549"><td class="mdescLeft">&#160;</td><td class="mdescRight">This is the playback rate or sampling rate of the audio data, often measured in Hz.  <br /></td></tr>
 <tr class="separator:a6fa465d67eea4a1ddc582a0cdd5d4549"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa801533b6f1f3b7b954bad0828188208" id="r_aa801533b6f1f3b7b954bad0828188208"><td class="memItemLeft" align="right" valign="top"><a class="el" href="#a65e2637295eb3ab85b165977457307c0">SampleType</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa801533b6f1f3b7b954bad0828188208">sampleType</a></td></tr>
+<tr class="memdesc:aa801533b6f1f3b7b954bad0828188208"><td class="mdescLeft">&#160;</td><td class="mdescRight">This is the format of each sample (e.g., 32-bit float, 16-bit signed integer, etc.)  <br /></td></tr>
 <tr class="separator:aa801533b6f1f3b7b954bad0828188208"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Member Enumeration Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>This structure contains all the information you need to decipher the data in a given stream of raw audio data. </p>
+<p>Methods are also provided that help you calculate various properties of the data. A note on terminology is in order here. Traditionally, the term "samples per second" refers to the number of samples per second per channel, but here we mean it to be the number of frames per second times the number samples per frame.</p>
+<p>What are samples, frames and channels? You can think of raw audio as a big matrix where the rows are channels and the columns are frames. Each frame is a moment in time, and each channel is an independent wave-form that plays in a different speaker (e.g., the left speaker or the right speaker in a stereo system.) Each element of the matrix is an audio sample, represented as a signed or unsigned integer, or floating-point number. All samples will have the same representation and bit-depth. As a stream of bytes, the audio data interleaves the channels. That is, the data proceeds in frames, one after the other. This is a convenient format for the sound-card, which consumes frames as time goes by, to reproduce the sound in audible form. </p>
+</div><h2 class="groupheader">Member Enumeration Documentation</h2>
 <a id="a65e2637295eb3ab85b165977457307c0" name="a65e2637295eb3ab85b165977457307c0"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a65e2637295eb3ab85b165977457307c0">&#9670;&#160;</a></span>SampleType</h2>
 
@@ -190,6 +201,7 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Tell the caller how many bytes of audio data would be needed to play the given number of seconds of audio in this instance's format. The returned number of bytes is rounded down to the nearest multiple of the frame size before being returned. </p>
 
 </div>
 </div>
@@ -326,6 +338,7 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Tell the caller how many seconds of audio would play for the given number of bytes of audio data in this instance's format. The given number of bytes is rounded down to the nearest multiple of the frame size before the calculation is performed. </p>
 
 </div>
 </div>
@@ -461,6 +474,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>This is the bit-depth of each sample. </p>
+
 </div>
 </div>
 <a id="a6fa465d67eea4a1ddc582a0cdd5d4549" name="a6fa465d67eea4a1ddc582a0cdd5d4549"></a>
@@ -474,6 +489,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>This is the playback rate or sampling rate of the audio data, often measured in Hz. </p>
 
 </div>
 </div>
@@ -489,6 +506,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>This is the number of channels in the stream (1=mono; 2=stereo, etc.) </p>
+
 </div>
 </div>
 <a id="aa801533b6f1f3b7b954bad0828188208" name="aa801533b6f1f3b7b954bad0828188208"></a>
@@ -502,6 +521,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>This is the format of each sample (e.g., 32-bit float, 16-bit signed integer, etc.) </p>
 
 </div>
 </div>

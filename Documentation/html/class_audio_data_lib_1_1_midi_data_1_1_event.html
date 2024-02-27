@@ -131,7 +131,10 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:a5280715445067141bb076be467e27191" id="r_a5280715445067141bb076be467e27191"><td class="memItemLeft" align="right" valign="top">uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5280715445067141bb076be467e27191">deltaTimeTicks</a></td></tr>
 <tr class="separator:a5280715445067141bb076be467e27191"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Instances of the <a class="el" href="class_audio_data_lib_1_1_midi_data_1_1_event.html">Event</a> class are MIDI messages. There are three different types of such messages, and so there are three derivatives of this class; namely, <a class="el" href="class_audio_data_lib_1_1_midi_data_1_1_meta_event.html">MetaEvent</a>, <a class="el" href="class_audio_data_lib_1_1_midi_data_1_1_channel_event.html">ChannelEvent</a> and <a class="el" href="class_audio_data_lib_1_1_midi_data_1_1_system_exclusive_event.html">SystemExclusiveEvent</a>. A common base ensures here that each derivative impliments an encoder and a decoder for data typically seen going to, or coming from, a MIDI port.</p>
+<p>Encoding/decoding of events seems like it's something that should only be part of the <a class="el" href="class_audio_data_lib_1_1_midi_file_format.html">MidiFileFormat</a> class, but in other contexts we need to be able to encode an event (e.g., before we send it down to a MIDI device on a MIDI port for synthesis); and similarly, we also need to be able to decode a MIDI message (e.g., that we receive from a MIDI port for storage.) </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a2d7bc0fa97a29ee1baa24d35e11449c7" name="a2d7bc0fa97a29ee1baa24d35e11449c7"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a2d7bc0fa97a29ee1baa24d35e11449c7">&#9670;&#160;</a></span>Event()</h2>
 
@@ -201,6 +204,15 @@ Public Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Try to read and interpret bytes from the given stream as a MIDI message of the derived class type.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">inputStream</td><td>The byte stream from which to read bytes. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">error</td><td>An error object containing reasons for failure if false is returned. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True is returned on success; false on failure. </dd></dl>
 
 <p>Implemented in <a class="el" href="class_audio_data_lib_1_1_midi_data_1_1_system_exclusive_event.html#a2670ae5e29fe92bacdbb7df14a03df50">AudioDataLib::MidiData::SystemExclusiveEvent</a>, <a class="el" href="class_audio_data_lib_1_1_midi_data_1_1_meta_event.html#ae67fdd5ae95fa92c445b100bea6056af">AudioDataLib::MidiData::MetaEvent</a>, and <a class="el" href="class_audio_data_lib_1_1_midi_data_1_1_channel_event.html#a6b0b115ae3cc308a9c00e84d0d2cbaed">AudioDataLib::MidiData::ChannelEvent</a>.</p>
 
@@ -232,6 +244,15 @@ Public Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Try to write this MIDI message (of the derived class type) as a sequence of bytes to the given stream. This is how the message should be stored in a MIDI file or how it should appear when handed to, or received from, a MIDI device.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">outputStream</td><td>The byte stream to which bytes are to be written. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">error</td><td>An error object containing reasons for failure if false is returned. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True is returned on success; false on failure. </dd></dl>
 
 <p>Implemented in <a class="el" href="class_audio_data_lib_1_1_midi_data_1_1_system_exclusive_event.html#affdaeea30f8020f62016f933153d6d02">AudioDataLib::MidiData::SystemExclusiveEvent</a>, <a class="el" href="class_audio_data_lib_1_1_midi_data_1_1_meta_event.html#a7fe3f8249abc90cd1f447250a5dfdb2f">AudioDataLib::MidiData::MetaEvent</a>, and <a class="el" href="class_audio_data_lib_1_1_midi_data_1_1_channel_event.html#adeb312dddc61b1f89f4d681c81dc7991">AudioDataLib::MidiData::ChannelEvent</a>.</p>
 
@@ -259,6 +280,7 @@ Public Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Return a one-line, human-readable message for logging purposes. </p>
 
 <p>Implemented in <a class="el" href="class_audio_data_lib_1_1_midi_data_1_1_system_exclusive_event.html#a8946d333ef9fa62c36306e79ab254ec7">AudioDataLib::MidiData::SystemExclusiveEvent</a>, <a class="el" href="class_audio_data_lib_1_1_midi_data_1_1_meta_event.html#a0b2eb2e77d2d7057ed486dcaee0d6201">AudioDataLib::MidiData::MetaEvent</a>, and <a class="el" href="class_audio_data_lib_1_1_midi_data_1_1_channel_event.html#a7f9bf96762bf4059e8a85d55a8e424f2">AudioDataLib::MidiData::ChannelEvent</a>.</p>
 

@@ -204,6 +204,15 @@ Additional Inherited Members</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Try to read and interpret bytes from the given stream as a MIDI message of the derived class type.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">inputStream</td><td>The byte stream from which to read bytes. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">error</td><td>An error object containing reasons for failure if false is returned. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True is returned on success; false on failure. </dd></dl>
 
 <p>Implements <a class="el" href="class_audio_data_lib_1_1_midi_data_1_1_event.html#a5f784f8a0a0c019d5911c3c68dcf4d72">AudioDataLib::MidiData::Event</a>.</p>
 
@@ -235,6 +244,15 @@ Additional Inherited Members</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Try to write this MIDI message (of the derived class type) as a sequence of bytes to the given stream. This is how the message should be stored in a MIDI file or how it should appear when handed to, or received from, a MIDI device.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">outputStream</td><td>The byte stream to which bytes are to be written. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">error</td><td>An error object containing reasons for failure if false is returned. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True is returned on success; false on failure. </dd></dl>
 
 <p>Implements <a class="el" href="class_audio_data_lib_1_1_midi_data_1_1_event.html#ab05f0964df2708ea84e91342f8a2d9ba">AudioDataLib::MidiData::Event</a>.</p>
 
@@ -262,6 +280,7 @@ Additional Inherited Members</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Return a one-line, human-readable message for logging purposes. </p>
 
 <p>Implements <a class="el" href="class_audio_data_lib_1_1_midi_data_1_1_event.html#a5316b035d3999f2338492739eec65a9a">AudioDataLib::MidiData::Event</a>.</p>
 

@@ -99,6 +99,9 @@ $(function(){initNavTree('class_audio_data_lib_1_1_midi_data_1_1_track.html','')
 </div><!--header-->
 <div class="contents">
 
+<p>This is a single time-line of MIDI messages (also called events), or a sequence of MIDI messages meant to execute one after another.  
+ <a href="#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="_midi_data_8h_source.html">MidiData.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
@@ -121,7 +124,10 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:adbad0f7c80cf8f065a21a67cb19cf1b9" id="r_adbad0f7c80cf8f065a21a67cb19cf1b9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="#a65e4f46b79ffc4366763788f3b893d7f">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#adbad0f7c80cf8f065a21a67cb19cf1b9">AddEvent</a> (<a class="el" href="class_audio_data_lib_1_1_midi_data_1_1_event.html">Event</a> *<a class="el" href="#a65e4f46b79ffc4366763788f3b893d7f">event</a>)</td></tr>
 <tr class="separator:adbad0f7c80cf8f065a21a67cb19cf1b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>This is a single time-line of MIDI messages (also called events), or a sequence of MIDI messages meant to execute one after another. </p>
+<p>A MIDI file can contain one or more tracks, all meant to play in parallel with one another. That is, unless the FormatType is VARIOUS_TRACKS, in which case, the tracks are independent, I believe. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="abd7c016e99f279cb408c9e2b900a78ff" name="abd7c016e99f279cb408c9e2b900a78ff"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#abd7c016e99f279cb408c9e2b900a78ff">&#9670;&#160;</a></span>Track()</h2>
 
@@ -187,6 +193,7 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Append the given event object to this track's event array. Note that this class takes ownership of the event memory, and it is expected that the given event is allocated on the heap. </p>
 
 </div>
 </div>
@@ -204,6 +211,7 @@ Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Remove all MIDI messages from this track. </p>
 
 </div>
 </div>
@@ -231,6 +239,15 @@ template&lt;typename T &gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Find a MIDI message in the track of the given type using the given predicate.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">T</td><td>The type of MIDI message. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">matchFunc</td><td>A lambda to return true if the given event is the one for which you are looking. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Returns a pointer to the found event, if any, or nullptr if not found. </dd></dl>
 
 </div>
 </div>
@@ -256,6 +273,14 @@ template&lt;typename T &gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Find a meta-event of the given type in this track.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">type</td><td>The type of meta-event. See the <a class="el" href="class_audio_data_lib_1_1_midi_data_1_1_meta_event.html#a96a2049af0f898fd2af8c7318265e36e">MetaEvent::Type</a> enumeration. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Returns a pointer to the found event, if any, or nullptr if not found. </dd></dl>
 
 </div>
 </div>
@@ -273,6 +298,14 @@ template&lt;typename T &gt; </div>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Get a pointer to an event in the track at the given offset.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">i</td><td>Events are stored in an array. This is the offset into that array to the desired event. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The desired event at the given offset is returned, or nullptr if the given offset is out of range. </dd></dl>
 
 </div>
 </div>
@@ -298,6 +331,7 @@ template&lt;typename T &gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>For convenient, get a reference to the event array owned by the <a class="el" href="class_audio_data_lib_1_1_midi_data_1_1_track.html" title="This is a single time-line of MIDI messages (also called events), or a sequence of MIDI messages mean...">Track</a> class. </p>
 
 </div>
 </div>

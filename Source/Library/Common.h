@@ -29,3 +29,26 @@
 #include <chrono>
 #include <map>
 #include <algorithm>
+
+/** \mainpage AudioDataLib
+ * 
+ * \section intro_sec Introduction & Motivation
+ * 
+ * This project grew out of a desire to understand audio data and audio data processing algorithms.
+ * It's likely mediocre at best, and you shouldn't try to use it for any real-world applications.
+ * The only production use-case I have for the library presently is a simple Android mobile app.
+ * Other than that, the library is not so battle-hardened that it may be worth anything to anyone.
+ * Now that I've discredited the whole library, you don't have to waste any more of your time with it.
+ * 
+ * All that said, I'm going to use it for any of my own personal projects, and I'm hopeful that as I
+ * do, the code will get better.
+ * 
+ * \section caps_sec Capabilities
+ * 
+ * Presently, the library can be used to convert between audio formats, fire-off sound-FX (fire and forget),
+ * load and play MIDI files, record and save MIDI files, as well as synthesize sound as a function of
+ * sound-font data and a given stream of MIDI messages.  Sound synthesis is an area of particular interest
+ * to me, and I've gone as far as trying to provide reverb support which, surprisingly, adds great
+ * quality and character to the sound produced.
+ * 
+ */

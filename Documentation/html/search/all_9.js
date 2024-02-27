@@ -13,7 +13,8 @@ var searchData=
   ['interpolationmodule_10',['InterpolationModule',['../class_audio_data_lib_1_1_interpolation_module.html',1,'AudioDataLib::InterpolationModule'],['../class_audio_data_lib_1_1_interpolation_module.html#a9d306dc435a9972951a5a4b181ae8e47',1,'AudioDataLib::InterpolationModule::InterpolationModule()']]],
   ['interpolationmodule_2ecpp_11',['InterpolationModule.cpp',['../_interpolation_module_8cpp.html',1,'']]],
   ['interpolationmodule_2eh_12',['InterpolationModule.h',['../_interpolation_module_8h.html',1,'']]],
-  ['inverse_13',['Inverse',['../class_audio_data_lib_1_1_complex_number.html#a97a12f49a8e2388a4af739b8e39caca2',1,'AudioDataLib::ComplexNumber']]],
-  ['isopen_14',['IsOpen',['../class_audio_data_lib_1_1_file_stream.html#abf87754c4c660558f4f9af176b2d41cb',1,'AudioDataLib::FileStream']]],
-  ['isrunning_15',['IsRunning',['../class_audio_data_lib_1_1_timer.html#a8ee1448f7b4fef477ec99d660cb1b4cb',1,'AudioDataLib::Timer']]]
+  ['introduction_20motivation_13',['Introduction &amp; Motivation',['../index.html#intro_sec',1,'']]],
+  ['inverse_14',['Inverse',['../class_audio_data_lib_1_1_complex_number.html#a97a12f49a8e2388a4af739b8e39caca2',1,'AudioDataLib::ComplexNumber']]],
+  ['isopen_15',['IsOpen',['../class_audio_data_lib_1_1_file_stream.html#abf87754c4c660558f4f9af176b2d41cb',1,'AudioDataLib::FileStream']]],
+  ['isrunning_16',['IsRunning',['../class_audio_data_lib_1_1_timer.html#a8ee1448f7b4fef477ec99d660cb1b4cb',1,'AudioDataLib::Timer']]]
 ];
