@@ -2,6 +2,7 @@
 #include "WaveFileFormat.h"
 #include "MidiFileFormat.h"
 #include "SoundFontFormat.h"
+#include "AiffFileFormat.h"
 
 using namespace AudioDataLib;
 
@@ -19,6 +20,9 @@ FileFormat::FileFormat()
 
 	if (filePath.find(".wav") != std::string::npos || filePath.find(".WAV") != std::string::npos)
 		fileFormat.reset(new WaveFileFormat());
+
+	if (filePath.find("aiff") != std::string::npos || filePath.find(".AIFF") != std::string::npos)
+		fileFormat.reset(new AiffFileFormat());
 
 	if (filePath.find(".mid") != std::string::npos || filePath.find(".MID") != std::string::npos)
 		fileFormat.reset(new MidiFileFormat());

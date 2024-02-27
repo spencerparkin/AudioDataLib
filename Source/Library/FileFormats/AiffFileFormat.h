@@ -1,6 +1,7 @@
 #pragma once
 
 #include "FileFormat.h"
+#include "ChunkParser.h"
 
 namespace AudioDataLib
 {
@@ -12,5 +13,15 @@ namespace AudioDataLib
 
 		virtual bool ReadFromStream(ByteStream& inputStream, FileData*& fileData, Error& error) override;
 		virtual bool WriteToStream(ByteStream& outputStream, const FileData* fileData, Error& error) override;
+
+	protected:
+		class AiffChunkParser : public ChunkParser
+		{
+		public:
+			AiffChunkParser();
+			virtual ~AiffChunkParser();
+
+			virtual bool ParseChunkData(ReadOnlyBufferStream& inputStream, Chunk* chunk, Error& error) override;
+		};
 	};
 }
