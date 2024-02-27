@@ -1,0 +1,27 @@
+var dir_ad2ef9adf30bad8bb042545fb1ac4996 =
+[
+    [ "ArticulationModule.cpp", "_articulation_module_8cpp.html", null ],
+    [ "ArticulationModule.h", "_articulation_module_8h.html", "_articulation_module_8h" ],
+    [ "AttenuationModule.cpp", "_attenuation_module_8cpp.html", null ],
+    [ "AttenuationModule.h", "_attenuation_module_8h.html", "_attenuation_module_8h" ],
+    [ "DelayModule.cpp", "_delay_module_8cpp.html", null ],
+    [ "DelayModule.h", "_delay_module_8h.html", "_delay_module_8h" ],
+    [ "DuplicationModule.cpp", "_duplication_module_8cpp.html", null ],
+    [ "DuplicationModule.h", "_duplication_module_8h.html", "_duplication_module_8h" ],
+    [ "FilterModule.cpp", "_filter_module_8cpp.html", null ],
+    [ "FilterModule.h", "_filter_module_8h.html", "_filter_module_8h" ],
+    [ "InterpolationModule.cpp", "_interpolation_module_8cpp.html", null ],
+    [ "InterpolationModule.h", "_interpolation_module_8h.html", "_interpolation_module_8h" ],
+    [ "LoopedAudioModule.cpp", "_looped_audio_module_8cpp.html", null ],
+    [ "LoopedAudioModule.h", "_looped_audio_module_8h.html", "_looped_audio_module_8h" ],
+    [ "MixerModule.cpp", "_mixer_module_8cpp.html", null ],
+    [ "MixerModule.h", "_mixer_module_8h.html", "_mixer_module_8h" ],
+    [ "OscillatorModule.cpp", "_oscillator_module_8cpp.html", null ],
+    [ "OscillatorModule.h", "_oscillator_module_8h.html", "_oscillator_module_8h" ],
+    [ "PitchShiftModule.cpp", "_pitch_shift_module_8cpp.html", null ],
+    [ "PitchShiftModule.h", "_pitch_shift_module_8h.html", "_pitch_shift_module_8h" ],
+    [ "ReverbModule.cpp", "_reverb_module_8cpp.html", null ],
+    [ "ReverbModule.h", "_reverb_module_8h.html", "_reverb_module_8h" ],
+    [ "SynthModule.cpp", "_synth_module_8cpp.html", null ],
+    [ "SynthModule.h", "_synth_module_8h.html", "_synth_module_8h" ]
+];

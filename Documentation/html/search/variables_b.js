@@ -1,0 +1,24 @@
+var searchData=
+[
+  ['major_0',['major',['../struct_audio_data_lib_1_1_sound_font_data_1_1_version_tag.html#a439fdccac46a626c42097403603aa643',1,'AudioDataLib::SoundFontData::VersionTag']]],
+  ['maxdeltatimeseconds_1',['maxDeltaTimeSeconds',['../class_audio_data_lib_1_1_timer.html#a4be41597b9788992508df1afc0543f8f',1,'AudioDataLib::Timer']]],
+  ['maxkey_2',['maxKey',['../struct_audio_data_lib_1_1_sound_font_data_1_1_looped_audio_data_1_1_location.html#a95624959ad7a19caba3f59568b739dee',1,'AudioDataLib::SoundFontData::LoopedAudioData::Location']]],
+  ['maxlatencyseconds_3',['maxLatencySeconds',['../class_audio_data_lib_1_1_midi_synth.html#a8a69b8b8db430444f216d7c744b3cdb5',1,'AudioDataLib::MidiSynth']]],
+  ['maxsample_4',['maxSample',['../struct_audio_data_lib_1_1_wave_form_1_1_sample_bounds.html#a3eb7050fb92c01929b8f1f328fc4e340',1,'AudioDataLib::WaveForm::SampleBounds']]],
+  ['maxvel_5',['maxVel',['../struct_audio_data_lib_1_1_sound_font_data_1_1_looped_audio_data_1_1_location.html#ab6c3015db81b8ac4bab29cf93e70474c',1,'AudioDataLib::SoundFontData::LoopedAudioData::Location']]],
+  ['maxwaveforms_6',['maxWaveForms',['../class_audio_data_lib_1_1_wave_form_stream.html#a9433565bbbb2c13cd5d256c6a06ed1f2',1,'AudioDataLib::WaveFormStream']]],
+  ['maxwaveformsizeseconds_7',['maxWaveFormSizeSeconds',['../class_audio_data_lib_1_1_wave_form_stream.html#acc929c01f51e2e125faf080b04677d25',1,'AudioDataLib::WaveFormStream']]],
+  ['metadata_8',['metaData',['../class_audio_data_lib_1_1_audio_data.html#ac15038d62f33be028accb3090ae40777',1,'AudioDataLib::AudioData']]],
+  ['metro_9',['metro',['../struct_audio_data_lib_1_1_midi_data_1_1_meta_event_1_1_time_signature.html#a43a89bc7ed75b8e28826096c4408acec',1,'AudioDataLib::MidiData::MetaEvent::TimeSignature']]],
+  ['microsecondsperquarternote_10',['microsecondsPerQuarterNote',['../struct_audio_data_lib_1_1_midi_data_1_1_meta_event_1_1_tempo.html#afa75d42e1b284e7133f7e727f0273874',1,'AudioDataLib::MidiData::MetaEvent::Tempo']]],
+  ['mididata_11',['midiData',['../class_audio_data_lib_1_1_midi_player.html#a101bda4633934037c3a8a9505e4c97b4',1,'AudioDataLib::MidiPlayer']]],
+  ['minkey_12',['minKey',['../struct_audio_data_lib_1_1_sound_font_data_1_1_looped_audio_data_1_1_location.html#ab1b4dfc1ce2e9574e443a45ef04b203e',1,'AudioDataLib::SoundFontData::LoopedAudioData::Location']]],
+  ['minlatencyseconds_13',['minLatencySeconds',['../class_audio_data_lib_1_1_midi_synth.html#a2a36f368af4e61ee9b1053c69ba79897',1,'AudioDataLib::MidiSynth']]],
+  ['minor_14',['minor',['../struct_audio_data_lib_1_1_sound_font_data_1_1_version_tag.html#a07ffca1fe5b332b03209f730b007bdfb',1,'AudioDataLib::SoundFontData::VersionTag']]],
+  ['minsample_15',['minSample',['../struct_audio_data_lib_1_1_wave_form_1_1_sample_bounds.html#ae0146a7e80e5e657b71cd87b4a9121b3',1,'AudioDataLib::WaveForm::SampleBounds']]],
+  ['minutes_16',['minutes',['../struct_audio_data_lib_1_1_midi_data_1_1_meta_event_1_1_s_m_p_t_e_offset.html#abff80882dde447bab5ec8099050342ba',1,'AudioDataLib::MidiData::MetaEvent::SMPTEOffset']]],
+  ['minvel_17',['minVel',['../struct_audio_data_lib_1_1_sound_font_data_1_1_looped_audio_data_1_1_location.html#a713aa36766a75bdc7af7c9f6cb03590b',1,'AudioDataLib::SoundFontData::LoopedAudioData::Location']]],
+  ['mode_18',['mode',['../class_audio_data_lib_1_1_sound_font_data_1_1_looped_audio_data.html#a9a59ac5a5659d279c1f1218dbf506238',1,'AudioDataLib::SoundFontData::LoopedAudioData']]],
+  ['msb_19',['msb',['../struct_audio_data_lib_1_1_midi_data_1_1_meta_event_1_1_sequence_number.html#af55d91cd56e8e53bc0c29b5784f0d88b',1,'AudioDataLib::MidiData::MetaEvent::SequenceNumber']]],
+  ['mutex_20',['mutex',['../class_audio_data_lib_1_1_thread_safe_audio_stream.html#a7e895bb2bacedbf5b9f2b489729694f8',1,'AudioDataLib::ThreadSafeAudioStream::mutex'],['../class_audio_data_lib_1_1_midi_player.html#a27fd0e786917700b54ddd2b593307232',1,'AudioDataLib::MidiPlayer::mutex']]]
+];

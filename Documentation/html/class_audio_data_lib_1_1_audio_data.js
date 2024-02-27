@@ -1,0 +1,28 @@
+var class_audio_data_lib_1_1_audio_data =
+[
+    [ "Format", "struct_audio_data_lib_1_1_audio_data_1_1_format.html", "struct_audio_data_lib_1_1_audio_data_1_1_format" ],
+    [ "MetaData", "struct_audio_data_lib_1_1_audio_data_1_1_meta_data.html", "struct_audio_data_lib_1_1_audio_data_1_1_meta_data" ],
+    [ "AudioData", "class_audio_data_lib_1_1_audio_data.html#a8bb6ddb671a324453713570496f54e59", null ],
+    [ "~AudioData", "class_audio_data_lib_1_1_audio_data.html#ad0344f0fc71a86083ea56dbc13908162", null ],
+    [ "CalcMetaData", "class_audio_data_lib_1_1_audio_data.html#a236d8293c195358e53edbfa1a3bc7499", null ],
+    [ "Clone", "class_audio_data_lib_1_1_audio_data.html#a47f89915de8be90d1c8f947ce0b2dd89", null ],
+    [ "DumpCSV", "class_audio_data_lib_1_1_audio_data.html#aaf8bd01bd58d7208384c06645df57419", null ],
+    [ "DumpInfo", "class_audio_data_lib_1_1_audio_data.html#a56b4bdcd705c67a2df0510688cb25743", null ],
+    [ "GetAudioBuffer", "class_audio_data_lib_1_1_audio_data.html#a3a3e03c2bdfcfe7e94d5d8469cff9d6b", null ],
+    [ "GetAudioBuffer", "class_audio_data_lib_1_1_audio_data.html#a4fcf7805e7ec236e03a8efed5ec22fba", null ],
+    [ "GetAudioBufferSize", "class_audio_data_lib_1_1_audio_data.html#a6bdd8aba60081d7a85759a8b4ded7f69", null ],
+    [ "GetFormat", "class_audio_data_lib_1_1_audio_data.html#ae19cc5f57c618957715256dba53ceae9", null ],
+    [ "GetFormat", "class_audio_data_lib_1_1_audio_data.html#aaf1df5329d1702236b15376b77cd8936", null ],
+    [ "GetMetaData", "class_audio_data_lib_1_1_audio_data.html#a9f9362dc679548dcd764748a8c226f1f", null ],
+    [ "GetNumFrames", "class_audio_data_lib_1_1_audio_data.html#a55504c830cfe7cce8fb01db7b41280ff", null ],
+    [ "GetNumSamples", "class_audio_data_lib_1_1_audio_data.html#ad979eed06a563e16618c357af7ce2ea7", null ],
+    [ "GetNumSamplesPerChannel", "class_audio_data_lib_1_1_audio_data.html#a4188ca751424f0f98a4f95a1779c4614", null ],
+    [ "GetTimeSeconds", "class_audio_data_lib_1_1_audio_data.html#aac645553fac8273198d249ae6d9ece2a", null ],
+    [ "SetAudioBufferSize", "class_audio_data_lib_1_1_audio_data.html#a954ca23042c0c207712cb153966e6742", null ],
+    [ "SetFormat", "class_audio_data_lib_1_1_audio_data.html#a12e389205761622917889767f1b65afc", null ],
+    [ "SetMetaData", "class_audio_data_lib_1_1_audio_data.html#a74abbfd186e464dce5cdba25f7d0e2eb", null ],
+    [ "audioBuffer", "class_audio_data_lib_1_1_audio_data.html#a24cf3de85468eea288765617b8aa7051", null ],
+    [ "audioBufferSize", "class_audio_data_lib_1_1_audio_data.html#a2c2f67b6a4e66888c5c7dcef12278e70", null ],
+    [ "format", "class_audio_data_lib_1_1_audio_data.html#a0b044559cf7cd9e844608624a9c66e77", null ],
+    [ "metaData", "class_audio_data_lib_1_1_audio_data.html#ac15038d62f33be028accb3090ae40777", null ]
+];
