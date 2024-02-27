@@ -16,7 +16,7 @@ Current features are as follows.
 
 ## Documentation
 
-A doxygen-based documentation page has been setup <a href="https://spencerparkin.github.io/AudioDataLib/Documentation/html/index.html">here</a> for the project.  As for this writing, it is a work in progress.
+A doxygen-based documentation page has been setup <a href="https://spencerparkin.github.io/AudioDataLib/Documentation/html/index.html">here</a> for the project.  As of this writing, it is a work in progress.
 
 ## Setup
 
