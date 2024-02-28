@@ -9,7 +9,7 @@ namespace AudioDataLib
 
 	/**
 	 * @brief This is the base class for all types of byte streams used in the library.
-	 *        Some derivatives or read-only, write-only, or read-write.
+	 *        Some derivatives are read-only, write-only, or read-write.
 	 */
 	class AUDIO_DATA_LIB_API ByteStream
 	{
