@@ -5,6 +5,11 @@
 
 namespace AudioDataLib
 {
+	/**
+	 * @brief This class knows how to load and save AIFF files.
+	 * 
+	 * I don't have it working yet.
+	 */
 	class AUDIO_DATA_LIB_API AiffFileFormat : public FileFormat
 	{
 	public:

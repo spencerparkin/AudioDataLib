@@ -101,6 +101,9 @@ $(function(){initNavTree('class_audio_data_lib_1_1_recursive_filter.html',''); i
 </div><!--header-->
 <div class="contents">
 
+<p>This is a function that uses itself recursively to filter audio in the time-domain.  
+ <a href="#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="_recursive_filter_8h_source.html">RecursiveFilter.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for AudioDataLib::RecursiveFilter:</div>
@@ -108,7 +111,7 @@ Inheritance diagram for AudioDataLib::RecursiveFilter:</div>
  <div class="center">
   <img src="class_audio_data_lib_1_1_recursive_filter.png" usemap="#AudioDataLib::RecursiveFilter_map" alt=""/>
   <map id="AudioDataLib::RecursiveFilter_map" name="AudioDataLib::RecursiveFilter_map">
-<area href="class_audio_data_lib_1_1_function.html" alt="AudioDataLib::Function" shape="rect" coords="250,0,490,24"/>
+<area href="class_audio_data_lib_1_1_function.html" title="These are real-valued functions of a real variable." alt="AudioDataLib::Function" shape="rect" coords="250,0,490,24"/>
 <area href="class_audio_data_lib_1_1_all_pass_filter.html" alt="AudioDataLib::AllPassFilter" shape="rect" coords="0,112,240,136"/>
 <area href="class_audio_data_lib_1_1_feed_backward_comb_filter.html" alt="AudioDataLib::FeedBackwardCombFilter" shape="rect" coords="250,112,490,136"/>
 <area href="class_audio_data_lib_1_1_feed_forward_comb_filter.html" alt="AudioDataLib::FeedForwardCombFilter" shape="rect" coords="500,112,740,136"/>
@@ -151,7 +154,11 @@ Protected Attributes</h2></td></tr>
 <tr class="memitem:a6b081dc1bec3a616d4aa6d1ecab204d7" id="r_a6b081dc1bec3a616d4aa6d1ecab204d7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="struct_audio_data_lib_1_1_recursive_filter_1_1_params.html">Params</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6b081dc1bec3a616d4aa6d1ecab204d7">params</a></td></tr>
 <tr class="separator:a6b081dc1bec3a616d4aa6d1ecab204d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>This is a function that uses itself recursively to filter audio in the time-domain. </p>
+<p>The resursion involved here is not that in the computer-science sense, but in the sense that results of previous evaluations of the function are used to produce current evaluations.</p>
+<p>Since we're based on the <a class="el" href="class_audio_data_lib_1_1_wave_form.html" title="This is the time-domain representation of a wave-form.">WaveForm</a> class here, we don't have the best time-complexity, admittedly. Evaluating the signal at a given descrete time could be O(1), but we are using an O(log N) operation. My view is that if it's fast enough, then I favor the simplicity that can sometimes prevail over the complications that can arise in trying to be as fast as computerly-possible. Comb and all-pass filters can sometimes be used as the building-blocks of a reverberator, and that is the motivation here behind this class and its derivatives. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="aa50176e6171e034ba82b46c5ff98ba3f" name="aa50176e6171e034ba82b46c5ff98ba3f"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aa50176e6171e034ba82b46c5ff98ba3f">&#9670;&#160;</a></span>RecursiveFilter()</h2>
 
@@ -234,7 +241,7 @@ Protected Attributes</h2></td></tr>
         <tr>
           <td class="memname">double RecursiveFilter::EvaluateAt </td>
           <td>(</td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>timeSeconds</em></span></td><td>)</td>
+          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>x</em></span></td><td>)</td>
           <td> const</td>
         </tr>
       </table>
@@ -244,6 +251,7 @@ Protected Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Derived classes should override this method to provide a means of evaluating this function at the given value, typically representative of time in this library. </p>
 
 <p>Implements <a class="el" href="class_audio_data_lib_1_1_function.html#ad7f181e89b841b7c05acdcd995a66877">AudioDataLib::Function</a>.</p>
 

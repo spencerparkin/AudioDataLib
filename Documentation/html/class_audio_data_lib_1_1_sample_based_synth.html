@@ -99,6 +99,9 @@ $(function(){initNavTree('class_audio_data_lib_1_1_sample_based_synth.html','');
 </div><!--header-->
 <div class="contents">
 
+<p>This class knows how to synthesize real-time sound as a function of MIDI messages and sound-font data.  
+ <a href="#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="_sample_based_synth_8h_source.html">SampleBasedSynth.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for AudioDataLib::SampleBasedSynth:</div>
@@ -106,8 +109,8 @@ Inheritance diagram for AudioDataLib::SampleBasedSynth:</div>
  <div class="center">
   <img src="class_audio_data_lib_1_1_sample_based_synth.png" usemap="#AudioDataLib::SampleBasedSynth_map" alt=""/>
   <map id="AudioDataLib::SampleBasedSynth_map" name="AudioDataLib::SampleBasedSynth_map">
-<area href="class_audio_data_lib_1_1_midi_synth.html" alt="AudioDataLib::MidiSynth" shape="rect" coords="0,56,204,80"/>
-<area href="class_audio_data_lib_1_1_midi_msg_destination.html" alt="AudioDataLib::MidiMsgDestination" shape="rect" coords="0,0,204,24"/>
+<area href="class_audio_data_lib_1_1_midi_synth.html" title="Derivatives of this class know how to synthesize MIDI messages into real-time audio." alt="AudioDataLib::MidiSynth" shape="rect" coords="0,56,204,80"/>
+<area href="class_audio_data_lib_1_1_midi_msg_destination.html" title="Derivatives of this class are those that do something (anything) with MIDI messages." alt="AudioDataLib::MidiMsgDestination" shape="rect" coords="0,0,204,24"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -171,11 +174,15 @@ Additional Inherited Members</h2></td></tr>
 <tr class="memitem:a02a12933b57a2d720cb64a7a13d0110e inherit pro_attribs_class_audio_data_lib_1_1_midi_synth" id="r_a02a12933b57a2d720cb64a7a13d0110e"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="class_audio_data_lib_1_1_audio_stream.html">AudioStream</a> &gt; *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_audio_data_lib_1_1_midi_synth.html#a02a12933b57a2d720cb64a7a13d0110e">audioStream</a></td></tr>
 <tr class="separator:a02a12933b57a2d720cb64a7a13d0110e inherit pro_attribs_class_audio_data_lib_1_1_midi_synth"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2a36f368af4e61ee9b1053c69ba79897 inherit pro_attribs_class_audio_data_lib_1_1_midi_synth" id="r_a2a36f368af4e61ee9b1053c69ba79897"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_audio_data_lib_1_1_midi_synth.html#a2a36f368af4e61ee9b1053c69ba79897">minLatencySeconds</a></td></tr>
+<tr class="memdesc:a2a36f368af4e61ee9b1053c69ba79897 inherit pro_attribs_class_audio_data_lib_1_1_midi_synth"><td class="mdescLeft">&#160;</td><td class="mdescRight">This is the minimum amount of audio (measured in seconds) that should always be buffered at any given time.  <br /></td></tr>
 <tr class="separator:a2a36f368af4e61ee9b1053c69ba79897 inherit pro_attribs_class_audio_data_lib_1_1_midi_synth"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8a69b8b8db430444f216d7c744b3cdb5 inherit pro_attribs_class_audio_data_lib_1_1_midi_synth" id="r_a8a69b8b8db430444f216d7c744b3cdb5"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_audio_data_lib_1_1_midi_synth.html#a8a69b8b8db430444f216d7c744b3cdb5">maxLatencySeconds</a></td></tr>
+<tr class="memdesc:a8a69b8b8db430444f216d7c744b3cdb5 inherit pro_attribs_class_audio_data_lib_1_1_midi_synth"><td class="mdescLeft">&#160;</td><td class="mdescRight">This is the maximum amount of audio (measured in seconds) that should always be buffered at any given time.  <br /></td></tr>
 <tr class="separator:a8a69b8b8db430444f216d7c744b3cdb5 inherit pro_attribs_class_audio_data_lib_1_1_midi_synth"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>This class knows how to synthesize real-time sound as a function of MIDI messages and sound-font data. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a8d1a74e769332b21c95bd37ae601e6f0" name="a8d1a74e769332b21c95bd37ae601e6f0"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a8d1a74e769332b21c95bd37ae601e6f0">&#9670;&#160;</a></span>SampleBasedSynth()</h2>
 
@@ -304,6 +311,7 @@ Additional Inherited Members</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>A derived class must impliment this method to provide a <a class="el" href="class_audio_data_lib_1_1_synth_module.html">SynthModule</a> that can feed the given channel. Note that the term "channel" is overloaded. It can refer to a channel in a stream of audio (e.g., left, right, mono, etc.), as is the case here, or it can mean a MIDI channel, of which there are 16, so don't get them confused. Context usually makes it clear. </p>
 
 <p>Implements <a class="el" href="class_audio_data_lib_1_1_midi_synth.html#aea1dbaf16780f5a96fe944c329c6943c">AudioDataLib::MidiSynth</a>.</p>
 
@@ -348,6 +356,14 @@ Additional Inherited Members</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>This method will get called by the <a class="el" href="class_audio_data_lib_1_1_midi_msg_source.html" title="Instances of this class represent any source of MIDI messages.">MidiMsgSource</a> class during its own initialization.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">error</td><td>This should be populated with error information if false is returned. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True should be returned on success; false otherwise. </dd></dl>
 
 <p>Reimplemented from <a class="el" href="class_audio_data_lib_1_1_midi_msg_destination.html#a72644d31f176721a5c1e519878507e1d">AudioDataLib::MidiMsgDestination</a>.</p>
 
@@ -375,6 +391,8 @@ Additional Inherited Members</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>This is where we strike a balance between keeping enough audio data buffered in our audio stream to prevent an audio drop-out while also not buffering too much so as to maintain the lowest possible latency. If we don't feed the audio buffer quick enough, we periodically have to feed silence to the audio stream. If we feed the audio buffer too much, then changes to the audio (such as a note turnning on or off) don't happen soon enough, or as close to when they actually happend as we would like. As far as drop-outs are concerned, this class is really at the mercy of the <a class="el" href="class_audio_data_lib_1_1_synth_module.html">SynthModule</a> implimentations, which needs to be as quick as they possibly can be.</p>
+<p>A derived class might override this to do its own processing, but should call this base-class method as well. </p>
 
 <p>Reimplemented from <a class="el" href="class_audio_data_lib_1_1_midi_synth.html#a1e75625ed806551bb207c3601233c5bf">AudioDataLib::MidiSynth</a>.</p>
 
@@ -416,6 +434,17 @@ Additional Inherited Members</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>This method will be called when this destination is to receive the given MIDI message. Note that it's important that no heavy processing be done in this method (such as is the mentality when writing an audio callback), because the timing of MIDI message reception and processing can effect the quality of audio playback.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">deltaTimeSeconds</td><td>This is typically, but not always, set to the amount of time (in seconds) between now and the last time the function was called. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">message</td><td>This is the payload of the message, which can be decoded using a derivative of the <a class="el" href="class_audio_data_lib_1_1_midi_data_1_1_event.html">MidiData::Event</a> class. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">messageSize</td><td>This is the size of the payload in bytes. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">error</td><td>This should be populated with error information if false is returned. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True should be returned on success; false otherwise. </dd></dl>
 
 <p>Reimplemented from <a class="el" href="class_audio_data_lib_1_1_midi_msg_destination.html#a1fd46ff7e06e7985433261efd939607e">AudioDataLib::MidiMsgDestination</a>.</p>
 

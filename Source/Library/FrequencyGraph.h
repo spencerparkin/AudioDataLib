@@ -7,9 +7,15 @@ namespace AudioDataLib
 	class Error;
 	class WaveForm;
 
-	// See: https://www.youtube.com/watch?v=spUNpyF58BY
+	/**
+	 * @brief This class is the product of performing an FFT on a given WaveForm instance.
+	 * 
+	 * While audio data in the time-domain is represented by the WaveForm class, this class
+	 * represents such data in the frequency-domain.
+	 */
 	class AUDIO_DATA_LIB_API FrequencyGraph
 	{
+		// See: https://www.youtube.com/watch?v=spUNpyF58BY
 	public:
 		FrequencyGraph();
 		virtual ~FrequencyGraph();
@@ -30,8 +36,12 @@ namespace AudioDataLib
 
 		void GenerateSmootherGraph(FrequencyGraph& smootherGraph, double frequencyRadius) const;
 
-		// This assumes we're working with a monophonic signal.
-		// Note that the fundamental frequency is not necessarily the perceived pitch.
+		/**
+		 * Analyze this graph to determine the fundamental frequency, assuming
+		 * the wave-form that was used was a monophonic signal.  Note that the
+		 * fundamental frequency is not always the perceived pitch, but it
+		 * often is.
+		 */
 		double EstimateFundamentalFrequency(double strengthThreshold = 35.0) const;
 
 	protected:

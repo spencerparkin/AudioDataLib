@@ -614,7 +614,7 @@ bool PlayMidiData(AudioDataLib::MidiData* midiData, bool logMidiMessages, AudioD
 {
 	bool success = false;
 	SystemClockTimer timer;
-	MidiPlayer player(&timer, nullptr);
+	MidiPlayer player(&timer);
 	Keyboard* keyboard = nullptr;
 	std::string keyboardError;
 
@@ -639,7 +639,6 @@ bool PlayMidiData(AudioDataLib::MidiData* midiData, bool logMidiMessages, AudioD
 		player.AddDestination(std::shared_ptr<MidiMsgDestination>(new MidiPortDestination()));
 		player.SetMidiData(midiData);
 		player.ConfigureToPlayAllTracks();
-		player.SetTimeSeconds(0.0);
 		if (!player.Setup(error))
 			break;
 

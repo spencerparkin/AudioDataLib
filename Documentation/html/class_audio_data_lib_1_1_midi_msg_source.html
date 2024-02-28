@@ -101,6 +101,9 @@ $(function(){initNavTree('class_audio_data_lib_1_1_midi_msg_source.html',''); in
 </div><!--header-->
 <div class="contents">
 
+<p>Instances of this class represent any source of MIDI messages.  
+ <a href="#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="_midi_msg_source_8h_source.html">MidiMsgSource.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for AudioDataLib::MidiMsgSource:</div>
@@ -108,7 +111,7 @@ Inheritance diagram for AudioDataLib::MidiMsgSource:</div>
  <div class="center">
   <img src="class_audio_data_lib_1_1_midi_msg_source.png" usemap="#AudioDataLib::MidiMsgSource_map" alt=""/>
   <map id="AudioDataLib::MidiMsgSource_map" name="AudioDataLib::MidiMsgSource_map">
-<area href="class_audio_data_lib_1_1_midi_player.html" alt="AudioDataLib::MidiPlayer" shape="rect" coords="0,56,183,80"/>
+<area href="class_audio_data_lib_1_1_midi_player.html" title="This class knows how to playback MIDI files." alt="AudioDataLib::MidiPlayer" shape="rect" coords="0,56,183,80"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -142,7 +145,11 @@ Protected Attributes</h2></td></tr>
 <tr class="memitem:adc61cfba070efd37755bbd7f564561a7" id="r_adc61cfba070efd37755bbd7f564561a7"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::shared_ptr&lt; <a class="el" href="class_audio_data_lib_1_1_midi_msg_destination.html">MidiMsgDestination</a> &gt; &gt; *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#adc61cfba070efd37755bbd7f564561a7">destinationArray</a></td></tr>
 <tr class="separator:adc61cfba070efd37755bbd7f564561a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Instances of this class represent any source of MIDI messages. </p>
+<p>The user might provide a derivative of this class, for example, that can receive messages from a MIDI port. One is not provided by this library, because one of the goals of this library is to depend at-most on the standard C++ library. Details of interfacing with hardware are left to 3rd-party libraries. You can find an example of using such a library in the same Git repo that houses <a class="el" href="namespace_audio_data_lib.html">AudioDataLib</a>.</p>
+<p>Rather, what this class does is manage a source and any number of destinations connected to it. As source messages are produced, they are boardcast to all destinations, or instance of the <a class="el" href="class_audio_data_lib_1_1_midi_msg_destination.html" title="Derivatives of this class are those that do something (anything) with MIDI messages.">MidiMsgDestination</a> class which, in turn, know what to do with the messages (e.g., synthesize them into sound.) </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="adea2ebab5fa1c5c592a78a55e437adac" name="adea2ebab5fa1c5c592a78a55e437adac"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#adea2ebab5fa1c5c592a78a55e437adac">&#9670;&#160;</a></span>MidiMsgSource()</h2>
 
@@ -200,6 +207,7 @@ Protected Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Add a MIDI message destination. The given <a class="el" href="class_audio_data_lib_1_1_midi_msg_destination.html" title="Derivatives of this class are those that do something (anything) with MIDI messages.">MidiMsgDestination</a> class will receive messages from this source. </p>
 
 </div>
 </div>
@@ -239,6 +247,7 @@ Protected Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>This should be called by the derived class whenever a MIDI message is produced or received from the source represented by this class. </p>
 
 </div>
 </div>
@@ -256,6 +265,7 @@ Protected Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Remove all connected <a class="el" href="class_audio_data_lib_1_1_midi_msg_destination.html" title="Derivatives of this class are those that do something (anything) with MIDI messages.">MidiMsgDestination</a> classes. </p>
 
 </div>
 </div>
@@ -283,6 +293,7 @@ template&lt;typename T &gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Find and return a pointer to the first <a class="el" href="class_audio_data_lib_1_1_midi_msg_destination.html" title="Derivatives of this class are those that do something (anything) with MIDI messages.">MidiMsgDestination</a> class that successfully casts to the given type. </p>
 
 </div>
 </div>
@@ -308,6 +319,7 @@ template&lt;typename T &gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>This is called once per frame in a program's main loop, and should do any necessary processing of the MIDI message source (e.g., poll messages from a port), but should also call the base-class method here to process each connected <a class="el" href="class_audio_data_lib_1_1_midi_msg_destination.html" title="Derivatives of this class are those that do something (anything) with MIDI messages.">MidiMsgDestination</a> class. </p>
 
 <p>Reimplemented in <a class="el" href="class_audio_data_lib_1_1_midi_player.html#ab9983e5dead254600b9f97a5e36a9ec9">AudioDataLib::MidiPlayer</a>.</p>
 
@@ -335,6 +347,7 @@ template&lt;typename T &gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Perform any setup that is required, but also call this base-class method as it will attempt to initialize each <a class="el" href="class_audio_data_lib_1_1_midi_msg_destination.html" title="Derivatives of this class are those that do something (anything) with MIDI messages.">MidiMsgDestination</a> added to this class instance. If any one of those fails, then setup should fail. </p>
 
 <p>Reimplemented in <a class="el" href="class_audio_data_lib_1_1_midi_player.html#acf3a73ecea0463c6728ef948458a6e20">AudioDataLib::MidiPlayer</a>.</p>
 
@@ -362,6 +375,7 @@ template&lt;typename T &gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Perform any shutdown that is required, but also call this base-class method as it will shutdown each <a class="el" href="class_audio_data_lib_1_1_midi_msg_destination.html" title="Derivatives of this class are those that do something (anything) with MIDI messages.">MidiMsgDestination</a> added to this class instance. Though setup and shutdown routines (or, using alternative terms, initialization and finalization routines) have the same signature, it is convention that shutdown routines always succeed, at least as far as doing any clean-up needed to reclaim the state of the program after a successful or failed initialization. Still failure can be returned here if it's useful, and error information can be provided, but the return value is usually not checked. </p>
 
 <p>Reimplemented in <a class="el" href="class_audio_data_lib_1_1_midi_player.html#adbf2660d7dc49d7e5c32f2cb5f750237">AudioDataLib::MidiPlayer</a>.</p>
 

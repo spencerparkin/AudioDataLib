@@ -9,12 +9,10 @@ using namespace AudioDataLib;
 
 //------------------------------- MidiPlayer -------------------------------
 
-MidiPlayer::MidiPlayer(Timer* timer, Mutex* mutex)
+MidiPlayer::MidiPlayer(Timer* timer)
 {
 	this->timer = timer;
-	this->mutex = mutex;
 	this->midiData = nullptr;
-	this->timeSeconds = 0.0;
 	this->trackPlayerArray = new std::vector<TrackPlayer*>();
 	this->tracksToPlaySet = new std::set<uint32_t>();
 }
@@ -124,8 +122,6 @@ void MidiPlayer::ConfigureToPlayAllTracks() const
 		return false;
 
 	double deltaTimeSeconds = this->timer->GetDeltaTimeSeconds();
-
-	this->timeSeconds += deltaTimeSeconds;
 
 	// Synchronization between the tracks here is called into question in my mind.  Hmmmmm.
 	for (TrackPlayer* trackPlayer : *this->trackPlayerArray)
@@ -258,13 +254,7 @@ bool MidiPlayer::TrackPlayer::ProcessEvent(const MidiData::Event* event, MidiPla
 		if (!channelEvent->Encode(bufferStream, error))
 			return false;
 
-		if (midiPlayer->mutex)
-			midiPlayer->mutex->Lock();	// TODO: After the big refactor, this mutex may be in the wrong place!
-
 		midiPlayer->BroadcastMidiMessage(0.0, bufferStream.GetBuffer(), bufferStream.GetSize(), error);
-
-		if (midiPlayer->mutex)
-			midiPlayer->mutex->Unlock();
 
 		if (error)
 			return false;

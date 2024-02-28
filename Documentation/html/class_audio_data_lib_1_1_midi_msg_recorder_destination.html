@@ -99,6 +99,9 @@ $(function(){initNavTree('class_audio_data_lib_1_1_midi_msg_recorder_destination
 </div><!--header-->
 <div class="contents">
 
+<p>This class collects MIDI messages it receives so that it can later compile them into a given <a class="el" href="class_audio_data_lib_1_1_midi_data.html" title="This data representing the contents of a MIDI file.">MidiData</a> object, which can be, in turn, written to disk, if desired.  
+ <a href="#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="_midi_msg_recorder_destination_8h_source.html">MidiMsgRecorderDestination.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for AudioDataLib::MidiMsgRecorderDestination:</div>
@@ -106,7 +109,7 @@ Inheritance diagram for AudioDataLib::MidiMsgRecorderDestination:</div>
  <div class="center">
   <img src="class_audio_data_lib_1_1_midi_msg_recorder_destination.png" usemap="#AudioDataLib::MidiMsgRecorderDestination_map" alt=""/>
   <map id="AudioDataLib::MidiMsgRecorderDestination_map" name="AudioDataLib::MidiMsgRecorderDestination_map">
-<area href="class_audio_data_lib_1_1_midi_msg_destination.html" alt="AudioDataLib::MidiMsgDestination" shape="rect" coords="0,0,257,24"/>
+<area href="class_audio_data_lib_1_1_midi_msg_destination.html" title="Derivatives of this class are those that do something (anything) with MIDI messages." alt="AudioDataLib::MidiMsgDestination" shape="rect" coords="0,0,257,24"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -138,7 +141,10 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ad9df91fa9d2bcf9000a571cf4df23fe3 inherit pub_methods_class_audio_data_lib_1_1_midi_msg_destination" id="r_ad9df91fa9d2bcf9000a571cf4df23fe3"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_audio_data_lib_1_1_midi_msg_destination.html#ad9df91fa9d2bcf9000a571cf4df23fe3">Process</a> (<a class="el" href="class_audio_data_lib_1_1_error.html">Error</a> &amp;error)</td></tr>
 <tr class="separator:ad9df91fa9d2bcf9000a571cf4df23fe3 inherit pub_methods_class_audio_data_lib_1_1_midi_msg_destination"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>This class collects MIDI messages it receives so that it can later compile them into a given <a class="el" href="class_audio_data_lib_1_1_midi_data.html" title="This data representing the contents of a MIDI file.">MidiData</a> object, which can be, in turn, written to disk, if desired. </p>
+<p>If you wanted to capture MIDI messages from a MIDI device (e.g., a MIDI keyboard) and then save the result to a MIDI file, then this class helps you do that. You would add an instance of this class to a <a class="el" href="class_audio_data_lib_1_1_midi_msg_source.html" title="Instances of this class represent any source of MIDI messages.">MidiMsgSource</a> derivative which can produce the MIDI messages from the port. Of course, you would define and provide this derivative, because one of the goals of <a class="el" href="namespace_audio_data_lib.html">AudioDataLib</a> is to be dependency-free (apart from the standard C++ library, of course.) There are many available APIs that can open, close and process MIDI ports. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="ab468caa692b867c433b487c9ceaaacdb" name="ab468caa692b867c433b487c9ceaaacdb"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ab468caa692b867c433b487c9ceaaacdb">&#9670;&#160;</a></span>MidiMsgRecorderDestination()</h2>
 
@@ -196,6 +202,7 @@ Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Clear the MIDI message cache. </p>
 
 </div>
 </div>
@@ -221,6 +228,7 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Compile all cached MIDI messages into the <a class="el" href="class_audio_data_lib_1_1_midi_data.html" title="This data representing the contents of a MIDI file.">MidiData</a> instance owned by this class. </p>
 
 <p>Reimplemented from <a class="el" href="class_audio_data_lib_1_1_midi_msg_destination.html#a37ae7000a0dce85a7cbf9ffd4d987552">AudioDataLib::MidiMsgDestination</a>.</p>
 
@@ -248,6 +256,7 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Return the owned <a class="el" href="class_audio_data_lib_1_1_midi_data.html" title="This data representing the contents of a MIDI file.">MidiData</a> instance pointer set with SetMidiData. </p>
 
 </div>
 </div>
@@ -273,6 +282,7 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Return a read-only pointer to the ownd <a class="el" href="class_audio_data_lib_1_1_midi_data.html" title="This data representing the contents of a MIDI file.">MidiData</a> instance. </p>
 
 </div>
 </div>
@@ -312,6 +322,7 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>This method caches the given MIDI message for later processing in the Finalize method. </p>
 
 <p>Reimplemented from <a class="el" href="class_audio_data_lib_1_1_midi_msg_destination.html#a1fd46ff7e06e7985433261efd939607e">AudioDataLib::MidiMsgDestination</a>.</p>
 
@@ -339,6 +350,7 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Set the <a class="el" href="class_audio_data_lib_1_1_midi_data.html" title="This data representing the contents of a MIDI file.">MidiData</a> instance that this class will populate. Ownership of the memory is not taken here. </p>
 
 </div>
 </div>

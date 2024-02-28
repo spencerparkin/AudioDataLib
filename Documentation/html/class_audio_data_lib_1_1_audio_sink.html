@@ -101,12 +101,15 @@ $(function(){initNavTree('class_audio_data_lib_1_1_audio_sink.html',''); initRes
 </div><!--header-->
 <div class="contents">
 
+<p>Provide a convenient way to fire and forget sound FX.  
+ <a href="#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="_audio_sink_8h_source.html">AudioSink.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a3408d19bd7b166a6e19bbca2090e1333" id="r_a3408d19bd7b166a6e19bbca2090e1333"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3408d19bd7b166a6e19bbca2090e1333">AudioSink</a> (bool <a class="el" href="#abfd19eab277ef38761689efe46de0400">ownInputStreams</a>, bool <a class="el" href="#ae631a19edecbd1e6deddae18af19b480">ownOutputStream</a>)</td></tr>
-<tr class="separator:a3408d19bd7b166a6e19bbca2090e1333"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abc17f5217bf0c305fe47695c1fa3a5a6" id="r_abc17f5217bf0c305fe47695c1fa3a5a6"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#abc17f5217bf0c305fe47695c1fa3a5a6">AudioSink</a> ()</td></tr>
+<tr class="separator:abc17f5217bf0c305fe47695c1fa3a5a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad8d889ca2f1a938a24dad39c063faf85" id="r_ad8d889ca2f1a938a24dad39c063faf85"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad8d889ca2f1a938a24dad39c063faf85">~AudioSink</a> ()</td></tr>
 <tr class="separator:ad8d889ca2f1a938a24dad39c063faf85"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9b938ff40591de696b4209d518d09a59" id="r_a9b938ff40591de696b4209d518d09a59"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9b938ff40591de696b4209d518d09a59">Clear</a> ()</td></tr>
@@ -140,14 +143,14 @@ Protected Attributes</h2></td></tr>
 <tr class="separator:a6bf5c9c7dad69131824e6e18d1d27cc9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a80ec542f09399f41a2709e451e572e4c" id="r_a80ec542f09399f41a2709e451e572e4c"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="class_audio_data_lib_1_1_audio_stream.html">AudioStream</a> &gt; *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a80ec542f09399f41a2709e451e572e4c">audioStreamOut</a></td></tr>
 <tr class="separator:a80ec542f09399f41a2709e451e572e4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abfd19eab277ef38761689efe46de0400" id="r_abfd19eab277ef38761689efe46de0400"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#abfd19eab277ef38761689efe46de0400">ownInputStreams</a></td></tr>
-<tr class="separator:abfd19eab277ef38761689efe46de0400"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae631a19edecbd1e6deddae18af19b480" id="r_ae631a19edecbd1e6deddae18af19b480"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae631a19edecbd1e6deddae18af19b480">ownOutputStream</a></td></tr>
-<tr class="separator:ae631a19edecbd1e6deddae18af19b480"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="a3408d19bd7b166a6e19bbca2090e1333" name="a3408d19bd7b166a6e19bbca2090e1333"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3408d19bd7b166a6e19bbca2090e1333">&#9670;&#160;</a></span>AudioSink()</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Provide a convenient way to fire and forget sound FX. </p>
+<p>What this class is trying to be is a general purpose way of mixing and/or converting audio. It can be used for synthesis or real-time purposes. Note that to use this class in a thread-safe manner (typically for real-time playback of audio), you should use the <a class="el" href="class_audio_data_lib_1_1_thread_safe_audio_stream.html">ThreadSafeAudioStream</a> class instead of just the regular <a class="el" href="class_audio_data_lib_1_1_audio_stream.html">AudioStream</a> class for the audio output.</p>
+<p>The real-time case is all about feeding an audio device. The synthesis case is about converting audio from one format to another, or mixing audio. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="abc17f5217bf0c305fe47695c1fa3a5a6" name="abc17f5217bf0c305fe47695c1fa3a5a6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abc17f5217bf0c305fe47695c1fa3a5a6">&#9670;&#160;</a></span>AudioSink()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -155,12 +158,8 @@ Protected Attributes</h2></td></tr>
         <tr>
           <td class="memname">AudioSink::AudioSink </td>
           <td>(</td>
-          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>ownInputStreams</em>, </span></td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
           <td></td>
-          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>ownOutputStream</em></span>&#160;)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -207,6 +206,7 @@ Protected Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Start playing/mixing the given audio stream immediately. </p>
 
 </div>
 </div>
@@ -326,6 +326,7 @@ template&lt;&gt; </div>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Make sure that an amount of audio data equivilant to the given amount of time is available for consumption in our audio output stream. This will produce silence in the audio output if necessary. Note that too much buffered time will create latency when new audio clips are fired. But too little buffered can cause audio drop-outs due to a starved device. </p>
 
 </div>
 </div>
@@ -351,6 +352,7 @@ template&lt;&gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Return the current number of simulatneously playing audio stream. </p>
 
 </div>
 </div>
@@ -430,50 +432,6 @@ template&lt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">std::shared_ptr&lt;<a class="el" href="class_audio_data_lib_1_1_audio_stream.html">AudioStream</a>&gt;* AudioDataLib::AudioSink::audioStreamOut</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="abfd19eab277ef38761689efe46de0400" name="abfd19eab277ef38761689efe46de0400"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abfd19eab277ef38761689efe46de0400">&#9670;&#160;</a></span>ownInputStreams</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool AudioDataLib::AudioSink::ownInputStreams</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="ae631a19edecbd1e6deddae18af19b480" name="ae631a19edecbd1e6deddae18af19b480"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae631a19edecbd1e6deddae18af19b480">&#9670;&#160;</a></span>ownOutputStream</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool AudioDataLib::AudioSink::ownOutputStream</td>
         </tr>
       </table>
   </td>

@@ -99,6 +99,9 @@ $(function(){initNavTree('class_audio_data_lib_1_1_function.html',''); initResiz
 </div><!--header-->
 <div class="contents">
 
+<p>These are real-valued functions of a real variable.  
+ <a href="#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="_function_8h_source.html">Function.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for AudioDataLib::Function:</div>
@@ -108,8 +111,8 @@ Inheritance diagram for AudioDataLib::Function:</div>
   <map id="AudioDataLib::Function_map" name="AudioDataLib::Function_map">
 <area href="class_audio_data_lib_1_1_constant_function.html" alt="AudioDataLib::ConstantFunction" shape="rect" coords="0,56,240,80"/>
 <area href="class_audio_data_lib_1_1_linear_fall_off_function.html" alt="AudioDataLib::LinearFallOffFunction" shape="rect" coords="250,56,490,80"/>
-<area href="class_audio_data_lib_1_1_recursive_filter.html" alt="AudioDataLib::RecursiveFilter" shape="rect" coords="500,56,740,80"/>
-<area href="class_audio_data_lib_1_1_wave_form.html" alt="AudioDataLib::WaveForm" shape="rect" coords="750,56,990,80"/>
+<area href="class_audio_data_lib_1_1_recursive_filter.html" title="This is a function that uses itself recursively to filter audio in the time-domain." alt="AudioDataLib::RecursiveFilter" shape="rect" coords="500,56,740,80"/>
+<area href="class_audio_data_lib_1_1_wave_form.html" title="This is the time-domain representation of a wave-form." alt="AudioDataLib::WaveForm" shape="rect" coords="750,56,990,80"/>
 <area href="class_audio_data_lib_1_1_wave_form_stream.html" alt="AudioDataLib::WaveFormStream" shape="rect" coords="1000,56,1240,80"/>
 <area href="class_audio_data_lib_1_1_all_pass_filter.html" alt="AudioDataLib::AllPassFilter" shape="rect" coords="250,112,490,136"/>
 <area href="class_audio_data_lib_1_1_feed_backward_comb_filter.html" alt="AudioDataLib::FeedBackwardCombFilter" shape="rect" coords="500,112,740,136"/>
@@ -128,7 +131,10 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a1cb3ea08cbcfdcbef58ca5ef765e7b18" id="r_a1cb3ea08cbcfdcbef58ca5ef765e7b18"><td class="memItemLeft" align="right" valign="top">virtual double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1cb3ea08cbcfdcbef58ca5ef765e7b18">EvaluateDerivativeAt</a> (double x) const</td></tr>
 <tr class="separator:a1cb3ea08cbcfdcbef58ca5ef765e7b18"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>These are real-valued functions of a real variable. </p>
+<p>Functions are as fundamental to mathematics as numbers, so it's not surprising to find the concept useful enough to abstract them in this manner. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="ae206568fd4fd4c885e3ccff76345c4e6" name="ae206568fd4fd4c885e3ccff76345c4e6"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ae206568fd4fd4c885e3ccff76345c4e6">&#9670;&#160;</a></span>Function()</h2>
 
@@ -194,6 +200,7 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Derived classes should override this method to provide a means of evaluating this function at the given value, typically representative of time in this library. </p>
 
 <p>Implemented in <a class="el" href="class_audio_data_lib_1_1_linear_fall_off_function.html#a23afbdd1b3f896aec794fb341bf5418d">AudioDataLib::LinearFallOffFunction</a>, <a class="el" href="class_audio_data_lib_1_1_recursive_filter.html#ae41eb34611c63f900b06ceef29d920f1">AudioDataLib::RecursiveFilter</a>, <a class="el" href="class_audio_data_lib_1_1_wave_form.html#af99e83620adb9c50f6ab466ca883aa4d">AudioDataLib::WaveForm</a>, <a class="el" href="class_audio_data_lib_1_1_wave_form_stream.html#a69afb1a43c84e66d54411d097dbe764c">AudioDataLib::WaveFormStream</a>, and <a class="el" href="class_audio_data_lib_1_1_constant_function.html#a8f1cafce5ad7437403365086c0589915">AudioDataLib::ConstantFunction</a>.</p>
 
@@ -221,6 +228,7 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Derived classes can override this method to provide a means of evaluating the derivative of this function at the given value. By default, a central differencing approximation method is implimented here. If a more accurate method is possible, it should be implimented by the derived class. </p>
 
 <p>Reimplemented in <a class="el" href="class_audio_data_lib_1_1_constant_function.html#a0a98f5433c10e77e2416915c98c20160">AudioDataLib::ConstantFunction</a>.</p>
 

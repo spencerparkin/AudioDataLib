@@ -99,6 +99,9 @@ $(function(){initNavTree('class_audio_data_lib_1_1_mutex.html',''); initResizabl
 </div><!--header-->
 <div class="contents">
 
+<p>This class provides a mutex interface for thread synchronization.  
+ <a href="#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="_mutex_8h_source.html">Mutex.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for AudioDataLib::Mutex:</div>
@@ -121,7 +124,10 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a1d39a701ab37c521cfb3b5f7b28f230a" id="r_a1d39a701ab37c521cfb3b5f7b28f230a"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1d39a701ab37c521cfb3b5f7b28f230a">Unlock</a> ()=0</td></tr>
 <tr class="separator:a1d39a701ab37c521cfb3b5f7b28f230a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>This class provides a mutex interface for thread synchronization. </p>
+<p>No threads are created or destroyed by <a class="el" href="namespace_audio_data_lib.html">AudioDataLib</a> (as of this writing), but it can still be thread-safe or thread-aware in many cases where it's typical for the user to call different parts of the API from different threads. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a593423d868daf926c7b0d63a833ae29a" name="a593423d868daf926c7b0d63a833ae29a"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a593423d868daf926c7b0d63a833ae29a">&#9670;&#160;</a></span>Mutex()</h2>
 

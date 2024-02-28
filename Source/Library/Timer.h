@@ -4,6 +4,9 @@
 
 namespace AudioDataLib
 {
+	/**
+	 * @\brief This class is sometimes used to keep time in a more formal way.
+	 */
 	class AUDIO_DATA_LIB_API Timer
 	{
 	public:

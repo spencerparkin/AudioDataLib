@@ -99,6 +99,9 @@ $(function(){initNavTree('class_audio_data_lib_1_1_midi_msg_destination.html',''
 </div><!--header-->
 <div class="contents">
 
+<p>Derivatives of this class are those that do something (anything) with MIDI messages.  
+ <a href="#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="_midi_msg_destination_8h_source.html">MidiMsgDestination.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for AudioDataLib::MidiMsgDestination:</div>
@@ -106,10 +109,10 @@ Inheritance diagram for AudioDataLib::MidiMsgDestination:</div>
  <div class="center">
   <img src="class_audio_data_lib_1_1_midi_msg_destination.png" usemap="#AudioDataLib::MidiMsgDestination_map" alt=""/>
   <map id="AudioDataLib::MidiMsgDestination_map" name="AudioDataLib::MidiMsgDestination_map">
-<area href="class_audio_data_lib_1_1_midi_msg_log_destination.html" alt="AudioDataLib::MidiMsgLogDestination" shape="rect" coords="0,56,257,80"/>
-<area href="class_audio_data_lib_1_1_midi_msg_recorder_destination.html" alt="AudioDataLib::MidiMsgRecorderDestination" shape="rect" coords="267,56,524,80"/>
-<area href="class_audio_data_lib_1_1_midi_synth.html" alt="AudioDataLib::MidiSynth" shape="rect" coords="534,56,791,80"/>
-<area href="class_audio_data_lib_1_1_sample_based_synth.html" alt="AudioDataLib::SampleBasedSynth" shape="rect" coords="133,112,390,136"/>
+<area href="class_audio_data_lib_1_1_midi_msg_log_destination.html" title="This class is used mainly for diagnostic purposes, providing log message output as MIDI message input..." alt="AudioDataLib::MidiMsgLogDestination" shape="rect" coords="0,56,257,80"/>
+<area href="class_audio_data_lib_1_1_midi_msg_recorder_destination.html" title="This class collects MIDI messages it receives so that it can later compile them into a given MidiData..." alt="AudioDataLib::MidiMsgRecorderDestination" shape="rect" coords="267,56,524,80"/>
+<area href="class_audio_data_lib_1_1_midi_synth.html" title="Derivatives of this class know how to synthesize MIDI messages into real-time audio." alt="AudioDataLib::MidiSynth" shape="rect" coords="534,56,791,80"/>
+<area href="class_audio_data_lib_1_1_sample_based_synth.html" title="This class knows how to synthesize real-time sound as a function of MIDI messages and sound-font data..." alt="AudioDataLib::SampleBasedSynth" shape="rect" coords="133,112,390,136"/>
 <area href="class_audio_data_lib_1_1_simple_synth.html" alt="AudioDataLib::SimpleSynth" shape="rect" coords="400,112,657,136"/>
 <area href="class_audio_data_lib_1_1_subtractive_synth.html" alt="AudioDataLib::SubtractiveSynth" shape="rect" coords="667,112,924,136"/>
 <area href="class_audio_data_lib_1_1_wave_table_synth.html" alt="AudioDataLib::WaveTableSynth" shape="rect" coords="934,112,1191,136"/>
@@ -131,7 +134,10 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ad9df91fa9d2bcf9000a571cf4df23fe3" id="r_ad9df91fa9d2bcf9000a571cf4df23fe3"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad9df91fa9d2bcf9000a571cf4df23fe3">Process</a> (<a class="el" href="class_audio_data_lib_1_1_error.html">Error</a> &amp;error)</td></tr>
 <tr class="separator:ad9df91fa9d2bcf9000a571cf4df23fe3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Derivatives of this class are those that do something (anything) with MIDI messages. </p>
+<p>For example, the user might provide a derivative of this class that sends the given messages to a MIDI port for synthesis. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a50f897b611e087910454148b9b533ee7" name="a50f897b611e087910454148b9b533ee7"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a50f897b611e087910454148b9b533ee7">&#9670;&#160;</a></span>MidiMsgDestination()</h2>
 
@@ -197,6 +203,14 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>This method will get called by the <a class="el" href="class_audio_data_lib_1_1_midi_msg_source.html" title="Instances of this class represent any source of MIDI messages.">MidiMsgSource</a> class during its own finalization.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">error</td><td>This should be populated with error information if false is returned. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True should be returned on success; false otherwise. </dd></dl>
 
 <p>Reimplemented in <a class="el" href="class_audio_data_lib_1_1_midi_msg_recorder_destination.html#ac6c358d957dc72ab8c29a73d91b2b4b5">AudioDataLib::MidiMsgRecorderDestination</a>.</p>
 
@@ -224,6 +238,14 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>This method will get called by the <a class="el" href="class_audio_data_lib_1_1_midi_msg_source.html" title="Instances of this class represent any source of MIDI messages.">MidiMsgSource</a> class during its own initialization.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">error</td><td>This should be populated with error information if false is returned. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True should be returned on success; false otherwise. </dd></dl>
 
 <p>Reimplemented in <a class="el" href="class_audio_data_lib_1_1_sample_based_synth.html#abd36d4b15b5805686689f16c095a3541">AudioDataLib::SampleBasedSynth</a>.</p>
 
@@ -251,6 +273,14 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>This method will get called by the <a class="el" href="class_audio_data_lib_1_1_midi_msg_source.html" title="Instances of this class represent any source of MIDI messages.">MidiMsgSource</a> class during it's own processing, which should get get periodically a program's main loop, or perhaps a thread.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">error</td><td>This should be populated with error information if false is returned. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True should be returned on success; false otherwise. </dd></dl>
 
 <p>Reimplemented in <a class="el" href="class_audio_data_lib_1_1_midi_synth.html#a1e75625ed806551bb207c3601233c5bf">AudioDataLib::MidiSynth</a>, and <a class="el" href="class_audio_data_lib_1_1_sample_based_synth.html#ae9ef292e04681bf742e31bc8c87557f3">AudioDataLib::SampleBasedSynth</a>.</p>
 
@@ -292,6 +322,17 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>This method will be called when this destination is to receive the given MIDI message. Note that it's important that no heavy processing be done in this method (such as is the mentality when writing an audio callback), because the timing of MIDI message reception and processing can effect the quality of audio playback.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">deltaTimeSeconds</td><td>This is typically, but not always, set to the amount of time (in seconds) between now and the last time the function was called. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">message</td><td>This is the payload of the message, which can be decoded using a derivative of the <a class="el" href="class_audio_data_lib_1_1_midi_data_1_1_event.html">MidiData::Event</a> class. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">messageSize</td><td>This is the size of the payload in bytes. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">error</td><td>This should be populated with error information if false is returned. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True should be returned on success; false otherwise. </dd></dl>
 
 <p>Reimplemented in <a class="el" href="class_audio_data_lib_1_1_midi_msg_log_destination.html#a30488fae687f8b803e85f998b949f165">AudioDataLib::MidiMsgLogDestination</a>, <a class="el" href="class_audio_data_lib_1_1_midi_msg_recorder_destination.html#a7a607af219d442da8e34f9ab1e98b6ad">AudioDataLib::MidiMsgRecorderDestination</a>, <a class="el" href="class_audio_data_lib_1_1_sample_based_synth.html#abda044ee72e9ce870148c877c537a777">AudioDataLib::SampleBasedSynth</a>, <a class="el" href="class_audio_data_lib_1_1_simple_synth.html#a93daf454d9cd50e4c066f068a0918245">AudioDataLib::SimpleSynth</a>, <a class="el" href="class_audio_data_lib_1_1_subtractive_synth.html#a515f56a5c4fbc24ad8b925a61d748332">AudioDataLib::SubtractiveSynth</a>, and <a class="el" href="class_audio_data_lib_1_1_wave_table_synth.html#a40848e5b566816ac450171ead69b4da8">AudioDataLib::WaveTableSynth</a>.</p>
 

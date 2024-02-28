@@ -100,6 +100,9 @@ $(function(){initNavTree('class_audio_data_lib_1_1_complex_number.html',''); ini
 </div><!--header-->
 <div class="contents">
 
+<p>Instances of this class represent complex numbers in the complex plane.  
+ <a href="#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="_complex_number_8h_source.html">ComplexNumber.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
@@ -162,11 +165,16 @@ Public Member Functions</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:a13ede0aed2effb1ce86dc924f42f8dfe" id="r_a13ede0aed2effb1ce86dc924f42f8dfe"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a13ede0aed2effb1ce86dc924f42f8dfe">realPart</a></td></tr>
+<tr class="memdesc:a13ede0aed2effb1ce86dc924f42f8dfe"><td class="mdescLeft">&#160;</td><td class="mdescRight">The real component of this complex number.  <br /></td></tr>
 <tr class="separator:a13ede0aed2effb1ce86dc924f42f8dfe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8e2076f1221195e9ae53703ebe5c4be7" id="r_a8e2076f1221195e9ae53703ebe5c4be7"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8e2076f1221195e9ae53703ebe5c4be7">imagPart</a></td></tr>
+<tr class="memdesc:a8e2076f1221195e9ae53703ebe5c4be7"><td class="mdescLeft">&#160;</td><td class="mdescRight">The imaginary component (or real multiple of the imaginary unit) of this complex number.  <br /></td></tr>
 <tr class="separator:a8e2076f1221195e9ae53703ebe5c4be7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Instances of this class represent complex numbers in the complex plane. </p>
+<p>Interestingly, complex numbers show up in the analysis of wave-forms; particularly when an FFT (fast forier transform) is performed. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a610e9db9ff0ddb0140e30d235ab64e44" name="a610e9db9ff0ddb0140e30d235ab64e44"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a610e9db9ff0ddb0140e30d235ab64e44">&#9670;&#160;</a></span>ComplexNumber() <span class="overload">[1/3]</span></h2>
 
@@ -181,6 +189,7 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>The default constructor always initializes this complex number to zero. </p>
 
 </div>
 </div>
@@ -198,6 +207,7 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Initialize this complex number as a copy of the given complex number. </p>
 
 </div>
 </div>
@@ -219,6 +229,7 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Initialize this complex number with the given components. </p>
 
 </div>
 </div>
@@ -262,6 +273,7 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Calculate and return the angle (in [0,2pi)) made by this complex number when compared to the +X axis. </p>
 
 </div>
 </div>
@@ -279,6 +291,7 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Calculate and return the conjugate of this complex number. </p>
 
 </div>
 </div>
@@ -296,6 +309,7 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Make this complex number the base of the natural logarithm raised to the power of the given complex number. </p>
 
 </div>
 </div>
@@ -313,6 +327,7 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Make this complex number the base of the natural logarithm raised to the power of the given real number. </p>
 
 </div>
 </div>
@@ -330,6 +345,7 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Make this complex number the base of the natural logarithm raised to the power of the given imaginary number (or real multiple of the imaginary unit.) </p>
 
 </div>
 </div>
@@ -347,6 +363,7 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Calculate and return the multiplicative inverse of this complex number. </p>
 
 </div>
 </div>
@@ -364,6 +381,7 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Make this complex number the natural logarithm of the given complex number. </p>
 
 </div>
 </div>
@@ -381,6 +399,7 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Make this complex number the natural logarithm of the given real number. </p>
 
 </div>
 </div>
@@ -398,6 +417,7 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Make this complex number the natural logarithm of the given imaginary number (or real multiple of the imaginary unit.) </p>
 
 </div>
 </div>
@@ -415,6 +435,7 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Calculate and return the magnitude of this complex number. </p>
 
 </div>
 </div>
@@ -636,6 +657,7 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Calculate and return the square magnitude of this complex number. </p>
 
 </div>
 </div>
@@ -652,6 +674,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>The imaginary component (or real multiple of the imaginary unit) of this complex number. </p>
+
 </div>
 </div>
 <a id="a13ede0aed2effb1ce86dc924f42f8dfe" name="a13ede0aed2effb1ce86dc924f42f8dfe"></a>
@@ -665,6 +689,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>The real component of this complex number. </p>
 
 </div>
 </div>

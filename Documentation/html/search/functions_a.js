@@ -12,7 +12,7 @@ var searchData=
   ['midimsgrecorderdestination_9',['MidiMsgRecorderDestination',['../class_audio_data_lib_1_1_midi_msg_recorder_destination.html#ab468caa692b867c433b487c9ceaaacdb',1,'AudioDataLib::MidiMsgRecorderDestination']]],
   ['midimsgsource_10',['MidiMsgSource',['../class_audio_data_lib_1_1_midi_msg_source.html#adea2ebab5fa1c5c592a78a55e437adac',1,'AudioDataLib::MidiMsgSource']]],
   ['midipitchtofrequency_11',['MidiPitchToFrequency',['../class_audio_data_lib_1_1_midi_synth.html#a43256aadd70375bcda344ab68e866029',1,'AudioDataLib::MidiSynth']]],
-  ['midiplayer_12',['MidiPlayer',['../class_audio_data_lib_1_1_midi_player.html#ad824113b4247d22f48caa99b804edb3b',1,'AudioDataLib::MidiPlayer']]],
+  ['midiplayer_12',['MidiPlayer',['../class_audio_data_lib_1_1_midi_player.html#a497f75305b7dc78cc5713cc8d1ae6ee8',1,'AudioDataLib::MidiPlayer']]],
   ['midisynth_13',['MidiSynth',['../class_audio_data_lib_1_1_midi_synth.html#add6df166aea4f8c0696f2dd48d8198fe',1,'AudioDataLib::MidiSynth']]],
   ['midivelocitytoamplitude_14',['MidiVelocityToAmplitude',['../class_audio_data_lib_1_1_midi_synth.html#a09721164484988de5f7f8377d0136e18',1,'AudioDataLib::MidiSynth']]],
   ['mixermodule_15',['MixerModule',['../class_audio_data_lib_1_1_mixer_module.html#a2d0f719733aff177baa53b9a49be2f98',1,'AudioDataLib::MixerModule']]],

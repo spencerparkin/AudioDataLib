@@ -100,6 +100,9 @@ $(function(){initNavTree('class_audio_data_lib_1_1_complex_vector.html',''); ini
 </div><!--header-->
 <div class="contents">
 
+<p>These can be imagined as row (or column) vectors having complex-valued elements.  
+ <a href="#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="_complex_vector_8h_source.html">ComplexVector.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
@@ -130,7 +133,10 @@ Protected Attributes</h2></td></tr>
 <tr class="memitem:ac45db741d6d6e961b3b085fd0a2a5b50" id="r_ac45db741d6d6e961b3b085fd0a2a5b50"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="class_audio_data_lib_1_1_complex_number.html">ComplexNumber</a> &gt; *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac45db741d6d6e961b3b085fd0a2a5b50">complexNumberArray</a></td></tr>
 <tr class="separator:ac45db741d6d6e961b3b085fd0a2a5b50"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>These can be imagined as row (or column) vectors having complex-valued elements. </p>
+<p>A typical use-case is to populate the vector with audio samples, then to perform an FFT. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a433741114c7b3a288a229627bcda2929" name="a433741114c7b3a288a229627bcda2929"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a433741114c7b3a288a229627bcda2929">&#9670;&#160;</a></span>ComplexVector() <span class="overload">[1/2]</span></h2>
 
@@ -145,6 +151,7 @@ Protected Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Construct a new empty vector. </p>
 
 </div>
 </div>
@@ -162,6 +169,7 @@ Protected Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Construct a new vector as a copy of the given vector. </p>
 
 </div>
 </div>
@@ -205,6 +213,7 @@ Protected Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Append a new complex number to the vector. </p>
 
 </div>
 </div>
@@ -222,6 +231,7 @@ Protected Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Remove all complex numbers from this vector, making it empty. </p>
 
 </div>
 </div>
@@ -248,6 +258,16 @@ Protected Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Perform a Fast Fourier Transform on the given complex vector, placing the result in this complex vector.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">complexVector</td><td>This is the complex vector to be transformed. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">inverse</td><td>If true, an inverse-FFT is performed; a regular FFT otherwise. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">error</td><td>This will contain error information if false is returned. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True is returned on success; otherwise, false is returned. </dd></dl>
 
 </div>
 </div>
@@ -265,6 +285,7 @@ Protected Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Assign the given complex vector to this one, making a copy. </p>
 
 </div>
 </div>
@@ -282,6 +303,13 @@ Protected Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Return the complex number at the given offset in this vector.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">i</td><td>This is the offset of the desired vector. If it is out of range, your program will crash. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -299,6 +327,13 @@ Protected Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Return the (read-only) complex number at the given offset in this vector.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">i</td><td>This is the offset of the desired vector. If it is out of range, your program will crash. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -316,6 +351,7 @@ Protected Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Return the number of elements (complex numbers) in the vector. </p>
 
 </div>
 </div>

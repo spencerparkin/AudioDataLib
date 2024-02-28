@@ -8,6 +8,11 @@ namespace AudioDataLib
 {
 	class Error;
 
+	/**
+	 * @brief This class can read and write MIDI files.
+	 * 
+	 * For now, not all MIDI file features are supported here, but many are.  In any case, it's a good start.
+	 */
 	class AUDIO_DATA_LIB_API MidiFileFormat : public FileFormat
 	{
 	public:

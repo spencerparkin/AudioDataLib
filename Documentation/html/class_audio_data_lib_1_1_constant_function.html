@@ -107,7 +107,7 @@ Inheritance diagram for AudioDataLib::ConstantFunction:</div>
  <div class="center">
   <img src="class_audio_data_lib_1_1_constant_function.png" usemap="#AudioDataLib::ConstantFunction_map" alt=""/>
   <map id="AudioDataLib::ConstantFunction_map" name="AudioDataLib::ConstantFunction_map">
-<area href="class_audio_data_lib_1_1_function.html" alt="AudioDataLib::Function" shape="rect" coords="0,0,192,24"/>
+<area href="class_audio_data_lib_1_1_function.html" title="These are real-valued functions of a real variable." alt="AudioDataLib::Function" shape="rect" coords="0,0,192,24"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -132,7 +132,9 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:a56ac24c24e52cf8da58118e2d8e5532e" id="r_a56ac24c24e52cf8da58118e2d8e5532e"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a56ac24c24e52cf8da58118e2d8e5532e">y</a></td></tr>
 <tr class="separator:a56ac24c24e52cf8da58118e2d8e5532e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>The simplest kind of function, this one return the same output value for all input values. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a0ac5a55fa2ff1946e2ef9e1826062968" name="a0ac5a55fa2ff1946e2ef9e1826062968"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a0ac5a55fa2ff1946e2ef9e1826062968">&#9670;&#160;</a></span>ConstantFunction()</h2>
 
@@ -198,6 +200,7 @@ Public Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Derived classes should override this method to provide a means of evaluating this function at the given value, typically representative of time in this library. </p>
 
 <p>Implements <a class="el" href="class_audio_data_lib_1_1_function.html#ad7f181e89b841b7c05acdcd995a66877">AudioDataLib::Function</a>.</p>
 
@@ -225,6 +228,7 @@ Public Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Derived classes can override this method to provide a means of evaluating the derivative of this function at the given value. By default, a central differencing approximation method is implimented here. If a more accurate method is possible, it should be implimented by the derived class. </p>
 
 <p>Reimplemented from <a class="el" href="class_audio_data_lib_1_1_function.html#a1cb3ea08cbcfdcbef58ca5ef765e7b18">AudioDataLib::Function</a>.</p>
 

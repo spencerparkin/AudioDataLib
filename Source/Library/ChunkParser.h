@@ -7,6 +7,9 @@ namespace AudioDataLib
 {
 	class Error;
 
+	/**
+	 * @brief This class provides commong RIFF-based parsing support.
+	 */
 	class AUDIO_DATA_LIB_API ChunkParser
 	{
 	public:

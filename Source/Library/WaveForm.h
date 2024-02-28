@@ -8,7 +8,14 @@ namespace AudioDataLib
 {
 	class Error;
 
-	// To be more specific, this is a descrete wave-form.
+	/**
+	 * @brief This is the time-domain representation of a wave-form.
+	 * 
+	 * To be more specific, this is a descrete wave-form.  Since we represent the wave-form function as
+	 * a sequence of plots in the plane, this form is independent of format and sampling rate.  Most math
+	 * operations performed on wave-forms are done using this class, since it is format-ignostic or free
+	 * from the considerations and limitations of any particular audio format.
+	 */
 	class AUDIO_DATA_LIB_API WaveForm : public Function
 	{
 		friend class Index;
@@ -17,6 +24,11 @@ namespace AudioDataLib
 		WaveForm();
 		virtual ~WaveForm();
 
+		/**
+		 * Return the amplitude of the wave-form at the given time (in seconds.)
+		 * Note that this has O(log N) time-complexity, which is usually reasonably,
+		 * but clearly not as fast as O(1), which can be achieved with raw audio data.
+		 */
 		virtual double EvaluateAt(double timeSeconds) const override;
 
 		uint64_t GetSizeBytes(const AudioData::Format& format, bool allChannels) const;
@@ -136,8 +148,10 @@ namespace AudioDataLib
 		InterpolationMethod interpMethod;
 	};
 
-	// If you want to continuously add samples to a wave-form, but you also
-	// don't want it to grow without bound, then this class may be helpful.
+	/**
+	 * If you want to continuously add samples to a wave-form, but you also
+	 * don't want it to grow without bound, then this class may be helpful.
+	 */
 	class AUDIO_DATA_LIB_API WaveFormStream : public Function
 	{
 	public:

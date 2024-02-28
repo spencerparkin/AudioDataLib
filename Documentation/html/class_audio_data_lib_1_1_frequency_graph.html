@@ -101,6 +101,9 @@ $(function(){initNavTree('class_audio_data_lib_1_1_frequency_graph.html',''); in
 </div><!--header-->
 <div class="contents">
 
+<p>This class is the product of performing an FFT on a given <a class="el" href="class_audio_data_lib_1_1_wave_form.html" title="This is the time-domain representation of a wave-form.">WaveForm</a> instance.  
+ <a href="#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="_frequency_graph_8h_source.html">FrequencyGraph.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
@@ -132,7 +135,10 @@ Protected Attributes</h2></td></tr>
 <tr class="memitem:ad2bb2ba5e71aaa9ee5fce7151bb81ce9" id="r_ad2bb2ba5e71aaa9ee5fce7151bb81ce9"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="struct_audio_data_lib_1_1_frequency_graph_1_1_plot.html">Plot</a> &gt; *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad2bb2ba5e71aaa9ee5fce7151bb81ce9">plotArray</a></td></tr>
 <tr class="separator:ad2bb2ba5e71aaa9ee5fce7151bb81ce9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>This class is the product of performing an FFT on a given <a class="el" href="class_audio_data_lib_1_1_wave_form.html" title="This is the time-domain representation of a wave-form.">WaveForm</a> instance. </p>
+<p>While audio data in the time-domain is represented by the <a class="el" href="class_audio_data_lib_1_1_wave_form.html" title="This is the time-domain representation of a wave-form.">WaveForm</a> class, this class represents such data in the frequency-domain. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a9f1b603d22669ce43a06736f4e33247c" name="a9f1b603d22669ce43a06736f4e33247c"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a9f1b603d22669ce43a06736f4e33247c">&#9670;&#160;</a></span>FrequencyGraph()</h2>
 
@@ -207,6 +213,7 @@ Protected Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Analyze this graph to determine the fundamental frequency, assuming the wave-form that was used was a monophonic signal. Note that the fundamental frequency is not always the perceived pitch, but it often is. </p>
 
 </div>
 </div>

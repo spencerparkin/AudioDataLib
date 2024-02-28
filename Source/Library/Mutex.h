@@ -5,6 +5,13 @@
 
 namespace AudioDataLib
 {
+	/**
+	 * @brief This class provides a mutex interface for thread synchronization.
+	 * 
+	 * No threads are created or destroyed by AudioDataLib (as of this writing), but it can still be thread-safe
+	 * or thread-aware in many cases where it's typical for the user to call different parts
+	 * of the API from different threads.
+	 */
 	class AUDIO_DATA_LIB_API Mutex
 	{
 	public:

@@ -20,7 +20,5 @@ var searchData=
   ['oscillatormodule_17',['OscillatorModule',['../class_audio_data_lib_1_1_oscillator_module.html',1,'AudioDataLib::OscillatorModule'],['../class_audio_data_lib_1_1_oscillator_module.html#aec0aaa0edb6407f85297380c51bec422',1,'AudioDataLib::OscillatorModule::OscillatorModule()']]],
   ['oscillatormodule_2ecpp_18',['OscillatorModule.cpp',['../_oscillator_module_8cpp.html',1,'']]],
   ['oscillatormodule_2eh_19',['OscillatorModule.h',['../_oscillator_module_8h.html',1,'']]],
-  ['overridingroot_20',['overridingRoot',['../struct_audio_data_lib_1_1_sound_font_data_1_1_looped_audio_data_1_1_midi_key_info.html#ae49f5a5e71491cc6a6c9275089b9511f',1,'AudioDataLib::SoundFontData::LoopedAudioData::MidiKeyInfo']]],
-  ['owninputstreams_21',['ownInputStreams',['../class_audio_data_lib_1_1_audio_sink.html#abfd19eab277ef38761689efe46de0400',1,'AudioDataLib::AudioSink']]],
-  ['ownoutputstream_22',['ownOutputStream',['../class_audio_data_lib_1_1_audio_sink.html#ae631a19edecbd1e6deddae18af19b480',1,'AudioDataLib::AudioSink']]]
+  ['overridingroot_20',['overridingRoot',['../struct_audio_data_lib_1_1_sound_font_data_1_1_looped_audio_data_1_1_midi_key_info.html#ae49f5a5e71491cc6a6c9275089b9511f',1,'AudioDataLib::SoundFontData::LoopedAudioData::MidiKeyInfo']]]
 ];

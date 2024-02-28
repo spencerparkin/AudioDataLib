@@ -107,7 +107,7 @@ Inheritance diagram for AudioDataLib::AudioStream:</div>
  <div class="center">
   <img src="class_audio_data_lib_1_1_audio_stream.png" usemap="#AudioDataLib::AudioStream_map" alt=""/>
   <map id="AudioDataLib::AudioStream_map" name="AudioDataLib::AudioStream_map">
-<area href="class_audio_data_lib_1_1_byte_stream.html" alt="AudioDataLib::ByteStream" shape="rect" coords="0,0,232,24"/>
+<area href="class_audio_data_lib_1_1_byte_stream.html" title="This is the base class for all types of byte streams used in the library. Some derivatives or read-on..." alt="AudioDataLib::ByteStream" shape="rect" coords="0,0,232,24"/>
 <area href="class_audio_data_lib_1_1_thread_safe_audio_stream.html" alt="AudioDataLib::ThreadSafeAudioStream" shape="rect" coords="0,112,232,136"/>
   </map>
 </div></div>
@@ -155,7 +155,9 @@ Protected Attributes</h2></td></tr>
 <tr class="memitem:a55e4648df57b7834ff2e2dc7e6537aad" id="r_a55e4648df57b7834ff2e2dc7e6537aad"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_audio_data_lib_1_1_byte_stream.html">ByteStream</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a55e4648df57b7834ff2e2dc7e6537aad">byteStream</a></td></tr>
 <tr class="separator:a55e4648df57b7834ff2e2dc7e6537aad"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>This class by itself often acts, single-handedly, as the glue between this library and one that interfaces with the actual audio hardware. The low-level library will dicate the stream format, and then this library will accommodate that format. The low-level library reads from (or writes to) this stream while this library writes to (or reads from) it. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="ab2e106f7e2f70f0cfb1d7b171da71f16" name="ab2e106f7e2f70f0cfb1d7b171da71f16"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ab2e106f7e2f70f0cfb1d7b171da71f16">&#9670;&#160;</a></span>AudioStream() <span class="overload">[1/2]</span></h2>
 

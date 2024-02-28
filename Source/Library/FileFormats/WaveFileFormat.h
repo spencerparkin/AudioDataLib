@@ -7,6 +7,13 @@ namespace AudioDataLib
 {
 	class Error;
 
+	/**
+	 * @brief This class knows how to read and write WAVE files.
+	 * 
+	 * Wave files are a common, uncompressed (and therefore lossless) audio format,
+	 * containing audio data in PCM (pulse code modulation) or floating-point format.
+	 * I still need to add support unsigned PCM once I get my hands on an example file.
+	 */
 	class AUDIO_DATA_LIB_API WaveFileFormat : public FileFormat
 	{
 	public:

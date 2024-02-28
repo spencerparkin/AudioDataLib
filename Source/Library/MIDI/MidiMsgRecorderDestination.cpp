@@ -49,6 +49,9 @@ void MidiMsgRecorderDestination::Clear()
 
 /*virtual*/ bool MidiMsgRecorderDestination::Finalize(Error& error)
 {
+	// TODO: If multiple instruments/channels are being used in the messages, then we can't do single-track;
+	//       we must do multi-track.
+
 	if (!this->midiData)
 	{
 		error.Add("No MIDI data object with which to populate.");

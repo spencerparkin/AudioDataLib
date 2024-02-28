@@ -61,13 +61,13 @@ var NAVTREEINDEX =
 [
 "_aiff_file_format_8cpp.html",
 "class_audio_data_lib_1_1_audio_data.html#a6bdd8aba60081d7a85759a8b4ded7f69",
-"class_audio_data_lib_1_1_complex_vector.html#a1c29787bce7c14eed541d056c5158f9f",
-"class_audio_data_lib_1_1_memory_stream.html#a4726f9605fccf705d8c687649a46cb98",
-"class_audio_data_lib_1_1_midi_msg_destination.html#a72644d31f176721a5c1e519878507e1d",
-"class_audio_data_lib_1_1_recursive_filter.html#ae41eb34611c63f900b06ceef29d920f1",
-"class_audio_data_lib_1_1_thread_safe_audio_stream.html#a2403432fb9e00b61b41ca2343f531388",
-"functions_func_b.html",
-"struct_audio_data_lib_1_1_sound_font_data_1_1_looped_audio_data_1_1_loop.html#ad21950e94e51a96bbf70557fcedf1490"
+"class_audio_data_lib_1_1_complex_vector.html#a862c7e80ad2624ceeba512764a7b1e31",
+"class_audio_data_lib_1_1_memory_stream.html#aa1b7cc3f137fbfa714d8e218856a131c",
+"class_audio_data_lib_1_1_midi_msg_log_destination.html",
+"class_audio_data_lib_1_1_reverb_module.html#ab3fdf8e61bb23d97f107ad2746c31912",
+"class_audio_data_lib_1_1_timer.html",
+"functions_func_p.html",
+"struct_audio_data_lib_1_1_sound_font_data_1_1_version_tag.html#a439fdccac46a626c42097403603aa643"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

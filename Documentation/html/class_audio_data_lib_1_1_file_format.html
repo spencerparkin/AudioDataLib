@@ -100,6 +100,9 @@ $(function(){initNavTree('class_audio_data_lib_1_1_file_format.html',''); initRe
 </div><!--header-->
 <div class="contents">
 
+<p>Derivatives of this class must impliment an interface that can be used to read or write file data from or to a given stream.  
+ <a href="#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="_file_format_8h_source.html">FileFormat.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for AudioDataLib::FileFormat:</div>
@@ -107,10 +110,10 @@ Inheritance diagram for AudioDataLib::FileFormat:</div>
  <div class="center">
   <img src="class_audio_data_lib_1_1_file_format.png" usemap="#AudioDataLib::FileFormat_map" alt=""/>
   <map id="AudioDataLib::FileFormat_map" name="AudioDataLib::FileFormat_map">
-<area href="class_audio_data_lib_1_1_aiff_file_format.html" alt="AudioDataLib::AiffFileFormat" shape="rect" coords="0,56,194,80"/>
-<area href="class_audio_data_lib_1_1_midi_file_format.html" alt="AudioDataLib::MidiFileFormat" shape="rect" coords="204,56,398,80"/>
-<area href="class_audio_data_lib_1_1_sound_font_format.html" alt="AudioDataLib::SoundFontFormat" shape="rect" coords="408,56,602,80"/>
-<area href="class_audio_data_lib_1_1_wave_file_format.html" alt="AudioDataLib::WaveFileFormat" shape="rect" coords="612,56,806,80"/>
+<area href="class_audio_data_lib_1_1_aiff_file_format.html" title="This class knows how to load and save AIFF files." alt="AudioDataLib::AiffFileFormat" shape="rect" coords="0,56,194,80"/>
+<area href="class_audio_data_lib_1_1_midi_file_format.html" title="This class can read and write MIDI files." alt="AudioDataLib::MidiFileFormat" shape="rect" coords="204,56,398,80"/>
+<area href="class_audio_data_lib_1_1_sound_font_format.html" title="This class knows how to read (and one day write) sound-font files." alt="AudioDataLib::SoundFontFormat" shape="rect" coords="408,56,602,80"/>
+<area href="class_audio_data_lib_1_1_wave_file_format.html" title="This class knows how to read and write WAVE files." alt="AudioDataLib::WaveFileFormat" shape="rect" coords="612,56,806,80"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -130,7 +133,9 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memitem:a31c23a7e2c7a4f0d01e9dcbfdd3d9491" id="r_a31c23a7e2c7a4f0d01e9dcbfdd3d9491"><td class="memItemLeft" align="right" valign="top">static std::shared_ptr&lt; <a class="el" href="class_audio_data_lib_1_1_file_format.html">FileFormat</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a31c23a7e2c7a4f0d01e9dcbfdd3d9491">CreateForFile</a> (const std::string &amp;filePath)</td></tr>
 <tr class="separator:a31c23a7e2c7a4f0d01e9dcbfdd3d9491"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Derivatives of this class must impliment an interface that can be used to read or write file data from or to a given stream. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a6fee8d97e0bb4637e7f25aaa876a82c4" name="a6fee8d97e0bb4637e7f25aaa876a82c4"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a6fee8d97e0bb4637e7f25aaa876a82c4">&#9670;&#160;</a></span>FileFormat()</h2>
 
@@ -196,6 +201,13 @@ Static Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>This is a factory method which will create and return a shared pointer to a <a class="el" href="class_audio_data_lib_1_1_file_format.html" title="Derivatives of this class must impliment an interface that can be used to read or write file data fro...">FileFormat</a> class instance derivatve that can handle the given file.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">filePath</td><td>The extension of the given file is used to determine what <a class="el" href="class_audio_data_lib_1_1_file_format.html" title="Derivatives of this class must impliment an interface that can be used to read or write file data fro...">FileFormat</a> to return. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -230,6 +242,16 @@ Static Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>The given file data pointer is assigned an instance of some derivative of the <a class="el" href="class_audio_data_lib_1_1_file_data.html" title="The base class for any kind of data (typically audio data) loaded from a file.">FileData</a> class which is, in turn, populated with the data found in the given stream.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">inputStream</td><td>This must be a <a class="el" href="class_audio_data_lib_1_1_byte_stream.html" title="This is the base class for all types of byte streams used in the library. Some derivatives or read-on...">ByteStream</a> derivative that can handle read operations. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">fileData</td><td>On success, this pointer is assigned a heap allocation the user is reponsible for freeing. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">error</td><td>This will contain error information if false is returned. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True is returned on success; false otherwise. </dd></dl>
 
 <p>Implemented in <a class="el" href="class_audio_data_lib_1_1_aiff_file_format.html#a3b17397131c532ce088ed1bf526c8d78">AudioDataLib::AiffFileFormat</a>, <a class="el" href="class_audio_data_lib_1_1_midi_file_format.html#ae567d67eeb6d5a224d573dbd51e09299">AudioDataLib::MidiFileFormat</a>, <a class="el" href="class_audio_data_lib_1_1_sound_font_format.html#af191caec74536f3007d297ad88168b87">AudioDataLib::SoundFontFormat</a>, and <a class="el" href="class_audio_data_lib_1_1_wave_file_format.html#a67df1d345353f4a1747773ee74386a6e">AudioDataLib::WaveFileFormat</a>.</p>
 
@@ -266,6 +288,16 @@ Static Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>The given file data is written to the given stream.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">outputStream</td><td>This must be a <a class="el" href="class_audio_data_lib_1_1_byte_stream.html" title="This is the base class for all types of byte streams used in the library. Some derivatives or read-on...">ByteStream</a> derivative that can accept write operations. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">fileData</td><td>This is the file data to be written to the stream. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">error</td><td>This will contain error information if false is returned. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True is returned on success; false otherwise. </dd></dl>
 
 <p>Implemented in <a class="el" href="class_audio_data_lib_1_1_aiff_file_format.html#a1665ae1497ba4eea6832d5f2c30dd7d0">AudioDataLib::AiffFileFormat</a>, <a class="el" href="class_audio_data_lib_1_1_midi_file_format.html#a1e3bc073841dc88cdd757ac67f4988dc">AudioDataLib::MidiFileFormat</a>, <a class="el" href="class_audio_data_lib_1_1_sound_font_format.html#a55f96f8e57705b79770ed8c13ca8c405">AudioDataLib::SoundFontFormat</a>, and <a class="el" href="class_audio_data_lib_1_1_wave_file_format.html#a36fbe1a91144aa6310eaa52857dc4ec5">AudioDataLib::WaveFileFormat</a>.</p>
 

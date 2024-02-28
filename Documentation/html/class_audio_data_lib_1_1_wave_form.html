@@ -104,6 +104,9 @@ $(function(){initNavTree('class_audio_data_lib_1_1_wave_form.html',''); initResi
 </div><!--header-->
 <div class="contents">
 
+<p>This is the time-domain representation of a wave-form.  
+ <a href="#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="_wave_form_8h_source.html">WaveForm.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for AudioDataLib::WaveForm:</div>
@@ -111,7 +114,7 @@ Inheritance diagram for AudioDataLib::WaveForm:</div>
  <div class="center">
   <img src="class_audio_data_lib_1_1_wave_form.png" usemap="#AudioDataLib::WaveForm_map" alt=""/>
   <map id="AudioDataLib::WaveForm_map" name="AudioDataLib::WaveForm_map">
-<area href="class_audio_data_lib_1_1_function.html" alt="AudioDataLib::Function" shape="rect" coords="0,0,155,24"/>
+<area href="class_audio_data_lib_1_1_function.html" title="These are real-valued functions of a real variable." alt="AudioDataLib::Function" shape="rect" coords="0,0,155,24"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -236,7 +239,10 @@ Friends</h2></td></tr>
 <tr class="memitem:a5e006d6479c0d22c54edd9cc043979d4" id="r_a5e006d6479c0d22c54edd9cc043979d4"><td class="memItemLeft" align="right" valign="top">class&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5e006d6479c0d22c54edd9cc043979d4">Index</a></td></tr>
 <tr class="separator:a5e006d6479c0d22c54edd9cc043979d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Member Enumeration Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>This is the time-domain representation of a wave-form. </p>
+<p>To be more specific, this is a descrete wave-form. Since we represent the wave-form function as a sequence of plots in the plane, this form is independent of format and sampling rate. Most math operations performed on wave-forms are done using this class, since it is format-ignostic or free from the considerations and limitations of any particular audio format. </p>
+</div><h2 class="groupheader">Member Enumeration Documentation</h2>
 <a id="a6ac89a86c4427bdd0772cc2c7aa5c3f1" name="a6ac89a86c4427bdd0772cc2c7aa5c3f1"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a6ac89a86c4427bdd0772cc2c7aa5c3f1">&#9670;&#160;</a></span>InterpolationMethod</h2>
 
@@ -650,6 +656,7 @@ template&lt;typename T &gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Return the amplitude of the wave-form at the given time (in seconds.) Note that this has O(log N) time-complexity, which is usually reasonably, but clearly not as fast as O(1), which can be achieved with raw audio data. </p>
 
 <p>Implements <a class="el" href="class_audio_data_lib_1_1_function.html#ad7f181e89b841b7c05acdcd995a66877">AudioDataLib::Function</a>.</p>
 

@@ -99,6 +99,9 @@ $(function(){initNavTree('class_audio_data_lib_1_1_sound_font_format.html',''); 
 </div><!--header-->
 <div class="contents">
 
+<p>This class knows how to read (and one day write) sound-font files.  
+ <a href="#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="_sound_font_format_8h_source.html">SoundFontFormat.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for AudioDataLib::SoundFontFormat:</div>
@@ -106,7 +109,7 @@ Inheritance diagram for AudioDataLib::SoundFontFormat:</div>
  <div class="center">
   <img src="class_audio_data_lib_1_1_sound_font_format.png" usemap="#AudioDataLib::SoundFontFormat_map" alt=""/>
   <map id="AudioDataLib::SoundFontFormat_map" name="AudioDataLib::SoundFontFormat_map">
-<area href="class_audio_data_lib_1_1_file_format.html" alt="AudioDataLib::FileFormat" shape="rect" coords="0,0,194,24"/>
+<area href="class_audio_data_lib_1_1_file_format.html" title="Derivatives of this class must impliment an interface that can be used to read or write file data fro..." alt="AudioDataLib::FileFormat" shape="rect" coords="0,0,194,24"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -132,7 +135,10 @@ Additional Inherited Members</h2></td></tr>
 <tr class="memitem:a31c23a7e2c7a4f0d01e9dcbfdd3d9491 inherit pub_static_methods_class_audio_data_lib_1_1_file_format" id="r_a31c23a7e2c7a4f0d01e9dcbfdd3d9491"><td class="memItemLeft" align="right" valign="top">static std::shared_ptr&lt; <a class="el" href="class_audio_data_lib_1_1_file_format.html">FileFormat</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_audio_data_lib_1_1_file_format.html#a31c23a7e2c7a4f0d01e9dcbfdd3d9491">CreateForFile</a> (const std::string &amp;filePath)</td></tr>
 <tr class="separator:a31c23a7e2c7a4f0d01e9dcbfdd3d9491 inherit pub_static_methods_class_audio_data_lib_1_1_file_format"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>This class knows how to read (and one day write) sound-font files. </p>
+<p>Not all sound-font file features are supported here, but enough are to be useful in the goal of sound synthesis. The SF2 file specification is quite extensive and lays out its own synthesis model. I chose not to follow this model and instead, just extract just enough of the relevant information needed to perform my own method of synthesis. This means getting at the sample data, knowing how it's looped, knowing what the key and velocity ranges are, etc. For now, I assume only one instrament per sound-font file, which I know is not generally correct. I plan to revise this class once I get my hands on a sound-font file that contains multiple instruments. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="ac23a23776a138758d273d5b81edca75e" name="ac23a23776a138758d273d5b81edca75e"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ac23a23776a138758d273d5b81edca75e">&#9670;&#160;</a></span>SoundFontFormat()</h2>
 
@@ -207,6 +213,16 @@ Additional Inherited Members</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>The given file data pointer is assigned an instance of some derivative of the <a class="el" href="class_audio_data_lib_1_1_file_data.html" title="The base class for any kind of data (typically audio data) loaded from a file.">FileData</a> class which is, in turn, populated with the data found in the given stream.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">inputStream</td><td>This must be a <a class="el" href="class_audio_data_lib_1_1_byte_stream.html" title="This is the base class for all types of byte streams used in the library. Some derivatives or read-on...">ByteStream</a> derivative that can handle read operations. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">fileData</td><td>On success, this pointer is assigned a heap allocation the user is reponsible for freeing. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">error</td><td>This will contain error information if false is returned. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True is returned on success; false otherwise. </dd></dl>
 
 <p>Implements <a class="el" href="class_audio_data_lib_1_1_file_format.html#aa572dca61e54371e92e221df6a176e9d">AudioDataLib::FileFormat</a>.</p>
 
@@ -243,6 +259,16 @@ Additional Inherited Members</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>The given file data is written to the given stream.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">outputStream</td><td>This must be a <a class="el" href="class_audio_data_lib_1_1_byte_stream.html" title="This is the base class for all types of byte streams used in the library. Some derivatives or read-on...">ByteStream</a> derivative that can accept write operations. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">fileData</td><td>This is the file data to be written to the stream. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">error</td><td>This will contain error information if false is returned. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True is returned on success; false otherwise. </dd></dl>
 
 <p>Implements <a class="el" href="class_audio_data_lib_1_1_file_format.html#a3c9d3d38802c6dd24d1d0a233dfc93df">AudioDataLib::FileFormat</a>.</p>
 

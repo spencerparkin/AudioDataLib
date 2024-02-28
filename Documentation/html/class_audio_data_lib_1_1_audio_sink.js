@@ -1,6 +1,6 @@
 var class_audio_data_lib_1_1_audio_sink =
 [
-    [ "AudioSink", "class_audio_data_lib_1_1_audio_sink.html#a3408d19bd7b166a6e19bbca2090e1333", null ],
+    [ "AudioSink", "class_audio_data_lib_1_1_audio_sink.html#abc17f5217bf0c305fe47695c1fa3a5a6", null ],
     [ "~AudioSink", "class_audio_data_lib_1_1_audio_sink.html#ad8d889ca2f1a938a24dad39c063faf85", null ],
     [ "AddAudioInput", "class_audio_data_lib_1_1_audio_sink.html#ab6703e770993245103e03bfe8fab4c69", null ],
     [ "CalcNetSample", "class_audio_data_lib_1_1_audio_sink.html#abaf00b553515868e36f2bbf810be492c", null ],
@@ -12,7 +12,5 @@ var class_audio_data_lib_1_1_audio_sink =
     [ "GetAudioOutput", "class_audio_data_lib_1_1_audio_sink.html#a9c84d095e9ec84882be9d1827c751134", null ],
     [ "SetAudioOutput", "class_audio_data_lib_1_1_audio_sink.html#a7ba04af288ead7c8ab284a5b2acd0323", null ],
     [ "audioStreamInArray", "class_audio_data_lib_1_1_audio_sink.html#a6bf5c9c7dad69131824e6e18d1d27cc9", null ],
-    [ "audioStreamOut", "class_audio_data_lib_1_1_audio_sink.html#a80ec542f09399f41a2709e451e572e4c", null ],
-    [ "ownInputStreams", "class_audio_data_lib_1_1_audio_sink.html#abfd19eab277ef38761689efe46de0400", null ],
-    [ "ownOutputStream", "class_audio_data_lib_1_1_audio_sink.html#ae631a19edecbd1e6deddae18af19b480", null ]
+    [ "audioStreamOut", "class_audio_data_lib_1_1_audio_sink.html#a80ec542f09399f41a2709e451e572e4c", null ]
 ];

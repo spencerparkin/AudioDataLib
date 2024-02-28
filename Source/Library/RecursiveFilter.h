@@ -3,17 +3,22 @@
 
 namespace AudioDataLib
 {
-	// See: https://ccrma.stanford.edu/~jos/pasp/Allpass_Two_Combs.html
-	//      https://en.wikipedia.org/wiki/Comb_filter
-
-	// Since we're based on the WaveForm class here, we don't have the best time-complexity, admittedly.
-	// Treating the signal as a FIFO should be an O(1) operation, but here we occationally have to perform an O(N) trim operation.
-	// Similarly, evaluating the signal at a given descrete time could be O(1), but we are using an O(log N) operation.
-	// My view is that if it's fast enough, then I favor the simplicity that can sometimes prevail over the complications
-	// that can arise in trying to be as fast as computerly-possible.  Comb and all-pass filters can sometimes be used as the
-	// building-blocks of a reverberator, and that is the motivation here behind these classes.
+	/**
+	 * @brief This is a function that uses itself recursively to filter audio in the time-domain.
+	 *
+	 * The resursion involved here is not that in the computer-science sense, but in the sense that
+	 * results of previous evaluations of the function are used to produce current evaluations.
+	 * 
+	 * Since we're based on the WaveForm class here, we don't have the best time-complexity, admittedly.
+	 * Evaluating the signal at a given descrete time could be O(1), but we are using an O(log N) operation.
+	 * My view is that if it's fast enough, then I favor the simplicity that can sometimes prevail over the complications
+	 * that can arise in trying to be as fast as computerly-possible.  Comb and all-pass filters can sometimes be used as the
+	 * building-blocks of a reverberator, and that is the motivation here behind this class and its derivatives.
+	 */
 	class AUDIO_DATA_LIB_API RecursiveFilter : public Function
 	{
+		// See: https://ccrma.stanford.edu/~jos/pasp/Allpass_Two_Combs.html
+		//      https://en.wikipedia.org/wiki/Comb_filter
 	public:
 		RecursiveFilter();
 		virtual ~RecursiveFilter();

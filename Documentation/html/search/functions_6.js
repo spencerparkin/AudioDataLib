@@ -70,7 +70,7 @@ var searchData=
   ['getsubchunkarray_67',['GetSubChunkArray',['../class_audio_data_lib_1_1_chunk_parser_1_1_chunk.html#ad1d3bf33ce5c6c13413793c4ddd1cbb1',1,'AudioDataLib::ChunkParser::Chunk']]],
   ['gettargetfrequency_68',['GetTargetFrequency',['../class_audio_data_lib_1_1_pitch_shift_module.html#a4224ace7f9ab930d3563b619a955f9bf',1,'AudioDataLib::PitchShiftModule']]],
   ['gettimer_69',['GetTimer',['../class_audio_data_lib_1_1_midi_player.html#a09a65f691300fc8d5e7801ac927bcb66',1,'AudioDataLib::MidiPlayer']]],
-  ['gettimeseconds_70',['GetTimeSeconds',['../class_audio_data_lib_1_1_audio_data.html#aac645553fac8273198d249ae6d9ece2a',1,'AudioDataLib::AudioData::GetTimeSeconds()'],['../class_audio_data_lib_1_1_midi_player.html#a2621e6a69f4e3968746fb6af8f2487e4',1,'AudioDataLib::MidiPlayer::GetTimeSeconds()']]],
+  ['gettimeseconds_70',['GetTimeSeconds',['../class_audio_data_lib_1_1_audio_data.html#aac645553fac8273198d249ae6d9ece2a',1,'AudioDataLib::AudioData']]],
   ['gettimespan_71',['GetTimespan',['../class_audio_data_lib_1_1_wave_form.html#a43dfe9b93f1479c7ee0d45792efcb92a',1,'AudioDataLib::WaveForm']]],
   ['gettiming_72',['GetTiming',['../class_audio_data_lib_1_1_midi_data.html#abf798d708beaba9cd097311f8c7b4e63',1,'AudioDataLib::MidiData']]],
   ['gettrack_73',['GetTrack',['../class_audio_data_lib_1_1_midi_data.html#a2ea9219113a907b3dd228082db0eb34b',1,'AudioDataLib::MidiData::GetTrack(uint32_t i) const'],['../class_audio_data_lib_1_1_midi_data.html#a581e7ea9bed6469f01db79f2a4f6514f',1,'AudioDataLib::MidiData::GetTrack(uint32_t i)']]],

@@ -8,6 +8,9 @@ namespace AudioDataLib
 	class MixerModule;
 	class SoundFontData;
 
+	/**
+	 * @brief This class knows how to synthesize real-time sound as a function of MIDI messages and sound-font data.
+	 */
 	class AUDIO_DATA_LIB_API SampleBasedSynth : public MidiSynth
 	{
 	public:

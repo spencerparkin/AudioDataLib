@@ -22,6 +22,18 @@ namespace AudioDataLib
 {
 	class Error;
 
+	/**
+	 * @brief This class knows how to read (and one day write) sound-font files.
+	 * 
+	 * Not all sound-font file features are supported here, but enough are to be useful in
+	 * the goal of sound synthesis.  The SF2 file specification is quite extensive and lays
+	 * out its own synthesis model.  I chose not to follow this model and instead, just extract
+	 * just enough of the relevant information needed to perform my own method of synthesis.
+	 * This means getting at the sample data, knowing how it's looped, knowing what the key
+	 * and velocity ranges are, etc.  For now, I assume only one instrament per sound-font file,
+	 * which I know is not generally correct.  I plan to revise this class once I get my hands
+	 * on a sound-font file that contains multiple instruments.
+	 */
 	class AUDIO_DATA_LIB_API SoundFontFormat : public FileFormat
 	{
 	public:

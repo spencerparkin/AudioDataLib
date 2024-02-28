@@ -20,9 +20,8 @@ var searchData=
   ['bytestream_17',['ByteStream',['../class_audio_data_lib_1_1_byte_stream.html#a9fedbe553d35af2508bbedbb38d63c5c',1,'AudioDataLib::ByteStream']]],
   ['bytestream_2ecpp_18',['ByteStream.cpp',['../_byte_stream_8cpp.html',1,'']]],
   ['bytestream_2eh_19',['ByteStream.h',['../_byte_stream_8h.html',1,'']]],
-  ['byteswapper_20',['ByteSwapper',['../class_audio_data_lib_1_1_byte_swapper.html',1,'AudioDataLib']]],
+  ['byteswapper_20',['ByteSwapper',['../class_audio_data_lib_1_1_byte_swapper.html',1,'AudioDataLib::ByteSwapper'],['../class_audio_data_lib_1_1_byte_swapper.html#acdb3ea83818d3bc64dfe722038baca54',1,'AudioDataLib::ByteSwapper::ByteSwapper()']]],
   ['byteswapper_21',['byteSwapper',['../class_audio_data_lib_1_1_chunk_parser.html#ac4b860125012d7360e0328956f8891b2',1,'AudioDataLib::ChunkParser']]],
-  ['byteswapper_22',['ByteSwapper',['../class_audio_data_lib_1_1_byte_swapper.html#acdb3ea83818d3bc64dfe722038baca54',1,'AudioDataLib::ByteSwapper']]],
-  ['byteswapper_2ecpp_23',['ByteSwapper.cpp',['../_byte_swapper_8cpp.html',1,'']]],
-  ['byteswapper_2eh_24',['ByteSwapper.h',['../_byte_swapper_8h.html',1,'']]]
+  ['byteswapper_2ecpp_22',['ByteSwapper.cpp',['../_byte_swapper_8cpp.html',1,'']]],
+  ['byteswapper_2eh_23',['ByteSwapper.h',['../_byte_swapper_8h.html',1,'']]]
 ];

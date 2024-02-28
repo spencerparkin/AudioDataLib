@@ -17,7 +17,7 @@ var searchData=
   ['attenuationmodule_14',['AttenuationModule',['../class_audio_data_lib_1_1_attenuation_module.html#a2f18cfda934323d0f76638a852598580',1,'AudioDataLib::AttenuationModule']]],
   ['audiodata_15',['AudioData',['../class_audio_data_lib_1_1_audio_data.html#a8bb6ddb671a324453713570496f54e59',1,'AudioDataLib::AudioData']]],
   ['audiosample_16',['AudioSample',['../class_audio_data_lib_1_1_sound_font_data_1_1_audio_sample.html#adefa94cd8f85ee5408bb3994c8707fdb',1,'AudioDataLib::SoundFontData::AudioSample']]],
-  ['audiosink_17',['AudioSink',['../class_audio_data_lib_1_1_audio_sink.html#a3408d19bd7b166a6e19bbca2090e1333',1,'AudioDataLib::AudioSink']]],
+  ['audiosink_17',['AudioSink',['../class_audio_data_lib_1_1_audio_sink.html#abc17f5217bf0c305fe47695c1fa3a5a6',1,'AudioDataLib::AudioSink']]],
   ['audiostream_18',['AudioStream',['../class_audio_data_lib_1_1_audio_stream.html#ab2e106f7e2f70f0cfb1d7b171da71f16',1,'AudioDataLib::AudioStream::AudioStream()'],['../class_audio_data_lib_1_1_audio_stream.html#a91e4c0fbb9d45f9f4ab88e0aeb79d902',1,'AudioDataLib::AudioStream::AudioStream(const AudioData *audioData)']]],
   ['averagesamplerate_19',['AverageSampleRate',['../class_audio_data_lib_1_1_wave_form.html#a2da9afc12ff5bc934f00c2f495928294',1,'AudioDataLib::WaveForm']]]
 ];

@@ -5,7 +5,7 @@ var searchData=
   ['ticksperquarternote_2',['ticksPerQuarterNote',['../struct_audio_data_lib_1_1_midi_data_1_1_timing.html#ae2659efbdfe819264bec10b4fa75f604',1,'AudioDataLib::MidiData::Timing']]],
   ['timedelayseconds_3',['timeDelaySeconds',['../struct_audio_data_lib_1_1_recursive_filter_1_1_params.html#ab5f5496fd31ec5d86b2efd396c34f20a',1,'AudioDataLib::RecursiveFilter::Params']]],
   ['timer_4',['timer',['../class_audio_data_lib_1_1_midi_player.html#a57fa90108b38b1b7461684ac5fa32df1',1,'AudioDataLib::MidiPlayer']]],
-  ['timeseconds_5',['timeSeconds',['../class_audio_data_lib_1_1_midi_player.html#ac322e730b70adb492c46d326a4fb5fdd',1,'AudioDataLib::MidiPlayer::timeSeconds'],['../struct_audio_data_lib_1_1_wave_form_1_1_sample.html#a4792c63fe2bcd2c0061c6ce0a58a1d04',1,'AudioDataLib::WaveForm::Sample::timeSeconds']]],
+  ['timeseconds_5',['timeSeconds',['../struct_audio_data_lib_1_1_wave_form_1_1_sample.html#a4792c63fe2bcd2c0061c6ce0a58a1d04',1,'AudioDataLib::WaveForm::Sample']]],
   ['timing_6',['timing',['../class_audio_data_lib_1_1_midi_data.html#a56a4da041dda2a3c4fa9c6b4f2d3baa8',1,'AudioDataLib::MidiData']]],
   ['trackarray_7',['trackArray',['../class_audio_data_lib_1_1_midi_data.html#af99915e54c3fc3dbfe08ea5c8d9954d3',1,'AudioDataLib::MidiData']]],
   ['trackplayerarray_8',['trackPlayerArray',['../class_audio_data_lib_1_1_midi_player.html#ae9f371cac7d78bafce1076afd9e54ece',1,'AudioDataLib::MidiPlayer']]],

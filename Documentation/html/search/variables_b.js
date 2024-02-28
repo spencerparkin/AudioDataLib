@@ -20,5 +20,5 @@ var searchData=
   ['minvel_17',['minVel',['../struct_audio_data_lib_1_1_sound_font_data_1_1_looped_audio_data_1_1_location.html#a713aa36766a75bdc7af7c9f6cb03590b',1,'AudioDataLib::SoundFontData::LoopedAudioData::Location']]],
   ['mode_18',['mode',['../class_audio_data_lib_1_1_sound_font_data_1_1_looped_audio_data.html#a9a59ac5a5659d279c1f1218dbf506238',1,'AudioDataLib::SoundFontData::LoopedAudioData']]],
   ['msb_19',['msb',['../struct_audio_data_lib_1_1_midi_data_1_1_meta_event_1_1_sequence_number.html#af55d91cd56e8e53bc0c29b5784f0d88b',1,'AudioDataLib::MidiData::MetaEvent::SequenceNumber']]],
-  ['mutex_20',['mutex',['../class_audio_data_lib_1_1_thread_safe_audio_stream.html#a7e895bb2bacedbf5b9f2b489729694f8',1,'AudioDataLib::ThreadSafeAudioStream::mutex'],['../class_audio_data_lib_1_1_midi_player.html#a27fd0e786917700b54ddd2b593307232',1,'AudioDataLib::MidiPlayer::mutex']]]
+  ['mutex_20',['mutex',['../class_audio_data_lib_1_1_thread_safe_audio_stream.html#a7e895bb2bacedbf5b9f2b489729694f8',1,'AudioDataLib::ThreadSafeAudioStream']]]
 ];

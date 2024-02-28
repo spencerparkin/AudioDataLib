@@ -99,6 +99,9 @@ $(function(){initNavTree('class_audio_data_lib_1_1_midi_msg_log_destination.html
 </div><!--header-->
 <div class="contents">
 
+<p>This class is used mainly for diagnostic purposes, providing log message output as MIDI message input is received.  
+ <a href="#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="_midi_msg_log_destination_8h_source.html">MidiMsgLogDestination.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for AudioDataLib::MidiMsgLogDestination:</div>
@@ -106,7 +109,7 @@ Inheritance diagram for AudioDataLib::MidiMsgLogDestination:</div>
  <div class="center">
   <img src="class_audio_data_lib_1_1_midi_msg_log_destination.png" usemap="#AudioDataLib::MidiMsgLogDestination_map" alt=""/>
   <map id="AudioDataLib::MidiMsgLogDestination_map" name="AudioDataLib::MidiMsgLogDestination_map">
-<area href="class_audio_data_lib_1_1_midi_msg_destination.html" alt="AudioDataLib::MidiMsgDestination" shape="rect" coords="0,0,225,24"/>
+<area href="class_audio_data_lib_1_1_midi_msg_destination.html" title="Derivatives of this class are those that do something (anything) with MIDI messages." alt="AudioDataLib::MidiMsgDestination" shape="rect" coords="0,0,225,24"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -132,7 +135,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ad9df91fa9d2bcf9000a571cf4df23fe3 inherit pub_methods_class_audio_data_lib_1_1_midi_msg_destination" id="r_ad9df91fa9d2bcf9000a571cf4df23fe3"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_audio_data_lib_1_1_midi_msg_destination.html#ad9df91fa9d2bcf9000a571cf4df23fe3">Process</a> (<a class="el" href="class_audio_data_lib_1_1_error.html">Error</a> &amp;error)</td></tr>
 <tr class="separator:ad9df91fa9d2bcf9000a571cf4df23fe3 inherit pub_methods_class_audio_data_lib_1_1_midi_msg_destination"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>This class is used mainly for diagnostic purposes, providing log message output as MIDI message input is received. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="ae5c9609d87073821c8e4c2e45a419d67" name="ae5c9609d87073821c8e4c2e45a419d67"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ae5c9609d87073821c8e4c2e45a419d67">&#9670;&#160;</a></span>MidiMsgLogDestination()</h2>
 
@@ -198,6 +203,13 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>The user should override this to provide a place for the log output to go.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">message</td><td>This is a string contain information about the MIDI message recieved. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -237,6 +249,7 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>This will call the LogMessage method with an appropriately formatted log message string. </p>
 
 <p>Reimplemented from <a class="el" href="class_audio_data_lib_1_1_midi_msg_destination.html#a1fd46ff7e06e7985433261efd939607e">AudioDataLib::MidiMsgDestination</a>.</p>
 

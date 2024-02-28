@@ -101,6 +101,9 @@ $(function(){initNavTree('class_audio_data_lib_1_1_midi_synth.html',''); initRes
 </div><!--header-->
 <div class="contents">
 
+<p>Derivatives of this class know how to synthesize MIDI messages into real-time audio.  
+ <a href="#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="_midi_synth_8h_source.html">MidiSynth.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for AudioDataLib::MidiSynth:</div>
@@ -108,8 +111,8 @@ Inheritance diagram for AudioDataLib::MidiSynth:</div>
  <div class="center">
   <img src="class_audio_data_lib_1_1_midi_synth.png" usemap="#AudioDataLib::MidiSynth_map" alt=""/>
   <map id="AudioDataLib::MidiSynth_map" name="AudioDataLib::MidiSynth_map">
-<area href="class_audio_data_lib_1_1_midi_msg_destination.html" alt="AudioDataLib::MidiMsgDestination" shape="rect" coords="321,0,525,24"/>
-<area href="class_audio_data_lib_1_1_sample_based_synth.html" alt="AudioDataLib::SampleBasedSynth" shape="rect" coords="0,112,204,136"/>
+<area href="class_audio_data_lib_1_1_midi_msg_destination.html" title="Derivatives of this class are those that do something (anything) with MIDI messages." alt="AudioDataLib::MidiMsgDestination" shape="rect" coords="321,0,525,24"/>
+<area href="class_audio_data_lib_1_1_sample_based_synth.html" title="This class knows how to synthesize real-time sound as a function of MIDI messages and sound-font data..." alt="AudioDataLib::SampleBasedSynth" shape="rect" coords="0,112,204,136"/>
 <area href="class_audio_data_lib_1_1_simple_synth.html" alt="AudioDataLib::SimpleSynth" shape="rect" coords="214,112,418,136"/>
 <area href="class_audio_data_lib_1_1_subtractive_synth.html" alt="AudioDataLib::SubtractiveSynth" shape="rect" coords="428,112,632,136"/>
 <area href="class_audio_data_lib_1_1_wave_table_synth.html" alt="AudioDataLib::WaveTableSynth" shape="rect" coords="642,112,846,136"/>
@@ -158,11 +161,15 @@ Protected Attributes</h2></td></tr>
 <tr class="memitem:a02a12933b57a2d720cb64a7a13d0110e" id="r_a02a12933b57a2d720cb64a7a13d0110e"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="class_audio_data_lib_1_1_audio_stream.html">AudioStream</a> &gt; *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a02a12933b57a2d720cb64a7a13d0110e">audioStream</a></td></tr>
 <tr class="separator:a02a12933b57a2d720cb64a7a13d0110e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2a36f368af4e61ee9b1053c69ba79897" id="r_a2a36f368af4e61ee9b1053c69ba79897"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2a36f368af4e61ee9b1053c69ba79897">minLatencySeconds</a></td></tr>
+<tr class="memdesc:a2a36f368af4e61ee9b1053c69ba79897"><td class="mdescLeft">&#160;</td><td class="mdescRight">This is the minimum amount of audio (measured in seconds) that should always be buffered at any given time.  <br /></td></tr>
 <tr class="separator:a2a36f368af4e61ee9b1053c69ba79897"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8a69b8b8db430444f216d7c744b3cdb5" id="r_a8a69b8b8db430444f216d7c744b3cdb5"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8a69b8b8db430444f216d7c744b3cdb5">maxLatencySeconds</a></td></tr>
+<tr class="memdesc:a8a69b8b8db430444f216d7c744b3cdb5"><td class="mdescLeft">&#160;</td><td class="mdescRight">This is the maximum amount of audio (measured in seconds) that should always be buffered at any given time.  <br /></td></tr>
 <tr class="separator:a8a69b8b8db430444f216d7c744b3cdb5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Derivatives of this class know how to synthesize MIDI messages into real-time audio. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="add6df166aea4f8c0696f2dd48d8198fe" name="add6df166aea4f8c0696f2dd48d8198fe"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#add6df166aea4f8c0696f2dd48d8198fe">&#9670;&#160;</a></span>MidiSynth()</h2>
 
@@ -228,6 +235,7 @@ Protected Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Return a shared pointer to the <a class="el" href="class_audio_data_lib_1_1_audio_stream.html">AudioStream</a> we're trying to continuously feed. </p>
 
 </div>
 </div>
@@ -249,6 +257,7 @@ Protected Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Get the latency range. </p>
 
 </div>
 </div>
@@ -274,6 +283,7 @@ Protected Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>A derived class must impliment this method to provide a <a class="el" href="class_audio_data_lib_1_1_synth_module.html">SynthModule</a> that can feed the given channel. Note that the term "channel" is overloaded. It can refer to a channel in a stream of audio (e.g., left, right, mono, etc.), as is the case here, or it can mean a MIDI channel, of which there are 16, so don't get them confused. Context usually makes it clear. </p>
 
 <p>Implemented in <a class="el" href="class_audio_data_lib_1_1_sample_based_synth.html#a8e562e9eefefd202bd16300c4a3639ba">AudioDataLib::SampleBasedSynth</a>, <a class="el" href="class_audio_data_lib_1_1_simple_synth.html#a969eebacc5bcc4ef73e5c6cbf4f1adc2">AudioDataLib::SimpleSynth</a>, and <a class="el" href="class_audio_data_lib_1_1_subtractive_synth.html#a0cd4c29afbb918351fdbd22d0854f775">AudioDataLib::SubtractiveSynth</a>.</p>
 
@@ -351,6 +361,8 @@ Protected Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>This is where we strike a balance between keeping enough audio data buffered in our audio stream to prevent an audio drop-out while also not buffering too much so as to maintain the lowest possible latency. If we don't feed the audio buffer quick enough, we periodically have to feed silence to the audio stream. If we feed the audio buffer too much, then changes to the audio (such as a note turnning on or off) don't happen soon enough, or as close to when they actually happend as we would like. As far as drop-outs are concerned, this class is really at the mercy of the <a class="el" href="class_audio_data_lib_1_1_synth_module.html">SynthModule</a> implimentations, which needs to be as quick as they possibly can be.</p>
+<p>A derived class might override this to do its own processing, but should call this base-class method as well. </p>
 
 <p>Reimplemented from <a class="el" href="class_audio_data_lib_1_1_midi_msg_destination.html#ad9df91fa9d2bcf9000a571cf4df23fe3">AudioDataLib::MidiMsgDestination</a>.</p>
 
@@ -372,6 +384,7 @@ Protected Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>The goal of this class is to feed the given <a class="el" href="class_audio_data_lib_1_1_audio_stream.html">AudioStream</a> class. Typically this is chosen as a <a class="el" href="class_audio_data_lib_1_1_thread_safe_audio_stream.html">ThreadSafeAudioStream</a>, because, while it is fed on the main thread, it is usually consumed in a time-sensative audio callback running on a dedicated audio thread. </p>
 
 </div>
 </div>
@@ -393,6 +406,7 @@ Protected Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Set the latency range. The synthesizer tries to keep the amount of audio (measured in seconds) to always be somewhere in this range. You typically want the range to be to be as small as is reasonably possible, both in size and in distance to zero. </p>
 
 </div>
 </div>
@@ -439,6 +453,8 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>This is the maximum amount of audio (measured in seconds) that should always be buffered at any given time. </p>
+
 </div>
 </div>
 <a id="a2a36f368af4e61ee9b1053c69ba79897" name="a2a36f368af4e61ee9b1053c69ba79897"></a>
@@ -460,6 +476,8 @@ Protected Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>This is the minimum amount of audio (measured in seconds) that should always be buffered at any given time. </p>
 
 </div>
 </div>
