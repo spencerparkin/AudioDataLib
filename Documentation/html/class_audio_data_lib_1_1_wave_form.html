@@ -121,6 +121,7 @@ Inheritance diagram for AudioDataLib::WaveForm:</div>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_audio_data_lib_1_1_wave_form_1_1_sample.html">Sample</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A wave-form is simply a list of samples.  <a href="struct_audio_data_lib_1_1_wave_form_1_1_sample.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_audio_data_lib_1_1_wave_form_1_1_sample_bounds.html">SampleBounds</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -241,7 +242,8 @@ Friends</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>This is the time-domain representation of a wave-form. </p>
-<p>To be more specific, this is a descrete wave-form. Since we represent the wave-form function as a sequence of plots in the plane, this form is independent of format and sampling rate. Most math operations performed on wave-forms are done using this class, since it is format-ignostic or free from the considerations and limitations of any particular audio format. </p>
+<p>To be more specific, this is a descrete wave-form. Since we represent the wave-form function as a sequence of plots (or samples) in the plane, this form is independent of format and sampling rate. Most math operations performed on wave-forms are done using this class, since it is format-ignostic or free from the considerations and limitations of any particular audio format.</p>
+<p>A wave-form, therefore, is just a list of audio samples, each being a time and "amplitude" pair. Most operations assume that the samples are in chronological order. </p>
 </div><h2 class="groupheader">Member Enumeration Documentation</h2>
 <a id="a6ac89a86c4427bdd0772cc2c7aa5c3f1" name="a6ac89a86c4427bdd0772cc2c7aa5c3f1"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a6ac89a86c4427bdd0772cc2c7aa5c3f1">&#9670;&#160;</a></span>InterpolationMethod</h2>
@@ -255,8 +257,10 @@ Friends</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a6ac89a86c4427bdd0772cc2c7aa5c3f1a045ca3afeb05a496dbac70f27a5d26ef" name="a6ac89a86c4427bdd0772cc2c7aa5c3f1a045ca3afeb05a496dbac70f27a5d26ef"></a>LINEAR&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="a6ac89a86c4427bdd0772cc2c7aa5c3f1aca0a4898734c194463bf2d01b3fc93cd" name="a6ac89a86c4427bdd0772cc2c7aa5c3f1aca0a4898734c194463bf2d01b3fc93cd"></a>CUBIC&#160;</td><td class="fielddoc"></td></tr>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a6ac89a86c4427bdd0772cc2c7aa5c3f1a045ca3afeb05a496dbac70f27a5d26ef" name="a6ac89a86c4427bdd0772cc2c7aa5c3f1a045ca3afeb05a496dbac70f27a5d26ef"></a>LINEAR&#160;</td><td class="fielddoc"><p>Use the line containing two different samples as the means of interpolation. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a6ac89a86c4427bdd0772cc2c7aa5c3f1aca0a4898734c194463bf2d01b3fc93cd" name="a6ac89a86c4427bdd0772cc2c7aa5c3f1aca0a4898734c194463bf2d01b3fc93cd"></a>CUBIC&#160;</td><td class="fielddoc"><p>Use the cubic polynomial fitting four different samples as the means of interpolation. This is more expensive. </p>
+</td></tr>
 </table>
 
 </div>
@@ -273,8 +277,10 @@ Friends</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a0410c5982dfdd2c501a2b091abcd3403af201640e11bd34f92a0076a0a7c740f6" name="a0410c5982dfdd2c501a2b091abcd3403af201640e11bd34f92a0076a0a7c740f6"></a>BEFORE&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="a0410c5982dfdd2c501a2b091abcd3403afc9ba921647347fed66d504a795e5ee4" name="a0410c5982dfdd2c501a2b091abcd3403afc9ba921647347fed66d504a795e5ee4"></a>AFTER&#160;</td><td class="fielddoc"></td></tr>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a0410c5982dfdd2c501a2b091abcd3403af201640e11bd34f92a0076a0a7c740f6" name="a0410c5982dfdd2c501a2b091abcd3403af201640e11bd34f92a0076a0a7c740f6"></a>BEFORE&#160;</td><td class="fielddoc"><p>Trim the beginning of the wave-form. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a0410c5982dfdd2c501a2b091abcd3403afc9ba921647347fed66d504a795e5ee4" name="a0410c5982dfdd2c501a2b091abcd3403afc9ba921647347fed66d504a795e5ee4"></a>AFTER&#160;</td><td class="fielddoc"><p>Trim the end of the wave-form. </p>
+</td></tr>
 </table>
 
 </div>
@@ -337,6 +343,7 @@ Friends</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Add a sample to the end of this wave-form's list of samples. </p>
 
 </div>
 </div>
@@ -354,6 +361,7 @@ Friends</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Calculate and return the average sampling rate of this wave-form. The samples in a wave-form don't necessarily have a uniform distribution, but if they did, then this would return the sampling rate of the wave-form. </p>
 
 </div>
 </div>
@@ -371,6 +379,7 @@ Friends</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>This function is not very well defined. I may remove it at some point. </p>
 
 </div>
 </div>
@@ -392,6 +401,7 @@ Friends</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Make sure that all samples are in the given range. </p>
 
 </div>
 </div>
@@ -409,6 +419,7 @@ Friends</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Remove all samples from this wave-form. </p>
 
 </div>
 </div>
@@ -426,6 +437,7 @@ Friends</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Return true if and only if the given time is within this wave-form's time-span. </p>
 
 </div>
 </div>
@@ -462,6 +474,18 @@ Friends</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Read the given raw audio data in the given format and generate from it a wave-form in the cartesian coordinate plane.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">format</td><td>This is the format of the given audio data. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">audioBuffer</td><td>This is a buffer containing the raw audio data, presumably in the given format. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">audioBufferSize</td><td>This is the size in bytes of the given audio buffer. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">channel</td><td>This is which channel of the audio buffer to read as this wave-form. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">error</td><td>This will contain detailed error information if false is returned. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True is returned on success; false otherwise. </dd></dl>
 
 </div>
 </div>
@@ -498,6 +522,18 @@ Friends</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Write this wave-form into the given audio buffer in the given format.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">format</td><td>This is the format in which to write the audio data. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">audioBuffer</td><td>This is where to write the raw audio data in the given format. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">audioBufferSize</td><td>This is the size of the given audio buffer in bytes. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">channel</td><td>This is the channel of the audio buffer to write as this wave-form. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">error</td><td>This will contain detailed error information if false is returned. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True is returned on success; false otherwise. </dd></dl>
 
 </div>
 </div>
@@ -515,6 +551,7 @@ Friends</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Make this wave-form a copy of the given wave-form. </p>
 
 </div>
 </div>
@@ -680,6 +717,7 @@ template&lt;typename T &gt; </div>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Find the pair of adjacent samples that bounds the given time. This is an O(log N) operation, where N is the number of samples in the wave-form. </p>
 
 </div>
 </div>
@@ -697,6 +735,7 @@ template&lt;typename T &gt; </div>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Return the time location of the last sample in this wave-form's list of samples. </p>
 
 </div>
 </div>
@@ -722,6 +761,7 @@ template&lt;typename T &gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Return the interpolation method being used to evaluate this wave-form at any particular time within its time-span. </p>
 
 </div>
 </div>
@@ -739,6 +779,7 @@ template&lt;typename T &gt; </div>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Find and return the most positive amplitude found in this wave-form's list of samples. </p>
 
 </div>
 </div>
@@ -756,6 +797,7 @@ template&lt;typename T &gt; </div>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Find and return the most negative amplitude found in this wave-form's list of samples. </p>
 
 </div>
 </div>
@@ -773,6 +815,7 @@ template&lt;typename T &gt; </div>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Return the number of samples in this wave-form's list of samples. </p>
 
 </div>
 </div>
@@ -798,6 +841,7 @@ template&lt;typename T &gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Get read/write access to this wave-form's sample array. </p>
 
 </div>
 </div>
@@ -823,6 +867,7 @@ template&lt;typename T &gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Get read-only access to this wave-form's sample array. </p>
 
 </div>
 </div>
@@ -844,6 +889,15 @@ template&lt;typename T &gt; </div>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Return the number of bytes required to represent this wave-form in the given format for 1 or all channels.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">format</td><td>This is the format of the audio-data you're considering the wave-form being written in. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">allChannels</td><td>This is true if you're considering this or a similar wave-form being written to all channels of the audio data. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>This is the number of bytes required to lay down the wave-form in the desired format. </dd></dl>
 
 </div>
 </div>
@@ -861,6 +915,7 @@ template&lt;typename T &gt; </div>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Return the time location of the first sample in this wave-form's list of samples. </p>
 
 </div>
 </div>
@@ -878,6 +933,7 @@ template&lt;typename T &gt; </div>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Return the difference in time between the first and last sample of this wave-form. </p>
 
 </div>
 </div>
@@ -904,6 +960,15 @@ template&lt;typename T &gt; </div>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Evaluate this wave-form at the given time, between the two given samples, using the set interpolation method. This function is typically used internally by the EvaluateAt method. Note that the given time is typically somewhere in the time-span between the two given samples, but this is not a requirement. Also, the two given samples are typically adjacent, but this is also not a requirement.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">sampleBounds</td><td>This is the pair of sample between which to perform the interpolation. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">timeSeconds</td><td>This is the time (in seconds) where the wave-form function is to be evaluated. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">interpolatedSample</td><td>This is the sample calculated as an interpolation between the two given samples. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -925,6 +990,14 @@ template&lt;typename T &gt; </div>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Make this wave-form a flat light representing silence for the given time period.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">samplesPerSecond</td><td>This is the sampling rate, combined with the period, needed to determine how many samples to generate. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">totalSeconds</td><td>This is the desired duration (or time period) of silence to generate. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -946,6 +1019,15 @@ template&lt;typename T &gt; </div>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Add some silence to the end of this wave-form.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">desiredDurationSeconds</td><td>This is the amount of silence to add in seconds. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">sampleRate</td><td>This, combined with the duration, indicates how many samples to add. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The number of samples added is returned. </dd></dl>
 
 </div>
 </div>
@@ -967,6 +1049,14 @@ template&lt;typename T &gt; </div>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Try to perform a trim that's sometimes faster than that perfomed by the Trim function.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">timeSeconds</td><td>This is the point at which everything is trimmed before or after. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">trimeSecion</td><td>This indicates whether everything is trimmed before or after the given time point. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -984,6 +1074,7 @@ template&lt;typename T &gt; </div>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Find the sample with the maximum amplitude and then divide this out from all the samples. </p>
 
 </div>
 </div>
@@ -1001,6 +1092,7 @@ template&lt;typename T &gt; </div>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Scale all samples by the given scale. This does not change the timing of the samples. </p>
 
 </div>
 </div>
@@ -1026,6 +1118,7 @@ template&lt;typename T &gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Set the interpolation method used to evaluate this wave-form at any particular time within its time-span. </p>
 
 </div>
 </div>
@@ -1043,6 +1136,7 @@ template&lt;typename T &gt; </div>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Make sure all samples in the wave-form's list of such is sorted chronologically. </p>
 
 </div>
 </div>
@@ -1060,6 +1154,7 @@ template&lt;typename T &gt; </div>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Make this wave-form the sum of the given list of wave-forms. A minimum amount of silence will be padded to all given wave-forms so that the resulting wave-form is of the length of the largest given wave-form. The average sampling rate of all the wave-forms is used. </p>
 
 </div>
 </div>
@@ -1091,6 +1186,17 @@ template&lt;typename T &gt; </div>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Trim the beginning and end of this wave-form.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">startTimeSeconds</td><td>Remove everything up to this time. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">stopTimeSeconds</td><td>Remove everything after this time. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">rebaseTime</td><td>If true, once the trim has occurred, shift the wave-form back so that it starts at origin. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">error</td><td>This will contain detailed error information if false is returned. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>False is returned if an error occurrs; true otherwise. </dd></dl>
 
 </div>
 </div>

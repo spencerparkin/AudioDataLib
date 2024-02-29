@@ -100,6 +100,9 @@ $(function(){initNavTree('class_audio_data_lib_1_1_audio_stream.html',''); initR
 </div><!--header-->
 <div class="contents">
 
+<p>This stream is designed to act as a FIFO queue of audio data of a particular format.  
+ <a href="#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="_byte_stream_8h_source.html">ByteStream.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for AudioDataLib::AudioStream:</div>
@@ -107,8 +110,8 @@ Inheritance diagram for AudioDataLib::AudioStream:</div>
  <div class="center">
   <img src="class_audio_data_lib_1_1_audio_stream.png" usemap="#AudioDataLib::AudioStream_map" alt=""/>
   <map id="AudioDataLib::AudioStream_map" name="AudioDataLib::AudioStream_map">
-<area href="class_audio_data_lib_1_1_byte_stream.html" title="This is the base class for all types of byte streams used in the library. Some derivatives or read-on..." alt="AudioDataLib::ByteStream" shape="rect" coords="0,0,232,24"/>
-<area href="class_audio_data_lib_1_1_thread_safe_audio_stream.html" alt="AudioDataLib::ThreadSafeAudioStream" shape="rect" coords="0,112,232,136"/>
+<area href="class_audio_data_lib_1_1_byte_stream.html" title="This is the base class for all types of byte streams used in the library." alt="AudioDataLib::ByteStream" shape="rect" coords="0,0,232,24"/>
+<area href="class_audio_data_lib_1_1_thread_safe_audio_stream.html" title="This is a thread-safe version of the AudioStream class." alt="AudioDataLib::ThreadSafeAudioStream" shape="rect" coords="0,112,232,136"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -156,7 +159,8 @@ Protected Attributes</h2></td></tr>
 <tr class="separator:a55e4648df57b7834ff2e2dc7e6537aad"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>This class by itself often acts, single-handedly, as the glue between this library and one that interfaces with the actual audio hardware. The low-level library will dicate the stream format, and then this library will accommodate that format. The low-level library reads from (or writes to) this stream while this library writes to (or reads from) it. </p>
+<div class="textblock"><p>This stream is designed to act as a FIFO queue of audio data of a particular format. </p>
+<p>This class by itself often acts, single-handedly, as the glue between this library and one that interfaces with the actual audio hardware. The low-level library will dicate the stream format, and then this library will accommodate that format. The low-level library reads from (or writes to) this stream while this library writes to (or reads from) it. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="ab2e106f7e2f70f0cfb1d7b171da71f16" name="ab2e106f7e2f70f0cfb1d7b171da71f16"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ab2e106f7e2f70f0cfb1d7b171da71f16">&#9670;&#160;</a></span>AudioStream() <span class="overload">[1/2]</span></h2>
@@ -240,6 +244,7 @@ Protected Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Indicate whether there is data available to be read from the stream. </p>
 
 <p>Implements <a class="el" href="class_audio_data_lib_1_1_byte_stream.html#af05a94156e6d70a4eff4c7679f0e34f2">AudioDataLib::ByteStream</a>.</p>
 
@@ -269,6 +274,7 @@ Protected Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Indicate whether it is possible to write additional data to the stream. </p>
 
 <p>Implements <a class="el" href="class_audio_data_lib_1_1_byte_stream.html#a8c4c844de7c46ec257beb57f41dcef8d">AudioDataLib::ByteStream</a>.</p>
 
@@ -323,6 +329,7 @@ Protected Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Return the amount of data (in bytes) currently stored in the stream. </p>
 
 <p>Implements <a class="el" href="class_audio_data_lib_1_1_byte_stream.html#a5b6651719abb7997ced3bb551b1b2034">AudioDataLib::ByteStream</a>.</p>
 
@@ -356,6 +363,15 @@ Protected Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Read from this stream into the given buffer.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">buffer</td><td>This is a pointer to an array where bytes read from the stream will be written. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">bufferSize</td><td>This is the size in bytes of the given array. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The number of bytes actually read from the stream and written to the given buffer is returned. </dd></dl>
 
 <p>Implements <a class="el" href="class_audio_data_lib_1_1_byte_stream.html#adc43978f57990dc248bb187d4ec14fb4">AudioDataLib::ByteStream</a>.</p>
 
@@ -414,6 +430,15 @@ Protected Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Write the given buffer to this stream.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">buffer</td><td>This is a pointer to the array of bytes to write to the stream. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">bufferSize</td><td>This is the size of the given array in bytes. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The number of bytes actually written to the stream is returned. </dd></dl>
 
 <p>Implements <a class="el" href="class_audio_data_lib_1_1_byte_stream.html#a049264a3326a7ebb952a221ec1ed94b9">AudioDataLib::ByteStream</a>.</p>
 

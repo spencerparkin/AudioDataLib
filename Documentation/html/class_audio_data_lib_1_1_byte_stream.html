@@ -99,7 +99,7 @@ $(function(){initNavTree('class_audio_data_lib_1_1_byte_stream.html',''); initRe
 </div><!--header-->
 <div class="contents">
 
-<p>This is the base class for all types of byte streams used in the library. Some derivatives or read-only, write-only, or read-write.  
+<p>This is the base class for all types of byte streams used in the library.  
  <a href="#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="_byte_stream_8h_source.html">ByteStream.h</a>&gt;</code></p>
@@ -109,14 +109,14 @@ Inheritance diagram for AudioDataLib::ByteStream:</div>
  <div class="center">
   <img src="class_audio_data_lib_1_1_byte_stream.png" usemap="#AudioDataLib::ByteStream_map" alt=""/>
   <map id="AudioDataLib::ByteStream_map" name="AudioDataLib::ByteStream_map">
-<area href="class_audio_data_lib_1_1_audio_stream.html" alt="AudioDataLib::AudioStream" shape="rect" coords="0,56,232,80"/>
-<area href="class_audio_data_lib_1_1_file_stream.html" alt="AudioDataLib::FileStream" shape="rect" coords="363,56,595,80"/>
-<area href="class_audio_data_lib_1_1_memory_stream.html" alt="AudioDataLib::MemoryStream" shape="rect" coords="605,56,837,80"/>
-<area href="class_audio_data_lib_1_1_read_only_buffer_stream.html" alt="AudioDataLib::ReadOnlyBufferStream" shape="rect" coords="847,56,1079,80"/>
-<area href="class_audio_data_lib_1_1_write_only_buffer_stream.html" alt="AudioDataLib::WriteOnlyBufferStream" shape="rect" coords="1089,56,1321,80"/>
-<area href="class_audio_data_lib_1_1_thread_safe_audio_stream.html" alt="AudioDataLib::ThreadSafeAudioStream" shape="rect" coords="0,112,232,136"/>
-<area href="class_audio_data_lib_1_1_file_input_stream.html" alt="AudioDataLib::FileInputStream" shape="rect" coords="242,112,474,136"/>
-<area href="class_audio_data_lib_1_1_file_output_stream.html" alt="AudioDataLib::FileOutputStream" shape="rect" coords="484,112,716,136"/>
+<area href="class_audio_data_lib_1_1_audio_stream.html" title="This stream is designed to act as a FIFO queue of audio data of a particular format." alt="AudioDataLib::AudioStream" shape="rect" coords="0,56,232,80"/>
+<area href="class_audio_data_lib_1_1_file_stream.html" title="This is the base class for all file-based streams." alt="AudioDataLib::FileStream" shape="rect" coords="363,56,595,80"/>
+<area href="class_audio_data_lib_1_1_memory_stream.html" title="This is a read/write, in-memory stream of bytes that is bounded only by the memory limitations of the..." alt="AudioDataLib::MemoryStream" shape="rect" coords="605,56,837,80"/>
+<area href="class_audio_data_lib_1_1_read_only_buffer_stream.html" title="This is a stream that can be used to read bytes from any location in memory." alt="AudioDataLib::ReadOnlyBufferStream" shape="rect" coords="847,56,1079,80"/>
+<area href="class_audio_data_lib_1_1_write_only_buffer_stream.html" title="This is stream that can be used to write bytes to any location in memory." alt="AudioDataLib::WriteOnlyBufferStream" shape="rect" coords="1089,56,1321,80"/>
+<area href="class_audio_data_lib_1_1_thread_safe_audio_stream.html" title="This is a thread-safe version of the AudioStream class." alt="AudioDataLib::ThreadSafeAudioStream" shape="rect" coords="0,112,232,136"/>
+<area href="class_audio_data_lib_1_1_file_input_stream.html" title="This is a file stream that can be used to read bytes from a file." alt="AudioDataLib::FileInputStream" shape="rect" coords="242,112,474,136"/>
+<area href="class_audio_data_lib_1_1_file_output_stream.html" title="This is a file stream that can be used to write bytes to a file." alt="AudioDataLib::FileOutputStream" shape="rect" coords="484,112,716,136"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -146,7 +146,8 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:acbdbfab1b9707e2c5519a0ce68a2275f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>This is the base class for all types of byte streams used in the library. Some derivatives or read-only, write-only, or read-write. </p>
+<div class="textblock"><p>This is the base class for all types of byte streams used in the library. </p>
+<p>Some derivatives are read-only, write-only, or read-write. Consequently, not all interface methods are supported by all derivatives. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a9fedbe553d35af2508bbedbb38d63c5c" name="a9fedbe553d35af2508bbedbb38d63c5c"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a9fedbe553d35af2508bbedbb38d63c5c">&#9670;&#160;</a></span>ByteStream()</h2>
@@ -213,6 +214,7 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Indicate whether there is data available to be read from the stream. </p>
 
 <p>Implemented in <a class="el" href="class_audio_data_lib_1_1_file_input_stream.html#a91676c7d497e568c83a90ceb4f232e17">AudioDataLib::FileInputStream</a>, <a class="el" href="class_audio_data_lib_1_1_file_output_stream.html#a9845570b75a57f64b64c3728b5d11081">AudioDataLib::FileOutputStream</a>, <a class="el" href="class_audio_data_lib_1_1_read_only_buffer_stream.html#a7824d9dc7f2828fa7b52813f3184628b">AudioDataLib::ReadOnlyBufferStream</a>, <a class="el" href="class_audio_data_lib_1_1_write_only_buffer_stream.html#a599eedf3ae9ef92186df83c413471998">AudioDataLib::WriteOnlyBufferStream</a>, <a class="el" href="class_audio_data_lib_1_1_audio_stream.html#a5eabc50386dbf4a3fd46faf908850353">AudioDataLib::AudioStream</a>, <a class="el" href="class_audio_data_lib_1_1_thread_safe_audio_stream.html#a42a182f9b6520cd193424aa65cb55417">AudioDataLib::ThreadSafeAudioStream</a>, and <a class="el" href="class_audio_data_lib_1_1_memory_stream.html#aa1b7cc3f137fbfa714d8e218856a131c">AudioDataLib::MemoryStream</a>.</p>
 
@@ -240,6 +242,7 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Indicate whether it is possible to write additional data to the stream. </p>
 
 <p>Implemented in <a class="el" href="class_audio_data_lib_1_1_file_input_stream.html#a5da048f2ab72567d53790e8834f11bd4">AudioDataLib::FileInputStream</a>, <a class="el" href="class_audio_data_lib_1_1_file_output_stream.html#ad4e7739ceaac47eb5500c24663ba4fd9">AudioDataLib::FileOutputStream</a>, <a class="el" href="class_audio_data_lib_1_1_read_only_buffer_stream.html#a5316aeaf357c4f2fc3d2393c263e7204">AudioDataLib::ReadOnlyBufferStream</a>, <a class="el" href="class_audio_data_lib_1_1_write_only_buffer_stream.html#a4ceb3a4a281151938124b86b72a5097c">AudioDataLib::WriteOnlyBufferStream</a>, <a class="el" href="class_audio_data_lib_1_1_audio_stream.html#a0c9186e0521a8b9bd08ecbd6b9ac9ebd">AudioDataLib::AudioStream</a>, <a class="el" href="class_audio_data_lib_1_1_thread_safe_audio_stream.html#aebdc5aad0bc4bef2d420c4c414d72c5f">AudioDataLib::ThreadSafeAudioStream</a>, and <a class="el" href="class_audio_data_lib_1_1_memory_stream.html#a256e8b68cab874a7fed49dbb3e22d67e">AudioDataLib::MemoryStream</a>.</p>
 
@@ -267,6 +270,7 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Return the amount of data (in bytes) currently stored in the stream. </p>
 
 <p>Implemented in <a class="el" href="class_audio_data_lib_1_1_file_input_stream.html#a14e249aa27177f7cbc293adf7f14f2e7">AudioDataLib::FileInputStream</a>, <a class="el" href="class_audio_data_lib_1_1_file_output_stream.html#a0a1212a87e650ec8bd43b8caaa3aac4f">AudioDataLib::FileOutputStream</a>, <a class="el" href="class_audio_data_lib_1_1_read_only_buffer_stream.html#a2bd3051b334f7eab41b96a232946ffa5">AudioDataLib::ReadOnlyBufferStream</a>, <a class="el" href="class_audio_data_lib_1_1_write_only_buffer_stream.html#ad1eac751b0e1686cea9a967448437d88">AudioDataLib::WriteOnlyBufferStream</a>, <a class="el" href="class_audio_data_lib_1_1_audio_stream.html#a8ae69f69c350775e2f278c89e299e9e8">AudioDataLib::AudioStream</a>, <a class="el" href="class_audio_data_lib_1_1_thread_safe_audio_stream.html#a161ff50f490e57ce0ef29dd941cd4c38">AudioDataLib::ThreadSafeAudioStream</a>, and <a class="el" href="class_audio_data_lib_1_1_memory_stream.html#ab7449ea379568f74c2686f8660151b53">AudioDataLib::MemoryStream</a>.</p>
 
@@ -298,6 +302,15 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Read from this stream into the given buffer, but unlike ReadBytesFromStream, do not modify the stream. That is, a subsequent read from the stream will read from the same location.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">buffer</td><td>This is a pointer to an array where bytes read from the stream will be written. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">bufferSize</td><td>This is the size in bytes of the given array. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The number of bytes actually read from the stream and written to the given buffer is returned. </dd></dl>
 
 <p>Reimplemented in <a class="el" href="class_audio_data_lib_1_1_read_only_buffer_stream.html#a8c46794d09f4934db82dac991eda40db">AudioDataLib::ReadOnlyBufferStream</a>.</p>
 
@@ -329,6 +342,15 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Read from this stream into the given buffer.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">buffer</td><td>This is a pointer to an array where bytes read from the stream will be written. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">bufferSize</td><td>This is the size in bytes of the given array. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The number of bytes actually read from the stream and written to the given buffer is returned. </dd></dl>
 
 <p>Implemented in <a class="el" href="class_audio_data_lib_1_1_file_input_stream.html#aae2457c555326d0903ac14be2e4a24c0">AudioDataLib::FileInputStream</a>, <a class="el" href="class_audio_data_lib_1_1_file_output_stream.html#a910a20530eb4be10e97dd9c33f48e3fc">AudioDataLib::FileOutputStream</a>, <a class="el" href="class_audio_data_lib_1_1_read_only_buffer_stream.html#a10c55fe8071dfa8dc4f0a243f43e02c1">AudioDataLib::ReadOnlyBufferStream</a>, <a class="el" href="class_audio_data_lib_1_1_write_only_buffer_stream.html#a26b56332359fbbd5729c33c8ce2e0e2c">AudioDataLib::WriteOnlyBufferStream</a>, <a class="el" href="class_audio_data_lib_1_1_audio_stream.html#ae8ce989a83b13b34757210781e053d01">AudioDataLib::AudioStream</a>, <a class="el" href="class_audio_data_lib_1_1_thread_safe_audio_stream.html#a53f2eee1c351a23549a4ad82b940559a">AudioDataLib::ThreadSafeAudioStream</a>, and <a class="el" href="class_audio_data_lib_1_1_memory_stream.html#ac9885b0f732f3a2ba991162f0d8ff004">AudioDataLib::MemoryStream</a>.</p>
 
@@ -358,6 +380,7 @@ template&lt;typename T &gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Read an amount of data from the stream equal to the size of the given type. Byte-swapping may be a consideration here. Note that a failed read could still be a partial read. In other words, the stream can get modified even if the read fails. </p>
 
 </div>
 </div>
@@ -387,6 +410,15 @@ template&lt;typename T &gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Write the given buffer to this stream.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">buffer</td><td>This is a pointer to the array of bytes to write to the stream. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">bufferSize</td><td>This is the size of the given array in bytes. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The number of bytes actually written to the stream is returned. </dd></dl>
 
 <p>Implemented in <a class="el" href="class_audio_data_lib_1_1_file_input_stream.html#a98d59c2b2fcdfaee1d5b7de45e4a3849">AudioDataLib::FileInputStream</a>, <a class="el" href="class_audio_data_lib_1_1_file_output_stream.html#a2831d25bc85038121c4cc5f31fb90360">AudioDataLib::FileOutputStream</a>, <a class="el" href="class_audio_data_lib_1_1_read_only_buffer_stream.html#a4ff292c0a2b26b56e924102c4879c85f">AudioDataLib::ReadOnlyBufferStream</a>, <a class="el" href="class_audio_data_lib_1_1_write_only_buffer_stream.html#aaebf5acbeb48802293bd71ae732f486a">AudioDataLib::WriteOnlyBufferStream</a>, <a class="el" href="class_audio_data_lib_1_1_audio_stream.html#ab0ddea32b3fae81b61864e16a8d1cb64">AudioDataLib::AudioStream</a>, <a class="el" href="class_audio_data_lib_1_1_thread_safe_audio_stream.html#a0bbd7dcaf17825ade3ba38b8fd8006e6">AudioDataLib::ThreadSafeAudioStream</a>, and <a class="el" href="class_audio_data_lib_1_1_memory_stream.html#a4726f9605fccf705d8c687649a46cb98">AudioDataLib::MemoryStream</a>.</p>
 
@@ -416,6 +448,7 @@ template&lt;typename T &gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Write an amount of data to the stream equal to the size of the given type. Byte-swapping may be a consideration here. Note that a failed write could still be a partial write. In other words, the stream can get modified even if the write fails. </p>
 
 </div>
 </div>

@@ -196,6 +196,7 @@ Protected Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Remove all plots from this graph's list of such. </p>
 
 </div>
 </div>
@@ -240,6 +241,16 @@ Protected Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Generate a frequency graph from the given wave-form using an FFT.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">waveForm</td><td>This is the wave-form upon which to perform the FFT. </td></tr>
+    <tr><td class="paramname">numSamples</td><td>This is the number of samples to evaluate from the given wave-form and how many plots in the graph that will be generated. It must be a power of 2. </td></tr>
+    <tr><td class="paramname">error</td><td>This will contain detailed error information if false is returned. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True is returned on success; false otherwise. </dd></dl>
 
 </div>
 </div>
@@ -261,6 +272,7 @@ Protected Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>This creates a smoother-looking version of this frequency graph that might be easier to look at. It may have no real practical use. </p>
 
 </div>
 </div>
@@ -286,6 +298,7 @@ Protected Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Get read-only access to this graph's plot array. </p>
 
 </div>
 </div>
@@ -307,6 +320,7 @@ Protected Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Generate a wave-form from this frequency-graph using an inverse FFT. This function has not yet been test or even written, but it's on my list of things to do. I think that additional parameters may be needed to make it work. </p>
 
 </div>
 </div>

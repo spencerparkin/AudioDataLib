@@ -104,13 +104,18 @@ $(function(){initNavTree('struct_audio_data_lib_1_1_frequency_graph_1_1_plot.htm
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:a8bd69c94551b2e0fe2ac29f0883eca33" id="r_a8bd69c94551b2e0fe2ac29f0883eca33"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8bd69c94551b2e0fe2ac29f0883eca33">frequency</a></td></tr>
+<tr class="memdesc:a8bd69c94551b2e0fe2ac29f0883eca33"><td class="mdescLeft">&#160;</td><td class="mdescRight">This is the X-axis coordinate of a plot.  <br /></td></tr>
 <tr class="separator:a8bd69c94551b2e0fe2ac29f0883eca33"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a982d6cf9c17b788e2218a816c0604d7f" id="r_a982d6cf9c17b788e2218a816c0604d7f"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a982d6cf9c17b788e2218a816c0604d7f">phase</a></td></tr>
+<tr class="memdesc:a982d6cf9c17b788e2218a816c0604d7f"><td class="mdescLeft">&#160;</td><td class="mdescRight">This is the shift value of the sine-wave component that would have the associated frequency and strength (amplitude.)  <br /></td></tr>
 <tr class="separator:a982d6cf9c17b788e2218a816c0604d7f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a322e433ca30e6878534272bfec171799" id="r_a322e433ca30e6878534272bfec171799"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a322e433ca30e6878534272bfec171799">strength</a></td></tr>
+<tr class="memdesc:a322e433ca30e6878534272bfec171799"><td class="mdescLeft">&#160;</td><td class="mdescRight">This is typically the Y-axis coordinate of a plot, and tells us how priminant the associated frequency is.  <br /></td></tr>
 <tr class="separator:a322e433ca30e6878534272bfec171799"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Member Data Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>The frequency graph is a list of <a class="el" href="struct_audio_data_lib_1_1_frequency_graph_1_1_plot.html">Plot</a> structures. Each is a frequency paired with a strength and phase pair. When a signal is broken down into frequency components, the strength (or amplitude) and phase of each component is needed to fully scribe the component, which can be thought of as a single sine-wave. The original signal can be thought of as the sum of all these different components. A study of FFTs gives additional insights into the matter. </p>
+</div><h2 class="groupheader">Member Data Documentation</h2>
 <a id="a8bd69c94551b2e0fe2ac29f0883eca33" name="a8bd69c94551b2e0fe2ac29f0883eca33"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a8bd69c94551b2e0fe2ac29f0883eca33">&#9670;&#160;</a></span>frequency</h2>
 
@@ -122,6 +127,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>This is the X-axis coordinate of a plot. </p>
 
 </div>
 </div>
@@ -137,6 +144,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>This is the shift value of the sine-wave component that would have the associated frequency and strength (amplitude.) </p>
+
 </div>
 </div>
 <a id="a322e433ca30e6878534272bfec171799" name="a322e433ca30e6878534272bfec171799"></a>
@@ -150,6 +159,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>This is typically the Y-axis coordinate of a plot, and tells us how priminant the associated frequency is. </p>
 
 </div>
 </div>

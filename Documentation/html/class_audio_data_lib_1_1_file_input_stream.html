@@ -99,6 +99,9 @@ $(function(){initNavTree('class_audio_data_lib_1_1_file_input_stream.html',''); 
 </div><!--header-->
 <div class="contents">
 
+<p>This is a file stream that can be used to read bytes from a file.  
+ <a href="#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="_byte_stream_8h_source.html">ByteStream.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for AudioDataLib::FileInputStream:</div>
@@ -106,8 +109,8 @@ Inheritance diagram for AudioDataLib::FileInputStream:</div>
  <div class="center">
   <img src="class_audio_data_lib_1_1_file_input_stream.png" usemap="#AudioDataLib::FileInputStream_map" alt=""/>
   <map id="AudioDataLib::FileInputStream_map" name="AudioDataLib::FileInputStream_map">
-<area href="class_audio_data_lib_1_1_file_stream.html" alt="AudioDataLib::FileStream" shape="rect" coords="0,56,181,80"/>
-<area href="class_audio_data_lib_1_1_byte_stream.html" title="This is the base class for all types of byte streams used in the library. Some derivatives or read-on..." alt="AudioDataLib::ByteStream" shape="rect" coords="0,0,181,24"/>
+<area href="class_audio_data_lib_1_1_file_stream.html" title="This is the base class for all file-based streams." alt="AudioDataLib::FileStream" shape="rect" coords="0,56,181,80"/>
+<area href="class_audio_data_lib_1_1_byte_stream.html" title="This is the base class for all types of byte streams used in the library." alt="AudioDataLib::ByteStream" shape="rect" coords="0,0,181,24"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -156,7 +159,9 @@ Additional Inherited Members</h2></td></tr>
 <tr class="memitem:ae80f427888c3abd8ed291ce3fa2a8563 inherit pro_attribs_class_audio_data_lib_1_1_file_stream" id="r_ae80f427888c3abd8ed291ce3fa2a8563"><td class="memItemLeft" align="right" valign="top">FILE *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_audio_data_lib_1_1_file_stream.html#ae80f427888c3abd8ed291ce3fa2a8563">fp</a></td></tr>
 <tr class="separator:ae80f427888c3abd8ed291ce3fa2a8563 inherit pro_attribs_class_audio_data_lib_1_1_file_stream"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>This is a file stream that can be used to read bytes from a file. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a637553d103e923c437740676be530284" name="a637553d103e923c437740676be530284"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a637553d103e923c437740676be530284">&#9670;&#160;</a></span>FileInputStream()</h2>
 
@@ -222,6 +227,7 @@ Additional Inherited Members</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Indicate whether there is data available to be read from the stream. </p>
 
 <p>Implements <a class="el" href="class_audio_data_lib_1_1_byte_stream.html#af05a94156e6d70a4eff4c7679f0e34f2">AudioDataLib::ByteStream</a>.</p>
 
@@ -249,6 +255,7 @@ Additional Inherited Members</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Indicate whether it is possible to write additional data to the stream. </p>
 
 <p>Implements <a class="el" href="class_audio_data_lib_1_1_byte_stream.html#a8c4c844de7c46ec257beb57f41dcef8d">AudioDataLib::ByteStream</a>.</p>
 
@@ -276,6 +283,7 @@ Additional Inherited Members</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Return the amount of data (in bytes) currently stored in the stream. </p>
 
 <p>Implements <a class="el" href="class_audio_data_lib_1_1_byte_stream.html#a5b6651719abb7997ced3bb551b1b2034">AudioDataLib::ByteStream</a>.</p>
 
@@ -307,6 +315,15 @@ Additional Inherited Members</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Read from this stream into the given buffer.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">buffer</td><td>This is a pointer to an array where bytes read from the stream will be written. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">bufferSize</td><td>This is the size in bytes of the given array. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The number of bytes actually read from the stream and written to the given buffer is returned. </dd></dl>
 
 <p>Implements <a class="el" href="class_audio_data_lib_1_1_byte_stream.html#adc43978f57990dc248bb187d4ec14fb4">AudioDataLib::ByteStream</a>.</p>
 
@@ -338,6 +355,15 @@ Additional Inherited Members</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Write the given buffer to this stream.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">buffer</td><td>This is a pointer to the array of bytes to write to the stream. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">bufferSize</td><td>This is the size of the given array in bytes. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The number of bytes actually written to the stream is returned. </dd></dl>
 
 <p>Implements <a class="el" href="class_audio_data_lib_1_1_byte_stream.html#a049264a3326a7ebb952a221ec1ed94b9">AudioDataLib::ByteStream</a>.</p>
 
