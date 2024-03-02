@@ -96,8 +96,6 @@ SampleBasedSynth::SampleBasedSynth()
 			double noteFrequency = this->MidiPitchToFrequency(pitchValue);
 			double noteVolume = this->MidiVelocityToAmplitude(velocityValue);
 
-			printf("Note frequency = %f\n", noteFrequency);
-
 			const WaveTableData::AudioSampleData* audioSampleData = (*this->waveTableData)->FindAudioSample(instrument, pitchValue, velocityValue);
 			if (!audioSampleData)
 			{
