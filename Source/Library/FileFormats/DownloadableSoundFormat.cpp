@@ -35,6 +35,7 @@ DownloadableSoundFormat::DownloadableSoundFormat()
 	}
 
 	// TODO: Write remainder of read function here...
+	//       I'm not sure I'm going to able to ever write this.  It seems as though DLS is proprietary or I just can't find documentation on it.
 
 	error.Add("Implimentation not yet finished.");
 	return false;
