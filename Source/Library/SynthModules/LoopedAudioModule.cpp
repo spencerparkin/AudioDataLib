@@ -103,18 +103,18 @@ bool LoopedAudioModule::UseNonLoopedAudioData(const AudioData* audioData, uint16
 	return true;
 }
 
-bool LoopedAudioModule::UseLoopedAudioData(const SoundFontData::LoopedAudioData* loopedAudioData, uint16_t channel, Error& error)
+bool LoopedAudioModule::UseLoopedAudioData(const WaveTableData::AudioSampleData* audioSampleData, uint16_t channel, Error& error)
 {
-	*this->loopedWaveForm = loopedAudioData->GetCachedWaveForm(channel, error);
+	*this->loopedWaveForm = audioSampleData->GetCachedWaveForm(channel, error);
 	if (!this->loopedWaveForm->get())
 		return false;
 
-	const AudioData::Format& format = loopedAudioData->GetFormat();
+	const AudioData::Format& format = audioSampleData->GetFormat();
 
-	this->totalTimeSeconds = loopedAudioData->GetTimeSeconds();
+	this->totalTimeSeconds = audioSampleData->GetTimeSeconds();
 
-	this->startTimeSeconds = format.BytesPerChannelToSeconds(loopedAudioData->GetLoop().startFrame * format.BytesPerFrame());
-	this->endTimeSeconds = format.BytesPerChannelToSeconds(loopedAudioData->GetLoop().endFrame * format.BytesPerFrame());
+	this->startTimeSeconds = format.BytesPerChannelToSeconds(audioSampleData->GetLoop().startFrame * format.BytesPerFrame());
+	this->endTimeSeconds = format.BytesPerChannelToSeconds(audioSampleData->GetLoop().endFrame * format.BytesPerFrame());
 
 	if (this->startTimeSeconds >= this->endTimeSeconds || this->startTimeSeconds < 0.0 || this->endTimeSeconds < 0.0)
 	{
@@ -130,7 +130,7 @@ bool LoopedAudioModule::UseLoopedAudioData(const SoundFontData::LoopedAudioData*
 
 	this->localTimeSeconds = 0.0;
 
-	if (loopedAudioData->GetMode() == SoundFontData::LoopedAudioData::Mode::NOT_LOOPED)
+	if (audioSampleData->GetMode() == SoundFontData::AudioSampleData::Mode::NOT_LOOPED)
 		this->loopEnabled = false;
 	else
 		this->loopEnabled = true;

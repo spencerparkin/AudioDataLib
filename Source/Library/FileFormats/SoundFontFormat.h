@@ -2,7 +2,7 @@
 
 #include "FileFormat.h"
 #include "ChunkParser.h"
-#include "SoundFontData.h"
+#include "WaveTableData.h"
 
 #define ADL_SAMPLE_TYPE_BIT_MONO			0x0001
 #define ADL_SAMPLE_TYPE_BIT_RIGHT			0x0002
@@ -116,11 +116,15 @@ namespace AudioDataLib
 		};
 #pragma pack(pop)
 
-		SoundFontData::AudioSample* ConstructAudioSample(
+		bool ConstructAudioSamples(
+			SoundFontData* soundFontData,
 			const std::vector<SF_SampleHeader>& audioSampleHeaderArray,
 			const std::vector<uint32_t>& sampleIDArray,
 			const ChunkParser::Chunk* smplChunk,
 			const ChunkParser::Chunk* sm24Chunk,
 			Error& error);
+
+		typedef std::map<uint32_t, std::shared_ptr<SoundFontData::AudioSampleData>> SampleMap;
+		SampleMap* sampleMap;
 	};
 }

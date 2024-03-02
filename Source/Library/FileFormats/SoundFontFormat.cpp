@@ -1,15 +1,16 @@
 #include "SoundFontFormat.h"
-#include "SoundFontData.h"
 #include "Error.h"
 
 using namespace AudioDataLib;
 
 SoundFontFormat::SoundFontFormat()
 {
+	this->sampleMap = new SampleMap();
 }
 
 /*virtual*/ SoundFontFormat::~SoundFontFormat()
 {
+	delete this->sampleMap;
 }
 
 /*virtual*/ bool SoundFontFormat::ReadFromStream(ByteStream& inputStream, FileData*& fileData, Error& error)
@@ -24,6 +25,8 @@ SoundFontFormat::SoundFontFormat()
 
 	do
 	{
+		this->sampleMap->clear();
+
 		const ChunkParser::Chunk* ifilChunk = parser.FindChunk("ifil", false);
 		if (!ifilChunk)
 		{
@@ -162,11 +165,9 @@ SoundFontFormat::SoundFontFormat()
 						break;
 				}
 
-				SoundFontData::AudioSample* audioSample = this->ConstructAudioSample(sampleHeaderArray, audioSampleIDArray, smplChunk, sm24Chunk, error);
-				if (!audioSample)
+				// We could associate this sub-group of samples, but I'm not currently doing that, and I'm not sure I ever will.
+				if (!this->ConstructAudioSamples(soundFontData, sampleHeaderArray, audioSampleIDArray, smplChunk, sm24Chunk, error))
 					break;
-
-				soundFontData->audioSampleArray->push_back(audioSample);
 			}
 
 			if (error)
@@ -191,10 +192,10 @@ SoundFontFormat::SoundFontFormat()
 
 		auto generatorArray = (const SF_Generator*)igenChunk->GetBuffer();
 		uint32_t numGenerators = igenChunk->GetBufferSize() / sizeof(SF_Generator);
-		SoundFontData::LoopedAudioData::Location location;
+		SoundFontData::AudioSampleData::Location location;
 		::memset(&location, 0, sizeof(location));
-		uint8_t looperMode = 0;
-		int8_t overridingRootKey = -1;
+		uint8_t looperMode = 0;				// TODO: How do we use this?
+		int8_t overridingRootKey = -1;		// TODO: Do we need this?
 		for (uint32_t i = 0; i < numGenerators; i++)
 		{
 			const SF_Generator* generator = &generatorArray[i];
@@ -229,20 +230,18 @@ SoundFontFormat::SoundFontFormat()
 				case ADL_GENERATOR_OP_SAMPLE_ID:
 				{
 					uint32_t sampleID = generator->amount;
-					SoundFontData::LoopedAudioData* audioData = soundFontData->FindLoopedAudioData(sampleID);
-					if (!audioData)
+					auto iter = this->sampleMap->find(sampleID);
+					if(iter == this->sampleMap->end())
 					{
 						error.Add(FormatString("Failed to find audio data with sample ID %d", sampleID));
 						break;
 					}
 
-					audioData->SetLocation(location);
-					//audioData->SetMode(SoundFontData::LoopedAudioData::Mode(looperMode));
-					
-					SoundFontData::LoopedAudioData::MidiKeyInfo keyInfo = audioData->GetMidiKeyInfo();
-					keyInfo.overridingRoot = overridingRootKey;
-					audioData->SetMidiKeyInfo(keyInfo);
+					SoundFontData::AudioSampleData* audioSampleData = iter->second.get();
 
+					audioSampleData->SetLocation(location);
+					//audioSampleData->SetMode(SoundFontData::LoopedAudioData::Mode(looperMode));
+					
 					::memset(&location, 0, sizeof(location));
 					overridingRootKey = -1;
 					looperMode = 0;
@@ -260,6 +259,8 @@ SoundFontFormat::SoundFontFormat()
 		success = true;
 	} while (false);
 
+	// TODO: What about the instrument number on each sample?
+
 	if (success)
 		fileData = soundFontData;
 	else
@@ -268,15 +269,19 @@ SoundFontFormat::SoundFontFormat()
 	return success;
 }
 
-SoundFontData::AudioSample* SoundFontFormat::ConstructAudioSample(
-	const std::vector<SF_SampleHeader>& audioSampleHeaderArray,
-	const std::vector<uint32_t>& sampleIDArray,
-	const ChunkParser::Chunk* smplChunk,
-	const ChunkParser::Chunk* sm24Chunk,
-	Error& error)
+bool SoundFontFormat::ConstructAudioSamples(
+								SoundFontData* soundFontData,
+								const std::vector<SF_SampleHeader>& audioSampleHeaderArray,
+								const std::vector<uint32_t>& sampleIDArray,
+								const ChunkParser::Chunk* smplChunk,
+								const ChunkParser::Chunk* sm24Chunk,
+								Error& error)
 {
 	if (sampleIDArray.size() == 0)
-		return nullptr;
+	{
+		error.Add("Was given empty sample ID array.");
+		return false;
+	}
 
 	// Sanity check the headers against the sample chunk.
 	for (uint32_t i : sampleIDArray)
@@ -309,37 +314,38 @@ SoundFontData::AudioSample* SoundFontFormat::ConstructAudioSample(
 		return nullptr;
 	}
 
-	auto audioSample = new SoundFontData::AudioSample();
+	auto audioSampleData = new SoundFontData::AudioSampleData();
 
 	for (uint32_t i : sampleIDArray)
 	{
 		const SF_SampleHeader& header = audioSampleHeaderArray[i];
 
-		std::shared_ptr<SoundFontData::LoopedAudioData> loopedAudioData(new SoundFontData::LoopedAudioData());
-		audioSample->audioDataArray->push_back(loopedAudioData);
+		std::shared_ptr<SoundFontData::AudioSampleData> audioSampleData(new SoundFontData::AudioSampleData());
+		soundFontData->AddSample(audioSampleData);
 
-		loopedAudioData->SetSampleID(i);
-		loopedAudioData->SetName((const char*)header.sampleName);
-		loopedAudioData->SetMidiKeyInfo({ (int8_t)header.originalPitch, -1 });
+		this->sampleMap->insert(std::pair<uint32_t, std::shared_ptr<SoundFontData::AudioSampleData>>(i, audioSampleData));
+
+		audioSampleData->SetName((const char*)header.sampleName);
+		audioSampleData->SetOriginalPitch((int8_t)header.originalPitch);
 
 		if ((header.sampleType & ADL_SAMPLE_TYPE_BIT_LEFT) != 0)
-			loopedAudioData->SetChannelType(SoundFontData::LoopedAudioData::ChannelType::LEFT_EAR);
+			audioSampleData->SetChannelType(SoundFontData::AudioSampleData::ChannelType::LEFT_EAR);
 		else if ((header.sampleType & ADL_SAMPLE_TYPE_BIT_RIGHT) != 0)
-			loopedAudioData->SetChannelType(SoundFontData::LoopedAudioData::ChannelType::RIGHT_EAR);
+			audioSampleData->SetChannelType(SoundFontData::AudioSampleData::ChannelType::RIGHT_EAR);
 		else if (sampleIDArray.size() == 1)
-			loopedAudioData->SetChannelType(SoundFontData::LoopedAudioData::ChannelType::MONO);
+			audioSampleData->SetChannelType(SoundFontData::AudioSampleData::ChannelType::MONO);
 
-		SoundFontData::LoopedAudioData::Loop loop;
+		SoundFontData::AudioSampleData::Loop loop;
 		loop.startFrame = header.sampleLoopStart - header.sampleStart;
 		loop.endFrame = header.sampleLoopEnd - header.sampleStart;
-		loopedAudioData->SetLoop(loop);
+		audioSampleData->SetLoop(loop);
 
 		if (loop.startFrame == 0 || loop.endFrame == header.sampleEnd - header.sampleStart)
-			loopedAudioData->SetMode(SoundFontData::LoopedAudioData::Mode::NOT_LOOPED);
+			audioSampleData->SetMode(SoundFontData::AudioSampleData::Mode::NOT_LOOPED);
 		else
-			loopedAudioData->SetMode(SoundFontData::LoopedAudioData::Mode::GETS_TRAPPED_IN_LOOP);
+			audioSampleData->SetMode(SoundFontData::AudioSampleData::Mode::GETS_TRAPPED_IN_LOOP);
 
-		AudioData::Format& format = loopedAudioData->GetFormat();
+		AudioData::Format& format = audioSampleData->GetFormat();
 
 		format.numChannels = 1;
 		format.bitsPerSample = sm24Chunk ? 32 : 16;
@@ -348,9 +354,9 @@ SoundFontData::AudioSample* SoundFontFormat::ConstructAudioSample(
 
 		if (!sampleBuffer8)
 		{
-			loopedAudioData->SetAudioBufferSize((header.sampleEnd - header.sampleStart) * format.BytesPerFrame());
-			uint64_t numFrames = loopedAudioData->GetNumFrames();
-			uint16_t* frameBuffer = (uint16_t*)loopedAudioData->GetAudioBuffer();
+			audioSampleData->SetAudioBufferSize((header.sampleEnd - header.sampleStart) * format.BytesPerFrame());
+			uint64_t numFrames = audioSampleData->GetNumFrames();
+			uint16_t* frameBuffer = (uint16_t*)audioSampleData->GetAudioBuffer();
 			for (uint64_t i = 0; i < numFrames; i++)
 				frameBuffer[i] = sampleBuffer16[header.sampleStart + i];
 		}
@@ -361,13 +367,7 @@ SoundFontData::AudioSample* SoundFontFormat::ConstructAudioSample(
 		}
 	}
 
-	if (error)
-	{
-		delete audioSample;
-		audioSample = nullptr;
-	}
-
-	return audioSample;
+	return true;
 }
 
 /*virtual*/ bool SoundFontFormat::WriteToStream(ByteStream& outputStream, const FileData* fileData, Error& error)

@@ -1,5 +1,4 @@
 #include "SampleBasedSynth.h"
-#include "SoundFontData.h"
 #include "LoopedAudioModule.h"
 #include "PitchShiftModule.h"
 #include "AttenuationModule.h"
@@ -17,7 +16,7 @@ SampleBasedSynth::SampleBasedSynth()
 {
 	this->reverbEnabled = false;
 	this->estimateFrequencies = false;
-	this->soundFontMap = new SoundFontMap();
+	this->waveTableData = new std::shared_ptr<WaveTableData>();
 	this->channelMap = new ChannelMap();
 	this->noteMap = new NoteMap();
 	this->leftEarRootModule = new std::shared_ptr<SynthModule>();
@@ -30,7 +29,7 @@ SampleBasedSynth::SampleBasedSynth()
 {
 	this->Clear();
 
-	delete this->soundFontMap;
+	delete this->waveTableData;
 	delete this->channelMap;
 	delete this->noteMap;
 	delete this->leftEarRootModule;
@@ -50,6 +49,12 @@ SampleBasedSynth::SampleBasedSynth()
 
 /*virtual*/ bool SampleBasedSynth::ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize, Error& error)
 {
+	if (!this->waveTableData->get())
+	{
+		error.Add("No wave-table set!");
+		return false;
+	}
+
 	MidiData::ChannelEvent channelEvent;
 	ReadOnlyBufferStream bufferStream(message, messageSize);
 	if (!channelEvent.Decode(bufferStream, error))
@@ -58,17 +63,10 @@ SampleBasedSynth::SampleBasedSynth()
 		return true;
 	}
 
-	uint16_t instrument = 0;
+	uint8_t instrument = 0;
 	if (!this->GetChannelInstrument(channelEvent.channel + 1, instrument))
 	{
 		error.Add(FormatString("Could not get instrument for channel %d.", channelEvent.channel));
-		return false;
-	}
-
-	SoundFontData* soundFontData = this->GetSoundFontData(instrument);
-	if (!soundFontData)
-	{
-		error.Add(FormatString("No sound font loaded for instrument %d.", instrument));
 		return false;
 	}
 
@@ -98,26 +96,22 @@ SampleBasedSynth::SampleBasedSynth()
 			double noteFrequency = this->MidiPitchToFrequency(pitchValue);
 			double noteVolume = this->MidiVelocityToAmplitude(velocityValue);
 
-			const SoundFontData::AudioSample* audioSample = soundFontData->FindRelevantAudioSample(pitchValue, velocityValue);
-			if (!audioSample)
-			{
-				audioSample = soundFontData->FindClosestAudioSample(noteFrequency, noteVolume);
-				if (!audioSample)
-				{
-					error.Add(FormatString("Failed to find audio sample for pitch %f and volume %f.", noteFrequency, noteVolume));
-					return false;
-				}
+			printf("Note frequency = %f\n", noteFrequency);
 
-				fprintf(stderr, "Warning: Had to look for closest audio sample rather than the one prescribed by the sound-font data.\n");
+			const WaveTableData::AudioSampleData* audioSampleData = (*this->waveTableData)->FindAudioSample(instrument, pitchValue, velocityValue);
+			if (!audioSampleData)
+			{
+				error.Add(FormatString("Failed to find audio sample for pitch %d (%f) and volume %d (%f).", pitchValue, noteFrequency, velocityValue, noteVolume));
+				return false;
 			}
 
 			Note note;
 
-			if (!this->GenerateModuleGraph(audioSample, SoundFontData::LoopedAudioData::ChannelType::LEFT_EAR, noteFrequency, note.leftEarModule, error))
+			if (!this->GenerateModuleGraph(audioSampleData, noteFrequency, note.leftEarModule, error))
 				return false;
 
 			if(!this->reverbEnabled)
-				if (!this->GenerateModuleGraph(audioSample, SoundFontData::LoopedAudioData::ChannelType::RIGHT_EAR, noteFrequency, note.rightEarModule, error))
+				if (!this->GenerateModuleGraph(audioSampleData, noteFrequency, note.rightEarModule, error))
 					return false;
 
 			this->noteMap->insert(std::pair<uint8_t, Note>(pitchValue, note));
@@ -180,31 +174,17 @@ SampleBasedSynth::SampleBasedSynth()
 	return true;
 }
 
-bool SampleBasedSynth::GenerateModuleGraph(
-					const SoundFontData::AudioSample* audioSample,
-					SoundFontData::LoopedAudioData::ChannelType channelType,
-					double noteFrequency, std::shared_ptr<SynthModule>& synthModule,
-					Error& error)
+bool SampleBasedSynth::GenerateModuleGraph(const WaveTableData::AudioSampleData* audioSampleData, double noteFrequency, std::shared_ptr<SynthModule>& synthModule, Error& error)
 {
-	const SoundFontData::LoopedAudioData* audioData = audioSample->FindLoopedAudioData(channelType);
-	if (!audioData)
-		audioData = audioSample->FindLoopedAudioData(SoundFontData::LoopedAudioData::ChannelType::MONO);
-
-	if (!audioData)
-	{
-		error.Add("Could not find audio data in given audio sample.");
-		return false;
-	}
-
 	auto loopedAudioModule = new LoopedAudioModule();
-	if (!loopedAudioModule->UseLoopedAudioData(audioData, 0, error))
+	if (!loopedAudioModule->UseLoopedAudioData(audioSampleData, 0, error))
 	{
 		delete loopedAudioModule;
 		return false;
 	}
 
 	auto pitchShiftModule = new PitchShiftModule();
-	pitchShiftModule->SetSourceAndTargetFrequencies(audioData->GetMetaData().pitch, noteFrequency);
+	pitchShiftModule->SetSourceAndTargetFrequencies(audioSampleData->GetMetaData().pitch, noteFrequency);
 	pitchShiftModule->AddDependentModule(std::shared_ptr<SynthModule>(loopedAudioModule));
 
 	auto attenuationModule = new AttenuationModule();
@@ -265,77 +245,47 @@ void SampleBasedSynth::SetReverbEnabled(bool reverbEnabled)
 
 /*virtual*/ bool SampleBasedSynth::Initialize(Error& error)
 {
-	for (auto pair : *this->soundFontMap)
+	if (!this->waveTableData->get())
 	{
-		SoundFontData* soundFontData = pair.second.get();
-
-		for (uint32_t i = 0; i < soundFontData->GetNumAudioSamples(); i++)
-		{
-			const SoundFontData::AudioSample* audioSample = soundFontData->GetAudioSample(i);
-
-			for (uint32_t j = 0; j < audioSample->GetNumAudioDatas(); j++)
-			{
-				auto audioData = dynamic_cast<const SoundFontData::LoopedAudioData*>(audioSample->GetAudioData(j));
-				if (!audioData)
-					continue;
-
-				if (this->estimateFrequencies)
-				{
-					// This option really only exists because for a long time, I didn't know that the SF2 file
-					// format embedded the frequencies of its samples.  I thought it was dumb that it didn't
-					// until I finally found out that it actually does.  In any case, learning to estimate the
-					// fundamental pitch of an audio sample was not a bad thing, so I guess it all worked out
-					// for the better anyway.  This estimate, however, is not always accurate, especially in
-					// the high upper or very low pitch ranges.
-					printf("Analyzing %s... ", audioData->GetName().c_str());
-
-					if (!audioData->CalcMetaData(error))
-						return false;
-
-					printf("Estimated Pitch: %f Hz\n", audioData->GetMetaData().pitch);
-				}
-				else
-				{
-					SoundFontData::LoopedAudioData::MetaData metaData = audioData->GetMetaData();
-					metaData.pitch = MidiSynth::MidiPitchToFrequency(audioData->GetMidiKeyInfo().overridingRoot);
-					audioData->SetMetaData(metaData);
-				}
-
-				audioData->GetCachedWaveForm(0, error);
-			}
-		}
-	}
-
-	return true;
-}
-
-bool SampleBasedSynth::SetSoundFontData(uint16_t instrument, std::shared_ptr<SoundFontData>& soundFontData, bool estimateFrequencies, Error& error)
-{
-	if (!(1 <= instrument && instrument <= 128))
-	{
-		error.Add(FormatString("Intrument number (%d) out of range [1,128].", instrument));
+		error.Add("No wave-table set!");
 		return false;
 	}
 
-	SoundFontMap::iterator iter = this->soundFontMap->find(instrument);
-	if (iter != this->soundFontMap->end())
-		this->soundFontMap->erase(iter);
+	for (uint32_t i = 0; i < (*this->waveTableData)->GetNumAudioSamples(); i++)
+	{
+		auto audioSampleData = dynamic_cast<const WaveTableData::AudioSampleData*>((*this->waveTableData)->GetAudioSample(i));
+		if (!audioSampleData)
+			continue;
 
-	this->soundFontMap->insert(std::pair<uint16_t, std::shared_ptr<SoundFontData>>(instrument, soundFontData));
+		if (this->estimateFrequencies)
+		{
+			// This option really only exists because for a long time, I didn't know that the SF2 file
+			// format embedded the frequencies of its samples.  I thought it was dumb that it didn't
+			// until I finally found out that it actually does.  In any case, learning to estimate the
+			// fundamental pitch of an audio sample was not a bad thing, so I guess it all worked out
+			// for the better anyway.  This estimate, however, is not always accurate, especially in
+			// the high upper or very low pitch ranges.
+			printf("Analyzing %s... ", audioSampleData->GetName().c_str());
+
+			if (!audioSampleData->CalcMetaData(error))
+				return false;
+
+			printf("Estimated Pitch: %f Hz\n", audioSampleData->GetMetaData().pitch);
+		}
+		else
+		{
+			WaveTableData::AudioSampleData::MetaData metaData = audioSampleData->GetMetaData();
+			metaData.pitch = MidiSynth::MidiPitchToFrequency(audioSampleData->GetOriginalPitch());
+			audioSampleData->SetMetaData(metaData);
+		}
+
+		audioSampleData->GetCachedWaveForm(0, error);
+	}
 
 	return true;
 }
 
-SoundFontData* SampleBasedSynth::GetSoundFontData(uint16_t instrument)
-{
-	SoundFontMap::iterator iter = this->soundFontMap->find(instrument);
-	if (iter == this->soundFontMap->end())
-		return nullptr;
-
-	return iter->second.get();
-}
-
-bool SampleBasedSynth::SetChannelInstrument(uint16_t channel, uint16_t instrument, Error& error)
+bool SampleBasedSynth::SetChannelInstrument(uint8_t channel, uint8_t instrument, Error& error)
 {
 	if (!(1 <= channel && channel <= 16))
 	{
@@ -347,11 +297,11 @@ bool SampleBasedSynth::SetChannelInstrument(uint16_t channel, uint16_t instrumen
 	if (iter != this->channelMap->end())
 		this->channelMap->erase(iter);
 
-	this->channelMap->insert(std::pair<uint16_t, uint16_t>(channel, instrument));
+	this->channelMap->insert(std::pair<uint8_t, uint8_t>(channel, instrument));
 	return true;
 }
 
-bool SampleBasedSynth::GetChannelInstrument(uint16_t channel, uint16_t& instrument) const
+bool SampleBasedSynth::GetChannelInstrument(uint8_t channel, uint8_t& instrument) const
 {
 	instrument = 0;
 
@@ -365,7 +315,7 @@ bool SampleBasedSynth::GetChannelInstrument(uint16_t channel, uint16_t& instrume
 
 void SampleBasedSynth::Clear()
 {
-	this->soundFontMap->clear();
+	this->waveTableData->reset();
 	this->channelMap->clear();
 	this->noteMap->clear();
 }

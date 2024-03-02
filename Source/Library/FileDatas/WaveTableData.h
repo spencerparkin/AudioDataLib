@@ -28,7 +28,10 @@ namespace AudioDataLib
 		virtual void DumpCSV(FILE* fp) const override;
 		virtual FileData* Clone() const override;
 
+		class AudioSampleData;
+
 		void Clear();
+		void AddSample(std::shared_ptr<AudioSampleData> audioSampleData);
 		void Merge(const std::vector<const WaveTableData*>& waveTableDataArray);
 
 		class AUDIO_DATA_LIB_API AudioSampleData : public AudioData
@@ -86,6 +89,12 @@ namespace AudioDataLib
 			void SetLocation(const Location& location) { this->location = location; }
 			const Location& GetLocation() const { return this->location; }
 
+			uint8_t GetInstrumentNumber() const { return this->instrumentNumber; }
+			void SetInstrumentNumber(uint8_t instrumentNumber) { this->instrumentNumber = instrumentNumber; }
+
+			int8_t GetOriginalPitch() const { return this->originalPitch; }
+			void SetOriginalPitch(int8_t originalPitch) { this->originalPitch = originalPitch; }
+
 		protected:
 			uint8_t instrumentNumber;
 			int8_t originalPitch;
@@ -98,12 +107,75 @@ namespace AudioDataLib
 		};
 
 		uint32_t GetNumAudioSamples() const { return this->audioSampleArray->size(); }
-		const AudioSampleData* GetAudioSample(uint32_t i) const;
+		const AudioData* GetAudioSample(uint32_t i) const;
+		std::shared_ptr<AudioData> GetAudioData(uint32_t i) const;
 
 		const AudioSampleData* FindAudioSample(uint8_t instrument, uint16_t midiKey, uint16_t midiVelocity) const;
 
 	private:
 
-		std::vector<std::shared_ptr<AudioSampleData>>* audioSampleArray;
+		std::vector<std::shared_ptr<AudioData>>* audioSampleArray;
+	};
+
+	/**
+	 * @brief This is the data you get when you load a sound-font file.
+	 */
+	class AUDIO_DATA_LIB_API SoundFontData : public WaveTableData
+	{
+	public:
+		SoundFontData();
+		virtual ~SoundFontData();
+
+		virtual void DumpInfo(FILE* fp) const override;
+
+		struct VersionTag
+		{
+			uint16_t major;
+			uint16_t minor;
+		};
+
+		/**
+		 * This structure contains a bunch of meta-data about the sound-font.
+		 */
+		struct GeneralInfo
+		{
+			GeneralInfo()
+			{
+				::memset(&this->versionTag, 0, sizeof(VersionTag));
+				::memset(&this->waveTableROMVersion, 0, sizeof(VersionTag));
+			}
+
+			VersionTag versionTag;
+			VersionTag waveTableROMVersion;
+			std::string waveTableSoundEngine;
+			std::string waveTableSoundDataROM;
+			std::string bankName;
+			std::string creationDate;
+			std::string soundEngineerNames;
+			std::string intendedProductName;
+			std::string copyrightClaim;
+			std::string comments;
+			std::string soundFontToolRecord;
+		};
+
+		const GeneralInfo& GetGeneralInfo() const { return *this->generalInfo; }
+		GeneralInfo& GetGeneralInfo() { return *this->generalInfo; }
+
+	private:
+		GeneralInfo* generalInfo;
+	};
+
+	/**
+	 * @brief This is the data you get when you load a DSL file.
+	 */
+	class DownloadableSoundData : public WaveTableData
+	{
+	public:
+		DownloadableSoundData();
+		virtual ~DownloadableSoundData();
+
+		virtual void DumpInfo(FILE* fp) const override;
+
+		// TODO: Add some meta-data here.
 	};
 }

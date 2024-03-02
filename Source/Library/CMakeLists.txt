@@ -12,8 +12,6 @@ set(LIBRARY_SOURCES
     FileDatas/FileData.h
     FileDatas/MidiData.cpp
     FileDatas/MidiData.h
-    FileDatas/SoundFontData.cpp
-    FileDatas/SoundFontData.h
     FileDatas/WaveTableData.cpp
     FileDatas/WaveTableData.h
     FileFormats/FileFormat.cpp

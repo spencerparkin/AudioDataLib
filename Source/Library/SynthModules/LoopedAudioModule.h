@@ -1,7 +1,7 @@
 #pragma once
 
 #include "SynthModule.h"
-#include "SoundFontData.h"
+#include "WaveTableData.h"
 #include "WaveForm.h"
 
 namespace AudioDataLib
@@ -16,7 +16,7 @@ namespace AudioDataLib
 		virtual bool MoreSoundAvailable() override;
 
 		bool UseNonLoopedAudioData(const AudioData* audioData, uint16_t channel, Error& error);
-		bool UseLoopedAudioData(const SoundFontData::LoopedAudioData* loopedAudioData, uint16_t channel, Error& error);
+		bool UseLoopedAudioData(const WaveTableData::AudioSampleData* audioSampleData, uint16_t channel, Error& error);
 		void Release();
 
 	private:

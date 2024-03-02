@@ -1,7 +1,7 @@
 #pragma once
 
 #include "MidiSynth.h"
-#include "SoundFontData.h"
+#include "WaveTableData.h"
 
 namespace AudioDataLib
 {
@@ -22,11 +22,11 @@ namespace AudioDataLib
 		virtual bool Process(Error& error) override;
 		virtual bool Initialize(Error& error) override;
 
-		bool SetChannelInstrument(uint16_t channel, uint16_t instrument, Error& error);
-		bool GetChannelInstrument(uint16_t channel, uint16_t& instrument) const;
+		bool SetChannelInstrument(uint8_t channel, uint8_t instrument, Error& error);
+		bool GetChannelInstrument(uint8_t channel, uint8_t& instrument) const;
 
-		bool SetSoundFontData(uint16_t instrument, std::shared_ptr<SoundFontData>& soundFontData, bool estimateFrequencies, Error& error);
-		SoundFontData* GetSoundFontData(uint16_t instrument);
+		void SetWaveTableData(std::shared_ptr<WaveTableData>& waveTableData) { *this->waveTableData = waveTableData; }
+		std::shared_ptr<WaveTableData> GetWaveTableData() { return *this->waveTableData; }
 
 		void Clear();
 		void SetReverbEnabled(bool reverbEnabled);
@@ -37,12 +37,10 @@ namespace AudioDataLib
 		bool reverbEnabled;
 
 		// This maps channel to instrument number.
-		typedef std::map<uint16_t, uint16_t> ChannelMap;
+		typedef std::map<uint8_t, uint8_t> ChannelMap;
 		ChannelMap* channelMap;
 
-		// This maps instrument to sound-font data.
-		typedef std::map<uint16_t, std::shared_ptr<SoundFontData>> SoundFontMap;
-		SoundFontMap* soundFontMap;
+		std::shared_ptr<WaveTableData>* waveTableData;
 
 		struct Note
 		{
@@ -54,8 +52,7 @@ namespace AudioDataLib
 		NoteMap* noteMap;
 
 		bool GenerateModuleGraph(
-				const SoundFontData::AudioSample* audioSample,
-				SoundFontData::LoopedAudioData::ChannelType channelType,
+				const WaveTableData::AudioSampleData* audioSample,
 				double noteFrequency, std::shared_ptr<SynthModule>& synthModule,
 				Error& error);
 

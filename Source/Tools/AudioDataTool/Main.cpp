@@ -29,7 +29,7 @@ int main(int argc, char** argv)
 	parser.RegisterArg("play", 1, "Play the given file.  This can be a WAV or MIDI file.");
 	parser.RegisterArg("keyboard", 1, "Receive MIDI input from the given MIDI input port.  A MIDI keyboard is not necessarily connected to the port, but could be any MIDI device.");
 	parser.RegisterArg("synth", 1, "Synthesize MIDI input to the sound-card.  Use the given synth type: \"simple\", or \"sample\".");
-	parser.RegisterArg("soundfont", 2, "If using the \"sample\" synth, use this option to specify the sound-font to use on the given instrument [1, 128].");
+	parser.RegisterArg("wavetable", 1, "If using the \"sample\" synth, use this option to specify the wave-table file (SF2 or DSL) to use.");
 	parser.RegisterArg("record_midi", 1, "Record MIDI input to the given MIDI file.");
 	parser.RegisterArg("record_wave", 1, "Record synthesized MIDI input to the given WAVE file.");
 	parser.RegisterArg("log_midi", 0, "Print MIDI input to the screen as it is given.");
@@ -396,54 +396,40 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 				source->AddDestination(std::shared_ptr<MidiMsgDestination>(sampleBasedSynth));
 				midiSynth = sampleBasedSynth;
 
-				if (!parser.ArgGiven("soundfont"))
+				if (!parser.ArgGiven("wavetable"))
 				{
-					error.Add("Can't use \"sample\" synth type unless you also specify at least one sound-font.");
+					error.Add("Can't use \"sample\" synth type unless you also specify at least one wave-table file.");
 					break;
 				}
 
-				int i = 0;
-				while (true)
+				std::string waveTableFile = parser.GetArgValue("wavetable", 0);
+				FileInputStream inputStream(waveTableFile.c_str());
+				
+				std::shared_ptr<FileFormat> fileFormat(FileFormat::CreateForFile(waveTableFile));
+				if (!fileFormat.get())
 				{
-					std::string instrumentNumberStr = parser.GetArgValue("soundfont", 0, i);
-					if (instrumentNumberStr.length() == 0)
-						break;
-
-					uint16_t instrumentNumber = ::atoi(instrumentNumberStr.c_str());
-
-					std::string soundFontFile = parser.GetArgValue("soundfont", 1, i);
-					FileInputStream inputStream(soundFontFile.c_str());
-					SoundFontFormat soundFontFormat;
-
-					FileData* fileData = nullptr;
-					if (!soundFontFormat.ReadFromStream(inputStream, fileData, error))
-					{
-						error.Add("Failed to read file: " + soundFontFile);
-						break;
-					}
-
-					std::shared_ptr<SoundFontData> soundFontData(dynamic_cast<SoundFontData*>(fileData));
-					if (!soundFontData)
-					{
-						error.Add("Expected sound font data; got something else!");
-						delete fileData;
-						break;
-					}
-					
-					// TODO: One problem with this is that I'm assuming there's just one instrument per sound-font,
-					//       and I don't think that's generally the case.  You can have multiple instruments in a
-					//       single sound-font file.
-					if (!sampleBasedSynth->SetSoundFontData(instrumentNumber, soundFontData, false, error))
-						break;
-
-					i++;
-
-					if (i <= 16)
-						if (!sampleBasedSynth->SetChannelInstrument(i, instrumentNumber, error))
-							break;
+					error.Add(FormatString("Did not recognize file: %s", waveTableFile.c_str()));
+					break;
 				}
 
-				if (error)
+				FileData* fileData = nullptr;
+				if (!fileFormat->ReadFromStream(inputStream, fileData, error))
+				{
+					error.Add("Failed to read file: " + waveTableFile);
+					break;
+				}
+
+				std::shared_ptr<WaveTableData> waveTableData(dynamic_cast<WaveTableData*>(fileData));
+				if (!waveTableData)
+				{
+					error.Add("Expected wave-table data; got something else!");
+					delete fileData;
+					break;
+				}
+
+				sampleBasedSynth->SetWaveTableData(waveTableData);
+
+				if (!sampleBasedSynth->SetChannelInstrument(1, 1, error))
 					break;
 			}
 
@@ -932,18 +918,14 @@ bool Unpack(const std::string& filePath, AudioDataLib::Error& error)
 		return false;
 	}
 
-	// TODO: I'm thinking that the SoundFontData class will go away and be replaced by
-	//       a class that can be the product of the SoundFontFormat or DownloadableSoundFormat classes.
-	//       The new class (whatever it will be called) should contain not just sound samples, but those
-	//       things organized by instrument.
-	std::shared_ptr<SoundFontData> soundFontData(dynamic_cast<SoundFontData*>(fileData));
-	if (!soundFontData.get())
+	std::shared_ptr<WaveTableData> waveTableData(dynamic_cast<WaveTableData*>(fileData));
+	if (!waveTableData.get())
 	{
 		error.Add("Didn't get sound font data!");
 		return false;
 	}
 
-	if (soundFontData->GetNumAudioSamples() == 0)
+	if (waveTableData->GetNumAudioSamples() == 0)
 	{
 		error.Add("No audio samples found in the sound font data!");
 		return false;
@@ -951,39 +933,34 @@ bool Unpack(const std::string& filePath, AudioDataLib::Error& error)
 
 	WaveFileFormat waveFileFormat;
 
-	for (uint32_t i = 0; i < soundFontData->GetNumAudioSamples(); i++)
+	for (uint32_t i = 0; i < waveTableData->GetNumAudioSamples(); i++)
 	{
-		const SoundFontData::AudioSample* audioSample = soundFontData->GetAudioSample(i);
-			
-		for (uint32_t j = 0; j < audioSample->GetNumAudioDatas(); j++)
+		auto audioSampleData = dynamic_cast<const SoundFontData::AudioSampleData*>(waveTableData->GetAudioSample(i));
+		if (!audioSampleData)
 		{
-			auto audioData = dynamic_cast<const SoundFontData::LoopedAudioData*>(audioSample->GetAudioData(j));
-			if (!audioData)
-			{
-				error.Add(FormatString("Sample %d is not looped audio data.", i));
-				return false;
-			}
-
-			std::string sampleFilePath = (std::filesystem::path(filePath).parent_path() / std::filesystem::path(filePath).stem()).string();
-			sampleFilePath += "__" + audioData->GetName();
-			sampleFilePath += ".wav";
-
-			std::replace(sampleFilePath.begin(), sampleFilePath.end(), ' ', '_');
-			std::replace(sampleFilePath.begin(), sampleFilePath.end(), '|', '_');
-			std::replace(sampleFilePath.begin(), sampleFilePath.end(), '(', '_');
-			std::replace(sampleFilePath.begin(), sampleFilePath.end(), ')', '_');
-			std::replace(sampleFilePath.begin(), sampleFilePath.end(), '#', 's');
-
-			FileOutputStream outputStream(sampleFilePath.c_str());
-			if (!outputStream.IsOpen())
-			{
-				error.Add(FormatString("Failed to open file %s for writing.", sampleFilePath.c_str()));
-				return false;
-			}
-
-			if (!waveFileFormat.WriteToStream(outputStream, audioData, error))
-				return false;
+			error.Add(FormatString("Audio at offset %d is not sample audio data.", i));
+			return false;
 		}
+		
+		std::string sampleFilePath = (std::filesystem::path(filePath).parent_path() / std::filesystem::path(filePath).stem()).string();
+		sampleFilePath += "__" + audioSampleData->GetName();
+		sampleFilePath += ".wav";
+
+		std::replace(sampleFilePath.begin(), sampleFilePath.end(), ' ', '_');
+		std::replace(sampleFilePath.begin(), sampleFilePath.end(), '|', '_');
+		std::replace(sampleFilePath.begin(), sampleFilePath.end(), '(', '_');
+		std::replace(sampleFilePath.begin(), sampleFilePath.end(), ')', '_');
+		std::replace(sampleFilePath.begin(), sampleFilePath.end(), '#', 's');
+
+		FileOutputStream outputStream(sampleFilePath.c_str());
+		if (!outputStream.IsOpen())
+		{
+			error.Add(FormatString("Failed to open file %s for writing.", sampleFilePath.c_str()));
+			return false;
+		}
+
+		if (!waveFileFormat.WriteToStream(outputStream, audioSampleData, error))
+			return false;
 	}
 
 	return true;

@@ -5,7 +5,7 @@
 #include "Error.h"
 #include "App.h"
 #include "Audio.h"
-#include "SoundFontData.h"
+#include "WaveTableData.h"
 #include "AudioListControl.h"
 #include <wx/aboutdlg.h>
 #include <wx/sizer.h>
@@ -166,7 +166,7 @@ void Frame::OnImportAudio(wxCommandEvent& event)
 			else
 			{
 				std::shared_ptr<AudioData> audioData(dynamic_cast<AudioData*>(fileData));
-				std::shared_ptr<SoundFontData> soundFontData(dynamic_cast<SoundFontData*>(fileData));
+				std::shared_ptr<WaveTableData> waveTableData(dynamic_cast<WaveTableData*>(fileData));
 
 				if (audioData.get())
 				{
@@ -175,21 +175,17 @@ void Frame::OnImportAudio(wxCommandEvent& event)
 					audio->SetName(wxFileName(audioFile).GetName());
 					wxGetApp().AddAudio(std::shared_ptr<Audio>(audio));
 				}
-				else if (soundFontData.get())
+				else if (waveTableData.get())
 				{
-					for (uint32_t i = 0; i < soundFontData->GetNumAudioSamples(); i++)
+					for (uint32_t i = 0; i < waveTableData->GetNumAudioSamples(); i++)
 					{
-						SoundFontData::AudioSample* audioSample = const_cast<SoundFontData::AudioSample*>(soundFontData->GetAudioSample(i));
-						for (uint32_t j = 0; j < audioSample->GetNumAudioDatas(); j++)
-						{
-							std::shared_ptr<AudioData> audioData = audioSample->GetAudioData(j);
-							auto loopedAudioData = dynamic_cast<SoundFontData::LoopedAudioData*>(audioData.get());
-							std::string name = loopedAudioData ? loopedAudioData->GetName() : "";
-							WaveFormAudio* audio = new WaveFormAudio();
-							audio->SetAudioData(audioData);
-							audio->SetName(wxFileName(audioFile).GetName() + wxString::Format("_%d_%s", i, name.c_str()));
-							wxGetApp().AddAudio(std::shared_ptr<Audio>(audio));
-						}
+						std::shared_ptr<AudioData> audioData = waveTableData->GetAudioData(i);
+						auto sampleAudioData = dynamic_cast<WaveTableData::AudioSampleData*>(audioData.get());
+						std::string name = sampleAudioData ? sampleAudioData->GetName() : "";
+						WaveFormAudio* audio = new WaveFormAudio();
+						audio->SetAudioData(audioData);
+						audio->SetName(wxFileName(audioFile).GetName() + wxString::Format("_%d_%s", i, name.c_str()));
+						wxGetApp().AddAudio(std::shared_ptr<Audio>(audio));
 					}
 				}
 				else
