@@ -22,6 +22,9 @@ namespace AudioDataLib
 	 * class.  Each AudioSample corresponds to a specific pitch and velocity pair, though, oddly, such information
 	 * is still just specified at the LoopedAudioData level of the data hierarchy.  This follows the structure of
 	 * the sound-font file format, even if it doesn't seem (to me, at least) to make the most sense.
+	 * 
+	 * TODO: This class will become deprecated and replaced by the WaveTableData class.
+	 *       The WaveTableData class will be a product of the SoundFontFormat class and the DownloadableSoundFormat class.
 	 */
 	class AUDIO_DATA_LIB_API SoundFontData : public FileData
 	{

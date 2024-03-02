@@ -22,7 +22,7 @@ AiffFileFormat::AiffFileFormat()
 	if (!parser.ParseStream(inputStream, error))
 		return false;
 
-	//...
+	// TODO: Produce AudioData here and assign it to fileData.
 
 	return true;
 }

@@ -534,6 +534,10 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 							}
 							break;
 						}
+						// TODO: See if a number key is pressed and use that to do a program change or channel remapping.
+						//       The ultimate goal is to be able to load the C:/Windows/System32/drivers/gm.dls file and
+						//       then be able to play any of the instruments found in the file.  Drums will be supported
+						//       last once I get everything else working.
 					}
 				}
 			}

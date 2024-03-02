@@ -14,6 +14,8 @@ set(LIBRARY_SOURCES
     FileDatas/MidiData.h
     FileDatas/SoundFontData.cpp
     FileDatas/SoundFontData.h
+    FileDatas/WaveTableData.cpp
+    FileDatas/WaveTableData.h
     FileFormats/FileFormat.cpp
     FileFormats/FileFormat.h
     FileFormats/MidiFileFormat.cpp
@@ -46,8 +48,6 @@ set(LIBRARY_SOURCES
     MIDI/MidiMsgRecorderDestination.h
     MIDI/SimpleSynth.cpp
     MIDI/SimpleSynth.h
-    MIDI/WaveTableSynth.cpp
-    MIDI/WaveTableSynth.h
     MIDI/SubtractiveSynth.cpp
     MIDI/SubtractiveSynth.h
     MIDI/SampleBasedSynth.cpp
