@@ -194,8 +194,8 @@ SoundFontFormat::SoundFontFormat()
 		uint32_t numGenerators = igenChunk->GetBufferSize() / sizeof(SF_Generator);
 		SoundFontData::AudioSampleData::Location location;
 		::memset(&location, 0, sizeof(location));
-		uint8_t looperMode = 0;				// TODO: How do we use this?
-		int8_t overridingRootKey = -1;		// TODO: Do we need this?
+		uint8_t looperMode = 0;		// TODO: Utilize this.
+		int8_t overridingRootKey = -1;
 		for (uint32_t i = 0; i < numGenerators; i++)
 		{
 			const SF_Generator* generator = &generatorArray[i];
@@ -241,7 +241,8 @@ SoundFontFormat::SoundFontFormat()
 
 					audioSampleData->SetLocation(location);
 					//audioSampleData->SetMode(SoundFontData::LoopedAudioData::Mode(looperMode));
-					
+					audioSampleData->SetOriginalPitch(overridingRootKey);
+
 					::memset(&location, 0, sizeof(location));
 					overridingRootKey = -1;
 					looperMode = 0;
