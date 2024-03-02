@@ -3,6 +3,7 @@
 #include "MidiFileFormat.h"
 #include "SoundFontFormat.h"
 #include "AiffFileFormat.h"
+#include "DownloadableSoundFormat.h"
 
 using namespace AudioDataLib;
 
@@ -29,6 +30,9 @@ FileFormat::FileFormat()
 
 	if (filePath.find(".sf2") != std::string::npos || filePath.find(".SF2") != std::string::npos)
 		fileFormat.reset(new SoundFontFormat());
+
+	if (filePath.find(".dls") != std::string::npos || filePath.find(".DLS") != std::string::npos)
+		fileFormat.reset(new DownloadableSoundFormat());
 
 	return fileFormat;
 }

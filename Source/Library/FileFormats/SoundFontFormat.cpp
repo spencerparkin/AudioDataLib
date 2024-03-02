@@ -391,7 +391,7 @@ SoundFontFormat::SoundFontChunkParser::SoundFontChunkParser()
 		char formType[5];
 		if (4 != inputStream.ReadBytesFromStream((uint8_t*)formType, 4))
 		{
-			error.Add("Could not read form byte of RIFF chunk.");
+			error.Add("Could not read form type of RIFF chunk.");
 			return false;
 		}
 
@@ -411,7 +411,7 @@ SoundFontFormat::SoundFontChunkParser::SoundFontChunkParser()
 		char formType[5];
 		if (4 != inputStream.ReadBytesFromStream((uint8_t*)formType, 4))
 		{
-			error.Add("Could not read form byte of LIST chunk.");
+			error.Add("Could not read form type of LIST chunk.");
 			return false;
 		}
 

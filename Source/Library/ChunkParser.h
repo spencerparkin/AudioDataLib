@@ -21,6 +21,7 @@ namespace AudioDataLib
 		virtual bool ParseChunkData(ReadOnlyBufferStream& inputStream, Chunk* chunk, Error& error);
 
 		void Clear();
+		void RegisterSubChunks(const std::string& chunkName);
 		bool ParseStream(ByteStream& inputStream, Error& error);
 		const Chunk* FindChunk(const std::string& chunkName, bool caseSensative = true) const;
 		void FindAllChunks(const std::string& chunkName, std::vector<const Chunk*>& chunkArray, bool caseSensative = true) const;
@@ -48,9 +49,11 @@ namespace AudioDataLib
 			uint32_t GetBufferSize() const { return this->bufferSize; }
 
 			const std::string& GetName() const { return *this->name; }
+			const std::string& GetFormType() const { return *this->formType; }
 
 		protected:
 			std::string* name;
+			std::string* formType;
 			const uint8_t* buffer;
 			uint32_t bufferSize;
 			std::vector<Chunk*>* subChunkArray;
@@ -62,5 +65,6 @@ namespace AudioDataLib
 		uint8_t* buffer;
 		uint32_t bufferSize;
 		Chunk* rootChunk;
+		std::set<std::string>* subChunkSet;
 	};
 }

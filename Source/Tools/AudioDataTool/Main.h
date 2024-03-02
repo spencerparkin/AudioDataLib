@@ -12,7 +12,7 @@ bool PlayMidiData(AudioDataLib::MidiData* midiData, bool logMidiMessages, AudioD
 bool PlayAudioData(AudioDataLib::AudioData* audioData, CmdLineParser& parser, AudioDataLib::Error& error);
 bool MixAudio(const std::vector<std::string>& sourceFileArray, const std::string& destinationFile, AudioDataLib::Error& error);
 bool DumpInfo(const std::string& filePath, bool csv, AudioDataLib::Error& error);
-bool UnpackSoundFont(const std::string& filePath, AudioDataLib::Error& error);
+bool Unpack(const std::string& filePath, AudioDataLib::Error& error);
 bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error);
 bool AddReverb(const std::string& inFilePath, const std::string& outFilePath, AudioDataLib::Error& error);
 

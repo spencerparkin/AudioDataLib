@@ -42,7 +42,7 @@ int main(int argc, char** argv)
 	parser.RegisterArg("help", 0, "Show the usage.");
 	parser.RegisterArg("dump_info", 1, "Load the given file and then dump some stats about it.");
 	parser.RegisterArg("dump_csv", 1, "Load the given file and then use it to dump a CSV to disk.");
-	parser.RegisterArg("unpack", 1, "Unpack the given sound-font file by generating from it a bunch of WAV files for all the samples it contains.");
+	parser.RegisterArg("unpack", 1, "Unpack the given sound-font or DLS file by generating from it a bunch of WAV files for all the samples it contains.");
 	parser.RegisterArg("device_substr", 1, "Specify a sub-string to look for when trying to select an audio device for input or output.");
 	parser.RegisterArg("add_reverb", 2, "Add a reverb effect to the given WAV file.");
 	
@@ -88,9 +88,9 @@ int main(int argc, char** argv)
 	{
 		const std::string& filePath = parser.GetArgValue("unpack", 0);
 		Error error;
-		if (!UnpackSoundFont(filePath, error))
+		if (!Unpack(filePath, error))
 		{
-			fprintf(stderr, "Failed to unpack sound font...\n\n%s\n", error.GetErrorMessage().c_str());
+			fprintf(stderr, "Failed to unpack...\n\n%s\n", error.GetErrorMessage().c_str());
 			return -1;
 		}
 
@@ -903,7 +903,7 @@ bool DumpInfo(const std::string& filePath, bool csv, AudioDataLib::Error& error)
 	return true;
 }
 
-bool UnpackSoundFont(const std::string& filePath, AudioDataLib::Error& error)
+bool Unpack(const std::string& filePath, AudioDataLib::Error& error)
 {
 	bool success = false;
 	
@@ -911,13 +911,6 @@ bool UnpackSoundFont(const std::string& filePath, AudioDataLib::Error& error)
 	if (!fileFormat)
 	{
 		error.Add("Could not recognize file type: " + filePath);
-		return false;
-	}
-
-	auto soundFontFormat = dynamic_cast<SoundFontFormat*>(fileFormat.get());
-	if (!soundFontFormat)
-	{
-		error.Add("Not given a sound-font file: " + filePath);
 		return false;
 	}
 
@@ -929,12 +922,16 @@ bool UnpackSoundFont(const std::string& filePath, AudioDataLib::Error& error)
 	}
 
 	FileData* fileData = nullptr;
-	if (!soundFontFormat->ReadFromStream(inputStream, fileData, error))
+	if (!fileFormat->ReadFromStream(inputStream, fileData, error))
 	{
 		error.Add("Failed to read file: " + filePath);
 		return false;
 	}
 
+	// TODO: I'm thinking that the SoundFontData class will go away and be replaced by
+	//       a class that can be the product of the SoundFontFormat or DownloadableSoundFormat classes.
+	//       The new class (whatever it will be called) should contain not just sound samples, but those
+	//       things organized by instrument.
 	std::shared_ptr<SoundFontData> soundFontData(dynamic_cast<SoundFontData*>(fileData));
 	if (!soundFontData.get())
 	{

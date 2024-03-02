@@ -10,11 +10,14 @@ ChunkParser::ChunkParser()
 	this->rootChunk = nullptr;
 	this->buffer = nullptr;
 	this->bufferSize = 0;
+	this->subChunkSet = new std::set<std::string>();
 }
 
 /*virtual*/ ChunkParser::~ChunkParser()
 {
 	this->Clear();
+
+	delete this->subChunkSet;
 }
 
 void ChunkParser::Clear()
@@ -58,12 +61,43 @@ bool ChunkParser::ParseStream(ByteStream& inputStream, Error& error)
 
 /*virtual*/ bool ChunkParser::ParseChunkData(ReadOnlyBufferStream& inputStream, Chunk* chunk, Error& error)
 {
-	// Unfortunately, the RIFF format is not so generic that the parser can do
-	// everything entirely by itself.  Sub-chunks may exist, but it is up to
-	// the user of the parser to figure out if and where sub-chunks exist in the
-	// body of a chunk.  Hence, we deligate here to the user of the parser to
-	// figure out how to parse the chunk data/body section of the chunk.
+	std::set<std::string>::iterator iter = this->subChunkSet->find(chunk->GetName());
+	if (iter != this->subChunkSet->end())
+	{
+		char formType[5];
+		if (4 != inputStream.ReadBytesFromStream((uint8_t*)formType, 4))
+		{
+			error.Add(FormatString("Could not read form type of %s chunk.", chunk->GetName().c_str()));
+			return false;
+		}
+
+		formType[4] = '\0';
+		*chunk->formType = formType;
+
+		if (0 == strcmp(formType, "INFO"))
+		{
+			int b = 0;
+			b++;
+		}
+
+		if (!chunk->ParseSubChunks(inputStream, this, error))
+			return false;
+	}
+	else
+	{
+		if (!inputStream.SetReadOffset(inputStream.GetReadOffset() + chunk->GetBufferSize()))
+		{
+			error.Add(FormatString("Could not skip over %s chunk data.", chunk->GetName().c_str()));
+			return false;
+		}
+	}
+
 	return true;
+}
+
+void ChunkParser::RegisterSubChunks(const std::string& chunkName)
+{
+	this->subChunkSet->insert(chunkName);
 }
 
 const ChunkParser::Chunk* ChunkParser::FindChunk(const std::string& chunkName, bool caseSensative /*= true*/) const
@@ -88,6 +122,7 @@ void ChunkParser::FindAllChunks(const std::string& chunkName, std::vector<const 
 ChunkParser::Chunk::Chunk()
 {
 	this->name = new std::string();
+	this->formType = new std::string();
 	this->buffer = nullptr;
 	this->bufferSize = 0;
 	this->subChunkArray = new std::vector<Chunk*>();
@@ -96,6 +131,7 @@ ChunkParser::Chunk::Chunk()
 /*virtual*/ ChunkParser::Chunk::~Chunk()
 {
 	delete this->name;
+	delete this->formType;
 
 	for (Chunk* chunk : *this->subChunkArray)
 		delete chunk;
@@ -165,6 +201,16 @@ bool ChunkParser::Chunk::ParseStream(ReadOnlyBufferStream& inputStream, ChunkPar
 	{
 		error.Add("Could not walk over data section of chunk.");
 		return false;
+	}
+
+	// Sometimes a chunk is just a string, but the chunk size does not reflect the null-byte at the end.
+	// Consume the null byte now if that is the case.
+	if (inputStream.CanRead())
+	{
+		char ch = 0;
+		inputStream.PeekBytesFromStream((uint8_t*)&ch, 1);
+		if (ch == '\0')
+			inputStream.ReadBytesFromStream((uint8_t*)&ch, 1);
 	}
 
 	return true;
