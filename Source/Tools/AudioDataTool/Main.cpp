@@ -429,7 +429,12 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 
 				sampleBasedSynth->SetWaveTableData(waveTableData);
 
-				if (!sampleBasedSynth->SetChannelInstrument(1, 1, error))
+				// TODO: May want to expose this mapping to the command-line, but do this for now.
+				for(uint8_t i = 1; i <= 16; i++)
+					if (!sampleBasedSynth->SetChannelInstrument(i, i, error))
+						break;
+
+				if (error)
 					break;
 			}
 
@@ -520,10 +525,23 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 							}
 							break;
 						}
-						// TODO: See if a number key is pressed and use that to do a program change or channel remapping.
-						//       The ultimate goal is to be able to load the C:/Windows/System32/drivers/gm.dls file and
-						//       then be able to play any of the instruments found in the file.  Drums will be supported
-						//       last once I get everything else working.
+						case int32_t(Keyboard::Key::KEY_PAGE_UP):
+						case int32_t(Keyboard::Key::KEY_PAGE_DOWN):
+						{
+							SampleBasedSynth* synth = source->FindDestination<SampleBasedSynth>();
+							if (synth)
+							{
+								MidiData::ChannelEvent channelEvent;
+								channelEvent.type = MidiData::ChannelEvent::Type::PROGRAM_CHANGE;
+								channelEvent.channel = 0;
+								channelEvent.param1 = 0;
+
+								// TODO: Finish writing this.  Right now, I just don't care anymore.
+
+								//synth->ReceiveMessage()
+							}
+							break;
+						}
 					}
 				}
 			}

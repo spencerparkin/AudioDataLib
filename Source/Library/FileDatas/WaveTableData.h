@@ -34,6 +34,12 @@ namespace AudioDataLib
 		void AddSample(std::shared_ptr<AudioSampleData> audioSampleData);
 		void Merge(const std::vector<const WaveTableData*>& waveTableDataArray);
 
+		/**
+		 * @brief This is AudioData with extra information needed by a synthesizer.
+		 * 
+		 * Note that the raw audio data stored here should be mono, and then there is a ChannelType
+		 * member that is used to indicate the intended purpose of the sample.
+		 */
 		class AUDIO_DATA_LIB_API AudioSampleData : public AudioData
 		{
 		public:
@@ -51,9 +57,9 @@ namespace AudioDataLib
 
 			enum ChannelType
 			{
-				MONO,
-				LEFT_EAR,
-				RIGHT_EAR
+				MONO,						///< The audio sample is left/right ignostic.
+				LEFT_EAR,					///< The audio sample is meant for the left ear.
+				RIGHT_EAR					///< The audio sample is meant for the right ear.
 			};
 
 			struct Range
@@ -74,9 +80,9 @@ namespace AudioDataLib
 
 			struct Character
 			{
-				uint8_t instrument;
-				int8_t originalPitch;
-				int16_t fineTune;
+				uint8_t instrument;			///< This is a number that identifies the instrument.  A standard mapping is defined, but is not necessary.  Channels are mapped to instrument numbers.
+				int8_t originalPitch;		///< This is the MIDI key whose pitch represents that of the original sample without any pitch shifting.
+				int16_t fineTune;			///< Presently, this is being captured, but I don't know what to do with it.
 			};
 
 			std::shared_ptr<WaveForm> GetCachedWaveForm(uint16_t channel, Error& error) const;
@@ -107,6 +113,7 @@ namespace AudioDataLib
 			Mode mode;
 			Range range;
 			ChannelType channelType;
+			// TODO: Add envelope for ADSR?
 			mutable std::shared_ptr<WaveForm>* cachedWaveForm;
 		};
 
