@@ -22,8 +22,11 @@ FileFormat::FileFormat()
 	if (filePath.find(".wav") != std::string::npos || filePath.find(".WAV") != std::string::npos)
 		fileFormat.reset(new WaveFileFormat());
 
-	if (filePath.find("aiff") != std::string::npos || filePath.find(".AIFF") != std::string::npos)
+	if (filePath.find(".aiff") != std::string::npos || filePath.find(".AIFF") != std::string::npos ||
+		filePath.find(".aif") != std::string::npos || filePath.find(".AIF") != std::string::npos)
+	{
 		fileFormat.reset(new AiffFileFormat());
+	}
 
 	if (filePath.find(".mid") != std::string::npos || filePath.find(".MID") != std::string::npos)
 		fileFormat.reset(new MidiFileFormat());

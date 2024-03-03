@@ -17,8 +17,9 @@ AiffFileFormat::AiffFileFormat()
 {
 	// https://paulbourke.net/dataformats/audio/
 
-	// TODO: This crashes.  Why?
 	AiffChunkParser parser;
+	parser.byteSwapper.swapsNeeded = true;
+
 	if (!parser.ParseStream(inputStream, error))
 		return false;
 
@@ -55,7 +56,7 @@ AiffFileFormat::AiffChunkParser::AiffChunkParser()
 		}
 
 		formType[4] = '\0';
-		if (0 != strcmp(formType, "AIFF"))
+		if (0 != strcmp(formType, "AIFF") && 0 != strcmp(formType, "AIFC"))
 		{
 			error.Add("File does not appears to be an AIFF file.");
 			return false;
