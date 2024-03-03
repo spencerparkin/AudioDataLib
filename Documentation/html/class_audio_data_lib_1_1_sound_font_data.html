@@ -95,33 +95,29 @@ $(function(){initNavTree('class_audio_data_lib_1_1_sound_font_data.html',''); in
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#friends">Friends</a> &#124;
 <a href="class_audio_data_lib_1_1_sound_font_data-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">AudioDataLib::SoundFontData Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
 
-<p>An instance of this class represents all the data you can find in a single sound-font file.  
+<p>This is the data you get when you load a sound-font file.  
  <a href="#details">More...</a></p>
 
-<p><code>#include &lt;<a class="el" href="_sound_font_data_8h_source.html">SoundFontData.h</a>&gt;</code></p>
+<p><code>#include &lt;<a class="el" href="_wave_table_data_8h_source.html">WaveTableData.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for AudioDataLib::SoundFontData:</div>
 <div class="dyncontent">
  <div class="center">
   <img src="class_audio_data_lib_1_1_sound_font_data.png" usemap="#AudioDataLib::SoundFontData_map" alt=""/>
   <map id="AudioDataLib::SoundFontData_map" name="AudioDataLib::SoundFontData_map">
-<area href="class_audio_data_lib_1_1_file_data.html" title="The base class for any kind of data (typically audio data) loaded from a file." alt="AudioDataLib::FileData" shape="rect" coords="0,0,181,24"/>
+<area href="class_audio_data_lib_1_1_wave_table_data.html" title="An instance of this class contains just enough data to reasonably synthesize a set of instruments usi..." alt="AudioDataLib::WaveTableData" shape="rect" coords="0,56,183,80"/>
+<area href="class_audio_data_lib_1_1_file_data.html" title="The base class for any kind of data (typically audio data) loaded from a file." alt="AudioDataLib::FileData" shape="rect" coords="0,0,183,24"/>
   </map>
 </div></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_audio_data_lib_1_1_sound_font_data_1_1_audio_sample.html">AudioSample</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_audio_data_lib_1_1_sound_font_data_1_1_general_info.html">GeneralInfo</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_audio_data_lib_1_1_sound_font_data_1_1_looped_audio_data.html">LoopedAudioData</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_audio_data_lib_1_1_sound_font_data_1_1_version_tag.html">VersionTag</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -134,41 +130,41 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a09d298cc6ff41df35b67943e55026b25"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4529658d471aaf04962b893665baba31" id="r_a4529658d471aaf04962b893665baba31"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4529658d471aaf04962b893665baba31">DumpInfo</a> (FILE *fp) const override</td></tr>
 <tr class="separator:a4529658d471aaf04962b893665baba31"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac8cb3b332adec885f1ee8cadd619c5c2" id="r_ac8cb3b332adec885f1ee8cadd619c5c2"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac8cb3b332adec885f1ee8cadd619c5c2">DumpCSV</a> (FILE *fp) const override</td></tr>
-<tr class="separator:ac8cb3b332adec885f1ee8cadd619c5c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7999bd1bbb89f550b6810a7e5e657f5c" id="r_a7999bd1bbb89f550b6810a7e5e657f5c"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="class_audio_data_lib_1_1_file_data.html">FileData</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7999bd1bbb89f550b6810a7e5e657f5c">Clone</a> () const override</td></tr>
-<tr class="separator:a7999bd1bbb89f550b6810a7e5e657f5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0ed3e405cf140d4869650f96e386f62a" id="r_a0ed3e405cf140d4869650f96e386f62a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0ed3e405cf140d4869650f96e386f62a">Clear</a> ()</td></tr>
-<tr class="separator:a0ed3e405cf140d4869650f96e386f62a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3510a4bab99fa8ed304b528d2a9f6226" id="r_a3510a4bab99fa8ed304b528d2a9f6226"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_audio_data_lib_1_1_sound_font_data_1_1_looped_audio_data.html">LoopedAudioData</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3510a4bab99fa8ed304b528d2a9f6226">FindLoopedAudioData</a> (uint32_t sampleID)</td></tr>
-<tr class="separator:a3510a4bab99fa8ed304b528d2a9f6226"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5baff6681f45d7d41addca317896bb8f" id="r_a5baff6681f45d7d41addca317896bb8f"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="struct_audio_data_lib_1_1_sound_font_data_1_1_general_info.html">GeneralInfo</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5baff6681f45d7d41addca317896bb8f">GetGeneralInfo</a> () const</td></tr>
 <tr class="separator:a5baff6681f45d7d41addca317896bb8f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa91c08ca87ef15f5428020cb38a6dfb8" id="r_aa91c08ca87ef15f5428020cb38a6dfb8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="struct_audio_data_lib_1_1_sound_font_data_1_1_general_info.html">GeneralInfo</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa91c08ca87ef15f5428020cb38a6dfb8">GetGeneralInfo</a> ()</td></tr>
 <tr class="separator:aa91c08ca87ef15f5428020cb38a6dfb8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abbfd5e8114c8b3e6ae35f4637659886c" id="r_abbfd5e8114c8b3e6ae35f4637659886c"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#abbfd5e8114c8b3e6ae35f4637659886c">GetNumAudioSamples</a> () const</td></tr>
-<tr class="separator:abbfd5e8114c8b3e6ae35f4637659886c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3ffdfd0e8cc83faad03ec09aeb122560" id="r_a3ffdfd0e8cc83faad03ec09aeb122560"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="class_audio_data_lib_1_1_sound_font_data_1_1_audio_sample.html">AudioSample</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3ffdfd0e8cc83faad03ec09aeb122560">GetAudioSample</a> (uint32_t i) const</td></tr>
-<tr class="separator:a3ffdfd0e8cc83faad03ec09aeb122560"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7c506a2138a1ce196f4b7dc221f20dde" id="r_a7c506a2138a1ce196f4b7dc221f20dde"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="class_audio_data_lib_1_1_sound_font_data_1_1_audio_sample.html">AudioSample</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7c506a2138a1ce196f4b7dc221f20dde">FindClosestAudioSample</a> (double pitch, double volume) const</td></tr>
-<tr class="separator:a7c506a2138a1ce196f4b7dc221f20dde"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a47c1aa1f8e4ac11a7c8974ade2e10db0" id="r_a47c1aa1f8e4ac11a7c8974ade2e10db0"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="class_audio_data_lib_1_1_sound_font_data_1_1_audio_sample.html">AudioSample</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a47c1aa1f8e4ac11a7c8974ade2e10db0">FindRelevantAudioSample</a> (uint16_t midiKey, uint16_t midiVelocity) const</td></tr>
-<tr class="separator:a47c1aa1f8e4ac11a7c8974ade2e10db0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_methods_class_audio_data_lib_1_1_wave_table_data"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_class_audio_data_lib_1_1_wave_table_data')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="class_audio_data_lib_1_1_wave_table_data.html">AudioDataLib::WaveTableData</a></td></tr>
+<tr class="memitem:ab244b15fd4f077366c07af1b8375af52 inherit pub_methods_class_audio_data_lib_1_1_wave_table_data" id="r_ab244b15fd4f077366c07af1b8375af52"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_audio_data_lib_1_1_wave_table_data.html#ab244b15fd4f077366c07af1b8375af52">WaveTableData</a> ()</td></tr>
+<tr class="separator:ab244b15fd4f077366c07af1b8375af52 inherit pub_methods_class_audio_data_lib_1_1_wave_table_data"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac0ae25b182a3f0599ebb22324e6e192c inherit pub_methods_class_audio_data_lib_1_1_wave_table_data" id="r_ac0ae25b182a3f0599ebb22324e6e192c"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_audio_data_lib_1_1_wave_table_data.html#ac0ae25b182a3f0599ebb22324e6e192c">~WaveTableData</a> ()</td></tr>
+<tr class="separator:ac0ae25b182a3f0599ebb22324e6e192c inherit pub_methods_class_audio_data_lib_1_1_wave_table_data"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a04db1dd7096edccc2ab1272503d8694b inherit pub_methods_class_audio_data_lib_1_1_wave_table_data" id="r_a04db1dd7096edccc2ab1272503d8694b"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_audio_data_lib_1_1_wave_table_data.html#a04db1dd7096edccc2ab1272503d8694b">DumpCSV</a> (FILE *fp) const override</td></tr>
+<tr class="separator:a04db1dd7096edccc2ab1272503d8694b inherit pub_methods_class_audio_data_lib_1_1_wave_table_data"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa3464b23ba6c8ac607f47030465f72b7 inherit pub_methods_class_audio_data_lib_1_1_wave_table_data" id="r_aa3464b23ba6c8ac607f47030465f72b7"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="class_audio_data_lib_1_1_file_data.html">FileData</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_audio_data_lib_1_1_wave_table_data.html#aa3464b23ba6c8ac607f47030465f72b7">Clone</a> () const override</td></tr>
+<tr class="separator:aa3464b23ba6c8ac607f47030465f72b7 inherit pub_methods_class_audio_data_lib_1_1_wave_table_data"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a23e6e2f6b93a412761a0c53909705568 inherit pub_methods_class_audio_data_lib_1_1_wave_table_data" id="r_a23e6e2f6b93a412761a0c53909705568"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_audio_data_lib_1_1_wave_table_data.html#a23e6e2f6b93a412761a0c53909705568">Clear</a> ()</td></tr>
+<tr class="separator:a23e6e2f6b93a412761a0c53909705568 inherit pub_methods_class_audio_data_lib_1_1_wave_table_data"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a20deaa12443eebf0104a733f5aa94aa3 inherit pub_methods_class_audio_data_lib_1_1_wave_table_data" id="r_a20deaa12443eebf0104a733f5aa94aa3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_audio_data_lib_1_1_wave_table_data.html#a20deaa12443eebf0104a733f5aa94aa3">AddSample</a> (std::shared_ptr&lt; <a class="el" href="class_audio_data_lib_1_1_wave_table_data_1_1_audio_sample_data.html">AudioSampleData</a> &gt; audioSampleData)</td></tr>
+<tr class="separator:a20deaa12443eebf0104a733f5aa94aa3 inherit pub_methods_class_audio_data_lib_1_1_wave_table_data"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a23a9f4ade2cebfaf37db23b05270367c inherit pub_methods_class_audio_data_lib_1_1_wave_table_data" id="r_a23a9f4ade2cebfaf37db23b05270367c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_audio_data_lib_1_1_wave_table_data.html#a23a9f4ade2cebfaf37db23b05270367c">Merge</a> (const std::vector&lt; const <a class="el" href="class_audio_data_lib_1_1_wave_table_data.html">WaveTableData</a> * &gt; &amp;waveTableDataArray)</td></tr>
+<tr class="separator:a23a9f4ade2cebfaf37db23b05270367c inherit pub_methods_class_audio_data_lib_1_1_wave_table_data"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a39c93eaece4d934831377f249dd86476 inherit pub_methods_class_audio_data_lib_1_1_wave_table_data" id="r_a39c93eaece4d934831377f249dd86476"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_audio_data_lib_1_1_wave_table_data.html#a39c93eaece4d934831377f249dd86476">GetNumAudioSamples</a> () const</td></tr>
+<tr class="separator:a39c93eaece4d934831377f249dd86476 inherit pub_methods_class_audio_data_lib_1_1_wave_table_data"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abd5ac80ad32eb5e38b2d2f840c59c2a1 inherit pub_methods_class_audio_data_lib_1_1_wave_table_data" id="r_abd5ac80ad32eb5e38b2d2f840c59c2a1"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="class_audio_data_lib_1_1_audio_data.html">AudioData</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_audio_data_lib_1_1_wave_table_data.html#abd5ac80ad32eb5e38b2d2f840c59c2a1">GetAudioSample</a> (uint32_t i) const</td></tr>
+<tr class="separator:abd5ac80ad32eb5e38b2d2f840c59c2a1 inherit pub_methods_class_audio_data_lib_1_1_wave_table_data"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac30060151da0a3a17472e8b5f937ac8a inherit pub_methods_class_audio_data_lib_1_1_wave_table_data" id="r_ac30060151da0a3a17472e8b5f937ac8a"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="class_audio_data_lib_1_1_audio_data.html">AudioData</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_audio_data_lib_1_1_wave_table_data.html#ac30060151da0a3a17472e8b5f937ac8a">GetAudioData</a> (uint32_t i) const</td></tr>
+<tr class="separator:ac30060151da0a3a17472e8b5f937ac8a inherit pub_methods_class_audio_data_lib_1_1_wave_table_data"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4331c63d5d3ddd92dfcfe7eb8f5cef0d inherit pub_methods_class_audio_data_lib_1_1_wave_table_data" id="r_a4331c63d5d3ddd92dfcfe7eb8f5cef0d"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="class_audio_data_lib_1_1_wave_table_data_1_1_audio_sample_data.html">AudioSampleData</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_audio_data_lib_1_1_wave_table_data.html#a4331c63d5d3ddd92dfcfe7eb8f5cef0d">FindAudioSample</a> (uint8_t instrument, uint16_t midiKey, uint16_t midiVelocity) const</td></tr>
+<tr class="separator:a4331c63d5d3ddd92dfcfe7eb8f5cef0d inherit pub_methods_class_audio_data_lib_1_1_wave_table_data"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_class_audio_data_lib_1_1_file_data"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_class_audio_data_lib_1_1_file_data')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="class_audio_data_lib_1_1_file_data.html">AudioDataLib::FileData</a></td></tr>
 <tr class="memitem:a30b20e96f6ac9712a9e3c161b949112f inherit pub_methods_class_audio_data_lib_1_1_file_data" id="r_a30b20e96f6ac9712a9e3c161b949112f"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_audio_data_lib_1_1_file_data.html#a30b20e96f6ac9712a9e3c161b949112f">FileData</a> ()</td></tr>
 <tr class="separator:a30b20e96f6ac9712a9e3c161b949112f inherit pub_methods_class_audio_data_lib_1_1_file_data"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7ecb66c1206ef5b90b61a26d0805015e inherit pub_methods_class_audio_data_lib_1_1_file_data" id="r_a7ecb66c1206ef5b90b61a26d0805015e"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_audio_data_lib_1_1_file_data.html#a7ecb66c1206ef5b90b61a26d0805015e">~FileData</a> ()</td></tr>
 <tr class="separator:a7ecb66c1206ef5b90b61a26d0805015e inherit pub_methods_class_audio_data_lib_1_1_file_data"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="friends" name="friends"></a>
-Friends</h2></td></tr>
-<tr class="memitem:ace892f148ef9c77bbf5e96f0d50d8dc3" id="r_ace892f148ef9c77bbf5e96f0d50d8dc3"><td class="memItemLeft" align="right" valign="top">class&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ace892f148ef9c77bbf5e96f0d50d8dc3">SoundFontFormat</a></td></tr>
-<tr class="separator:ace892f148ef9c77bbf5e96f0d50d8dc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>An instance of this class represents all the data you can find in a single sound-font file. </p>
-<p>As of this writing, not <em>all</em> the data in a given sound-font file is loaded into this class, so not all data is preserved. Also, there is currently an assumption that a single sound-font file corresponds to a single instrument, which is not generally true of the file format.</p>
-<p>An instance of this class is essentially just a set of audio samples, each sample consisting of one or more <a class="el" href="class_audio_data_lib_1_1_audio_data.html" title="This is a container for raw audio data in a particular format, ready to be sent to a sound card,...">AudioData</a> class instances, one for each channel of the sample. Yes, a single instance of <a class="el" href="class_audio_data_lib_1_1_audio_data.html" title="This is a container for raw audio data in a particular format, ready to be sent to a sound card,...">AudioData</a> can have multiple channels, but the <a class="el" href="class_audio_data_lib_1_1_audio_data.html" title="This is a container for raw audio data in a particular format, ready to be sent to a sound card,...">AudioData</a> instances (which are actually <a class="el" href="class_audio_data_lib_1_1_sound_font_data_1_1_looped_audio_data.html">LoopedAudioData</a> instances) put into the <a class="el" href="class_audio_data_lib_1_1_sound_font_data.html" title="An instance of this class represents all the data you can find in a single sound-font file.">SoundFontData</a> instance will always be mono, and then organized by instance of the embedded <a class="el" href="class_audio_data_lib_1_1_sound_font_data_1_1_audio_sample.html">AudioSample</a> class. Each <a class="el" href="class_audio_data_lib_1_1_sound_font_data_1_1_audio_sample.html">AudioSample</a> corresponds to a specific pitch and velocity pair, though, oddly, such information is still just specified at the <a class="el" href="class_audio_data_lib_1_1_sound_font_data_1_1_looped_audio_data.html">LoopedAudioData</a> level of the data hierarchy. This follows the structure of the sound-font file format, even if it doesn't seem (to me, at least) to make the most sense. </p>
+<div class="textblock"><p>This is the data you get when you load a sound-font file. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a36c888684cef377f58a7ca30c2b3801c" name="a36c888684cef377f58a7ca30c2b3801c"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a36c888684cef377f58a7ca30c2b3801c">&#9670;&#160;</a></span>SoundFontData()</h2>
@@ -213,86 +209,6 @@ Friends</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="a0ed3e405cf140d4869650f96e386f62a" name="a0ed3e405cf140d4869650f96e386f62a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0ed3e405cf140d4869650f96e386f62a">&#9670;&#160;</a></span>Clear()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void SoundFontData::Clear </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Delete all <a class="el" href="class_audio_data_lib_1_1_sound_font_data_1_1_audio_sample.html">AudioSample</a> instances from the owned array of such. </p>
-
-</div>
-</div>
-<a id="a7999bd1bbb89f550b6810a7e5e657f5c" name="a7999bd1bbb89f550b6810a7e5e657f5c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7999bd1bbb89f550b6810a7e5e657f5c">&#9670;&#160;</a></span>Clone()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="class_audio_data_lib_1_1_file_data.html">FileData</a> * SoundFontData::Clone </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"></span></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>The derived implimentation should return a new derived instance of the class in question with identical, but separate data. </p>
-
-<p>Implements <a class="el" href="class_audio_data_lib_1_1_file_data.html#a627e23a4b9418d8625997362feeb69e1">AudioDataLib::FileData</a>.</p>
-
-</div>
-</div>
-<a id="ac8cb3b332adec885f1ee8cadd619c5c2" name="ac8cb3b332adec885f1ee8cadd619c5c2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac8cb3b332adec885f1ee8cadd619c5c2">&#9670;&#160;</a></span>DumpCSV()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void SoundFontData::DumpCSV </td>
-          <td>(</td>
-          <td class="paramtype">FILE *</td>          <td class="paramname"><span class="paramname"><em>fp</em></span></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>Derivative implimentations should produce a command-separated list of human-readable data which can also be loaded as a CVS in spreadsheet software.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">fp</td><td>A pointer to a FILE object to which the text should be written. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p>Implements <a class="el" href="class_audio_data_lib_1_1_file_data.html#ad4d4dacc77a3a47c0748fe621836868a">AudioDataLib::FileData</a>.</p>
-
-</div>
-</div>
 <a id="a4529658d471aaf04962b893665baba31" name="a4529658d471aaf04962b893665baba31"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a4529658d471aaf04962b893665baba31">&#9670;&#160;</a></span>DumpInfo()</h2>
 
@@ -323,84 +239,7 @@ Friends</h2></td></tr>
   </dd>
 </dl>
 
-<p>Implements <a class="el" href="class_audio_data_lib_1_1_file_data.html#ad2558ef80b21fdc2daefbcd35ce185bc">AudioDataLib::FileData</a>.</p>
-
-</div>
-</div>
-<a id="a7c506a2138a1ce196f4b7dc221f20dde" name="a7c506a2138a1ce196f4b7dc221f20dde"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7c506a2138a1ce196f4b7dc221f20dde">&#9670;&#160;</a></span>FindClosestAudioSample()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">const <a class="el" href="class_audio_data_lib_1_1_sound_font_data_1_1_audio_sample.html">SoundFontData::AudioSample</a> * SoundFontData::FindClosestAudioSample </td>
-          <td>(</td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>pitch</em>, </span></td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>volume</em></span>&#160;) const</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a3510a4bab99fa8ed304b528d2a9f6226" name="a3510a4bab99fa8ed304b528d2a9f6226"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3510a4bab99fa8ed304b528d2a9f6226">&#9670;&#160;</a></span>FindLoopedAudioData()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="class_audio_data_lib_1_1_sound_font_data_1_1_looped_audio_data.html">SoundFontData::LoopedAudioData</a> * SoundFontData::FindLoopedAudioData </td>
-          <td>(</td>
-          <td class="paramtype">uint32_t</td>          <td class="paramname"><span class="paramname"><em>sampleID</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Find the <a class="el" href="class_audio_data_lib_1_1_sound_font_data_1_1_looped_audio_data.html">LoopedAudioData</a> instance in this sound-font data having the given sample ID. This is mainly useful during load of a sound-font file, and may not have much practical purpose outside of that context. </p>
-
-</div>
-</div>
-<a id="a47c1aa1f8e4ac11a7c8974ade2e10db0" name="a47c1aa1f8e4ac11a7c8974ade2e10db0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a47c1aa1f8e4ac11a7c8974ade2e10db0">&#9670;&#160;</a></span>FindRelevantAudioSample()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">const <a class="el" href="class_audio_data_lib_1_1_sound_font_data_1_1_audio_sample.html">SoundFontData::AudioSample</a> * SoundFontData::FindRelevantAudioSample </td>
-          <td>(</td>
-          <td class="paramtype">uint16_t</td>          <td class="paramname"><span class="paramname"><em>midiKey</em>, </span></td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uint16_t</td>          <td class="paramname"><span class="paramname"><em>midiVelocity</em></span>&#160;) const</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a3ffdfd0e8cc83faad03ec09aeb122560" name="a3ffdfd0e8cc83faad03ec09aeb122560"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3ffdfd0e8cc83faad03ec09aeb122560">&#9670;&#160;</a></span>GetAudioSample()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">const <a class="el" href="class_audio_data_lib_1_1_sound_font_data_1_1_audio_sample.html">SoundFontData::AudioSample</a> * SoundFontData::GetAudioSample </td>
-          <td>(</td>
-          <td class="paramtype">uint32_t</td>          <td class="paramname"><span class="paramname"><em>i</em></span></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
+<p>Reimplemented from <a class="el" href="class_audio_data_lib_1_1_wave_table_data.html#ad4e744b967d7425691bb857411653313">AudioDataLib::WaveTableData</a>.</p>
 
 </div>
 </div>
@@ -454,57 +293,9 @@ Friends</h2></td></tr>
 
 </div>
 </div>
-<a id="abbfd5e8114c8b3e6ae35f4637659886c" name="abbfd5e8114c8b3e6ae35f4637659886c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abbfd5e8114c8b3e6ae35f4637659886c">&#9670;&#160;</a></span>GetNumAudioSamples()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">uint32_t AudioDataLib::SoundFontData::GetNumAudioSamples </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"></span></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<h2 class="groupheader">Friends And Related Symbol Documentation</h2>
-<a id="ace892f148ef9c77bbf5e96f0d50d8dc3" name="ace892f148ef9c77bbf5e96f0d50d8dc3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ace892f148ef9c77bbf5e96f0d50d8dc3">&#9670;&#160;</a></span>SoundFontFormat</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">friend class <a class="el" href="class_audio_data_lib_1_1_sound_font_format.html">SoundFontFormat</a></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">friend</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>Source/Library/FileDatas/<a class="el" href="_sound_font_data_8h_source.html">SoundFontData.h</a></li>
-<li>Source/Library/FileDatas/<a class="el" href="_sound_font_data_8cpp.html">SoundFontData.cpp</a></li>
+<li>Source/Library/FileDatas/<a class="el" href="_wave_table_data_8h_source.html">WaveTableData.h</a></li>
+<li>Source/Library/FileDatas/<a class="el" href="_wave_table_data_8cpp.html">WaveTableData.cpp</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->

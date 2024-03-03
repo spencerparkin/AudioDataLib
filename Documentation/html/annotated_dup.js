@@ -16,6 +16,8 @@ var annotated_dup =
       [ "ComplexVector", "class_audio_data_lib_1_1_complex_vector.html", "class_audio_data_lib_1_1_complex_vector" ],
       [ "ConstantFunction", "class_audio_data_lib_1_1_constant_function.html", "class_audio_data_lib_1_1_constant_function" ],
       [ "DelayModule", "class_audio_data_lib_1_1_delay_module.html", "class_audio_data_lib_1_1_delay_module" ],
+      [ "DownloadableSoundData", "class_audio_data_lib_1_1_downloadable_sound_data.html", "class_audio_data_lib_1_1_downloadable_sound_data" ],
+      [ "DownloadableSoundFormat", "class_audio_data_lib_1_1_downloadable_sound_format.html", "class_audio_data_lib_1_1_downloadable_sound_format" ],
       [ "DuplicationModule", "class_audio_data_lib_1_1_duplication_module.html", "class_audio_data_lib_1_1_duplication_module" ],
       [ "Error", "class_audio_data_lib_1_1_error.html", "class_audio_data_lib_1_1_error" ],
       [ "FeedBackwardCombFilter", "class_audio_data_lib_1_1_feed_backward_comb_filter.html", "class_audio_data_lib_1_1_feed_backward_comb_filter" ],
@@ -62,7 +64,7 @@ var annotated_dup =
       [ "WaveFileFormat", "class_audio_data_lib_1_1_wave_file_format.html", "class_audio_data_lib_1_1_wave_file_format" ],
       [ "WaveForm", "class_audio_data_lib_1_1_wave_form.html", "class_audio_data_lib_1_1_wave_form" ],
       [ "WaveFormStream", "class_audio_data_lib_1_1_wave_form_stream.html", "class_audio_data_lib_1_1_wave_form_stream" ],
-      [ "WaveTableSynth", "class_audio_data_lib_1_1_wave_table_synth.html", "class_audio_data_lib_1_1_wave_table_synth" ],
+      [ "WaveTableData", "class_audio_data_lib_1_1_wave_table_data.html", "class_audio_data_lib_1_1_wave_table_data" ],
       [ "WriteOnlyBufferStream", "class_audio_data_lib_1_1_write_only_buffer_stream.html", "class_audio_data_lib_1_1_write_only_buffer_stream" ]
     ] ]
 ];

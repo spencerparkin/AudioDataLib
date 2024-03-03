@@ -17,7 +17,5 @@ var dir_849ee4f2b336c7fd998c8ce180a9e255 =
     [ "SimpleSynth.cpp", "_simple_synth_8cpp.html", null ],
     [ "SimpleSynth.h", "_simple_synth_8h.html", "_simple_synth_8h" ],
     [ "SubtractiveSynth.cpp", "_subtractive_synth_8cpp.html", null ],
-    [ "SubtractiveSynth.h", "_subtractive_synth_8h.html", "_subtractive_synth_8h" ],
-    [ "WaveTableSynth.cpp", "_wave_table_synth_8cpp.html", null ],
-    [ "WaveTableSynth.h", "_wave_table_synth_8h.html", "_wave_table_synth_8h" ]
+    [ "SubtractiveSynth.h", "_subtractive_synth_8h.html", "_subtractive_synth_8h" ]
 ];

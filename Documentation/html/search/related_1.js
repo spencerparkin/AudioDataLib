@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['index_0',['Index',['../class_audio_data_lib_1_1_wave_form.html#a5e006d6479c0d22c54edd9cc043979d4',1,'AudioDataLib::WaveForm']]]
+  ['downloadablesoundformat_0',['DownloadableSoundFormat',['../class_audio_data_lib_1_1_wave_file_format.html#a6316d890eff78778ad117be6b4c8414f',1,'AudioDataLib::WaveFileFormat']]]
 ];

@@ -61,13 +61,13 @@ var NAVTREEINDEX =
 [
 "_aiff_file_format_8cpp.html",
 "class_audio_data_lib_1_1_audio_data.html#a6bdd8aba60081d7a85759a8b4ded7f69",
-"class_audio_data_lib_1_1_complex_vector.html#a862c7e80ad2624ceeba512764a7b1e31",
-"class_audio_data_lib_1_1_memory_stream.html#aa1b7cc3f137fbfa714d8e218856a131c",
-"class_audio_data_lib_1_1_midi_msg_log_destination.html",
-"class_audio_data_lib_1_1_reverb_module.html#ab3fdf8e61bb23d97f107ad2746c31912",
-"class_audio_data_lib_1_1_timer.html",
-"functions_func_p.html",
-"struct_audio_data_lib_1_1_sound_font_data_1_1_version_tag.html#a439fdccac46a626c42097403603aa643"
+"class_audio_data_lib_1_1_complex_number.html#ad7f99cb3128afdf5f54c2d7f7ca78f4f",
+"class_audio_data_lib_1_1_looped_audio_module.html#a10192537a304140500440822e8f2af5b",
+"class_audio_data_lib_1_1_midi_data_1_1_track.html#abd7c016e99f279cb408c9e2b900a78ff",
+"class_audio_data_lib_1_1_recursive_filter.html",
+"class_audio_data_lib_1_1_wave_form.html#a286807d8a5cfc8f9e443ac283c36cb40",
+"functions_func_h.html",
+"struct_audio_data_lib_1_1_wave_table_data_1_1_audio_sample_data_1_1_character.html#a5fd59baf0a306bdd8a3cc36e9f6ce281"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

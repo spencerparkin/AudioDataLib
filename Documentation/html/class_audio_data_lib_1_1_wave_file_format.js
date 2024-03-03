@@ -8,5 +8,6 @@ var class_audio_data_lib_1_1_wave_file_format =
     [ "WaveFileFormat", "class_audio_data_lib_1_1_wave_file_format.html#a42d508ff9d0e9d7af1ccca01b23a0627", null ],
     [ "~WaveFileFormat", "class_audio_data_lib_1_1_wave_file_format.html#ac38ce50635ada0ca882b8cb44c543b9b", null ],
     [ "ReadFromStream", "class_audio_data_lib_1_1_wave_file_format.html#a67df1d345353f4a1747773ee74386a6e", null ],
-    [ "WriteToStream", "class_audio_data_lib_1_1_wave_file_format.html#a36fbe1a91144aa6310eaa52857dc4ec5", null ]
+    [ "WriteToStream", "class_audio_data_lib_1_1_wave_file_format.html#a36fbe1a91144aa6310eaa52857dc4ec5", null ],
+    [ "DownloadableSoundFormat", "class_audio_data_lib_1_1_wave_file_format.html#a6316d890eff78778ad117be6b4c8414f", null ]
 ];

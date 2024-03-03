@@ -2,6 +2,8 @@ var dir_d9e4f7ee5c801f82554a201841137945 =
 [
     [ "AiffFileFormat.cpp", "_aiff_file_format_8cpp.html", null ],
     [ "AiffFileFormat.h", "_aiff_file_format_8h.html", "_aiff_file_format_8h" ],
+    [ "DownloadableSoundFormat.cpp", "_downloadable_sound_format_8cpp.html", null ],
+    [ "DownloadableSoundFormat.h", "_downloadable_sound_format_8h.html", "_downloadable_sound_format_8h" ],
     [ "FileFormat.cpp", "_file_format_8cpp.html", null ],
     [ "FileFormat.h", "_file_format_8h.html", "_file_format_8h" ],
     [ "MidiFileFormat.cpp", "_midi_file_format_8cpp.html", null ],

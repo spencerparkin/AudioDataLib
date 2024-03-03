@@ -113,12 +113,14 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:af77ca9f597c76f37107c65dd3ca3532e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1a99868e96431b35df66c88e0bd22524" id="r_a1a99868e96431b35df66c88e0bd22524"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1a99868e96431b35df66c88e0bd22524">ParseSubChunks</a> (<a class="el" href="class_audio_data_lib_1_1_read_only_buffer_stream.html">ReadOnlyBufferStream</a> &amp;inputStream, <a class="el" href="class_audio_data_lib_1_1_chunk_parser.html">ChunkParser</a> *chunkParser, <a class="el" href="class_audio_data_lib_1_1_error.html">Error</a> &amp;error)</td></tr>
 <tr class="separator:a1a99868e96431b35df66c88e0bd22524"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a957320f0207ebc474aebc7841d81004c" id="r_a957320f0207ebc474aebc7841d81004c"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="class_audio_data_lib_1_1_chunk_parser_1_1_chunk.html">Chunk</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a957320f0207ebc474aebc7841d81004c">FindChunk</a> (const std::string &amp;chunkName, bool caseSensative) const</td></tr>
-<tr class="separator:a957320f0207ebc474aebc7841d81004c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6929ff54a0ff4484b7e7ad535c6fea13" id="r_a6929ff54a0ff4484b7e7ad535c6fea13"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="class_audio_data_lib_1_1_chunk_parser_1_1_chunk.html">Chunk</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6929ff54a0ff4484b7e7ad535c6fea13">FindChunk</a> (const std::string &amp;chunkName, const std::string &amp;<a class="el" href="#a539e7a9e261e04b78393e48f122a5b0f">formType</a>, bool caseSensative) const</td></tr>
+<tr class="separator:a6929ff54a0ff4484b7e7ad535c6fea13"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adfb9e73fc50ecb7da5d5296d5a91b488" id="r_adfb9e73fc50ecb7da5d5296d5a91b488"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#adfb9e73fc50ecb7da5d5296d5a91b488">FindAllChunks</a> (const std::string &amp;chunkName, std::vector&lt; const <a class="el" href="class_audio_data_lib_1_1_chunk_parser_1_1_chunk.html">Chunk</a> * &gt; &amp;chunkArray, bool caseSensative) const</td></tr>
 <tr class="separator:adfb9e73fc50ecb7da5d5296d5a91b488"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4cac588b0dc5eb5d08c685d20a6d7813" id="r_a4cac588b0dc5eb5d08c685d20a6d7813"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4cac588b0dc5eb5d08c685d20a6d7813">MatchesName</a> (const std::string &amp;chunkName, bool caseSensative) const</td></tr>
 <tr class="separator:a4cac588b0dc5eb5d08c685d20a6d7813"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af256986bbeb40d08354bb6a965521500" id="r_af256986bbeb40d08354bb6a965521500"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af256986bbeb40d08354bb6a965521500">MatchesFormType</a> (const std::string &amp;<a class="el" href="#a539e7a9e261e04b78393e48f122a5b0f">formType</a>, bool caseSensative) const</td></tr>
+<tr class="separator:af256986bbeb40d08354bb6a965521500"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a629cf6f5bf587a38fe9d79d70c5658c6" id="r_a629cf6f5bf587a38fe9d79d70c5658c6"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a629cf6f5bf587a38fe9d79d70c5658c6">GetNumSubChunks</a> () const</td></tr>
 <tr class="separator:a629cf6f5bf587a38fe9d79d70c5658c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad1d3bf33ce5c6c13413793c4ddd1cbb1" id="r_ad1d3bf33ce5c6c13413793c4ddd1cbb1"><td class="memItemLeft" align="right" valign="top">const std::vector&lt; <a class="el" href="class_audio_data_lib_1_1_chunk_parser_1_1_chunk.html">Chunk</a> * &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad1d3bf33ce5c6c13413793c4ddd1cbb1">GetSubChunkArray</a> () const</td></tr>
@@ -129,11 +131,15 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a8fede3a336916bfd6b7ac4e627f0781c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab762c64152ee413da05f53be5142ff8c" id="r_ab762c64152ee413da05f53be5142ff8c"><td class="memItemLeft" align="right" valign="top">const std::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab762c64152ee413da05f53be5142ff8c">GetName</a> () const</td></tr>
 <tr class="separator:ab762c64152ee413da05f53be5142ff8c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3f717d2ca9624e1c02d5f0e04ab767a8" id="r_a3f717d2ca9624e1c02d5f0e04ab767a8"><td class="memItemLeft" align="right" valign="top">const std::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3f717d2ca9624e1c02d5f0e04ab767a8">GetFormType</a> () const</td></tr>
+<tr class="separator:a3f717d2ca9624e1c02d5f0e04ab767a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-attribs" name="pro-attribs"></a>
 Protected Attributes</h2></td></tr>
 <tr class="memitem:ad4a6100e516ca0226dfcb013e6e2ab4d" id="r_ad4a6100e516ca0226dfcb013e6e2ab4d"><td class="memItemLeft" align="right" valign="top">std::string *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad4a6100e516ca0226dfcb013e6e2ab4d">name</a></td></tr>
 <tr class="separator:ad4a6100e516ca0226dfcb013e6e2ab4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a539e7a9e261e04b78393e48f122a5b0f" id="r_a539e7a9e261e04b78393e48f122a5b0f"><td class="memItemLeft" align="right" valign="top">std::string *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a539e7a9e261e04b78393e48f122a5b0f">formType</a></td></tr>
+<tr class="separator:a539e7a9e261e04b78393e48f122a5b0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af2e255b9e903f94ad406bbe3c5970a42" id="r_af2e255b9e903f94ad406bbe3c5970a42"><td class="memItemLeft" align="right" valign="top">const uint8_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af2e255b9e903f94ad406bbe3c5970a42">buffer</a></td></tr>
 <tr class="separator:af2e255b9e903f94ad406bbe3c5970a42"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8fae1216f796f0cb3bca5084f08b8dbb" id="r_a8fae1216f796f0cb3bca5084f08b8dbb"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8fae1216f796f0cb3bca5084f08b8dbb">bufferSize</a></td></tr>
@@ -216,8 +222,8 @@ Friends</h2></td></tr>
 
 </div>
 </div>
-<a id="a957320f0207ebc474aebc7841d81004c" name="a957320f0207ebc474aebc7841d81004c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a957320f0207ebc474aebc7841d81004c">&#9670;&#160;</a></span>FindChunk()</h2>
+<a id="a6929ff54a0ff4484b7e7ad535c6fea13" name="a6929ff54a0ff4484b7e7ad535c6fea13"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6929ff54a0ff4484b7e7ad535c6fea13">&#9670;&#160;</a></span>FindChunk()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -226,6 +232,11 @@ Friends</h2></td></tr>
           <td class="memname">const <a class="el" href="class_audio_data_lib_1_1_chunk_parser_1_1_chunk.html">ChunkParser::Chunk</a> * ChunkParser::Chunk::FindChunk </td>
           <td>(</td>
           <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>chunkName</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>formType</em>, </span></td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -273,6 +284,31 @@ Friends</h2></td></tr>
       <table class="memname">
         <tr>
           <td class="memname">uint32_t AudioDataLib::ChunkParser::Chunk::GetBufferSize </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a3f717d2ca9624e1c02d5f0e04ab767a8" name="a3f717d2ca9624e1c02d5f0e04ab767a8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3f717d2ca9624e1c02d5f0e04ab767a8">&#9670;&#160;</a></span>GetFormType()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const std::string &amp; AudioDataLib::ChunkParser::Chunk::GetFormType </td>
           <td>(</td>
           <td class="paramname"><span class="paramname"></span></td><td>)</td>
           <td> const</td>
@@ -358,6 +394,27 @@ Friends</h2></td></tr>
 <span class="mlabels"><span class="mlabel">inline</span></span>  </td>
   </tr>
 </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="af256986bbeb40d08354bb6a965521500" name="af256986bbeb40d08354bb6a965521500"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af256986bbeb40d08354bb6a965521500">&#9670;&#160;</a></span>MatchesFormType()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool ChunkParser::Chunk::MatchesFormType </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>formType</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>caseSensative</em></span>&#160;) const</td>
+        </tr>
+      </table>
 </div><div class="memdoc">
 
 </div>
@@ -492,6 +549,28 @@ Friends</h2></td></tr>
       <table class="memname">
         <tr>
           <td class="memname">uint32_t AudioDataLib::ChunkParser::Chunk::bufferSize</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a539e7a9e261e04b78393e48f122a5b0f" name="a539e7a9e261e04b78393e48f122a5b0f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a539e7a9e261e04b78393e48f122a5b0f">&#9670;&#160;</a></span>formType</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string* AudioDataLib::ChunkParser::Chunk::formType</td>
         </tr>
       </table>
   </td>

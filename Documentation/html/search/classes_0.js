@@ -6,7 +6,7 @@ var searchData=
   ['articulationmodule_3',['ArticulationModule',['../class_audio_data_lib_1_1_articulation_module.html',1,'AudioDataLib']]],
   ['attenuationmodule_4',['AttenuationModule',['../class_audio_data_lib_1_1_attenuation_module.html',1,'AudioDataLib']]],
   ['audiodata_5',['AudioData',['../class_audio_data_lib_1_1_audio_data.html',1,'AudioDataLib']]],
-  ['audiosample_6',['AudioSample',['../class_audio_data_lib_1_1_sound_font_data_1_1_audio_sample.html',1,'AudioDataLib::SoundFontData']]],
+  ['audiosampledata_6',['AudioSampleData',['../class_audio_data_lib_1_1_wave_table_data_1_1_audio_sample_data.html',1,'AudioDataLib::WaveTableData']]],
   ['audiosink_7',['AudioSink',['../class_audio_data_lib_1_1_audio_sink.html',1,'AudioDataLib']]],
   ['audiostream_8',['AudioStream',['../class_audio_data_lib_1_1_audio_stream.html',1,'AudioDataLib']]]
 ];

@@ -96,6 +96,8 @@ $(function(){initNavTree('class_audio_data_lib_1_1_wave_file_format.html',''); i
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pro-static-methods">Static Protected Member Functions</a> &#124;
+<a href="#friends">Friends</a> &#124;
 <a href="class_audio_data_lib_1_1_wave_file_format-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">AudioDataLib::WaveFileFormat Class Reference</div></div>
 </div><!--header-->
@@ -142,6 +144,16 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a6fee8d97e0bb4637e7f25aaa876a82c4 inherit pub_methods_class_audio_data_lib_1_1_file_format"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a33b1c1be690e1e2b4e946ba14f15d841 inherit pub_methods_class_audio_data_lib_1_1_file_format" id="r_a33b1c1be690e1e2b4e946ba14f15d841"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_audio_data_lib_1_1_file_format.html#a33b1c1be690e1e2b4e946ba14f15d841">~FileFormat</a> ()</td></tr>
 <tr class="separator:a33b1c1be690e1e2b4e946ba14f15d841 inherit pub_methods_class_audio_data_lib_1_1_file_format"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-static-methods" name="pro-static-methods"></a>
+Static Protected Member Functions</h2></td></tr>
+<tr class="memitem:aa906c6419597417250c327e69f1048d8" id="r_aa906c6419597417250c327e69f1048d8"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa906c6419597417250c327e69f1048d8">LoadWaveData</a> (<a class="el" href="class_audio_data_lib_1_1_audio_data.html">AudioData</a> *audioData, const <a class="el" href="class_audio_data_lib_1_1_chunk_parser_1_1_chunk.html">ChunkParser::Chunk</a> *waveChunk, <a class="el" href="class_audio_data_lib_1_1_error.html">Error</a> &amp;error)</td></tr>
+<tr class="separator:aa906c6419597417250c327e69f1048d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="friends" name="friends"></a>
+Friends</h2></td></tr>
+<tr class="memitem:a6316d890eff78778ad117be6b4c8414f" id="r_a6316d890eff78778ad117be6b4c8414f"><td class="memItemLeft" align="right" valign="top">class&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6316d890eff78778ad117be6b4c8414f">DownloadableSoundFormat</a></td></tr>
+<tr class="separator:a6316d890eff78778ad117be6b4c8414f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="inherited" name="inherited"></a>
 Additional Inherited Members</h2></td></tr>
@@ -215,6 +227,40 @@ Additional Inherited Members</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a id="aa906c6419597417250c327e69f1048d8" name="aa906c6419597417250c327e69f1048d8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa906c6419597417250c327e69f1048d8">&#9670;&#160;</a></span>LoadWaveData()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool WaveFileFormat::LoadWaveData </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="class_audio_data_lib_1_1_audio_data.html">AudioData</a> *</td>          <td class="paramname"><span class="paramname"><em>audioData</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="class_audio_data_lib_1_1_chunk_parser_1_1_chunk.html">ChunkParser::Chunk</a> *</td>          <td class="paramname"><span class="paramname"><em>waveChunk</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="class_audio_data_lib_1_1_error.html">Error</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>error</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="a67df1d345353f4a1747773ee74386a6e" name="a67df1d345353f4a1747773ee74386a6e"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a67df1d345353f4a1747773ee74386a6e">&#9670;&#160;</a></span>ReadFromStream()</h2>
 
@@ -304,6 +350,29 @@ Additional Inherited Members</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>True is returned on success; false otherwise. </dd></dl>
 
 <p>Implements <a class="el" href="class_audio_data_lib_1_1_file_format.html#a3c9d3d38802c6dd24d1d0a233dfc93df">AudioDataLib::FileFormat</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Friends And Related Symbol Documentation</h2>
+<a id="a6316d890eff78778ad117be6b4c8414f" name="a6316d890eff78778ad117be6b4c8414f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6316d890eff78778ad117be6b4c8414f">&#9670;&#160;</a></span>DownloadableSoundFormat</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">friend class <a class="el" href="class_audio_data_lib_1_1_downloadable_sound_format.html">DownloadableSoundFormat</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">friend</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
 
 </div>
 </div>

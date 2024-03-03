@@ -15,10 +15,9 @@ var searchData=
   ['operator_3d_12',['operator=',['../class_audio_data_lib_1_1_complex_number.html#af4deecb40c1b97d2ee345185a4df7faf',1,'AudioDataLib::ComplexNumber::operator=()'],['../class_audio_data_lib_1_1_complex_vector.html#a90d38c16d205d2d1ff9a36ec76d60170',1,'AudioDataLib::ComplexVector::operator=()']]],
   ['operator_3d_3d_13',['operator==',['../struct_audio_data_lib_1_1_audio_data_1_1_format.html#a936370aaca4fbf888a05b2284fc78d8a',1,'AudioDataLib::AudioData::Format::operator==()'],['../class_audio_data_lib_1_1_complex_number.html#a08dff7f17599567a3ec3f3f4404f99e0',1,'AudioDataLib::ComplexNumber::operator==()']]],
   ['operator_5b_5d_14',['operator[]',['../class_audio_data_lib_1_1_complex_vector.html#ae7f3f51736ac046f05d5199e9e6698a1',1,'AudioDataLib::ComplexVector::operator[](uint32_t i) const'],['../class_audio_data_lib_1_1_complex_vector.html#abba55ffdc405fe19afd33d68f065f448',1,'AudioDataLib::ComplexVector::operator[](uint32_t i)']]],
-  ['original_15',['original',['../struct_audio_data_lib_1_1_sound_font_data_1_1_looped_audio_data_1_1_midi_key_info.html#ab593a3b04705c805dccbb4d379141cc6',1,'AudioDataLib::SoundFontData::LoopedAudioData::MidiKeyInfo']]],
+  ['originalpitch_15',['originalPitch',['../struct_audio_data_lib_1_1_wave_table_data_1_1_audio_sample_data_1_1_character.html#aadd7230dc492daafda95e26cb977c456',1,'AudioDataLib::WaveTableData::AudioSampleData::Character']]],
   ['originalsignal_16',['originalSignal',['../class_audio_data_lib_1_1_recursive_filter.html#a9727ddae668f883a70ebae32335983cf',1,'AudioDataLib::RecursiveFilter']]],
   ['oscillatormodule_17',['OscillatorModule',['../class_audio_data_lib_1_1_oscillator_module.html',1,'AudioDataLib::OscillatorModule'],['../class_audio_data_lib_1_1_oscillator_module.html#aec0aaa0edb6407f85297380c51bec422',1,'AudioDataLib::OscillatorModule::OscillatorModule()']]],
   ['oscillatormodule_2ecpp_18',['OscillatorModule.cpp',['../_oscillator_module_8cpp.html',1,'']]],
-  ['oscillatormodule_2eh_19',['OscillatorModule.h',['../_oscillator_module_8h.html',1,'']]],
-  ['overridingroot_20',['overridingRoot',['../struct_audio_data_lib_1_1_sound_font_data_1_1_looped_audio_data_1_1_midi_key_info.html#ae49f5a5e71491cc6a6c9275089b9511f',1,'AudioDataLib::SoundFontData::LoopedAudioData::MidiKeyInfo']]]
+  ['oscillatormodule_2eh_19',['OscillatorModule.h',['../_oscillator_module_8h.html',1,'']]]
 ];

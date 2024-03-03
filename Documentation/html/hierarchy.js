@@ -1,6 +1,5 @@
 var hierarchy =
 [
-    [ "AudioDataLib::SoundFontData::AudioSample", "class_audio_data_lib_1_1_sound_font_data_1_1_audio_sample.html", null ],
     [ "AudioDataLib::AudioSink", "class_audio_data_lib_1_1_audio_sink.html", null ],
     [ "AudioDataLib::ByteStream", "class_audio_data_lib_1_1_byte_stream.html", [
       [ "AudioDataLib::AudioStream", "class_audio_data_lib_1_1_audio_stream.html", [
@@ -16,6 +15,7 @@ var hierarchy =
     ] ],
     [ "AudioDataLib::ByteSwapper", "class_audio_data_lib_1_1_byte_swapper.html", null ],
     [ "AudioDataLib::MidiData::MetaEvent::ChannelPrefix", "struct_audio_data_lib_1_1_midi_data_1_1_meta_event_1_1_channel_prefix.html", null ],
+    [ "AudioDataLib::WaveTableData::AudioSampleData::Character", "struct_audio_data_lib_1_1_wave_table_data_1_1_audio_sample_data_1_1_character.html", null ],
     [ "AudioDataLib::ChunkParser::Chunk", "class_audio_data_lib_1_1_chunk_parser_1_1_chunk.html", null ],
     [ "AudioDataLib::MemoryStream::Chunk", "class_audio_data_lib_1_1_memory_stream_1_1_chunk.html", null ],
     [ "AudioDataLib::ChunkParser", "class_audio_data_lib_1_1_chunk_parser.html", [
@@ -32,13 +32,17 @@ var hierarchy =
     ] ],
     [ "AudioDataLib::FileData", "class_audio_data_lib_1_1_file_data.html", [
       [ "AudioDataLib::AudioData", "class_audio_data_lib_1_1_audio_data.html", [
-        [ "AudioDataLib::SoundFontData::LoopedAudioData", "class_audio_data_lib_1_1_sound_font_data_1_1_looped_audio_data.html", null ]
+        [ "AudioDataLib::WaveTableData::AudioSampleData", "class_audio_data_lib_1_1_wave_table_data_1_1_audio_sample_data.html", null ]
       ] ],
       [ "AudioDataLib::MidiData", "class_audio_data_lib_1_1_midi_data.html", null ],
-      [ "AudioDataLib::SoundFontData", "class_audio_data_lib_1_1_sound_font_data.html", null ]
+      [ "AudioDataLib::WaveTableData", "class_audio_data_lib_1_1_wave_table_data.html", [
+        [ "AudioDataLib::DownloadableSoundData", "class_audio_data_lib_1_1_downloadable_sound_data.html", null ],
+        [ "AudioDataLib::SoundFontData", "class_audio_data_lib_1_1_sound_font_data.html", null ]
+      ] ]
     ] ],
     [ "AudioDataLib::FileFormat", "class_audio_data_lib_1_1_file_format.html", [
       [ "AudioDataLib::AiffFileFormat", "class_audio_data_lib_1_1_aiff_file_format.html", null ],
+      [ "AudioDataLib::DownloadableSoundFormat", "class_audio_data_lib_1_1_downloadable_sound_format.html", null ],
       [ "AudioDataLib::MidiFileFormat", "class_audio_data_lib_1_1_midi_file_format.html", null ],
       [ "AudioDataLib::SoundFontFormat", "class_audio_data_lib_1_1_sound_font_format.html", null ],
       [ "AudioDataLib::WaveFileFormat", "class_audio_data_lib_1_1_wave_file_format.html", null ]
@@ -58,18 +62,15 @@ var hierarchy =
     ] ],
     [ "AudioDataLib::SoundFontData::GeneralInfo", "struct_audio_data_lib_1_1_sound_font_data_1_1_general_info.html", null ],
     [ "AudioDataLib::MidiData::MetaEvent::KeySignature", "struct_audio_data_lib_1_1_midi_data_1_1_meta_event_1_1_key_signature.html", null ],
-    [ "AudioDataLib::SoundFontData::LoopedAudioData::Location", "struct_audio_data_lib_1_1_sound_font_data_1_1_looped_audio_data_1_1_location.html", null ],
-    [ "AudioDataLib::SoundFontData::LoopedAudioData::Loop", "struct_audio_data_lib_1_1_sound_font_data_1_1_looped_audio_data_1_1_loop.html", null ],
+    [ "AudioDataLib::WaveTableData::AudioSampleData::Loop", "struct_audio_data_lib_1_1_wave_table_data_1_1_audio_sample_data_1_1_loop.html", null ],
     [ "AudioDataLib::AudioData::MetaData", "struct_audio_data_lib_1_1_audio_data_1_1_meta_data.html", null ],
-    [ "AudioDataLib::SoundFontData::LoopedAudioData::MidiKeyInfo", "struct_audio_data_lib_1_1_sound_font_data_1_1_looped_audio_data_1_1_midi_key_info.html", null ],
     [ "AudioDataLib::MidiMsgDestination", "class_audio_data_lib_1_1_midi_msg_destination.html", [
       [ "AudioDataLib::MidiMsgLogDestination", "class_audio_data_lib_1_1_midi_msg_log_destination.html", null ],
       [ "AudioDataLib::MidiMsgRecorderDestination", "class_audio_data_lib_1_1_midi_msg_recorder_destination.html", null ],
       [ "AudioDataLib::MidiSynth", "class_audio_data_lib_1_1_midi_synth.html", [
         [ "AudioDataLib::SampleBasedSynth", "class_audio_data_lib_1_1_sample_based_synth.html", null ],
         [ "AudioDataLib::SimpleSynth", "class_audio_data_lib_1_1_simple_synth.html", null ],
-        [ "AudioDataLib::SubtractiveSynth", "class_audio_data_lib_1_1_subtractive_synth.html", null ],
-        [ "AudioDataLib::WaveTableSynth", "class_audio_data_lib_1_1_wave_table_synth.html", null ]
+        [ "AudioDataLib::SubtractiveSynth", "class_audio_data_lib_1_1_subtractive_synth.html", null ]
       ] ]
     ] ],
     [ "AudioDataLib::MidiMsgSource", "class_audio_data_lib_1_1_midi_msg_source.html", [
@@ -82,6 +83,7 @@ var hierarchy =
     [ "AudioDataLib::MidiData::MetaEvent::Opaque", "struct_audio_data_lib_1_1_midi_data_1_1_meta_event_1_1_opaque.html", null ],
     [ "AudioDataLib::RecursiveFilter::Params", "struct_audio_data_lib_1_1_recursive_filter_1_1_params.html", null ],
     [ "AudioDataLib::FrequencyGraph::Plot", "struct_audio_data_lib_1_1_frequency_graph_1_1_plot.html", null ],
+    [ "AudioDataLib::WaveTableData::AudioSampleData::Range", "struct_audio_data_lib_1_1_wave_table_data_1_1_audio_sample_data_1_1_range.html", null ],
     [ "AudioDataLib::WaveForm::Sample", "struct_audio_data_lib_1_1_wave_form_1_1_sample.html", null ],
     [ "AudioDataLib::WaveForm::SampleBounds", "struct_audio_data_lib_1_1_wave_form_1_1_sample_bounds.html", null ],
     [ "AudioDataLib::MidiData::MetaEvent::SequenceNumber", "struct_audio_data_lib_1_1_midi_data_1_1_meta_event_1_1_sequence_number.html", null ],
