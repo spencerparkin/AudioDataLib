@@ -32,21 +32,21 @@ WaveTableData::WaveTableData()
 			continue;
 
 		const AudioSampleData::MetaData& metaData = sampleData->GetMetaData();
-		const AudioSampleData::Location& location = sampleData->GetLocation();
+		const AudioSampleData::Range& range = sampleData->GetRange();
 		
 		Error error;
 		audioData->CalcMetaData(error);
 
-		double minFreq = MidiSynth::MidiPitchToFrequency(location.minKey);
-		double maxFreq = MidiSynth::MidiPitchToFrequency(location.maxKey);
+		double minFreq = MidiSynth::MidiPitchToFrequency(range.minKey);
+		double maxFreq = MidiSynth::MidiPitchToFrequency(range.maxKey);
 
-		double minVol = MidiSynth::MidiVelocityToAmplitude(location.minVel);
-		double maxVol = MidiSynth::MidiVelocityToAmplitude(location.maxVel);
+		double minVol = MidiSynth::MidiVelocityToAmplitude(range.minVel);
+		double maxVol = MidiSynth::MidiVelocityToAmplitude(range.maxVel);
 
 		fprintf(fp, "%s, %d, %f, %f, %f, %f, %f, %f, %f\n",
 			sampleData->GetName().c_str(),
-			sampleData->GetOriginalPitch(),
-			MidiSynth::MidiPitchToFrequency(sampleData->GetOriginalPitch()),
+			sampleData->GetCharacter().originalPitch,
+			MidiSynth::MidiPitchToFrequency(sampleData->GetCharacter().originalPitch),
 			metaData.pitch, minFreq, maxFreq,
 			metaData.volume, minVol, maxVol);
 	}
@@ -94,10 +94,10 @@ const WaveTableData::AudioSampleData* WaveTableData::FindAudioSample(uint8_t ins
 		if (!audioSampleData)
 			continue;
 
-		if (audioSampleData->GetInstrumentNumber() != instrument)
+		if (audioSampleData->GetCharacter().instrument != instrument)
 			continue;
 
-		if (audioSampleData->GetLocation().Contains(midiKey, midiVelocity))
+		if (audioSampleData->GetRange().Contains(midiKey, midiVelocity))
 			return audioSampleData;
 	}
 
@@ -108,15 +108,16 @@ const WaveTableData::AudioSampleData* WaveTableData::FindAudioSample(uint8_t ins
 
 WaveTableData::AudioSampleData::AudioSampleData()
 {
-	this->instrumentNumber = 1;
-	this->originalPitch = -1;
+	this->character.instrument = 1;
+	this->character.originalPitch = -1;
+	this->character.fineTune = 0;
 	this->name = new std::string();
 	this->loop.startFrame = 0;
 	this->loop.endFrame = 0;
 	this->channelType = ChannelType::MONO;
 	this->mode = Mode::GETS_TRAPPED_IN_LOOP;
 	this->cachedWaveForm = new std::shared_ptr<WaveForm>();
-	::memset(&this->location, 0, sizeof(location));
+	::memset(&this->range, 0, sizeof(range));
 }
 
 /*virtual*/ WaveTableData::AudioSampleData::~AudioSampleData()
@@ -153,7 +154,7 @@ std::shared_ptr<WaveForm> WaveTableData::AudioSampleData::GetCachedWaveForm(uint
 	return *this->cachedWaveForm;
 }
 
-bool WaveTableData::AudioSampleData::Location::Contains(uint16_t key, uint16_t vel) const
+bool WaveTableData::AudioSampleData::Range::Contains(uint16_t key, uint16_t vel) const
 {
 	if (!(this->minKey <= key && key <= this->maxKey))
 		return false;

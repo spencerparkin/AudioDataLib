@@ -56,7 +56,7 @@ namespace AudioDataLib
 				RIGHT_EAR
 			};
 
-			struct Location
+			struct Range
 			{
 				uint16_t minKey, maxKey;	///< This is the range of MIDI key values for which this sample can be pitch-shifted to match.
 				uint16_t minVel, maxVel;	///< this is the range of MIDI velocity values for which this sample can be scaled to match.
@@ -70,6 +70,13 @@ namespace AudioDataLib
 				GETS_TRAPPED_IN_LOOP,		///< After playing the sound that comes before the loop, we then stay in the loop until the loop is terminated.  Think of a trumpet or clarinet (with great lung capacity!)
 				UNUSED,						///< This is unused as per the sound-font file format documentation.
 				EXIT_LOOP_ON_RELEASE		///< This is just like GETS_TRAPPED_IN_LOOP, except that when the loop is termianted, we're meant to exit at the end of the loop and then play the remainder of the sample that exists after the loop.
+			};
+
+			struct Character
+			{
+				uint8_t instrument;
+				int8_t originalPitch;
+				int16_t fineTune;
 			};
 
 			std::shared_ptr<WaveForm> GetCachedWaveForm(uint16_t channel, Error& error) const;
@@ -86,22 +93,19 @@ namespace AudioDataLib
 			void SetChannelType(ChannelType channelType) { this->channelType = channelType; }
 			ChannelType GetChannelType() const { return this->channelType; }
 
-			void SetLocation(const Location& location) { this->location = location; }
-			const Location& GetLocation() const { return this->location; }
+			void SetRange(const Range& range) { this->range = range; }
+			const Range& GetRange() const { return this->range; }
 
-			uint8_t GetInstrumentNumber() const { return this->instrumentNumber; }
-			void SetInstrumentNumber(uint8_t instrumentNumber) { this->instrumentNumber = instrumentNumber; }
-
-			int8_t GetOriginalPitch() const { return this->originalPitch; }
-			void SetOriginalPitch(int8_t originalPitch) { this->originalPitch = originalPitch; }
+			void SetCharacter(const Character& character) { this->character = character; }
+			const Character& GetCharacter() const { return this->character; }
+			Character& GetCharacter() { return this->character; }
 
 		protected:
-			uint8_t instrumentNumber;
-			int8_t originalPitch;
 			std::string* name;
+			Character character;
 			Loop loop;
 			Mode mode;
-			Location location;
+			Range range;
 			ChannelType channelType;
 			mutable std::shared_ptr<WaveForm>* cachedWaveForm;
 		};

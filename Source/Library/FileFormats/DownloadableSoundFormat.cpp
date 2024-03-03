@@ -203,15 +203,18 @@ bool DownloadableSoundFormat::LoadInstrument(
 		::memcpy(&waveLink, waveLinkChunk->GetBuffer(), sizeof(waveLink));
 
 		std::shared_ptr<WaveTableData::AudioSampleData> audioSampleData(new WaveTableData::AudioSampleData());
-		audioSampleData->SetOriginalPitch(waveSample.unityNote);
-		audioSampleData->SetInstrumentNumber(instrumentHeader.midiLocale.instrument);
+		WaveTableData::AudioSampleData::Character character;
+		character.instrument = instrumentHeader.midiLocale.instrument;
+		character.originalPitch = waveSample.unityNote;
+		character.fineTune = waveSample.fineTune;
+		audioSampleData->SetCharacter(character);
 
-		WaveTableData::AudioSampleData::Location location;
-		location.minKey = regionHeader.keyRange.min;
-		location.maxKey = regionHeader.keyRange.max;
-		location.minVel = regionHeader.velRange.min;
-		location.maxVel = regionHeader.velRange.max;
-		audioSampleData->SetLocation(location);
+		WaveTableData::AudioSampleData::Range range;
+		range.minKey = regionHeader.keyRange.min;
+		range.maxKey = regionHeader.keyRange.max;
+		range.minVel = regionHeader.velRange.min;
+		range.maxVel = regionHeader.velRange.max;
+		audioSampleData->SetRange(range);
 
 		WaveTableData::AudioSampleData::Mode mode = WaveTableData::AudioSampleData::Mode::NOT_LOOPED;
 		if (waveSampleLoop)
@@ -236,7 +239,7 @@ bool DownloadableSoundFormat::LoadInstrument(
 
 		if (!WaveFileFormat::LoadWaveData(audioSampleData.get(), waveChunk, error))
 		{
-			error.Add(FormatString("Failed to load wave data for instrument %d.", audioSampleData->GetInstrumentNumber()));
+			error.Add(FormatString("Failed to load wave data for instrument %d.", audioSampleData->GetCharacter().instrument));
 			return false;
 		}
 

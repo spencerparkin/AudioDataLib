@@ -192,8 +192,8 @@ SoundFontFormat::SoundFontFormat()
 
 		auto generatorArray = (const SF_Generator*)igenChunk->GetBuffer();
 		uint32_t numGenerators = igenChunk->GetBufferSize() / sizeof(SF_Generator);
-		SoundFontData::AudioSampleData::Location location;
-		::memset(&location, 0, sizeof(location));
+		SoundFontData::AudioSampleData::Range range;
+		::memset(&range, 0, sizeof(range));
 		uint8_t looperMode = 0;		// TODO: Utilize this.
 		int8_t overridingRootKey = -1;
 		for (uint32_t i = 0; i < numGenerators; i++)
@@ -206,14 +206,14 @@ SoundFontFormat::SoundFontFormat()
 			{
 				case ADL_GENERATOR_OP_KEY_RANGE:
 				{
-					location.minKey = generator->range.min;
-					location.maxKey = generator->range.max;
+					range.minKey = generator->range.min;
+					range.maxKey = generator->range.max;
 					break;
 				}
 				case ADL_GENERATOR_OP_VEL_RANGE:
 				{
-					location.minVel = generator->range.min;
-					location.maxVel = generator->range.max;
+					range.minVel = generator->range.min;
+					range.maxVel = generator->range.max;
 					break;
 				}
 				case ADL_GENERATOR_OP_SAMPLE_MODES:
@@ -239,11 +239,11 @@ SoundFontFormat::SoundFontFormat()
 
 					SoundFontData::AudioSampleData* audioSampleData = iter->second.get();
 
-					audioSampleData->SetLocation(location);
+					audioSampleData->SetRange(range);
 					//audioSampleData->SetMode(SoundFontData::LoopedAudioData::Mode(looperMode));
-					audioSampleData->SetOriginalPitch(overridingRootKey);
+					audioSampleData->GetCharacter().originalPitch = overridingRootKey;
 
-					::memset(&location, 0, sizeof(location));
+					::memset(&range, 0, sizeof(range));
 					overridingRootKey = -1;
 					looperMode = 0;
 					break;
@@ -327,7 +327,7 @@ bool SoundFontFormat::ConstructAudioSamples(
 		this->sampleMap->insert(std::pair<uint32_t, std::shared_ptr<SoundFontData::AudioSampleData>>(i, audioSampleData));
 
 		audioSampleData->SetName((const char*)header.sampleName);
-		audioSampleData->SetOriginalPitch((int8_t)header.originalPitch);
+		audioSampleData->GetCharacter().originalPitch = (int8_t)header.originalPitch;
 
 		if ((header.sampleType & ADL_SAMPLE_TYPE_BIT_LEFT) != 0)
 			audioSampleData->SetChannelType(SoundFontData::AudioSampleData::ChannelType::LEFT_EAR);

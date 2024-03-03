@@ -269,11 +269,18 @@ void SampleBasedSynth::SetReverbEnabled(bool reverbEnabled)
 				return false;
 
 			printf("Estimated Pitch: %f Hz\n", audioSampleData->GetMetaData().pitch);
+			printf("Estimated Volume: %f\n", audioSampleData->GetMetaData().volume);	// TODO: What are the units?  dB?
 		}
 		else
 		{
 			WaveTableData::AudioSampleData::MetaData metaData = audioSampleData->GetMetaData();
-			metaData.pitch = MidiSynth::MidiPitchToFrequency(audioSampleData->GetOriginalPitch());
+			WaveTableData::AudioSampleData::Character character = audioSampleData->GetCharacter();
+			metaData.pitch = MidiSynth::MidiPitchToFrequency(character.originalPitch);
+			if (character.fineTune != 0)
+			{
+				// TODO: I'm not entirely sure if this is correct.
+				metaData.pitch += double(character.fineTune);
+			}
 			audioSampleData->SetMetaData(metaData);
 		}
 
