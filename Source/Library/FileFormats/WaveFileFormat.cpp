@@ -19,14 +19,27 @@ WaveFileFormat::WaveFileFormat()
 	if (!parser.ParseStream(inputStream, error))
 		return false;
 
-	const WaveChunkParser::Chunk* fmtChunk = parser.FindChunk("fmt ");
+	auto audioData = new AudioData();
+	if (!this->LoadWaveData(audioData, parser.GetRootChunk(), error))
+	{
+		delete audioData;
+		return false;
+	}
+	
+	fileData = audioData;
+	return true;
+}
+
+/*static*/ bool WaveFileFormat::LoadWaveData(AudioData* audioData, const ChunkParser::Chunk* waveChunk, Error& error)
+{
+	const WaveChunkParser::Chunk* fmtChunk = waveChunk->FindChunk("fmt ", "", true);
 	if (!fmtChunk)
 	{
 		error.Add("Failed to find format chunk.");
 		return false;
 	}
 
-	const WaveChunkParser::Chunk* dataChunk = parser.FindChunk("data");
+	const WaveChunkParser::Chunk* dataChunk = waveChunk->FindChunk("data", "", true);
 	if (!dataChunk)
 	{
 		error.Add("Failed to find data chunk.");
@@ -108,11 +121,9 @@ WaveFileFormat::WaveFileFormat()
 		}
 	}
 
-	auto audioData = new AudioData();
 	audioData->SetFormat(format);
 	audioData->SetAudioBufferSize(dataChunk->GetBufferSize());
 	::memcpy(audioData->GetAudioBuffer(), dataChunk->GetBuffer(), dataChunk->GetBufferSize());
-	fileData = audioData;
 	return true;
 }
 

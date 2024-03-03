@@ -944,13 +944,15 @@ bool Unpack(const std::string& filePath, AudioDataLib::Error& error)
 		
 		std::string sampleFilePath = (std::filesystem::path(filePath).parent_path() / std::filesystem::path(filePath).stem()).string();
 		sampleFilePath += "__" + audioSampleData->GetName();
-		sampleFilePath += ".wav";
-
+		
 		std::replace(sampleFilePath.begin(), sampleFilePath.end(), ' ', '_');
 		std::replace(sampleFilePath.begin(), sampleFilePath.end(), '|', '_');
 		std::replace(sampleFilePath.begin(), sampleFilePath.end(), '(', '_');
 		std::replace(sampleFilePath.begin(), sampleFilePath.end(), ')', '_');
 		std::replace(sampleFilePath.begin(), sampleFilePath.end(), '#', 's');
+		std::replace(sampleFilePath.begin(), sampleFilePath.end(), '.', '_');
+
+		sampleFilePath += ".wav";
 
 		FileOutputStream outputStream(sampleFilePath.c_str());
 		if (!outputStream.IsOpen())
@@ -961,7 +963,11 @@ bool Unpack(const std::string& filePath, AudioDataLib::Error& error)
 
 		if (!waveFileFormat.WriteToStream(outputStream, audioSampleData, error))
 			return false;
+
+		printf("Wrote file: %s\n", sampleFilePath.c_str());
 	}
+
+	printf("Wrote %d files.\n", waveTableData->GetNumAudioSamples());
 
 	return true;
 }

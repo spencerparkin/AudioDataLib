@@ -100,12 +100,12 @@ void ChunkParser::RegisterSubChunks(const std::string& chunkName)
 	this->subChunkSet->insert(chunkName);
 }
 
-const ChunkParser::Chunk* ChunkParser::FindChunk(const std::string& chunkName, bool caseSensative /*= true*/) const
+const ChunkParser::Chunk* ChunkParser::FindChunk(const std::string& chunkName, const std::string& formType /*= ""*/, bool caseSensative /*= true*/) const
 {
 	if (!this->rootChunk)
 		return nullptr;
 
-	return this->rootChunk->FindChunk(chunkName, caseSensative);
+	return this->rootChunk->FindChunk(chunkName, formType, caseSensative);
 }
 
 void ChunkParser::FindAllChunks(const std::string& chunkName, std::vector<const Chunk*>& chunkArray, bool caseSensative /*= true*/) const
@@ -139,14 +139,15 @@ ChunkParser::Chunk::Chunk()
 	delete this->subChunkArray;
 }
 
-const ChunkParser::Chunk* ChunkParser::Chunk::FindChunk(const std::string& chunkName, bool caseSensative) const
+const ChunkParser::Chunk* ChunkParser::Chunk::FindChunk(const std::string& chunkName, const std::string& formType, bool caseSensative) const
 {
 	if (this->MatchesName(chunkName, caseSensative))
-		return this;
+		if (formType.length() == 0 || this->MatchesFormType(formType, caseSensative))
+			return this;
 
 	for (const Chunk* subChunk : *this->subChunkArray)
 	{
-		const Chunk* foundChunk = subChunk->FindChunk(chunkName, caseSensative);
+		const Chunk* foundChunk = subChunk->FindChunk(chunkName, formType, caseSensative);
 		if (foundChunk)
 			return foundChunk;
 	}
@@ -169,6 +170,14 @@ bool ChunkParser::Chunk::MatchesName(const std::string& chunkName, bool caseSens
 		return *this->name == chunkName;
 
 	return 0 == ::_stricmp(this->name->c_str(), chunkName.c_str());
+}
+
+bool ChunkParser::Chunk::MatchesFormType(const std::string& formType, bool caseSensative) const
+{
+	if (caseSensative)
+		return *this->formType == formType;
+
+	return 0 == ::_stricmp(this->formType->c_str(), formType.c_str());
 }
 
 bool ChunkParser::Chunk::ParseStream(ReadOnlyBufferStream& inputStream, ChunkParser* chunkParser, Error& error)

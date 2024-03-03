@@ -16,6 +16,8 @@ namespace AudioDataLib
 	 */
 	class AUDIO_DATA_LIB_API WaveFileFormat : public FileFormat
 	{
+		friend class DownloadableSoundFormat;
+
 	public:
 		WaveFileFormat();
 		virtual ~WaveFileFormat();
@@ -30,6 +32,8 @@ namespace AudioDataLib
 		virtual bool WriteToStream(ByteStream& outputStream, const FileData* fileData, Error& error) override;
 
 	protected:
+		static bool LoadWaveData(AudioData* audioData, const ChunkParser::Chunk* waveChunk, Error& error);
+
 		class WaveChunkParser : public ChunkParser
 		{
 		public:
