@@ -93,10 +93,17 @@ void MidiSynth::GetMinMaxLatency(double& minLatencySeconds, double& maxLatencySe
 	// 71 = B  = 440*(2^{1/12})^2
 	// 72 = C  = 440*(2^{1/12))^3
 
-	constexpr double halfStepRatio = 1.0594630943592953;	// This is 2^{1/12}.
 	double exponent = double(int32_t(pitchValue) - 69);
-	double factor = ::pow(halfStepRatio, exponent);
+	double factor = ::pow(ADL_SEMITONE, exponent);
 	double frequency = 440.0 * factor;
+	return frequency;
+}
+
+/*static*/ double MidiSynth::TunePitch(double pitchHz, int16_t fineTuneCents)
+{
+	double fineTuneSemitones = double(fineTuneCents) / 100.0;
+	double factor = ::pow(ADL_SEMITONE, fineTuneSemitones);
+	double frequency = pitchHz * factor;
 	return frequency;
 }
 

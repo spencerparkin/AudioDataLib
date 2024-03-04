@@ -82,7 +82,7 @@ namespace AudioDataLib
 			{
 				uint8_t instrument;			///< This is a number that identifies the instrument.  A standard mapping is defined, but is not necessary.  Channels are mapped to instrument numbers.
 				int8_t originalPitch;		///< This is the MIDI key whose pitch represents that of the original sample without any pitch shifting.
-				int16_t fineTune;			///< Presently, this is being captured, but I don't know what to do with it.
+				int16_t fineTuneCents;		///< This is a pitch correction of the recorded sample.
 			};
 
 			std::shared_ptr<WaveForm> GetCachedWaveForm(uint16_t channel, Error& error) const;

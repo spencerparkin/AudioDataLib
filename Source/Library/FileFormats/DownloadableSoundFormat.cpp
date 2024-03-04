@@ -206,7 +206,7 @@ bool DownloadableSoundFormat::LoadInstrument(
 		WaveTableData::AudioSampleData::Character character;
 		character.instrument = instrumentHeader.midiLocale.instrument;
 		character.originalPitch = waveSample.unityNote;
-		character.fineTune = waveSample.fineTune;
+		character.fineTuneCents = waveSample.fineTune;
 		audioSampleData->SetCharacter(character);
 
 		WaveTableData::AudioSampleData::Range range;

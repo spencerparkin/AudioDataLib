@@ -14,6 +14,7 @@
 #define ADL_MIN(x, y)			((x) < (y) ? (x) : (y))
 #define ADL_CLAMP(x, a, b)		ADL_MIN(ADL_MAX(x, a), b)
 #define ADL_PI					3.1415926536
+#define ADL_SEMITONE			1.0594630943592953		// This is the twelth root of 2.
 
 #include <stdlib.h>
 #include <string>

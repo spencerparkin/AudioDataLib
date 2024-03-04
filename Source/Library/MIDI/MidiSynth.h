@@ -56,8 +56,30 @@ namespace AudioDataLib
 		 */
 		std::shared_ptr<AudioStream> GetAudioStream() { return *this->audioStream; }
 
+		/**
+		 * Convert the given MIDI pitch key into a frequency.
+		 * 
+		 * @param pitchValue This is the MIDI key ranging from 0 to 127.
+		 * @return The frequency of the note is returned; e.g., 440 Hz is an A note.
+		 */
 		static double MidiPitchToFrequency(uint8_t pitchValue);
+
+		/**
+		 * Convert the given MIDI velocity to an amplitude.
+		 * 
+		 * @param velocityValue This is the MIDI velocity ranging from 0 to 127.
+		 * @return The gain is returned as a linear normalization of the given value.  I'm not sure if this is the right thing to do yet.
+		 */
 		static double MidiVelocityToAmplitude(uint8_t velocityValue);
+
+		/**
+		 * Adjust the given pitch frequency by the given tunning parameter.
+		 * 
+		 * @param pitchHz This is the pitch to adjust measured in Hz.
+		 * @param fineTuneCents This is the tunning parameter measured in cents or hundredths of a semitone (half-step.)
+		 * @return The adjusted pitch is returned in Hz.
+		 */
+		static double TunePitch(double pitchHz, int16_t fineTuneCents);
 
 		/**
 		 * Set the latency range.  The synthesizer tries to keep the amount of audio (measured in seconds)

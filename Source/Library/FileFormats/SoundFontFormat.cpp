@@ -27,7 +27,7 @@ SoundFontFormat::SoundFontFormat()
 	{
 		this->sampleMap->clear();
 
-		const ChunkParser::Chunk* ifilChunk = parser.FindChunk("ifil", false);
+		const ChunkParser::Chunk* ifilChunk = parser.FindChunk("ifil", "", false);
 		if (!ifilChunk)
 		{
 			error.Add("No \"ifil\" chunk found.");
@@ -42,11 +42,11 @@ SoundFontFormat::SoundFontFormat()
 
 		::memcpy(&generalInfo.versionTag, ifilChunk->GetBuffer(), sizeof(SoundFontData::VersionTag));
 
-		const ChunkParser::Chunk* isngChunk = parser.FindChunk("isng", false);
+		const ChunkParser::Chunk* isngChunk = parser.FindChunk("isng", "", false);
 		if (isngChunk)
 			generalInfo.waveTableSoundEngine.assign((const char*)isngChunk->GetBuffer(), isngChunk->GetBufferSize());
 
-		const ChunkParser::Chunk* inamChunk = parser.FindChunk("INAM", false);
+		const ChunkParser::Chunk* inamChunk = parser.FindChunk("INAM", "", false);
 		if (!inamChunk)
 		{
 			error.Add("No \"inam\" chunk found.");
@@ -55,11 +55,11 @@ SoundFontFormat::SoundFontFormat()
 
 		generalInfo.bankName.assign((const char*)inamChunk->GetBuffer(), inamChunk->GetBufferSize());
 
-		const ChunkParser::Chunk* iromChunk = parser.FindChunk("irom", false);
+		const ChunkParser::Chunk* iromChunk = parser.FindChunk("irom", "", false);
 		if (iromChunk)
 			generalInfo.waveTableSoundDataROM.assign((const char*)iromChunk->GetBuffer(), iromChunk->GetBufferSize());
 
-		const ChunkParser::Chunk* iverChunk = parser.FindChunk("iver", false);
+		const ChunkParser::Chunk* iverChunk = parser.FindChunk("iver", "", false);
 		if (iverChunk)
 		{
 			if (iverChunk->GetBufferSize() != sizeof(SoundFontData::VersionTag))
@@ -71,36 +71,36 @@ SoundFontFormat::SoundFontFormat()
 			::memcpy(&generalInfo.waveTableROMVersion, iverChunk->GetBuffer(), iverChunk->GetBufferSize());
 		}
 
-		const ChunkParser::Chunk* icrdChunk = parser.FindChunk("ICRD", false);
+		const ChunkParser::Chunk* icrdChunk = parser.FindChunk("ICRD", "", false);
 		if (icrdChunk)
 			generalInfo.creationDate.assign((const char*)icrdChunk->GetBuffer(), icrdChunk->GetBufferSize());
 
-		const ChunkParser::Chunk* iengChunk = parser.FindChunk("IENG", false);
+		const ChunkParser::Chunk* iengChunk = parser.FindChunk("IENG", "", false);
 		if (iengChunk)
 			generalInfo.soundEngineerNames.assign((const char*)iengChunk->GetBuffer(), iengChunk->GetBufferSize());
 
-		const ChunkParser::Chunk* iprdChunk = parser.FindChunk("IPRD", false);
+		const ChunkParser::Chunk* iprdChunk = parser.FindChunk("IPRD", "", false);
 		if (iprdChunk)
 			generalInfo.intendedProductName.assign((const char*)iprdChunk->GetBuffer(), iprdChunk->GetBufferSize());
 
-		const ChunkParser::Chunk* icopChunk = parser.FindChunk("ICOP", false);
+		const ChunkParser::Chunk* icopChunk = parser.FindChunk("ICOP", "", false);
 		if (icopChunk)
 			generalInfo.copyrightClaim.assign((const char*)icopChunk->GetBuffer(), icopChunk->GetBufferSize());
 
-		const ChunkParser::Chunk* icmtChunk = parser.FindChunk("ICMT");
+		const ChunkParser::Chunk* icmtChunk = parser.FindChunk("ICMT", "", false);
 		if (icmtChunk)
 			generalInfo.comments.assign((const char*)icmtChunk->GetBuffer(), icmtChunk->GetBufferSize());
 
-		const ChunkParser::Chunk* isftChunk = parser.FindChunk("ISFT", false);
+		const ChunkParser::Chunk* isftChunk = parser.FindChunk("ISFT", "", false);
 		if (isftChunk)
 			generalInfo.soundFontToolRecord.assign((const char*)isftChunk->GetBuffer(), isftChunk->GetBufferSize());
 
-		const ChunkParser::Chunk* smplChunk = parser.FindChunk("smpl", false);
+		const ChunkParser::Chunk* smplChunk = parser.FindChunk("smpl", "", false);
 		if (smplChunk)
 		{
-			const ChunkParser::Chunk* sm24Chunk = parser.FindChunk("sm24", false);
+			const ChunkParser::Chunk* sm24Chunk = parser.FindChunk("sm24", "", false);
 
-			const ChunkParser::Chunk* shdrChunk = parser.FindChunk("shdr", false);
+			const ChunkParser::Chunk* shdrChunk = parser.FindChunk("shdr", "", false);
 			if (!shdrChunk)
 			{
 				error.Add("Cannot parse the sample chunk if there is no SHDR chunk.");
@@ -177,7 +177,7 @@ SoundFontFormat::SoundFontFormat()
 		if (error)
 			break;
 
-		const ChunkParser::Chunk* igenChunk = parser.FindChunk("igen", false);
+		const ChunkParser::Chunk* igenChunk = parser.FindChunk("igen", "", false);
 		if (!igenChunk)
 		{
 			error.Add("No \"igen\" chunk found.");
@@ -196,6 +196,7 @@ SoundFontFormat::SoundFontFormat()
 		::memset(&range, 0, sizeof(range));
 		uint8_t looperMode = 0;		// TODO: Utilize this.
 		int8_t overridingRootKey = -1;
+		int16_t fineTune = 0;
 		for (uint32_t i = 0; i < numGenerators; i++)
 		{
 			const SF_Generator* generator = &generatorArray[i];
@@ -214,6 +215,11 @@ SoundFontFormat::SoundFontFormat()
 				{
 					range.minVel = generator->range.min;
 					range.maxVel = generator->range.max;
+					break;
+				}
+				case ADL_GENERATOR_OP_FINE_TUNE:
+				{
+					fineTune = generator->signedAmount;
 					break;
 				}
 				case ADL_GENERATOR_OP_SAMPLE_MODES:
@@ -242,10 +248,12 @@ SoundFontFormat::SoundFontFormat()
 					audioSampleData->SetRange(range);
 					//audioSampleData->SetMode(SoundFontData::LoopedAudioData::Mode(looperMode));
 					audioSampleData->GetCharacter().originalPitch = overridingRootKey;
+					audioSampleData->GetCharacter().fineTuneCents = fineTune;
 
 					::memset(&range, 0, sizeof(range));
 					overridingRootKey = -1;
 					looperMode = 0;
+					fineTune = 0;
 					break;
 				}
 			}

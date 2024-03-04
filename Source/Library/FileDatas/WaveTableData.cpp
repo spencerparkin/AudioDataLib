@@ -110,7 +110,7 @@ WaveTableData::AudioSampleData::AudioSampleData()
 {
 	this->character.instrument = 1;
 	this->character.originalPitch = -1;
-	this->character.fineTune = 0;
+	this->character.fineTuneCents = 0;
 	this->name = new std::string();
 	this->loop.startFrame = 0;
 	this->loop.endFrame = 0;

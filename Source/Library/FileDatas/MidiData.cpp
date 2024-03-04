@@ -346,7 +346,7 @@ MidiData::MetaEvent::KeySignature::operator std::string() const
 
 	switch (this->key)
 	{
-		// TODO: "key" can be -7 to +7.  This is the number of flags/sharps.  But what's the letter?
+		// TODO: "key" can be -7 to +7.  This is the number of flats/sharps.  But what's the letter?
 	case 0:
 		keySigStr = "C";
 		break;

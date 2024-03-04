@@ -276,6 +276,7 @@ void SampleBasedSynth::SetReverbEnabled(bool reverbEnabled)
 			WaveTableData::AudioSampleData::MetaData metaData = audioSampleData->GetMetaData();
 			WaveTableData::AudioSampleData::Character character = audioSampleData->GetCharacter();
 			metaData.pitch = MidiSynth::MidiPitchToFrequency(character.originalPitch);
+			metaData.pitch = MidiSynth::TunePitch(metaData.pitch, character.fineTuneCents);
 			audioSampleData->SetMetaData(metaData);
 		}
 
