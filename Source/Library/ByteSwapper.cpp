@@ -56,3 +56,21 @@ uint64_t ByteSwapper::Resolve(uint64_t data) const
 
 	return dataResolved;
 }
+
+int16_t ByteSwapper::Resolve(int16_t data) const
+{
+	uint16_t result = this->Resolve(*reinterpret_cast<uint16_t*>(&data));
+	return *reinterpret_cast<int16_t*>(&result);
+}
+
+int32_t ByteSwapper::Resolve(int32_t data) const
+{
+	uint32_t result = this->Resolve(*reinterpret_cast<uint32_t*>(&data));
+	return *reinterpret_cast<int32_t*>(&result);
+}
+
+int64_t ByteSwapper::Resolve(int64_t data) const
+{
+	uint64_t result = this->Resolve(*reinterpret_cast<uint64_t*>(&data));
+	return *reinterpret_cast<int64_t*>(&result);
+}

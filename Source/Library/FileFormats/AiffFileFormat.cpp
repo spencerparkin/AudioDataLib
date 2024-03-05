@@ -18,10 +18,106 @@ AiffFileFormat::AiffFileFormat()
 	// https://paulbourke.net/dataformats/audio/
 
 	AiffChunkParser parser;
+
+	// Some file formats have a special magic value in a header that can be used to
+	// test whether byte-swapping is needed or not, but for now, assume it is.
 	parser.byteSwapper.swapsNeeded = true;
 
 	if (!parser.ParseStream(inputStream, error))
 		return false;
+
+	const ChunkParser::Chunk* commonChunk = parser.FindChunk("COMM", "", false);
+	if (!commonChunk)
+	{
+		error.Add("Did not find a common chunk.");
+		return false;
+	}
+
+	ReadOnlyBufferStream commonStream(commonChunk->GetBuffer(), commonChunk->GetBufferSize());
+	
+	int16_t numChannels = 0;
+	if (sizeof(numChannels) != commonStream.ReadBytesFromStream((uint8_t*)&numChannels, sizeof(numChannels)))
+	{
+		error.Add("Failed to read number of channels.");
+		return false;
+	}
+
+	numChannels = parser.byteSwapper.Resolve(numChannels);
+
+	uint32_t numFrames = 0;
+	if (sizeof(numFrames) != commonStream.ReadBytesFromStream((uint8_t*)&numFrames, sizeof(numFrames)))
+	{
+		error.Add("Failed to read number of frames.");
+		return false;
+	}
+
+	numFrames = parser.byteSwapper.Resolve(numFrames);
+
+	int16_t sampleSizeBytes;
+	if (sizeof(sampleSizeBytes) != commonStream.ReadBytesFromStream((uint8_t*)&sampleSizeBytes, sizeof(sampleSizeBytes)))
+	{
+		error.Add("Failed to read sample size.");
+		return false;
+	}
+
+	sampleSizeBytes = parser.byteSwapper.Resolve(sampleSizeBytes);
+
+	uint8_t sampleRateBuffer[10];
+	if (sizeof(sampleRateBuffer) != commonStream.ReadBytesFromStream((uint8_t*)sampleRateBuffer, sizeof(sampleRateBuffer)))
+	{
+		error.Add("Failed to read sample rate buffer.");
+		return false;
+	}
+
+	uint8_t sign = sampleRateBuffer[0] & 0x80;
+	if (sign != 0)
+	{
+		error.Add("Doesn't make sense for sample rate to be negative.");
+		return false;
+	}
+
+	int32_t exponent = int32_t((uint16_t(sampleRateBuffer[0] & 0x7F) << 8) | uint16_t(sampleRateBuffer[1]));
+	int32_t shift = exponent - 16383;
+	if (shift < 7)
+	{
+		error.Add("Was given a sample rate with a non-zero fractional part.  Expected a whole-number for the sample rate.");
+		return false;
+	}
+
+	uint64_t sampleRate =
+		(uint64_t(sampleRateBuffer[2]) << 40) |
+		(uint64_t(sampleRateBuffer[3]) << 32) |
+		(uint64_t(sampleRateBuffer[4]) << 24) |
+		(uint64_t(sampleRateBuffer[5]) << 16) |
+		(uint64_t(sampleRateBuffer[6]) << 8) |
+		(uint64_t(sampleRateBuffer[7]) << 0);
+
+	sampleRate >>= 47 - shift;
+
+	const ChunkParser::Chunk* soundChunk = parser.FindChunk("SSND", "", false);
+	if (!soundChunk)
+	{
+		error.Add("No sound chunk found.");
+		return false;
+	}
+
+	ReadOnlyBufferStream soundStream(soundChunk->GetBuffer(), soundChunk->GetBufferSize());
+
+	uint32_t offset = 0;
+	if (sizeof(offset) != soundStream.ReadBytesFromStream((uint8_t*)&offset, sizeof(offset)))
+	{
+		error.Add("Failed to read sound buffer offset.");
+		return false;
+	}
+
+	uint32_t blockSize = 0;
+	if (sizeof(blockSize) != soundStream.ReadBytesFromStream((uint8_t*)&blockSize, sizeof(blockSize)))
+	{
+		error.Add("Failed to read block size from sound chunk.");
+		return false;
+	}
+
+	// TODO: If an INST chunk exists, we could return a WaveTableData::AudioSampleData instance instead of just an AudioData instance.
 
 	// TODO: Produce AudioData here and assign it to fileData.
 
@@ -56,7 +152,15 @@ AiffFileFormat::AiffChunkParser::AiffChunkParser()
 		}
 
 		formType[4] = '\0';
-		if (0 != strcmp(formType, "AIFF") && 0 != strcmp(formType, "AIFC"))
+
+		if (0 == strcmp(formType, "AIFC"))
+		{
+			// TODO: Would be nice if we could handle A-law and u-law compression.  Documentation on the subject seems scant & poor, as always.
+			error.Add("Can't yet handled compressed AIF files.");
+			return false;
+		}
+
+		if (0 != strcmp(formType, "AIFF"))
 		{
 			error.Add("File does not appears to be an AIFF file.");
 			return false;
