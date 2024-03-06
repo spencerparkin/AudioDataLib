@@ -74,3 +74,18 @@ int64_t ByteSwapper::Resolve(int64_t data) const
 	uint64_t result = this->Resolve(*reinterpret_cast<uint64_t*>(&data));
 	return *reinterpret_cast<int64_t*>(&result);
 }
+
+void ByteSwapper::Resolve(uint8_t* buffer, uint32_t bufferSize)
+{
+	if (!this->swapsNeeded)
+		return;
+
+	for (uint32_t i = 0; i < bufferSize; i++)
+	{
+		uint32_t j = bufferSize - 1 - i;
+
+		buffer[i] ^= buffer[j];
+		buffer[j] ^= buffer[i];
+		buffer[i] ^= buffer[j];
+	}
+}

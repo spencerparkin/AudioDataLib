@@ -1,4 +1,5 @@
 #include "AiffFileFormat.h"
+#include "WaveTableData.h"
 #include "Error.h"
 
 using namespace AudioDataLib;
@@ -53,14 +54,16 @@ AiffFileFormat::AiffFileFormat()
 
 	numFrames = parser.byteSwapper.Resolve(numFrames);
 
-	int16_t sampleSizeBytes;
-	if (sizeof(sampleSizeBytes) != commonStream.ReadBytesFromStream((uint8_t*)&sampleSizeBytes, sizeof(sampleSizeBytes)))
+	int16_t sampleSizeBits = 0;
+	if (sizeof(sampleSizeBits) != commonStream.ReadBytesFromStream((uint8_t*)&sampleSizeBits, sizeof(sampleSizeBits)))
 	{
 		error.Add("Failed to read sample size.");
 		return false;
 	}
 
-	sampleSizeBytes = parser.byteSwapper.Resolve(sampleSizeBytes);
+	sampleSizeBits = parser.byteSwapper.Resolve(sampleSizeBits);
+
+	uint16_t sampleSizeBytes = sampleSizeBits / 8;
 
 	uint8_t sampleRateBuffer[10];
 	if (sizeof(sampleRateBuffer) != commonStream.ReadBytesFromStream((uint8_t*)sampleRateBuffer, sizeof(sampleRateBuffer)))
@@ -117,10 +120,72 @@ AiffFileFormat::AiffFileFormat()
 		return false;
 	}
 
-	// TODO: If an INST chunk exists, we could return a WaveTableData::AudioSampleData instance instead of just an AudioData instance.
+	while (offset-- > 0)
+	{
+		uint8_t padByte = 0;
+		if (1 != soundStream.ReadBytesFromStream(&padByte, 1))
+		{
+			error.Add("Failed to read pad-byte.");
+			return false;
+		}
+	}
 
-	// TODO: Produce AudioData here and assign it to fileData.
+	AudioData* audioData = nullptr;
 
+	const ChunkParser::Chunk* instrumentChunk = parser.FindChunk("INST", "", false);
+	if (!instrumentChunk)
+		audioData = new AudioData();
+	else
+	{
+		WaveTableData::AudioSampleData* audioSampleData = new WaveTableData::AudioSampleData();
+		
+		// TODO: Fill-out looping information here.
+
+		audioData = audioSampleData;
+	}
+
+	uint64_t audioBufferSize = sampleSizeBytes * numFrames * numChannels;
+	audioData->SetAudioBufferSize(audioBufferSize);
+
+	WriteOnlyBufferStream targetSoundStream(audioData->GetAudioBuffer(), audioData->GetAudioBufferSize());
+
+	uint8_t* sampleBuffer = new uint8_t[sampleSizeBytes];
+
+	uint64_t numSamples = numFrames * numChannels;
+	for (uint64_t i = 0; i < numSamples; i++)
+	{
+		if (sampleSizeBytes != soundStream.ReadBytesFromStream(sampleBuffer, sampleSizeBytes))
+		{
+			error.Add(FormatString("Failed to read sample %d of %d.", i, numSamples));
+			break;
+		}
+
+		parser.byteSwapper.Resolve(sampleBuffer, sampleSizeBytes);
+
+		if (sampleSizeBytes != targetSoundStream.WriteBytesToStream(sampleBuffer, sampleSizeBytes))
+		{
+			error.Add(FormatString("Failed to write sample %d of %d.", i, numSamples));
+			break;
+		}
+	}
+
+	delete[] sampleBuffer;
+
+	if (error)
+	{
+		delete fileData;
+		fileData = nullptr;
+		return false;
+	}
+
+	AudioData::Format format;
+	format.bitsPerSample = sampleSizeBits;
+	format.sampleType = AudioData::Format::SampleType::SIGNED_INTEGER;
+	format.numChannels = numChannels;
+	format.framesPerSecond = sampleRate;
+	audioData->SetFormat(format);
+
+	fileData = audioData;
 	return true;
 }
 

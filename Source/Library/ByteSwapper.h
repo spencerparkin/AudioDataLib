@@ -18,6 +18,8 @@ namespace AudioDataLib
 		int32_t Resolve(int32_t data) const;
 		int64_t Resolve(int64_t data) const;
 
+		void Resolve(uint8_t* buffer, uint32_t bufferSize);
+
 		bool swapsNeeded;
 	};
 }
