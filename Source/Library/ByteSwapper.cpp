@@ -84,8 +84,11 @@ void ByteSwapper::Resolve(uint8_t* buffer, uint32_t bufferSize)
 	{
 		uint32_t j = bufferSize - 1 - i;
 
-		buffer[i] ^= buffer[j];
-		buffer[j] ^= buffer[i];
-		buffer[i] ^= buffer[j];
+		if (i != j)
+		{
+			buffer[i] = buffer[i] ^ buffer[j];
+			buffer[j] = buffer[i] ^ buffer[j];
+			buffer[i] = buffer[i] ^ buffer[j];
+		}
 	}
 }

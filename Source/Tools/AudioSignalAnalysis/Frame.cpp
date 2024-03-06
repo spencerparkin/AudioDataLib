@@ -143,7 +143,7 @@ void Frame::OnGenerateFrequencyGraph(wxCommandEvent& event)
 
 void Frame::OnImportAudio(wxCommandEvent& event)
 {
-	wxFileDialog fileDialog(this, "Locate your audio data files.", wxEmptyString, wxEmptyString, "Wave Files (*.wav)|*.wav|Sound-Font Files (*.sf2)|*.sf2", wxFD_FILE_MUST_EXIST | wxFD_MULTIPLE);
+	wxFileDialog fileDialog(this, "Locate your audio data files.", wxEmptyString, wxEmptyString, "Wave Files (*.wav)|*.wav|Aif Files (*.aif)|*.aif|Sound-Font Files (*.sf2)|*.sf2", wxFD_FILE_MUST_EXIST | wxFD_MULTIPLE);
 	if (wxID_OK != fileDialog.ShowModal())
 		return;
 
