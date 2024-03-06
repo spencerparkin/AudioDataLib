@@ -32,6 +32,8 @@ set(LIBRARY_SOURCES
     Math/ComplexVector.h
     Math/Function.cpp
     Math/Function.h
+    Math/Compansion.cpp
+    Math/Compansion.h
     MIDI/MidiMsgLogDestination.cpp
     MIDI/MidiMsgLogDestination.h
     MIDI/MidiPlayer.cpp
