@@ -26,14 +26,18 @@ set(LIBRARY_SOURCES
     FileFormats/AiffFileFormat.h
     FileFormats/DownloadableSoundFormat.cpp
     FileFormats/DownloadableSoundFormat.h
+    Codecs/Codec.cpp
+    Codecs/Codec.h
+    Codecs/ALawCodec.cpp
+    Codecs/ALawCodec.h
+    Codecs/uLawCodec.cpp
+    Codecs/uLawCodec.h
     Math/ComplexNumber.cpp
     Math/ComplexNumber.h
     Math/ComplexVector.cpp
     Math/ComplexVector.h
     Math/Function.cpp
     Math/Function.h
-    Math/Compansion.cpp
-    Math/Compansion.h
     MIDI/MidiMsgLogDestination.cpp
     MIDI/MidiMsgLogDestination.h
     MIDI/MidiPlayer.cpp
@@ -115,5 +119,6 @@ target_include_directories(AudioDataLib PUBLIC
     "Math"
     "MIDI"
     "SynthModules"
+    "Codecs"
     "."
 )

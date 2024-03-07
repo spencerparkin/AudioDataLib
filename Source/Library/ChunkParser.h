@@ -52,6 +52,7 @@ namespace AudioDataLib
 
 			const std::string& GetName() const { return *this->name; }
 			const std::string& GetFormType() const { return *this->formType; }
+			void SetFormType(const char* formType) { *this->formType = formType; }
 
 		protected:
 			std::string* name;

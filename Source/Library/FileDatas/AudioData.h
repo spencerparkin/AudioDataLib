@@ -12,13 +12,16 @@ namespace AudioDataLib
 	 * 
 	 * Note that this kind of data is not tied to any particular file format.  As of this writing, the
 	 * WaveFileFormat and AiffFileFormat classes both produce this kind of data from file.  Indirectly,
-	 * an AudioData class instances is also produced from a sound-font file using the SoundFontFormat class.
+	 * an AudioData class instances is also produced from an SF2 or DLS file using the WaveFileFormat class.
+	 * The general format of the sound-data here is linear PCM, ready to be fed to the hardware (for audio playback),
+	 * or what we would expect from the hardware (for audio capture/recording.)
 	 * 
 	 * In contrast, the WaveForm class is used as a format-independent space where math calculations and
 	 * transforms on audio data can more easily be performed.  A typical use-case is that of resampling,
 	 * or converting from one format to another.  Format conversion proceeds by simply converting first,
 	 * a given AudioData instance, into a WaveForm class instance, and then back to an AudioData instance
-	 * of the desired audio format.
+	 * of the desired audio format.  AudioData can be multichanneled, but WaveForm data is always a single
+	 * signal (mono.)
 	 * 
 	 * Note that audio data is not typically handed to a sound-card using this class directly.  Rather, an
 	 * instance of the AudioStream class in concert with the AudioSink class is used to do that.

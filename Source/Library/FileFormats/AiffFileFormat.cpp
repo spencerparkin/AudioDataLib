@@ -1,5 +1,8 @@
 #include "AiffFileFormat.h"
 #include "WaveTableData.h"
+#include "Codec.h"
+#include "ALawCodec.h"
+#include "uLawCodec.h"
 #include "Error.h"
 
 using namespace AudioDataLib;
@@ -26,6 +29,13 @@ AiffFileFormat::AiffFileFormat()
 
 	if (!parser.ParseStream(inputStream, error))
 		return false;
+
+	const ChunkParser::Chunk* formChunk = parser.FindChunk("FORM", "", false);
+	if (!formChunk)
+	{
+		error.Add("Did not find the form chunk.");
+		return false;
+	}
 
 	const ChunkParser::Chunk* commonChunk = parser.FindChunk("COMM", "", false);
 	if (!commonChunk)
@@ -97,6 +107,54 @@ AiffFileFormat::AiffFileFormat()
 
 	sampleRate >>= 47 - shift;
 
+	char compressionType[5] = "";
+	std::string compressionTypeName;
+
+	if (formChunk->GetFormType() == "AIFC")
+	{
+		if (4 != commonStream.ReadBytesFromStream((uint8_t*)&compressionType, 4))
+		{
+			error.Add("Failed to read compression type ID from common chunk.");
+			return false;
+		}
+
+		compressionType[4] = '\0';
+
+		uint8_t compressionTypeStringLength = 0;
+		if (1 != commonStream.ReadBytesFromStream(&compressionTypeStringLength, 1))
+		{
+			error.Add("Failed to read compression type string length from common chunk.");
+			return false;
+		}
+
+		for (uint8_t i = 0; i < compressionTypeStringLength; i++)
+		{
+			char ch = 0;
+			if (1 != commonStream.ReadBytesFromStream((uint8_t*)&ch, 1))
+			{
+				error.Add(FormatString("Failed to read compression type string character %d of %d from common chunk.", i, compressionTypeStringLength));
+				return false;
+			}
+
+			compressionTypeName += ch;
+		}
+	}
+
+	std::shared_ptr<Codec> codec;
+
+	if (0 == ::strlen(compressionType) || 0 == ::strcmp(compressionType, "NONE"))
+		codec.reset(new ByteSwappedAudioCodec(&parser.byteSwapper));
+	else if (0 == ::strcmp(compressionType, "ulaw"))
+		codec.reset(new uLawCodec());
+	else if (0 == ::strcmp(compressionType, "alaw"))
+		codec.reset(new ALawCodec());
+
+	if (!codec.get())
+	{
+		error.Add(FormatString("An audio codec could not be determined for this file.  The comperssion type name is \"%s\".", compressionTypeName.c_str()));
+		return false;
+	}
+
 	const ChunkParser::Chunk* soundChunk = parser.FindChunk("SSND", "", false);
 	if (!soundChunk)
 	{
@@ -144,46 +202,19 @@ AiffFileFormat::AiffFileFormat()
 		audioData = audioSampleData;
 	}
 
-	uint64_t audioBufferSize = sampleSizeBytes * numFrames * numChannels;
-	audioData->SetAudioBufferSize(audioBufferSize);
-
-	WriteOnlyBufferStream targetSoundStream(audioData->GetAudioBuffer(), audioData->GetAudioBufferSize());
-
-	uint8_t* sampleBuffer = new uint8_t[sampleSizeBytes];
-
-	uint64_t numSamples = numFrames * numChannels;
-	for (uint64_t i = 0; i < numSamples; i++)
-	{
-		if (sampleSizeBytes != soundStream.ReadBytesFromStream(sampleBuffer, sampleSizeBytes))
-		{
-			error.Add(FormatString("Failed to read sample %d of %d.", i, numSamples));
-			break;
-		}
-
-		parser.byteSwapper.Resolve(sampleBuffer, sampleSizeBytes);
-
-		if (sampleSizeBytes != targetSoundStream.WriteBytesToStream(sampleBuffer, sampleSizeBytes))
-		{
-			error.Add(FormatString("Failed to write sample %d of %d.", i, numSamples));
-			break;
-		}
-	}
-
-	delete[] sampleBuffer;
-
-	if (error)
-	{
-		delete fileData;
-		fileData = nullptr;
-		return false;
-	}
-
 	AudioData::Format format;
 	format.bitsPerSample = sampleSizeBits;
 	format.sampleType = AudioData::Format::SampleType::SIGNED_INTEGER;
 	format.numChannels = numChannels;
 	format.framesPerSecond = sampleRate;
 	audioData->SetFormat(format);
+
+	if(!codec->Decode(soundStream, *audioData, error))
+	{
+		delete fileData;
+		fileData = nullptr;
+		return false;
+	}
 
 	fileData = audioData;
 	return true;
@@ -217,19 +248,13 @@ AiffFileFormat::AiffChunkParser::AiffChunkParser()
 		}
 
 		formType[4] = '\0';
-
-		if (0 == strcmp(formType, "AIFC"))
-		{
-			// TODO: Would be nice if we could handle A-law and u-law compression.  Documentation on the subject seems scant & poor, as always.
-			error.Add("Can't yet handled compressed AIF files.");
-			return false;
-		}
-
-		if (0 != strcmp(formType, "AIFF"))
+		if (0 != strcmp(formType, "AIFF") && 0 != strcmp(formType, "AIFC"))
 		{
 			error.Add("File does not appears to be an AIFF file.");
 			return false;
 		}
+
+		chunk->SetFormType(formType);
 
 		if (!chunk->ParseSubChunks(inputStream, this, error))
 			return false;
