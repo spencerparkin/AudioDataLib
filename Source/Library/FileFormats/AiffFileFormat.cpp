@@ -211,8 +211,7 @@ AiffFileFormat::AiffFileFormat()
 
 	if(!codec->Decode(soundStream, *audioData, error))
 	{
-		delete fileData;
-		fileData = nullptr;
+		delete audioData;
 		return false;
 	}
 

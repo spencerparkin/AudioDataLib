@@ -13,5 +13,15 @@ namespace AudioDataLib
 
 		virtual bool Decode(ByteStream& inputStream, AudioData& audioOut, Error& error) override;
 		virtual bool Encode(ByteStream& outputStream, const AudioData& audioIn, Error& error) override;
+
+	private:
+		struct ULawTableEntry
+		{
+			uint8_t rangeCode;
+			int16_t minSample, maxSample;
+			int16_t intervalSize;
+		};
+
+		std::vector<ULawTableEntry>* ulawTableArray;
 	};
 }
