@@ -76,7 +76,7 @@ uLawCodec::uLawCodec()
 			{
 				if (entry.rangeCode == rangeCode)
 				{
-					*expandedSample = entry.minSample + intervalNumber * entry.intervalSize;
+					*expandedSample = entry.minSample + ADL_SIGN(entry.minSample) * intervalNumber * entry.intervalSize;
 					foundRangeCode = true;
 					break;
 				}
@@ -89,7 +89,7 @@ uLawCodec::uLawCodec()
 			}
 		}
 
-		*expandedSample *= 8;	// HACK: What should the gain really be?
+		//*expandedSample *= 8;	// HACK: What should the gain really be?
 
 		expandedSample++;
 	}
