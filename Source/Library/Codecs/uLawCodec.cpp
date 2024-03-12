@@ -71,12 +71,12 @@ uLawCodec::uLawCodec()
 			int16_t intervalNumber = sample & 0x0F;
 
 			bool foundRangeCode = false;
-
+			double sampleResult = 0.0;
 			for (const ULawTableEntry& entry : *this->ulawTableArray)
 			{
 				if (entry.rangeCode == rangeCode)
 				{
-					*expandedSample = entry.minSample + ADL_SIGN(entry.minSample) * intervalNumber * entry.intervalSize;
+					sampleResult = double(entry.minSample + (entry.minSample < 0 ? -1 : 1) * intervalNumber * entry.intervalSize);
 					foundRangeCode = true;
 					break;
 				}
@@ -87,9 +87,15 @@ uLawCodec::uLawCodec()
 				error.Add(FormatString("Failed to find range code %d in u-law table.", rangeCode));
 				return false;
 			}
-		}
 
-		//*expandedSample *= 8;	// HACK: What should the gain really be?
+			constexpr double numeric_limits_int14 = 8159.0;
+			constexpr double numeric_limits_int16 = double(std::numeric_limits<int16_t>::max());
+			constexpr double conversionFactor = numeric_limits_int16 / numeric_limits_int14;
+			
+			sampleResult *= conversionFactor;
+			sampleResult = ADL_CLAMP(sampleResult, -numeric_limits_int16, numeric_limits_int16);
+			*expandedSample = int16_t(sampleResult);
+		}
 
 		expandedSample++;
 	}
