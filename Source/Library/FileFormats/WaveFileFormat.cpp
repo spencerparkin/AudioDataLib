@@ -99,7 +99,13 @@ WaveFileFormat::WaveFileFormat()
 	{
 		case SampleFormat::PCM:
 		{
-			format.sampleType = AudioData::Format::SIGNED_INTEGER;
+			// Apparently, with WAV, 8-bit is always unsigned, and anything higher is signed.
+			// WAV does not have a way to indicate the signed-ness of the data, which is dumb.
+			if (bitsPerSample == 8)
+				format.sampleType = AudioData::Format::UNSIGNED_INTEGER;
+			else
+				format.sampleType = AudioData::Format::SIGNED_INTEGER;
+
 			break;
 		}
 		case SampleFormat::IEEE_FLOAT:
@@ -111,6 +117,61 @@ WaveFileFormat::WaveFileFormat()
 				error.Add("Don't yet know how to support floating-point samples if they're not 32-bit or 64-bit.");
 				return false;
 			}
+
+			break;
+		}
+		case SampleFormat::EXTENSIBLE:
+		{
+			uint16_t extensionSize = 0;
+			if (2 != formatStream.ReadBytesFromStream((uint8_t*)&extensionSize, 2))
+			{
+				error.Add("Failed to read format extension size.");
+				return false;
+			}
+
+			if (extensionSize != 22)
+			{
+				error.Add("Expected extension size to be 22 bytes.");
+				return false;
+			}
+
+			uint16_t validBitsPerSample = 0;
+			if (2 != formatStream.ReadBytesFromStream((uint8_t*)&validBitsPerSample, 2))
+			{
+				error.Add("Failed to read valid bits per sample.");
+				return false;
+			}
+
+			if (validBitsPerSample != bitsPerSample)
+			{
+				error.Add("This software does not yet handle the case when the extension's bits-per-sample mismatches the regular bits-per-sample.");
+				return false;
+			}
+
+			uint32_t channelMask = 0;		// TODO: Use this at some point.
+			if (4 != formatStream.ReadBytesFromStream((uint8_t*)&channelMask, 4))
+			{
+				error.Add("Failed to read channel mask.");
+				return false;
+			}
+
+			uint16_t subFormat = 0;
+			if (2 != formatStream.ReadBytesFromStream((uint8_t*)&subFormat, 2))
+			{
+				error.Add("Failed to read sub-format.");
+				return false;
+			}
+
+			if (subFormat != SampleFormat::PCM)
+			{
+				error.Add(FormatString("Can't yet handle sub-formats of type %d.", subFormat));
+				return false;
+			}
+
+			if (bitsPerSample == 8)
+				format.sampleType = AudioData::Format::UNSIGNED_INTEGER;
+			else
+				format.sampleType = AudioData::Format::SIGNED_INTEGER;
 
 			break;
 		}

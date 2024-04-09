@@ -51,6 +51,9 @@ AudioData::AudioData()
 	case Format::SampleType::SIGNED_INTEGER:
 		sampleTypeStr = "Signed integer";
 		break;
+	case Format::SampleType::UNSIGNED_INTEGER:
+		sampleTypeStr = "Unsigned integer";
+		break;
 	default:
 		sampleTypeStr = "?";
 		break;

@@ -100,7 +100,33 @@ bool WaveForm::ConvertFromAudioBuffer(const AudioData::Format& format, const uin
 				}
 				default:
 				{
-					error.Add(FormatString("Bad bit-depth (%d) for integers.", format.bitsPerSample));
+					error.Add(FormatString("Bad bit-depth (%d) for signed integers.", format.bitsPerSample));
+					break;
+				}
+			}
+		}
+		else if (format.sampleType == AudioData::Format::UNSIGNED_INTEGER)
+		{
+			switch (format.bitsPerSample)
+			{
+				case 8:
+				{
+					sample.amplitude = this->CopyUIntSampleFromBuffer<uint8_t>(sampleBuf);
+					break;
+				}
+				case 16:
+				{
+					sample.amplitude = this->CopyUIntSampleFromBuffer<uint16_t>(sampleBuf);
+					break;
+				}
+				case 32:
+				{
+					sample.amplitude = this->CopyUIntSampleFromBuffer<uint32_t>(sampleBuf);
+					break;
+				}
+				default:
+				{
+					error.Add(FormatString("Bad bit-depth (%d) for unsigned integers.", format.bitsPerSample));
 					break;
 				}
 			}
@@ -182,8 +208,34 @@ bool WaveForm::ConvertToAudioBuffer(const AudioData::Format& format, uint8_t* au
 				}
 				default:
 				{
-					error.Add(FormatString("Bad bit-depth (%d) for integers.", format.bitsPerSample));
+					error.Add(FormatString("Bad bit-depth (%d) for signed integers.", format.bitsPerSample));
 					return false;
+				}
+			}
+		}
+		else if (format.sampleType == AudioData::Format::UNSIGNED_INTEGER)
+		{
+			switch (format.bitsPerSample)
+			{
+				case 8:
+				{
+					this->CopyUIntSampleToBuffer<uint8_t>(sampleBuf, amplitude);
+					break;
+				}
+				case 16:
+				{
+					this->CopyUIntSampleToBuffer<uint16_t>(sampleBuf, amplitude);
+					break;
+				}
+				case 32:
+				{
+					this->CopyUIntSampleToBuffer<uint32_t>(sampleBuf, amplitude);
+					break;
+				}
+				default:
+				{
+					error.Add(FormatString("Bad bit-depth (%d) for unsigned integers.", format.bitsPerSample));
+					break;
 				}
 			}
 		}

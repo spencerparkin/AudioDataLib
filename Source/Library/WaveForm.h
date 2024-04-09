@@ -273,13 +273,27 @@ namespace AudioDataLib
 
 			int64_t sampleWide = int64_t(sampleNormalized * double(maxSample));
 
-			int64_t sampleWideClamped = sampleWide;
-			if (sampleWideClamped > maxSample)
-				sampleWideClamped = maxSample;
-			if (sampleWideClamped < minSample)
-				sampleWideClamped = minSample;
+			if (sampleWide > maxSample)
+				sampleWide = maxSample;
+			if (sampleWide < minSample)
+				sampleWide = minSample;
 
-			T sampleNarrow = T(sampleWideClamped);
+			T sampleNarrow = T(sampleWide);
+			::memcpy(sampleBuffer, (const void*)&sampleNarrow, sizeof(T));
+		}
+
+		// TODO: Add byte-swapping here.
+		template<typename T>
+		void CopyUIntSampleToBuffer(uint8_t* sampleBuffer, double sampleNormalized) const
+		{
+			constexpr uint64_t maxSample = std::numeric_limits<T>::max();
+
+			uint64_t sampleWide = uint64_t((sampleNormalized + 1.0) * double(maxSample) / 2.0);
+
+			if (sampleWide > maxSample)
+				sampleWide = maxSample;
+
+			T sampleNarrow = T(sampleWide);
 			::memcpy(sampleBuffer, (const void*)&sampleNarrow, sizeof(T));
 		}
 
@@ -302,6 +316,20 @@ namespace AudioDataLib
 
 			double sampleFloat = double(sampleNarrow);
 			double sampleNormalized = sampleFloat / double(maxSample);
+			return sampleNormalized;
+		}
+
+		// TODO: Add byte-swapping here.
+		template<typename T>
+		double CopyUIntSampleFromBuffer(const uint8_t* sampleBuffer)
+		{
+			constexpr uint64_t maxSample = std::numeric_limits<T>::max();
+
+			T sampleNarrow = 0;
+			::memcpy(&sampleNarrow, sampleBuffer, sizeof(T));
+
+			double sampleFloat = double(sampleNarrow);
+			double sampleNormalized = (sampleFloat / double(maxSample)) * 2.0 - 1.0;
 			return sampleNormalized;
 		}
 

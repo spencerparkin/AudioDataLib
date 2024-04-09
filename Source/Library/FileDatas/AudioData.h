@@ -52,7 +52,8 @@ namespace AudioDataLib
 		{
 			enum SampleType
 			{
-				SIGNED_INTEGER,	// TODO: Add UNSIGNED_INTEGER type?
+				SIGNED_INTEGER,
+				UNSIGNED_INTEGER,
 				FLOAT
 			};
 

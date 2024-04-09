@@ -52,25 +52,57 @@ namespace AudioDataLib
 		template<typename T>
 		T CalcNetSample()
 		{
-			int64_t netSampleWide = 0;
-
-			for (auto& audioStreamIn : *this->audioStreamInArray)
+			if constexpr (std::is_signed<T>())
 			{
-				T sampleNarrow = 0;
-				if (audioStreamIn->ReadType<T>(&sampleNarrow))
-					netSampleWide += int64_t(sampleNarrow);
+				int64_t netSampleWide = 0;
+
+				for (auto& audioStreamIn : *this->audioStreamInArray)
+				{
+					T sampleNarrow = 0;
+					if (audioStreamIn->ReadType<T>(&sampleNarrow))
+						netSampleWide += int64_t(sampleNarrow);
+				}
+
+				constexpr int64_t minSample = std::numeric_limits<T>::min();
+				constexpr int64_t maxSample = std::numeric_limits<T>::max();
+
+				if (netSampleWide > maxSample)
+					netSampleWide = maxSample;
+				if (netSampleWide < minSample)
+					netSampleWide = minSample;
+
+				T netSampleNarrow = T(netSampleWide);
+				return netSampleNarrow;
 			}
+			else
+			{
+				// TODO: This has not yet been tested.  Test it.
 
-			constexpr int64_t minSample = std::numeric_limits<T>::min();
-			constexpr int64_t maxSample = std::numeric_limits<T>::max();
-			
-			if (netSampleWide > maxSample)
-				netSampleWide = maxSample;
-			if (netSampleWide < minSample)
-				netSampleWide = minSample;
+				int64_t netSampleSignedWide = 0;
+				constexpr int64_t delta = (1 << (sizeof(T) * 8 - 1)) - 1;
 
-			T netSampleNarrow = T(netSampleWide);
-			return netSampleNarrow;
+				for (auto& audioStreamIn : *this->audioStreamInArray)
+				{
+					T sampleUnsignedNarrow = 0;
+					if (audioStreamIn->ReadType<T>(&sampleUnsignedNarrow))
+					{
+						int64_t sampleSignedWide = int64_t(sampleUnsignedNarrow) - delta;
+						netSampleSignedWide += sampleSignedWide;
+					}
+				}
+
+				constexpr int64_t maxSample = 1 << (sizeof(T) * 8 - 1);
+				constexpr int64_t minSample = -maxSample + 1;
+
+				if (netSampleSignedWide > maxSample)
+					netSampleSignedWide = maxSample;
+				if (netSampleSignedWide < minSample)
+					netSampleSignedWide = minSample;
+
+				uint64_t netSampleUnsignedWide = uint64_t(netSampleSignedWide + delta);
+				T netSampleUnsignedNarrow = T(netSampleUnsignedWide);
+				return netSampleUnsignedNarrow;
+			}
 		}
 
 		// TODO: Byte swapping?

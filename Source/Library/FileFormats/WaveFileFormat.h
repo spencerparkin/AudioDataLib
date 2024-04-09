@@ -12,7 +12,6 @@ namespace AudioDataLib
 	 * 
 	 * Wave files are a common, uncompressed (and therefore lossless) audio format,
 	 * containing audio data in PCM (pulse code modulation) or floating-point format.
-	 * I still need to add support unsigned PCM once I get my hands on an example file.
 	 */
 	class AUDIO_DATA_LIB_API WaveFileFormat : public FileFormat
 	{
@@ -25,7 +24,10 @@ namespace AudioDataLib
 		enum SampleFormat
 		{
 			PCM = 1,
-			IEEE_FLOAT = 3
+			IEEE_FLOAT = 3,
+			A_LAW = 6,
+			U_LAW = 7,
+			EXTENSIBLE = 0xFFFE
 		};
 
 		virtual bool ReadFromStream(ByteStream& inputStream, FileData*& fileData, Error& error) override;

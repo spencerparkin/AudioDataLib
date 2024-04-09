@@ -30,6 +30,7 @@
 #include <chrono>
 #include <map>
 #include <algorithm>
+#include <type_traits>
 
 /** \mainpage AudioDataLib
  * 

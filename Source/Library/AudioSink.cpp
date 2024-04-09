@@ -110,6 +110,30 @@ void AudioSink::GenerateAudio(double desiredSecondsAvailable, double minSecondsA
 					}
 				}
 			}
+			else if ((*this->audioStreamOut)->GetFormat().sampleType == AudioData::Format::UNSIGNED_INTEGER)
+			{
+				switch ((*this->audioStreamOut)->GetFormat().bitsPerSample)
+				{
+					case 8:
+					{
+						uint8_t netSample = this->CalcNetSample<uint8_t>();
+						::memcpy(sampleBuffer, (const void*)&netSample, sizeof(uint8_t));
+						break;
+					}
+					case 16:
+					{
+						uint16_t netSample = this->CalcNetSample<uint16_t>();
+						::memcpy(sampleBuffer, (const void*)&netSample, sizeof(uint16_t));
+						break;
+					}
+					case 32:
+					{
+						uint32_t netSample = this->CalcNetSample<uint32_t>();
+						::memcpy(sampleBuffer, (const void*)&netSample, sizeof(uint32_t));
+						break;
+					}
+				}
+			}
 			else if ((*this->audioStreamOut)->GetFormat().sampleType == AudioData::Format::FLOAT)
 			{
 				switch ((*this->audioStreamOut)->GetFormat().bitsPerSample)

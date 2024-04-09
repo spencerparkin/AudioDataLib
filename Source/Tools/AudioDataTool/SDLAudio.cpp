@@ -76,15 +76,13 @@ bool SDLAudio::Setup(const std::string& deviceSubStr, Error& error)
 	format.bitsPerSample = SDL_AUDIO_BITSIZE(this->audioSpec.format);
 	format.framesPerSecond = this->audioSpec.freq;
 
+	// TODO: What about big/little endian?
 	if (SDL_AUDIO_ISFLOAT(this->audioSpec.format))
 		format.sampleType = AudioData::Format::FLOAT;
-	else if (SDL_AUDIO_ISSIGNED(this->audioSpec.format))	// TODO: Our audio data is always signed.  Do I need to add support for the unsigned case?
+	else if (SDL_AUDIO_ISSIGNED(this->audioSpec.format))
 		format.sampleType = AudioData::Format::SIGNED_INTEGER;
 	else
-	{
-		error.Add("SDL format not yet supported by AudioDataLib.");
-		return false;
-	}
+		format.sampleType = AudioData::Format::UNSIGNED_INTEGER;
 
 	this->audioStream->SetFormat(format);
 
