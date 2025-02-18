@@ -6,7 +6,6 @@ namespace AudioDataLib
 {
 	class FileData;
 	class ByteStream;
-	class Error;
 
 	/**
 	 * @brief Derivatives of this class must impliment an interface that can be used to read or write file
@@ -24,20 +23,18 @@ namespace AudioDataLib
 		 * 
 		 * @param[in,out] inputStream This must be a ByteStream derivative that can handle read operations.
 		 * @param[out] fileData On success, this pointer is assigned a heap allocation the user is reponsible for freeing.
-		 * @param[out] error This will contain error information if false is returned.
 		 * @return True is returned on success; false otherwise.
 		 */
-		virtual bool ReadFromStream(ByteStream& inputStream, FileData*& fileData, Error& error) = 0;
+		virtual bool ReadFromStream(ByteStream& inputStream, FileData*& fileData) = 0;
 
 		/**
 		 * The given file data is written to the given stream.
 		 * 
 		 * @param[out] outputStream This must be a ByteStream derivative that can accept write operations.
 		 * @param[in] fileData This is the file data to be written to the stream.
-		 * @param[out] error This will contain error information if false is returned.
 		 * @return True is returned on success; false otherwise.
 		 */
-		virtual bool WriteToStream(ByteStream& outputStream, const FileData* fileData, Error& error) = 0;
+		virtual bool WriteToStream(ByteStream& outputStream, const FileData* fileData) = 0;
 
 		/**
 		 * This is a factory method which will create and return a shared pointer to a FileFormat class

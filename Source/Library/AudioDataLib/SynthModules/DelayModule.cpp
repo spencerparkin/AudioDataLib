@@ -1,5 +1,5 @@
 #include "AudioDataLib/SynthModules/DelayModule.h"
-#include "AudioDataLib/Error.h"
+#include "AudioDataLib/ErrorSystem.h"
 
 using namespace AudioDataLib;
 
@@ -13,18 +13,18 @@ DelayModule::DelayModule() : waveFormStream(2, 0.5)
 {
 }
 
-/*virtual*/ bool DelayModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, SynthModule* callingModule, Error& error)
+/*virtual*/ bool DelayModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, SynthModule* callingModule)
 {
 	if (this->GetNumDependentModules() != 1)
 	{
-		error.Add("Delay module needs exactly one dependent module.");
+		ErrorSystem::Get()->Add("Delay module needs exactly one dependent module.");
 		return false;
 	}
 
 	SynthModule* dependentModule = (*this->dependentModulesArray)[0].get();
 
 	WaveForm dependentWaveForm;
-	if (!dependentModule->GenerateSound(durationSeconds, samplesPerSecond, dependentWaveForm, this, error))
+	if (!dependentModule->GenerateSound(durationSeconds, samplesPerSecond, dependentWaveForm, this))
 		return false;
 
 	dependentWaveForm.PadWithSilence(durationSeconds, samplesPerSecond);

@@ -1,6 +1,6 @@
 #include "AudioDataLib/AudioSink.h"
 #include "AudioDataLib/WaveForm.h"
-#include "AudioDataLib/Error.h"
+#include "AudioDataLib/ErrorSystem.h"
 
 using namespace AudioDataLib;
 
@@ -158,7 +158,6 @@ void AudioSink::GenerateAudio(double desiredSecondsAvailable, double minSecondsA
 	else
 	{
 		// Grab audio buffers from all the inputs and transform them into wave form space.
-		Error error;
 		double secondsNeeded = (*this->audioStreamOut)->GetFormat().BytesToSeconds(numBytesNeeded);
 		auto waveFormListArray = new std::list<WaveForm*>[(*this->audioStreamOut)->GetFormat().numChannels];
 		for (auto& audioStreamIn : *this->audioStreamInArray)
@@ -173,7 +172,7 @@ void AudioSink::GenerateAudio(double desiredSecondsAvailable, double minSecondsA
 			for (uint32_t i = 0; i < (*this->audioStreamOut)->GetFormat().numChannels; i++)
 			{
 				WaveForm* waveForm = new WaveForm();
-				if(!waveForm->ConvertFromAudioBuffer(audioStreamIn->GetFormat(), audioBuffer, audioBufferSize, i, error))
+				if(!waveForm->ConvertFromAudioBuffer(audioStreamIn->GetFormat(), audioBuffer, audioBufferSize, i))
 					waveForm->MakeSilence(audioStreamIn->GetFormat().framesPerSecond, secondsNeeded);
 				waveFormListArray[i].push_back(waveForm);
 			}
@@ -188,7 +187,7 @@ void AudioSink::GenerateAudio(double desiredSecondsAvailable, double minSecondsA
 			if (waveFormListArray[i].size() == 1)
 			{
 				const WaveForm* waveForm = *waveFormListArray[i].begin();
-				waveForm->ConvertToAudioBuffer((*this->audioStreamOut)->GetFormat(), generatedAudioBuffer, numBytesNeeded, i, error);
+				waveForm->ConvertToAudioBuffer((*this->audioStreamOut)->GetFormat(), generatedAudioBuffer, numBytesNeeded, i);
 			}
 			else
 			{
@@ -199,7 +198,7 @@ void AudioSink::GenerateAudio(double desiredSecondsAvailable, double minSecondsA
 					delete waveForm;
 
 				// Convert the aggregated wave form into audio data in the target format.
-				mixedWave.ConvertToAudioBuffer((*this->audioStreamOut)->GetFormat(), generatedAudioBuffer, numBytesNeeded, i, error);
+				mixedWave.ConvertToAudioBuffer((*this->audioStreamOut)->GetFormat(), generatedAudioBuffer, numBytesNeeded, i);
 			}
 		}
 

@@ -74,10 +74,9 @@ int main(int argc, char** argv)
 		else
 			filePath = parser.GetArgValue("dump_csv", 0);
 
-		Error error;
-		if (!DumpInfo(filePath, parser.ArgGiven("dump_csv"), error))
+		if (!DumpInfo(filePath, parser.ArgGiven("dump_csv")))
 		{
-			fprintf(stderr, error.GetErrorMessage().c_str());
+			fprintf(stderr, ErrorSystem::Get()->GetErrorMessage().c_str());
 			return -1;
 		}
 
@@ -87,10 +86,9 @@ int main(int argc, char** argv)
 	if (parser.ArgGiven("unpack"))
 	{
 		const std::string& filePath = parser.GetArgValue("unpack", 0);
-		Error error;
-		if (!Unpack(filePath, error))
+		if (!Unpack(filePath))
 		{
-			fprintf(stderr, "Failed to unpack...\n\n%s\n", error.GetErrorMessage().c_str());
+			fprintf(stderr, "Failed to unpack...\n\n%s\n", ErrorSystem::Get()->GetErrorMessage().c_str());
 			return -1;
 		}
 
@@ -101,10 +99,9 @@ int main(int argc, char** argv)
 	{
 		const std::string& inFilePath = parser.GetArgValue("add_reverb", 0);
 		const std::string& outFilePath = parser.GetArgValue("add_reverb", 1);
-		Error error;
-		if (!AddReverb(inFilePath, outFilePath, error))
+		if (!AddReverb(inFilePath, outFilePath))
 		{
-			fprintf(stderr, error.GetErrorMessage().c_str());
+			fprintf(stderr, ErrorSystem::Get()->GetErrorMessage().c_str());
 			return -1;
 		}
 
@@ -128,11 +125,10 @@ int main(int argc, char** argv)
 			return -1;
 		}
 
-		Error error;
 		FileData* fileData = nullptr;
-		if (!fileFormat->ReadFromStream(inputStream, fileData, error))
+		if (!fileFormat->ReadFromStream(inputStream, fileData))
 		{
-			fprintf(stderr, ("Error: " + error.GetErrorMessage()).c_str());
+			fprintf(stderr, ("Error: " + ErrorSystem::Get()->GetErrorMessage()).c_str());
 			return -1;
 		}
 
@@ -143,23 +139,23 @@ int main(int argc, char** argv)
 
 		if (midiData.get())
 		{
-			if (!PlayMidiData(midiData.get(), parser.ArgGiven("log_midi"), error))
+			if (!PlayMidiData(midiData.get(), parser.ArgGiven("log_midi")))
 				retCode = -1;
 		}
 		else if (audioData.get())
 		{
-			if (!PlayAudioData(audioData.get(), parser, error))
+			if (!PlayAudioData(audioData.get(), parser))
 				retCode = -1;
 		}
 		else
 		{
-			error.Add("Failed to cast file data!");
+			ErrorSystem::Get()->Add("Failed to cast file data!");
 			delete fileData;
 			retCode = -1;
 		}
 
-		if (error)
-			fprintf(stderr, "Error: %s\n", error.GetErrorMessage().c_str());
+		if (ErrorSystem::Get()->Errors())
+			fprintf(stderr, "Error: %s\n", ErrorSystem::Get()->GetErrorMessage().c_str());
 
 		return retCode;
 	}
@@ -170,10 +166,9 @@ int main(int argc, char** argv)
 		std::string sourceFileB = parser.GetArgValue("mix", 1);
 		std::string destinationFile = parser.GetArgValue("mix", 2);
 
-		Error error;
-		if (!MixAudio({ sourceFileA, sourceFileB }, destinationFile, error))
+		if (!MixAudio({ sourceFileA, sourceFileB }, destinationFile))
 		{
-			fprintf(stderr, "Error: %s\n", error.GetErrorMessage().c_str());
+			fprintf(stderr, "Error: %s\n", ErrorSystem::Get()->GetErrorMessage().c_str());
 			return -1;
 		}
 
@@ -182,11 +177,10 @@ int main(int argc, char** argv)
 
 	if (parser.ArgGiven("keyboard"))
 	{
-		Error error;
-		if (!PlayWithKeyboard(parser, error))
+		if (!PlayWithKeyboard(parser))
 		{
-			if(error)
-				fprintf(stderr, "Error: %s\n", error.GetErrorMessage().c_str());
+			if(ErrorSystem::Get()->Errors())
+				fprintf(stderr, "Error: %s\n", ErrorSystem::Get()->GetErrorMessage().c_str());
 			return -1;
 		}
 
@@ -197,40 +191,40 @@ int main(int argc, char** argv)
 	return -1;
 }
 
-bool AddReverb(const std::string& inFilePath, const std::string& outFilePath, AudioDataLib::Error& error)
+bool AddReverb(const std::string& inFilePath, const std::string& outFilePath)
 {
 	std::shared_ptr<FileFormat> fileFormat = FileFormat::CreateForFile(inFilePath);
 	if (!fileFormat)
 	{
-		error.Add("Could not recognize file: " + inFilePath);
+		ErrorSystem::Get()->Add("Could not recognize file: " + inFilePath);
 		return false;
 	}
 
 	FileInputStream inputStream(inFilePath.c_str());
 	if (!inputStream.IsOpen())
 	{
-		error.Add("Failed to open file: " + inFilePath);
+		ErrorSystem::Get()->Add("Failed to open file: " + inFilePath);
 		return false;
 	}
 
 	FileData* fileData = nullptr;
-	if (!fileFormat->ReadFromStream(inputStream, fileData, error))
+	if (!fileFormat->ReadFromStream(inputStream, fileData))
 	{
-		error.Add("Failed to read file: " + inFilePath);
+		ErrorSystem::Get()->Add("Failed to read file: " + inFilePath);
 		return false;
 	}
 
 	std::shared_ptr<AudioData> audioData(dynamic_cast<AudioData*>(fileData));
 	if (!audioData.get())
 	{
-		error.Add("Expected to get audio data from file (" + inFilePath + "), but didn't");
+		ErrorSystem::Get()->Add("Expected to get audio data from file (" + inFilePath + "), but didn't");
 		delete fileData;
 		return false;
 	}
 
 	if (audioData->GetFormat().numChannels == 0)
 	{
-		error.Add("No channels!");
+		ErrorSystem::Get()->Add("No channels!");
 		return false;
 	}
 
@@ -243,7 +237,7 @@ bool AddReverb(const std::string& inFilePath, const std::string& outFilePath, Au
 		reverbModule->SetEnabled(true);
 		reverbModule->AddDependentModule(std::shared_ptr<SynthModule>(loopedAudioModule));
 		synthModuleArray.push_back(std::shared_ptr<SynthModule>(reverbModule));
-		if (!loopedAudioModule->UseNonLoopedAudioData(audioData.get(), i, error))
+		if (!loopedAudioModule->UseNonLoopedAudioData(audioData.get(), i))
 			return false;
 	}
 
@@ -276,14 +270,14 @@ bool AddReverb(const std::string& inFilePath, const std::string& outFilePath, Au
 			SynthModule* synthModule = synthModuleArray[i].get();
 
 			WaveForm waveForm;
-			if (!synthModule->GenerateSound(timeChunkSeconds, audioData->GetFormat().framesPerSecond, waveForm, nullptr, error))
+			if (!synthModule->GenerateSound(timeChunkSeconds, audioData->GetFormat().framesPerSecond, waveForm, nullptr))
 				break;
 
-			if (!waveForm.ConvertToAudioBuffer(audioData->GetFormat(), reverbAudioBuffer, reverbAudioBufferSize, i, error))
+			if (!waveForm.ConvertToAudioBuffer(audioData->GetFormat(), reverbAudioBuffer, reverbAudioBufferSize, i))
 				break;
 		}
 		
-		if (!error)
+		if (!ErrorSystem::Get()->Errors())
 			reverbStream->WriteBytesToStream(reverbAudioBuffer, reverbAudioBufferSize);
 		else
 			break;
@@ -291,7 +285,7 @@ bool AddReverb(const std::string& inFilePath, const std::string& outFilePath, Au
 
 	delete[] reverbAudioBuffer;
 
-	if (error)
+	if (ErrorSystem::Get()->Errors())
 		return false;
 
 	std::shared_ptr<AudioData> reverbAudioData(new AudioData());
@@ -302,20 +296,20 @@ bool AddReverb(const std::string& inFilePath, const std::string& outFilePath, Au
 	FileOutputStream outputStream(outFilePath.c_str());
 	if (!outputStream.IsOpen())
 	{
-		error.Add("Failed to open file: " + outFilePath);
+		ErrorSystem::Get()->Add("Failed to open file: " + outFilePath);
 		return false;
 	}
 
-	if (!fileFormat->WriteToStream(outputStream, reverbAudioData.get(), error))
+	if (!fileFormat->WriteToStream(outputStream, reverbAudioData.get()))
 	{
-		error.Add("Failed to write file: " + outFilePath);
+		ErrorSystem::Get()->Add("Failed to write file: " + outFilePath);
 		return false;
 	}
 
 	return true;
 }
 
-bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
+bool PlayWithKeyboard(CmdLineParser& parser)
 {
 	bool success = false;
 	MidiData* recordedMidiData = nullptr;
@@ -336,16 +330,12 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 		keyboard = Keyboard::Create();
 		if (!keyboard)
 		{
-			error.Add("Failed to create keyboard object.");
+			ErrorSystem::Get()->Add("Failed to create keyboard object.");
 			break;
 		}
 
-		std::string keyboardError;
-		if (!keyboard->Setup(keyboardError))
-		{
-			error.Add(keyboardError);
+		if (!keyboard->Setup())
 			break;
-		}
 
 		std::string desiredPortName = parser.GetArgValue("keyboard", 0);
 		if (desiredPortName == "debug")
@@ -361,14 +351,14 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 			recordedMidiFilePath = parser.GetArgValue("record_midi", 0);
 			if (recordedMidiFilePath.length() == 0)
 			{
-				error.Add("No MIDI file path given for recorded MIDI output.");
+				ErrorSystem::Get()->Add("No MIDI file path given for recorded MIDI output.");
 				break;
 			}
 
 			recordedMidiOutStream = new FileOutputStream(recordedMidiFilePath.c_str());
 			if (!recordedMidiOutStream->IsOpen())
 			{
-				error.Add(FormatString("Failed to open file %s for writing.", recordedMidiFilePath.c_str()));
+				ErrorSystem::Get()->Add(std::format("Failed to open file {} for writing.", recordedMidiFilePath.c_str()));
 				break;
 			}
 
@@ -398,7 +388,7 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 
 				if (!parser.ArgGiven("wavetable"))
 				{
-					error.Add("Can't use \"sample\" synth type unless you also specify at least one wave-table file.");
+					ErrorSystem::Get()->Add("Can't use \"sample\" synth type unless you also specify at least one wave-table file.");
 					break;
 				}
 
@@ -408,21 +398,21 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 				std::shared_ptr<FileFormat> fileFormat(FileFormat::CreateForFile(waveTableFile));
 				if (!fileFormat.get())
 				{
-					error.Add(FormatString("Did not recognize file: %s", waveTableFile.c_str()));
+					ErrorSystem::Get()->Add(std::format("Did not recognize file: {}", waveTableFile.c_str()));
 					break;
 				}
 
 				FileData* fileData = nullptr;
-				if (!fileFormat->ReadFromStream(inputStream, fileData, error))
+				if (!fileFormat->ReadFromStream(inputStream, fileData))
 				{
-					error.Add("Failed to read file: " + waveTableFile);
+					ErrorSystem::Get()->Add("Failed to read file: " + waveTableFile);
 					break;
 				}
 
 				std::shared_ptr<WaveTableData> waveTableData(dynamic_cast<WaveTableData*>(fileData));
 				if (!waveTableData)
 				{
-					error.Add("Expected wave-table data; got something else!");
+					ErrorSystem::Get()->Add("Expected wave-table data; got something else!");
 					delete fileData;
 					break;
 				}
@@ -431,16 +421,16 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 
 				// TODO: May want to expose this mapping to the command-line, but do this for now.
 				for(uint8_t i = 1; i <= 16; i++)
-					if (!sampleBasedSynth->SetChannelInstrument(i, i, error))
+					if (!sampleBasedSynth->SetChannelInstrument(i, i))
 						break;
 
-				if (error)
+				if (ErrorSystem::Get()->Errors())
 					break;
 			}
 
 			if (!midiSynth)
 			{
-				error.Add("Did not recognize: " + synthType);
+				ErrorSystem::Get()->Add("Did not recognize: " + synthType);
 				break;
 			}
 
@@ -456,13 +446,13 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 				recordedWaveFilePath = parser.GetArgValue("record_wave", 0);
 				if (recordedWaveFilePath.length() == 0)
 				{
-					error.Add("No WAVE file path given for recorded WAVE output.");
+					ErrorSystem::Get()->Add("No WAVE file path given for recorded WAVE output.");
 					break;
 				}
 
 				if (!player)
 				{
-					error.Add("No audio player with which to capture WAV data!");
+					ErrorSystem::Get()->Add("No audio player with which to capture WAV data!");
 					break;
 				}
 
@@ -474,16 +464,16 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 			if (parser.ArgGiven("device_substr"))
 				deviceSubStr = parser.GetArgValue("device_substr", 0);
 
-			if (!player->Setup(deviceSubStr, error))
+			if (!player->Setup(deviceSubStr))
 			{
-				error.Add("Failed to setup SDL audio player!");
+				ErrorSystem::Get()->Add("Failed to setup SDL audio player!");
 				break;
 			}
 		}
 
-		if (!source->Setup(error))
+		if (!source->Setup())
 		{
-			error.Add("MIDI input setup failed.");
+			ErrorSystem::Get()->Add("MIDI input setup failed.");
 			break;
 		}
 
@@ -492,14 +482,13 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 		bool keepProcessing = true;
 		while (keepProcessing)
 		{
-			if (!source->Process(error))
+			if (!source->Process())
 			{
-				error.Add(FormatString("Process error: %s\n", error.GetErrorMessage().c_str()));
+				ErrorSystem::Get()->Add(std::format("Process error: %s\n", ErrorSystem::Get()->GetErrorMessage().c_str()));
 				break;
 			}
 
-			std::string keyboardError;
-			keyboard->Process(keyboardError);
+			keyboard->Process();
 
 			Keyboard::Event event;
 			while (keyboard->GetKeyboardEvent(event))
@@ -547,7 +536,7 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 			}
 		}
 
-		if (error)
+		if (ErrorSystem::Get()->Errors())
 			break;
 
 		success = true;
@@ -555,8 +544,7 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 
 	if (keyboard)
 	{
-		std::string keyboardError;
-		keyboard->Shutdown(keyboardError);
+		keyboard->Shutdown();
 		delete keyboard;
 		keyboard = nullptr;
 	}
@@ -566,14 +554,14 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 	// I should probably be using shared pointers and the like.
 	if (player)
 	{
-		player->Shutdown(error);
+		player->Shutdown();
 		delete player;
 		player = nullptr;
 	}
 
 	if (source)
 	{
-		source->Shutdown(error);
+		source->Shutdown();
 		delete source;
 		source = nullptr;
 	}
@@ -586,24 +574,24 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 		recordedAudioStream->ReadBytesFromStream(audioData.GetAudioBuffer(), audioData.GetAudioBufferSize());
 		FileOutputStream recordedWaveOutputStream(recordedWaveFilePath.c_str());
 		WaveFileFormat fileFormat;
-		fileFormat.WriteToStream(recordedWaveOutputStream, &audioData, error);
+		fileFormat.WriteToStream(recordedWaveOutputStream, &audioData);
 	}
 
 	if (recordedMidiData)
 	{
 		if (!recordedMidiOutStream->IsOpen())
 		{
-			error.Add("Output file stream was open before the performance started, but is not open now?!");
+			ErrorSystem::Get()->Add("Output file stream was open before the performance started, but is not open now?!");
 			success = false;
 		}
 		else
 		{
 			MidiFileFormat fileFormat;
-			if (fileFormat.WriteToStream(*recordedMidiOutStream, recordedMidiData, error))
+			if (fileFormat.WriteToStream(*recordedMidiOutStream, recordedMidiData))
 				printf("Saved files: %s!\n", recordedMidiFilePath.c_str());
 			else
 			{
-				error.Add("Failed to write recording to the file output stream.");
+				ErrorSystem::Get()->Add("Failed to write recording to the file output stream.");
 				success = false;
 			}
 		}
@@ -612,34 +600,30 @@ bool PlayWithKeyboard(CmdLineParser& parser, AudioDataLib::Error& error)
 		delete recordedMidiOutStream;
 	}
 
-	if (error)
+	if (ErrorSystem::Get()->Errors())
 		success = false;
 
 	return success;
 }
 
-bool PlayMidiData(AudioDataLib::MidiData* midiData, bool logMidiMessages, AudioDataLib::Error& error)
+bool PlayMidiData(AudioDataLib::MidiData* midiData, bool logMidiMessages)
 {
 	bool success = false;
 	SystemClockTimer timer;
 	MidiPlayer player(&timer);
 	Keyboard* keyboard = nullptr;
-	std::string keyboardError;
 
 	do
 	{
 		keyboard = Keyboard::Create();
 		if (!keyboard)
 		{
-			error.Add("Could not create keyboard!");
+			ErrorSystem::Get()->Add("Could not create keyboard!");
 			break;
 		}
 
-		if (!keyboard->Setup(keyboardError))
-		{
-			error.Add(keyboardError);
+		if (!keyboard->Setup())
 			break;
-		}
 
 		if (logMidiMessages)
 			player.AddDestination(std::shared_ptr<MidiMsgDestination>(new StdoutLogDestination()));
@@ -647,21 +631,18 @@ bool PlayMidiData(AudioDataLib::MidiData* midiData, bool logMidiMessages, AudioD
 		player.AddDestination(std::shared_ptr<MidiMsgDestination>(new MidiPortDestination()));
 		player.SetMidiData(midiData);
 		player.ConfigureToPlayAllTracks();
-		if (!player.Setup(error))
+		if (!player.Setup())
 			break;
 
 		printf("MIDI file should be playing now... (Press ESCAPE to exit prematurely.\n");
 
 		while (!player.NoMoreToPlay())
 		{
-			if (!player.Process(error))
+			if (!player.Process())
 				break;
 
-			if (!keyboard->Process(keyboardError))
-			{
-				error.Add(keyboardError);
+			if (!keyboard->Process())
 				break;
-			}
 
 			Keyboard::Event event;
 			if (keyboard->GetKeyboardEvent(event))
@@ -669,10 +650,10 @@ bool PlayMidiData(AudioDataLib::MidiData* midiData, bool logMidiMessages, AudioD
 					break;
 		}
 
-		if (error)
+		if (ErrorSystem::Get()->Errors())
 			break;
 
-		if (!player.Shutdown(error))
+		if (!player.Shutdown())
 			break;
 
 		success = true;
@@ -680,35 +661,31 @@ bool PlayMidiData(AudioDataLib::MidiData* midiData, bool logMidiMessages, AudioD
 
 	if (keyboard)
 	{
-		keyboard->Shutdown(keyboardError);
+		keyboard->Shutdown();
 		delete keyboard;
 	}
 
 	return success;
 }
 
-bool PlayAudioData(AudioDataLib::AudioData* audioData, CmdLineParser& parser, AudioDataLib::Error& error)
+bool PlayAudioData(AudioDataLib::AudioData* audioData, CmdLineParser& parser)
 {
 	bool success = false;
 	SDLAudio player(SDLAudio::AudioDirection::SOUND_OUT);
 	AudioSink audioSink;
 	Keyboard* keyboard = nullptr;
-	std::string keyboardError;
 
 	do
 	{
 		keyboard = Keyboard::Create();
 		if (!keyboard)
 		{
-			error.Add("Failed to create keyboard interface.");
+			ErrorSystem::Get()->Add("Failed to create keyboard interface.");
 			break;
 		}
 
-		if (!keyboard->Setup(keyboardError))
-		{
-			error.Add(keyboardError);
+		if (!keyboard->Setup())
 			break;
-		}
 
 		std::shared_ptr<Mutex> mutex(new StandardMutex());
 		std::shared_ptr<AudioStream> audioStreamOut(new ThreadSafeAudioStream(mutex));
@@ -720,9 +697,9 @@ bool PlayAudioData(AudioDataLib::AudioData* audioData, CmdLineParser& parser, Au
 		if (parser.ArgGiven("device_substr"))
 			deviceSubStr = parser.GetArgValue("device_substr", 0);
 
-		if (!player.Setup(deviceSubStr, error))
+		if (!player.Setup(deviceSubStr))
 		{
-			error.Add("Failed to setup player.");
+			ErrorSystem::Get()->Add("Failed to setup player.");
 			break;
 		}
 
@@ -735,12 +712,8 @@ bool PlayAudioData(AudioDataLib::AudioData* audioData, CmdLineParser& parser, Au
 		{
 			audioSink.GenerateAudio(0.2, 0.1);
 
-			std::string keyboardError;
-			if (!keyboard->Process(keyboardError))
-			{
-				error.Add(keyboardError);
+			if (!keyboard->Process())
 				break;
-			}
 
 			Keyboard::Event event;
 			if (keyboard->GetKeyboardEvent(event))
@@ -748,24 +721,24 @@ bool PlayAudioData(AudioDataLib::AudioData* audioData, CmdLineParser& parser, Au
 					break;
 		}
 
-		if (error)
+		if (ErrorSystem::Get()->Errors())
 			break;
 
 		success = true;
 	} while (false);
 	
-	player.Shutdown(error);
+	player.Shutdown();
 
 	if (keyboard)
 	{
-		keyboard->Shutdown(keyboardError);
+		keyboard->Shutdown();
 		delete keyboard;
 	}
 
 	return success;
 }
 
-bool MixAudio(const std::vector<std::string>& sourceFileArray, const std::string& destinationFile, AudioDataLib::Error& error)
+bool MixAudio(const std::vector<std::string>& sourceFileArray, const std::string& destinationFile)
 {
 	std::vector<std::shared_ptr<FileFormat>> fileFormatArray;
 	std::vector<std::shared_ptr<AudioData>> audioDataArray;
@@ -775,7 +748,7 @@ bool MixAudio(const std::vector<std::string>& sourceFileArray, const std::string
 		std::shared_ptr<FileFormat> fileFormat = FileFormat::CreateForFile(sourceFile);
 		if (!fileFormat.get())
 		{
-			error.Add("Did not recognize file type for file: " + sourceFile);
+			ErrorSystem::Get()->Add("Did not recognize file type for file: " + sourceFile);
 			return false;
 		}
 
@@ -784,7 +757,7 @@ bool MixAudio(const std::vector<std::string>& sourceFileArray, const std::string
 
 	if (fileFormatArray.size() != sourceFileArray.size())
 	{
-		error.Add("Could not recognize all source file type.");
+		ErrorSystem::Get()->Add("Could not recognize all source file type.");
 		return false;
 	}
 
@@ -796,21 +769,21 @@ bool MixAudio(const std::vector<std::string>& sourceFileArray, const std::string
 		FileInputStream inputStream(sourceFile.c_str());
 		if (!inputStream.IsOpen())
 		{
-			error.Add(FormatString("Failed to open file %s for reading.", sourceFile.c_str()));
+			ErrorSystem::Get()->Add(std::format("Failed to open file {} for reading.", sourceFile.c_str()));
 			return false;
 		}
 
 		FileData* fileData = nullptr;
-		if (!fileFormat->ReadFromStream(inputStream, fileData, error))
+		if (!fileFormat->ReadFromStream(inputStream, fileData))
 		{
-			error.Add("Failed to read file: " + sourceFile);
+			ErrorSystem::Get()->Add("Failed to read file: " + sourceFile);
 			return false;
 		}
 
 		std::shared_ptr<AudioData> audioData(dynamic_cast<AudioData*>(fileData));
 		if (!audioData.get())
 		{
-			error.Add(FormatString("File data for file %s is not audio data.", sourceFile.c_str()));
+			ErrorSystem::Get()->Add(std::format("File data for file {} is not audio data.", sourceFile.c_str()));
 			delete fileData;
 			return false;
 		}
@@ -820,7 +793,7 @@ bool MixAudio(const std::vector<std::string>& sourceFileArray, const std::string
 
 	if (audioDataArray.size() != sourceFileArray.size())
 	{
-		error.Add("Could not load all source files.");
+		ErrorSystem::Get()->Add("Could not load all source files.");
 		return false;
 	}
 
@@ -856,48 +829,48 @@ bool MixAudio(const std::vector<std::string>& sourceFileArray, const std::string
 	std::shared_ptr<FileFormat> fileFormatOut = FileFormat::CreateForFile(destinationFile);
 	if (!fileFormatOut.get())
 	{
-		error.Add("Could not recognize file type for file: " + destinationFile);
+		ErrorSystem::Get()->Add("Could not recognize file type for file: " + destinationFile);
 		return false;
 	}
 
 	FileOutputStream outputStream(destinationFile.c_str());
 	if (!outputStream.IsOpen())
 	{
-		error.Add(FormatString("Could not open file %s for writing.", destinationFile.c_str()));
+		ErrorSystem::Get()->Add(std::format("Could not open file {} for writing.", destinationFile.c_str()));
 		return false;
 	}
 
-	if (!fileFormatOut->WriteToStream(outputStream, &generatedAudioData, error))
+	if (!fileFormatOut->WriteToStream(outputStream, &generatedAudioData))
 	{
-		error.Add("Failed to write file: " + destinationFile);
+		ErrorSystem::Get()->Add("Failed to write file: " + destinationFile);
 		return false;
 	}
 
 	return true;
 }
 
-bool DumpInfo(const std::string& filePath, bool csv, AudioDataLib::Error& error)
+bool DumpInfo(const std::string& filePath, bool csv)
 {
 	bool success = false;
 	
 	FileInputStream inputStream(filePath.c_str());
 	if (!inputStream.IsOpen())
 	{
-		error.Add("Failed to open file: " + filePath);
+		ErrorSystem::Get()->Add("Failed to open file: " + filePath);
 		return false;
 	}
 
 	std::shared_ptr<FileFormat> fileFormat = FileFormat::CreateForFile(filePath.c_str());
 	if (!fileFormat.get())
 	{
-		error.Add("Failed type not recognized for file: " + filePath);
+		ErrorSystem::Get()->Add("Failed type not recognized for file: " + filePath);
 		return false;
 	}
 
 	FileData* fileData = nullptr;
-	if (!fileFormat->ReadFromStream(inputStream, fileData, error))
+	if (!fileFormat->ReadFromStream(inputStream, fileData))
 	{
-		error.Add("Failed to read file: " + filePath);
+		ErrorSystem::Get()->Add("Failed to read file: " + filePath);
 		return false;
 	}
 
@@ -911,41 +884,41 @@ bool DumpInfo(const std::string& filePath, bool csv, AudioDataLib::Error& error)
 	return true;
 }
 
-bool Unpack(const std::string& filePath, AudioDataLib::Error& error)
+bool Unpack(const std::string& filePath)
 {
 	bool success = false;
 	
 	std::shared_ptr<FileFormat> fileFormat = FileFormat::CreateForFile(filePath);
 	if (!fileFormat)
 	{
-		error.Add("Could not recognize file type: " + filePath);
+		ErrorSystem::Get()->Add("Could not recognize file type: " + filePath);
 		return false;
 	}
 
 	FileInputStream inputStream(filePath.c_str());
 	if (!inputStream.IsOpen())
 	{
-		error.Add("Failed to open file: " + filePath);
+		ErrorSystem::Get()->Add("Failed to open file: " + filePath);
 		return false;
 	}
 
 	FileData* fileData = nullptr;
-	if (!fileFormat->ReadFromStream(inputStream, fileData, error))
+	if (!fileFormat->ReadFromStream(inputStream, fileData))
 	{
-		error.Add("Failed to read file: " + filePath);
+		ErrorSystem::Get()->Add("Failed to read file: " + filePath);
 		return false;
 	}
 
 	std::shared_ptr<WaveTableData> waveTableData(dynamic_cast<WaveTableData*>(fileData));
 	if (!waveTableData.get())
 	{
-		error.Add("Didn't get sound font data!");
+		ErrorSystem::Get()->Add("Didn't get sound font data!");
 		return false;
 	}
 
 	if (waveTableData->GetNumAudioSamples() == 0)
 	{
-		error.Add("No audio samples found in the sound font data!");
+		ErrorSystem::Get()->Add("No audio samples found in the sound font data!");
 		return false;
 	}
 
@@ -956,7 +929,7 @@ bool Unpack(const std::string& filePath, AudioDataLib::Error& error)
 		auto audioSampleData = dynamic_cast<const SoundFontData::AudioSampleData*>(waveTableData->GetAudioSample(i));
 		if (!audioSampleData)
 		{
-			error.Add(FormatString("Audio at offset %d is not sample audio data.", i));
+			ErrorSystem::Get()->Add(std::format("Audio at offset {} is not sample audio data.", i));
 			return false;
 		}
 		
@@ -975,11 +948,11 @@ bool Unpack(const std::string& filePath, AudioDataLib::Error& error)
 		FileOutputStream outputStream(sampleFilePath.c_str());
 		if (!outputStream.IsOpen())
 		{
-			error.Add(FormatString("Failed to open file %s for writing.", sampleFilePath.c_str()));
+			ErrorSystem::Get()->Add(std::format("Failed to open file {} for writing.", sampleFilePath.c_str()));
 			return false;
 		}
 
-		if (!waveFileFormat.WriteToStream(outputStream, audioSampleData, error))
+		if (!waveFileFormat.WriteToStream(outputStream, audioSampleData))
 			return false;
 
 		printf("Wrote file: %s\n", sampleFilePath.c_str());

@@ -17,7 +17,7 @@ namespace AudioDataLib
 		DuplicationModule();
 		virtual ~DuplicationModule();
 
-		virtual bool GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, SynthModule* callingModule, Error& error) override;
+		virtual bool GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, SynthModule* callingModule) override;
 		virtual bool MoreSoundAvailable() override;
 
 	private:

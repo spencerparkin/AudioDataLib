@@ -1,5 +1,5 @@
 #include "AudioDataLib/MIDI/MidiMsgDestination.h"
-#include "AudioDataLib/Error.h"
+#include "AudioDataLib/ErrorSystem.h"
 
 using namespace AudioDataLib;
 
@@ -11,23 +11,23 @@ MidiMsgDestination::MidiMsgDestination()
 {
 }
 
-/*virtual*/ bool MidiMsgDestination::ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize, Error& error)
+/*virtual*/ bool MidiMsgDestination::ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize)
 {
-	error.Add("MIDI message receiver method not overridden.");
+	ErrorSystem::Get()->Add("MIDI message receiver method not overridden.");
 	return false;
 }
 
-/*virtual*/ bool MidiMsgDestination::Initialize(Error& error)
+/*virtual*/ bool MidiMsgDestination::Initialize()
 {
 	return true;
 }
 
-/*virtual*/ bool MidiMsgDestination::Finalize(Error& error)
+/*virtual*/ bool MidiMsgDestination::Finalize()
 {
 	return true;
 }
 
-/*virtual*/ bool MidiMsgDestination::Process(Error& error)
+/*virtual*/ bool MidiMsgDestination::Process()
 {
 	return true;
 }

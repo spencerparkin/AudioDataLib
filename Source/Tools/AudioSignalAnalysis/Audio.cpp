@@ -1,5 +1,5 @@
 #include "Audio.h"
-#include "AudioDataLib/Error.h"
+#include "AudioDataLib/ErrorSystem.h"
 #include "AudioListControl.h"
 #include <wx/glcanvas.h>
 
@@ -126,9 +126,8 @@ const AudioDataLib::WaveForm* WaveFormAudio::GetWaveForm() const
 {
 	if (!this->waveForm && this->audioData)
 	{
-		Error error;
 		this->waveForm.reset(new WaveForm());
-		this->waveForm->ConvertFromAudioBuffer(this->audioData->GetFormat(), this->audioData->GetAudioBuffer(), this->audioData->GetAudioBufferSize(), 0, error);
+		this->waveForm->ConvertFromAudioBuffer(this->audioData->GetFormat(), this->audioData->GetAudioBuffer(), this->audioData->GetAudioBufferSize(), 0);
 	}
 
 	return this->waveForm.get();

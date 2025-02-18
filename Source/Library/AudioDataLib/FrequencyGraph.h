@@ -4,7 +4,6 @@
 
 namespace AudioDataLib
 {
-	class Error;
 	class WaveForm;
 
 	/**
@@ -30,17 +29,16 @@ namespace AudioDataLib
 		 * 
 		 * @param waveForm This is the wave-form upon which to perform the FFT.
 		 * @param numSamples This is the number of samples to evaluate from the given wave-form and how many plots in the graph that will be generated.  It must be a power of 2.
-		 * @param error This will contain detailed error information if false is returned.
 		 * @return True is returned on success; false otherwise.
 		 */
-		bool FromWaveForm(const WaveForm& waveForm, uint32_t numSamples, Error& error);
+		bool FromWaveForm(const WaveForm& waveForm, uint32_t numSamples);
 
 		/**
 		 * Generate a wave-form from this frequency-graph using an inverse FFT.
 		 * This function has not yet been test or even written, but it's on my list of things to do.
 		 * I think that additional parameters may be needed to make it work.
 		 */
-		bool ToWaveForm(WaveForm& waveForm, Error& error) const;
+		bool ToWaveForm(WaveForm& waveForm) const;
 
 		/**
 		 * The frequency graph is a list of Plot structures.  Each is a frequency paired with a strength and phase pair.

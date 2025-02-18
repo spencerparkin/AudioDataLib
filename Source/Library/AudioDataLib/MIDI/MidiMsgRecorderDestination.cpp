@@ -1,7 +1,7 @@
 #include "AudioDataLib/MIDI/MidiMsgRecorderDestination.h"
 #include "AudioDataLib/FileDatas/MidiData.h"
 #include "AudioDataLib/ByteStream.h"
-#include "AudioDataLib/Error.h"
+#include "AudioDataLib/ErrorSystem.h"
 
 using namespace AudioDataLib;
 
@@ -26,11 +26,11 @@ void MidiMsgRecorderDestination::Clear()
 	this->messageDataArray->clear();
 }
 
-/*virtual*/ bool MidiMsgRecorderDestination::ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize, Error& error)
+/*virtual*/ bool MidiMsgRecorderDestination::ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize)
 {
 	if (!this->midiData)
 	{
-		error.Add("No MIDI data object configured.");
+		ErrorSystem::Get()->Add("No MIDI data object configured.");
 		return false;
 	}
 
@@ -47,20 +47,20 @@ void MidiMsgRecorderDestination::Clear()
 	return true;
 }
 
-/*virtual*/ bool MidiMsgRecorderDestination::Finalize(Error& error)
+/*virtual*/ bool MidiMsgRecorderDestination::Finalize()
 {
 	// TODO: If multiple instruments/channels are being used in the messages, then we can't do single-track;
 	//       we must do multi-track.
 
 	if (!this->midiData)
 	{
-		error.Add("No MIDI data object with which to populate.");
+		ErrorSystem::Get()->Add("No MIDI data object with which to populate.");
 		return false;
 	}
 
 	if (this->messageDataArray->size() == 0)
 	{
-		error.Add("MIDI message array is empty.  Can't populate MIDI data object without a non-empty array.");
+		ErrorSystem::Get()->Add("MIDI message array is empty.  Can't populate MIDI data object without a non-empty array.");
 		return false;
 	}
 
@@ -108,27 +108,27 @@ void MidiMsgRecorderDestination::Clear()
 		MidiData::Event* event = nullptr;
 
 		auto channelEvent = new MidiData::ChannelEvent();
-		if (channelEvent->Decode(bufferStream, error))
+		if (channelEvent->Decode(bufferStream))
 			event = channelEvent;
 		else
 		{
-			error.Clear();
+			ErrorSystem::Get()->Clear();
 			delete channelEvent;
 			metaEvent = new MidiData::MetaEvent();
 			bufferStream.Reset();
-			if (metaEvent->Decode(bufferStream, error))
+			if (metaEvent->Decode(bufferStream))
 				event = metaEvent;
 			else
 			{
-				error.Clear();
+				ErrorSystem::Get()->Clear();
 				delete metaEvent;
 				auto sysEvent = new MidiData::SystemExclusiveEvent();
 				bufferStream.Reset();
-				if (sysEvent->Decode(bufferStream, error))
+				if (sysEvent->Decode(bufferStream))
 					event = sysEvent;
 				else
 				{
-					error.Clear();
+					ErrorSystem::Get()->Clear();
 					delete sysEvent;
 				}
 			}
@@ -136,7 +136,7 @@ void MidiMsgRecorderDestination::Clear()
 
 		if (!event)
 		{
-			error.Add("Failed to decode event!");
+			ErrorSystem::Get()->Add("Failed to decode event!");
 			return false;
 		}
 

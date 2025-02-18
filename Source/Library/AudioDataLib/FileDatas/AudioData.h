@@ -4,8 +4,6 @@
 
 namespace AudioDataLib
 {
-	class Error;
-
 	/**
 	 * @brief This is a container for raw audio data in a particular format, ready to be sent to a sound card,
 	 *        or of how such data would appear coming from the sound card using a microphone.
@@ -177,10 +175,9 @@ namespace AudioDataLib
 		 * Calculate and cache meta-data (owned by this class instance) detailing information
 		 * gleaned by an analysis of the audio data.  See the MetaData class.
 		 * 
-		 * @param error An Error class instance detailing error information if false is returned.
 		 * @return True is returned on success; false otherwise.
 		 */
-		bool CalcMetaData(Error& error) const;
+		bool CalcMetaData() const;
 
 	protected:
 		Format format;

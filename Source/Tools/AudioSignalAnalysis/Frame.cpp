@@ -2,7 +2,7 @@
 #include "Canvas.h"
 #include "AudioDataLib/FileFormats/FileFormat.h"
 #include "AudioDataLib/ByteStream.h"
-#include "AudioDataLib/Error.h"
+#include "AudioDataLib/ErrorSystem.h"
 #include "App.h"
 #include "Audio.h"
 #include "AudioDataLib/FileDatas/WaveTableData.h"
@@ -113,10 +113,9 @@ void Frame::OnGenerateFrequencyGraph(wxCommandEvent& event)
 
 	const WaveForm* waveForm = waveFormAudio->GetWaveForm();
 	FrequencyGraph* frequencyGraph = new FrequencyGraph();
-	Error error;
-	if (!frequencyGraph->FromWaveForm(*waveForm, 32768, error))
+	if (!frequencyGraph->FromWaveForm(*waveForm, 32768))
 	{
-		wxMessageBox(error.GetErrorMessage(), "Error!", wxICON_ERROR | wxOK, this);
+		wxMessageBox(ErrorSystem::Get()->GetErrorMessage(), "Error!", wxICON_ERROR | wxOK, this);
 		delete frequencyGraph;
 		return;
 	}
@@ -124,18 +123,18 @@ void Frame::OnGenerateFrequencyGraph(wxCommandEvent& event)
 	double fundamentalFreq = frequencyGraph->EstimateFundamentalFrequency();
 	wxMessageBox(wxString::Format("Est. Fund. Freq. is %f Hz.", fundamentalFreq), "Frequency", wxICON_INFORMATION | wxOK, this);
 
-	FrequencyGraphAudio* frequencyAudio = new FrequencyGraphAudio();
+	std::shared_ptr<FrequencyGraphAudio> frequencyAudio(new FrequencyGraphAudio());
 	frequencyAudio->SetFrequencyGraph(frequencyGraph);
 	frequencyAudio->SetName("Freq. Graph of " + audio->GetName());
-	wxGetApp().AddAudio(std::shared_ptr<Audio>(frequencyAudio));
+	wxGetApp().AddAudio(frequencyAudio);
 
 	FrequencyGraph* smootherFreqGraph = new FrequencyGraph();
 	frequencyGraph->GenerateSmootherGraph(*smootherFreqGraph, 5.0);
 	
-	frequencyAudio = new FrequencyGraphAudio();
+	frequencyAudio.reset(new FrequencyGraphAudio());
 	frequencyAudio->SetFrequencyGraph(smootherFreqGraph);
 	frequencyAudio->SetName("Smooth Freq. Graph of " + audio->GetName());
-	wxGetApp().AddAudio(std::shared_ptr<Audio>(frequencyAudio));
+	wxGetApp().AddAudio(frequencyAudio);
 
 	this->Refresh();
 	this->audioList->Update();
@@ -159,10 +158,9 @@ void Frame::OnImportAudio(wxCommandEvent& event)
 		FileInputStream inputStream(audioFile.c_str());
 		if (inputStream.IsOpen())
 		{
-			Error error;
 			FileData* fileData = nullptr;
-			if (!fileFormat->ReadFromStream(inputStream, fileData, error))
-				wxMessageBox(error.GetErrorMessage(), "Error!", wxICON_ERROR | wxOK, this);
+			if (!fileFormat->ReadFromStream(inputStream, fileData))
+				wxMessageBox(ErrorSystem::Get()->GetErrorMessage(), "Error!", wxICON_ERROR | wxOK, this);
 			else
 			{
 				std::shared_ptr<AudioData> audioData(dynamic_cast<AudioData*>(fileData));
@@ -170,10 +168,10 @@ void Frame::OnImportAudio(wxCommandEvent& event)
 
 				if (audioData.get())
 				{
-					WaveFormAudio* audio = new WaveFormAudio();
+					std::shared_ptr<WaveFormAudio> audio(new WaveFormAudio());
 					audio->SetAudioData(audioData);
 					audio->SetName(wxFileName(audioFile).GetName());
-					wxGetApp().AddAudio(std::shared_ptr<Audio>(audio));
+					wxGetApp().AddAudio(audio);
 				}
 				else if (waveTableData.get())
 				{
@@ -182,10 +180,10 @@ void Frame::OnImportAudio(wxCommandEvent& event)
 						std::shared_ptr<AudioData> audioData = waveTableData->GetAudioData(i);
 						auto sampleAudioData = dynamic_cast<WaveTableData::AudioSampleData*>(audioData.get());
 						std::string name = sampleAudioData ? sampleAudioData->GetName() : "";
-						WaveFormAudio* audio = new WaveFormAudio();
+						std::shared_ptr<WaveFormAudio> audio(new WaveFormAudio());
 						audio->SetAudioData(audioData);
 						audio->SetName(wxFileName(audioFile).GetName() + wxString::Format("_%d_%s", i, name.c_str()));
-						wxGetApp().AddAudio(std::shared_ptr<Audio>(audio));
+						wxGetApp().AddAudio(audio);
 					}
 				}
 				else
@@ -245,7 +243,7 @@ void Frame::OnMakeSound(wxCommandEvent& event)
 
 	audio->SetWaveForm(waveForm);
 	audio->SetFlags(audio->GetFlags() | AUDIO_FLAG_VISIBLE);
-	wxGetApp().AddAudio(std::shared_ptr<Audio>(audio));
+	wxGetApp().AddAudio(audio);
 	this->Refresh();
 	this->audioList->Update();
 }

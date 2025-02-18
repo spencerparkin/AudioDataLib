@@ -1,5 +1,5 @@
 #include "MidiPortDestination.h"
-#include "AudioDataLib/Error.h"
+#include "AudioDataLib/ErrorSystem.h"
 
 using namespace AudioDataLib;
 
@@ -13,11 +13,11 @@ MidiPortDestination::MidiPortDestination()
 	delete this->midiOut;
 }
 
-/*virtual*/ bool MidiPortDestination::Initialize(AudioDataLib::Error& error)
+/*virtual*/ bool MidiPortDestination::Initialize()
 {
 	if (this->midiOut)
 	{
-		error.Add("MIDI out already initialized!");
+		ErrorSystem::Get()->Add("MIDI out already initialized!");
 		return false;
 	}
 
@@ -30,7 +30,7 @@ MidiPortDestination::MidiPortDestination()
 		uint32_t numPorts = this->midiOut->getPortCount();
 		if (numPorts == 0)
 		{
-			error.Add("No output MIDI ports detected.");
+			ErrorSystem::Get()->Add("No output MIDI ports detected.");
 			success = false;
 		}
 		else
@@ -41,7 +41,7 @@ MidiPortDestination::MidiPortDestination()
 	}
 	catch (RtMidiError& midiError)
 	{
-		error.Add(midiError.getMessage());
+		ErrorSystem::Get()->Add(midiError.getMessage());
 		success = false;
 	}
 
@@ -54,11 +54,11 @@ MidiPortDestination::MidiPortDestination()
 	return success;
 }
 
-/*virtual*/ bool MidiPortDestination::Finalize(AudioDataLib::Error& error)
+/*virtual*/ bool MidiPortDestination::Finalize()
 {
 	if (!this->midiOut)
 	{
-		error.Add("MIDI out not initialized!");
+		ErrorSystem::Get()->Add("MIDI out not initialized!");
 		return false;
 	}
 
@@ -70,7 +70,7 @@ MidiPortDestination::MidiPortDestination()
 	}
 	catch (RtMidiError& midiError)
 	{
-		error.Add(midiError.getMessage());
+		ErrorSystem::Get()->Add(midiError.getMessage());
 		success = false;
 	}
 
@@ -80,7 +80,7 @@ MidiPortDestination::MidiPortDestination()
 	return success;
 }
 
-/*virtual*/ bool MidiPortDestination::ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize, Error& error)
+/*virtual*/ bool MidiPortDestination::ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize)
 {
 	if (this->midiOut)
 	{
@@ -90,7 +90,7 @@ MidiPortDestination::MidiPortDestination()
 		}
 		catch (RtMidiError& midiError)
 		{
-			error.Add(midiError.getMessage());
+			ErrorSystem::Get()->Add(midiError.getMessage());
 			return false;
 		}
 	}

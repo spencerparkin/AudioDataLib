@@ -17,7 +17,7 @@ public:
 	virtual int OnExit(void) override;
 
 	void Clear();
-	void AddAudio(std::shared_ptr<Audio>& audio);
+	void AddAudio(std::shared_ptr<Audio> audio);
 	const std::vector<std::shared_ptr<Audio>>& GetAudioArray() const { return this->audioArray; }
 	bool GetFlaggedAudio(std::vector<Audio*>& foundAudioArray, uint32_t flag);
 	Frame* GetFrame() { return this->frame; }

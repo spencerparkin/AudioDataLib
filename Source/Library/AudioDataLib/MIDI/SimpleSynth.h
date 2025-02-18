@@ -19,7 +19,7 @@ namespace AudioDataLib
 		SimpleSynth();
 		virtual ~SimpleSynth();
 
-		virtual bool ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize, Error& error) override;
+		virtual bool ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize) override;
 		virtual SynthModule* GetRootModule(uint16_t channel) override;
 
 	private:

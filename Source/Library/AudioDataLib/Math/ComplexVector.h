@@ -4,8 +4,6 @@
 
 namespace AudioDataLib
 {
-	class Error;
-
 	/**
 	 * @brief These can be imagined as row (or column) vectors having complex-valued elements.
 	 * 
@@ -65,10 +63,9 @@ namespace AudioDataLib
 		 * 
 		 * @param[in] complexVector This is the complex vector to be transformed.
 		 * @param[in] inverse If true, an inverse-FFT is performed; a regular FFT otherwise.
-		 * @param[out] error This will contain error information if false is returned.
 		 * @return True is returned on success; otherwise, false is returned.
 		 */
-		bool FFT(const ComplexVector& complexVector, bool inverse, Error& error);
+		bool FFT(const ComplexVector& complexVector, bool inverse);
 
 	protected:
 		std::vector<ComplexNumber>* complexNumberArray;

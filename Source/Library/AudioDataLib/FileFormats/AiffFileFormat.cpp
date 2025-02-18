@@ -3,7 +3,7 @@
 #include "AudioDataLib/Codecs/Codec.h"
 #include "AudioDataLib/Codecs/ALawCodec.h"
 #include "AudioDataLib/Codecs/uLawCodec.h"
-#include "AudioDataLib/Error.h"
+#include "AudioDataLib/ErrorSystem.h"
 
 using namespace AudioDataLib;
 
@@ -17,7 +17,7 @@ AiffFileFormat::AiffFileFormat()
 {
 }
 
-/*virtual*/ bool AiffFileFormat::ReadFromStream(ByteStream& inputStream, FileData*& fileData, Error& error)
+/*virtual*/ bool AiffFileFormat::ReadFromStream(ByteStream& inputStream, FileData*& fileData)
 {
 	// https://paulbourke.net/dataformats/audio/
 
@@ -27,20 +27,20 @@ AiffFileFormat::AiffFileFormat()
 	// test whether byte-swapping is needed or not, but for now, assume it is.
 	parser.byteSwapper.swapsNeeded = true;
 
-	if (!parser.ParseStream(inputStream, error))
+	if (!parser.ParseStream(inputStream))
 		return false;
 
 	const ChunkParser::Chunk* formChunk = parser.FindChunk("FORM", "", false);
 	if (!formChunk)
 	{
-		error.Add("Did not find the form chunk.");
+		ErrorSystem::Get()->Add("Did not find the form chunk.");
 		return false;
 	}
 
 	const ChunkParser::Chunk* commonChunk = parser.FindChunk("COMM", "", false);
 	if (!commonChunk)
 	{
-		error.Add("Did not find a common chunk.");
+		ErrorSystem::Get()->Add("Did not find a common chunk.");
 		return false;
 	}
 
@@ -49,7 +49,7 @@ AiffFileFormat::AiffFileFormat()
 	int16_t numChannels = 0;
 	if (sizeof(numChannels) != commonStream.ReadBytesFromStream((uint8_t*)&numChannels, sizeof(numChannels)))
 	{
-		error.Add("Failed to read number of channels.");
+		ErrorSystem::Get()->Add("Failed to read number of channels.");
 		return false;
 	}
 
@@ -58,7 +58,7 @@ AiffFileFormat::AiffFileFormat()
 	uint32_t numFrames = 0;
 	if (sizeof(numFrames) != commonStream.ReadBytesFromStream((uint8_t*)&numFrames, sizeof(numFrames)))
 	{
-		error.Add("Failed to read number of frames.");
+		ErrorSystem::Get()->Add("Failed to read number of frames.");
 		return false;
 	}
 
@@ -67,7 +67,7 @@ AiffFileFormat::AiffFileFormat()
 	int16_t sampleSizeBits = 0;
 	if (sizeof(sampleSizeBits) != commonStream.ReadBytesFromStream((uint8_t*)&sampleSizeBits, sizeof(sampleSizeBits)))
 	{
-		error.Add("Failed to read sample size.");
+		ErrorSystem::Get()->Add("Failed to read sample size.");
 		return false;
 	}
 
@@ -78,14 +78,14 @@ AiffFileFormat::AiffFileFormat()
 	uint8_t sampleRateBuffer[10];
 	if (sizeof(sampleRateBuffer) != commonStream.ReadBytesFromStream((uint8_t*)sampleRateBuffer, sizeof(sampleRateBuffer)))
 	{
-		error.Add("Failed to read sample rate buffer.");
+		ErrorSystem::Get()->Add("Failed to read sample rate buffer.");
 		return false;
 	}
 
 	uint8_t sign = sampleRateBuffer[0] & 0x80;
 	if (sign != 0)
 	{
-		error.Add("Doesn't make sense for sample rate to be negative.");
+		ErrorSystem::Get()->Add("Doesn't make sense for sample rate to be negative.");
 		return false;
 	}
 
@@ -93,7 +93,7 @@ AiffFileFormat::AiffFileFormat()
 	int32_t shift = exponent - 16383;
 	if (shift < 7)
 	{
-		error.Add("Was given a sample rate with a non-zero fractional part.  Expected a whole-number for the sample rate.");
+		ErrorSystem::Get()->Add("Was given a sample rate with a non-zero fractional part.  Expected a whole-number for the sample rate.");
 		return false;
 	}
 
@@ -114,7 +114,7 @@ AiffFileFormat::AiffFileFormat()
 	{
 		if (4 != commonStream.ReadBytesFromStream((uint8_t*)&compressionType, 4))
 		{
-			error.Add("Failed to read compression type ID from common chunk.");
+			ErrorSystem::Get()->Add("Failed to read compression type ID from common chunk.");
 			return false;
 		}
 
@@ -123,7 +123,7 @@ AiffFileFormat::AiffFileFormat()
 		uint8_t compressionTypeStringLength = 0;
 		if (1 != commonStream.ReadBytesFromStream(&compressionTypeStringLength, 1))
 		{
-			error.Add("Failed to read compression type string length from common chunk.");
+			ErrorSystem::Get()->Add("Failed to read compression type string length from common chunk.");
 			return false;
 		}
 
@@ -132,7 +132,7 @@ AiffFileFormat::AiffFileFormat()
 			char ch = 0;
 			if (1 != commonStream.ReadBytesFromStream((uint8_t*)&ch, 1))
 			{
-				error.Add(FormatString("Failed to read compression type string character %d of %d from common chunk.", i, compressionTypeStringLength));
+				ErrorSystem::Get()->Add(std::format("Failed to read compression type string character {} of {} from common chunk.", i, compressionTypeStringLength));
 				return false;
 			}
 
@@ -151,14 +151,14 @@ AiffFileFormat::AiffFileFormat()
 
 	if (!codec.get())
 	{
-		error.Add(FormatString("An audio codec could not be determined for this file.  The comperssion type name is \"%s\".", compressionTypeName.c_str()));
+		ErrorSystem::Get()->Add(std::format("An audio codec could not be determined for this file.  The comperssion type name is \"{}\".", compressionTypeName.c_str()));
 		return false;
 	}
 
 	const ChunkParser::Chunk* soundChunk = parser.FindChunk("SSND", "", false);
 	if (!soundChunk)
 	{
-		error.Add("No sound chunk found.");
+		ErrorSystem::Get()->Add("No sound chunk found.");
 		return false;
 	}
 
@@ -167,14 +167,14 @@ AiffFileFormat::AiffFileFormat()
 	uint32_t offset = 0;
 	if (sizeof(offset) != soundStream.ReadBytesFromStream((uint8_t*)&offset, sizeof(offset)))
 	{
-		error.Add("Failed to read sound buffer offset.");
+		ErrorSystem::Get()->Add("Failed to read sound buffer offset.");
 		return false;
 	}
 
 	uint32_t blockSize = 0;
 	if (sizeof(blockSize) != soundStream.ReadBytesFromStream((uint8_t*)&blockSize, sizeof(blockSize)))
 	{
-		error.Add("Failed to read block size from sound chunk.");
+		ErrorSystem::Get()->Add("Failed to read block size from sound chunk.");
 		return false;
 	}
 
@@ -183,7 +183,7 @@ AiffFileFormat::AiffFileFormat()
 		uint8_t padByte = 0;
 		if (1 != soundStream.ReadBytesFromStream(&padByte, 1))
 		{
-			error.Add("Failed to read pad-byte.");
+			ErrorSystem::Get()->Add("Failed to read pad-byte.");
 			return false;
 		}
 	}
@@ -209,7 +209,7 @@ AiffFileFormat::AiffFileFormat()
 	format.framesPerSecond = sampleRate;
 	audioData->SetFormat(format);
 
-	if(!codec->Decode(soundStream, *audioData, error))
+	if(!codec->Decode(soundStream, *audioData))
 	{
 		delete audioData;
 		return false;
@@ -219,9 +219,9 @@ AiffFileFormat::AiffFileFormat()
 	return true;
 }
 
-/*virtual*/ bool AiffFileFormat::WriteToStream(ByteStream& outputStream, const FileData* fileData, Error& error)
+/*virtual*/ bool AiffFileFormat::WriteToStream(ByteStream& outputStream, const FileData* fileData)
 {
-	error.Add("Not yet implemented.");
+	ErrorSystem::Get()->Add("Not yet implemented.");
 	return false;
 }
 
@@ -235,34 +235,34 @@ AiffFileFormat::AiffChunkParser::AiffChunkParser()
 {
 }
 
-/*virtual*/ bool AiffFileFormat::AiffChunkParser::ParseChunkData(ReadOnlyBufferStream& inputStream, Chunk* chunk, Error& error)
+/*virtual*/ bool AiffFileFormat::AiffChunkParser::ParseChunkData(ReadOnlyBufferStream& inputStream, Chunk* chunk)
 {
 	if (chunk->GetName() == "FORM")
 	{
 		char formType[5];
 		if (4 != inputStream.ReadBytesFromStream((uint8_t*)formType, 4))
 		{
-			error.Add("Could not read form type of FORM chunk.");
+			ErrorSystem::Get()->Add("Could not read form type of FORM chunk.");
 			return false;
 		}
 
 		formType[4] = '\0';
 		if (0 != strcmp(formType, "AIFF") && 0 != strcmp(formType, "AIFC"))
 		{
-			error.Add("File does not appears to be an AIFF file.");
+			ErrorSystem::Get()->Add("File does not appears to be an AIFF file.");
 			return false;
 		}
 
 		chunk->SetFormType(formType);
 
-		if (!chunk->ParseSubChunks(inputStream, this, error))
+		if (!chunk->ParseSubChunks(inputStream, this))
 			return false;
 	}
 	else
 	{
 		if (!inputStream.SetReadOffset(inputStream.GetReadOffset() + chunk->GetBufferSize()))
 		{
-			error.Add("Could not skip over chunk data.");
+			ErrorSystem::Get()->Add("Could not skip over chunk data.");
 			return false;
 		}
 	}

@@ -5,8 +5,6 @@
 
 namespace AudioDataLib
 {
-	class Error;
-
 	/**
 	 * @brief This class knows how to read and write WAVE files.
 	 * 
@@ -30,11 +28,11 @@ namespace AudioDataLib
 			EXTENSIBLE = 0xFFFE
 		};
 
-		virtual bool ReadFromStream(ByteStream& inputStream, FileData*& fileData, Error& error) override;
-		virtual bool WriteToStream(ByteStream& outputStream, const FileData* fileData, Error& error) override;
+		virtual bool ReadFromStream(ByteStream& inputStream, FileData*& fileData) override;
+		virtual bool WriteToStream(ByteStream& outputStream, const FileData* fileData) override;
 
 	protected:
-		static bool LoadWaveData(AudioData* audioData, const ChunkParser::Chunk* waveChunk, Error& error);
+		static bool LoadWaveData(AudioData* audioData, const ChunkParser::Chunk* waveChunk);
 
 		class WaveChunkParser : public ChunkParser
 		{
@@ -42,7 +40,7 @@ namespace AudioDataLib
 			WaveChunkParser();
 			virtual ~WaveChunkParser();
 
-			virtual bool ParseChunkData(ReadOnlyBufferStream& inputStream, Chunk* chunk, Error& error) override;
+			virtual bool ParseChunkData(ReadOnlyBufferStream& inputStream, Chunk* chunk) override;
 		};
 	};
 }

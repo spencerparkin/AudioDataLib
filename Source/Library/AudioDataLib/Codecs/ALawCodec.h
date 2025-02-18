@@ -11,8 +11,8 @@ namespace AudioDataLib
 		ALawCodec();
 		virtual ~ALawCodec();
 
-		virtual bool Decode(ByteStream& inputStream, AudioData& audioOut, Error& error) override;
-		virtual bool Encode(ByteStream& outputStream, const AudioData& audioIn, Error& error) override;
+		virtual bool Decode(ByteStream& inputStream, AudioData& audioOut) override;
+		virtual bool Encode(ByteStream& outputStream, const AudioData& audioIn) override;
 
 		// TODO: Add compression parameter here.
 	};

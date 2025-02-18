@@ -1,6 +1,6 @@
 #include "AudioDataLib/MIDI/MidiMsgSource.h"
 #include "AudioDataLib/MIDI/MidiMsgDestination.h"
-#include "AudioDataLib/Error.h"
+#include "AudioDataLib/ErrorSystem.h"
 
 using namespace AudioDataLib;
 
@@ -24,13 +24,13 @@ void MidiMsgSource::Clear()
 	this->destinationArray->clear();
 }
 
-/*virtual*/ bool MidiMsgSource::Setup(Error& error)
+/*virtual*/ bool MidiMsgSource::Setup()
 {
 	for (auto& destination : *this->destinationArray)
 	{
-		if (!destination->Initialize(error))
+		if (!destination->Initialize())
 		{
-			error.Add("Failed to initialize MIDI message destination.");
+			ErrorSystem::Get()->Add("Failed to initialize MIDI message destination.");
 			return false;
 		}
 	}
@@ -38,27 +38,27 @@ void MidiMsgSource::Clear()
 	return true;
 }
 
-/*virtual*/ bool MidiMsgSource::Shutdown(Error& error)
+/*virtual*/ bool MidiMsgSource::Shutdown()
 {
 	for (auto& destination : *this->destinationArray)
-		destination->Finalize(error);
+		destination->Finalize();
 
 	return true;
 }
 
-/*virtual*/ bool MidiMsgSource::Process(Error& error)
+/*virtual*/ bool MidiMsgSource::Process()
 {
 	for (auto& destination : *this->destinationArray)
-		if (!destination->Process(error))
+		if (!destination->Process())
 			return false;
 
 	return true;
 }
 
-bool MidiMsgSource::BroadcastMidiMessage(double deltaTimeSeconds, const uint8_t* messageBuffer, uint64_t messageBufferSize, Error& error)
+bool MidiMsgSource::BroadcastMidiMessage(double deltaTimeSeconds, const uint8_t* messageBuffer, uint64_t messageBufferSize)
 {
 	for (auto& destination : *this->destinationArray)
-		if (!destination->ReceiveMessage(deltaTimeSeconds, messageBuffer, messageBufferSize, error))
+		if (!destination->ReceiveMessage(deltaTimeSeconds, messageBuffer, messageBufferSize))
 			return false;
 
 	return true;

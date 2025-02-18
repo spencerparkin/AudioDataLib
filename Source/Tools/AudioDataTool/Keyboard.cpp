@@ -1,4 +1,5 @@
 #include "Keyboard.h"
+#include "AudioDataLib/ErrorSystem.h"
 
 //---------------------------- Keyboard ----------------------------
 
@@ -54,25 +55,25 @@ WindowsKeyboard::WindowsKeyboard()
 {
 }
 
-/*virtual*/ bool WindowsKeyboard::Setup(std::string& error)
+/*virtual*/ bool WindowsKeyboard::Setup()
 {
 	if (this->inputHandle != INVALID_HANDLE_VALUE)
 	{
-		error = "Keyboard handle already setup!";
+		AudioDataLib::ErrorSystem::Get()->Add("Keyboard handle already setup!");
 		return false;
 	}
 
 	this->inputHandle = ::GetStdHandle(STD_INPUT_HANDLE);
 	if (this->inputHandle == INVALID_HANDLE_VALUE)
 	{
-		error = "Failed to open windows keyboard.";
+		AudioDataLib::ErrorSystem::Get()->Add("Failed to open windows keyboard.");
 		return false;
 	}
 
 	return true;
 }
 
-/*virtual*/ bool WindowsKeyboard::Shutdown(std::string& error)
+/*virtual*/ bool WindowsKeyboard::Shutdown()
 {
 	if (this->inputHandle)
 	{
@@ -84,7 +85,7 @@ WindowsKeyboard::WindowsKeyboard()
 	return true;
 }
 
-/*virtual*/ bool WindowsKeyboard::Process(std::string& error)
+/*virtual*/ bool WindowsKeyboard::Process()
 {
 	if (this->inputHandle == INVALID_HANDLE_VALUE)
 		return false;

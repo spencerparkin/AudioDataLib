@@ -10,12 +10,12 @@ ALawCodec::ALawCodec()
 {
 }
 
-/*virtual*/ bool ALawCodec::Decode(ByteStream& inputStream, AudioData& audioOut, Error& error)
+/*virtual*/ bool ALawCodec::Decode(ByteStream& inputStream, AudioData& audioOut)
 {
 	return false;
 }
 
-/*virtual*/ bool ALawCodec::Encode(ByteStream& outputStream, const AudioData& audioIn, Error& error)
+/*virtual*/ bool ALawCodec::Encode(ByteStream& outputStream, const AudioData& audioIn)
 {
 	return false;
 }

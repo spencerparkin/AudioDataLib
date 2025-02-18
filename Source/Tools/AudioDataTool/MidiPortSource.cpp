@@ -1,6 +1,6 @@
 #include "MidiPortSource.h"
 #include "AudioDataLib/ByteStream.h"
-#include "AudioDataLib/Error.h"
+#include "AudioDataLib/ErrorSystem.h"
 
 using namespace AudioDataLib;
 
@@ -14,11 +14,11 @@ MidiPortSource::MidiPortSource(const std::string& desiredPortName)
 {
 }
 
-/*virtual*/ bool MidiPortSource::Setup(AudioDataLib::Error& error)
+/*virtual*/ bool MidiPortSource::Setup()
 {
 	if (this->midiIn)
 	{
-		error.Add("MIDI input already setup!");
+		ErrorSystem::Get()->Add("MIDI input already setup!");
 		return false;
 	}
 
@@ -43,7 +43,7 @@ MidiPortSource::MidiPortSource(const std::string& desiredPortName)
 
 		if (desiredPort == -1)
 		{
-			error.Add(FormatString("Failed to find desired port: %s\n", this->desiredPortName.c_str()));
+			ErrorSystem::Get()->Add(std::format("Failed to find desired port: {}\n", this->desiredPortName.c_str()));
 			return false;
 		}
 
@@ -54,19 +54,19 @@ MidiPortSource::MidiPortSource(const std::string& desiredPortName)
 	}
 	catch (RtMidiError rtError)
 	{
-		error.Add("RtMidi error: " + rtError.getMessage());
+		ErrorSystem::Get()->Add("RtMidi error: " + rtError.getMessage());
 		return false;
 	}
 
-	if (!MidiMsgSource::Setup(error))
+	if (!MidiMsgSource::Setup())
 		return false;
 
 	return true;
 }
 
-/*virtua*/ bool MidiPortSource::Shutdown(AudioDataLib::Error& error)
+/*virtua*/ bool MidiPortSource::Shutdown()
 {
-	MidiMsgSource::Shutdown(error);
+	MidiMsgSource::Shutdown();
 
 	if (this->midiIn)
 	{
@@ -77,37 +77,37 @@ MidiPortSource::MidiPortSource(const std::string& desiredPortName)
 		}
 		catch (RtMidiError rtError)
 		{
-			error.Add("RtMidi error: " + rtError.getMessage());
+			ErrorSystem::Get()->Add("RtMidi error: " + rtError.getMessage());
 		}
 
 		delete this->midiIn;
 		this->midiIn = nullptr;
 	}
 
-	return !error;
+	return !ErrorSystem::Get()->Errors();
 }
 
-/*virtua*/ bool MidiPortSource::Process(AudioDataLib::Error& error)
+/*virtua*/ bool MidiPortSource::Process()
 {
 	if (!this->midiIn)
 	{
-		error.Add("No MIDI input setup!");
+		ErrorSystem::Get()->Add("No MIDI input setup!");
 		return false;
 	}
 
 	if (!this->midiIn->isPortOpen())
 	{
-		error.Add("MIDI port closed!");
+		ErrorSystem::Get()->Add("MIDI port closed!");
 		return false;
 	}
 
 	std::vector<unsigned char> message;
 	double deltaTimeSeconds = this->midiIn->getMessage(&message);
 	if (message.size() > 0)
-		if (!this->BroadcastMidiMessage(deltaTimeSeconds, (const uint8_t*)message.data(), message.size(), error))
+		if (!this->BroadcastMidiMessage(deltaTimeSeconds, (const uint8_t*)message.data(), message.size()))
 			return false;
 
-	if (!MidiMsgSource::Process(error))
+	if (!MidiMsgSource::Process())
 		return false;
 
 	return true;

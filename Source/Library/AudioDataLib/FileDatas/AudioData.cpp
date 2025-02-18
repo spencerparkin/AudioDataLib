@@ -1,7 +1,7 @@
 #include "AudioDataLib/FileDatas/AudioData.h"
 #include "AudioDataLib/WaveForm.h"
 #include "AudioDataLib/FrequencyGraph.h"
-#include "AudioDataLib/Error.h"
+#include "AudioDataLib/ErrorSystem.h"
 
 using namespace AudioDataLib;
 
@@ -109,10 +109,10 @@ double AudioData::GetTimeSeconds() const
 	return this->format.BytesPerChannelToSeconds(this->format.BytesPerChannel(this->audioBufferSize));
 }
 
-bool AudioData::CalcMetaData(Error& error) const
+bool AudioData::CalcMetaData() const
 {
 	WaveForm waveForm;
-	if (!waveForm.ConvertFromAudioBuffer(format, this->audioBuffer, this->audioBufferSize, 0, error))
+	if (!waveForm.ConvertFromAudioBuffer(format, this->audioBuffer, this->audioBufferSize, 0))
 		return false;
 
 	this->metaData.volume = waveForm.CalcAverageVolume();
@@ -120,7 +120,7 @@ bool AudioData::CalcMetaData(Error& error) const
 	// Note that if the number of samples here is too low, we can lose accuracy.
 	// But the same is true if we request too many samples!  Maybe due to round-off error in the math?
 	FrequencyGraph frequencyGraph;
-	if (!frequencyGraph.FromWaveForm(waveForm, 32768, error))
+	if (!frequencyGraph.FromWaveForm(waveForm, 32768))
 		return false;
 
 	// TODO: Being able to accurately estimate the fundamental frequency of a given wave-form is

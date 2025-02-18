@@ -6,8 +6,6 @@
 
 namespace AudioDataLib
 {
-	class Error;
-
 	/**
 	 * @brief This class can read and write MIDI files.
 	 * 
@@ -19,13 +17,13 @@ namespace AudioDataLib
 		MidiFileFormat();
 		virtual ~MidiFileFormat();
 
-		virtual bool ReadFromStream(ByteStream& inputStream, FileData*& fileData, Error& error) override;
-		virtual bool WriteToStream(ByteStream& outputStream, const FileData* fileData, Error& error) override;
+		virtual bool ReadFromStream(ByteStream& inputStream, FileData*& fileData) override;
+		virtual bool WriteToStream(ByteStream& outputStream, const FileData* fileData) override;
 
-		static bool DecodeEvent(ByteStream& inputStream, MidiData::Event*& event, Error& error);
-		static bool EncodeEvent(ByteStream& outputStream, const MidiData::Event* event, Error& error);
+		static bool DecodeEvent(ByteStream& inputStream, MidiData::Event*& event);
+		static bool EncodeEvent(ByteStream& outputStream, const MidiData::Event* event);
 
-		static bool DecodeVariableLengthValue(uint64_t& value, ByteStream& inputStream, Error& error);
-		static bool EncodeVariableLengthValue(uint64_t value, ByteStream& outputStream, Error& error);
+		static bool DecodeVariableLengthValue(uint64_t& value, ByteStream& inputStream);
+		static bool EncodeVariableLengthValue(uint64_t value, ByteStream& outputStream);
 	};
 }

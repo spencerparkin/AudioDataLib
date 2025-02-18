@@ -15,7 +15,7 @@ namespace AudioDataLib
 		DelayModule();
 		virtual ~DelayModule();
 
-		virtual bool GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, SynthModule* callingModule, Error& error) override;
+		virtual bool GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, SynthModule* callingModule) override;
 		virtual bool MoreSoundAvailable() override;
 
 		void SetDelay(double delaySeconds) { this->delaySeconds = delaySeconds; }

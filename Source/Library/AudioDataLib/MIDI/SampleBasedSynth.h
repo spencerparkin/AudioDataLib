@@ -17,12 +17,12 @@ namespace AudioDataLib
 		SampleBasedSynth();
 		virtual ~SampleBasedSynth();
 
-		virtual bool ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize, Error& error) override;
+		virtual bool ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize) override;
 		virtual SynthModule* GetRootModule(uint16_t channel) override;
-		virtual bool Process(Error& error) override;
-		virtual bool Initialize(Error& error) override;
+		virtual bool Process() override;
+		virtual bool Initialize() override;
 
-		bool SetChannelInstrument(uint8_t channel, uint8_t instrument, Error& error);
+		bool SetChannelInstrument(uint8_t channel, uint8_t instrument);
 		bool GetChannelInstrument(uint8_t channel, uint8_t& instrument) const;
 
 		void SetWaveTableData(std::shared_ptr<WaveTableData>& waveTableData) { *this->waveTableData = waveTableData; }
@@ -53,8 +53,7 @@ namespace AudioDataLib
 
 		bool GenerateModuleGraph(
 				const WaveTableData::AudioSampleData* audioSample,
-				double noteFrequency, std::shared_ptr<SynthModule>& synthModule,
-				Error& error);
+				double noteFrequency, std::shared_ptr<SynthModule>& synthModule);
 
 		std::shared_ptr<SynthModule>* leftEarRootModule;
 		std::shared_ptr<SynthModule>* rightEarRootModule;

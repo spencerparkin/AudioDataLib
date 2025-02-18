@@ -10,7 +10,7 @@ namespace AudioDataLib
 		OscillatorModule();
 		virtual ~OscillatorModule();
 
-		virtual bool GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, SynthModule* callingModule, Error& error) override;
+		virtual bool GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, SynthModule* callingModule) override;
 
 		enum WaveType
 		{

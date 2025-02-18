@@ -1,6 +1,6 @@
 #include "AudioDataLib/SynthModules/ReverbModule.h"
 #include "AudioDataLib/WaveForm.h"
-#include "AudioDataLib/Error.h"
+#include "AudioDataLib/ErrorSystem.h"
 
 using namespace AudioDataLib;
 
@@ -41,11 +41,11 @@ ReverbModule::ReverbModule(uint8_t variation)
 {
 }
 
-/*virtual*/ bool ReverbModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, SynthModule* callingModule, Error& error)
+/*virtual*/ bool ReverbModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, SynthModule* callingModule)
 {
 	if (this->GetNumDependentModules() != 1)
 	{
-		error.Add("Reverb module needs exactly one dependent module.");
+		ErrorSystem::Get()->Add("Reverb module needs exactly one dependent module.");
 		return false;
 	}
 
@@ -53,7 +53,7 @@ ReverbModule::ReverbModule(uint8_t variation)
 
 	if (!this->enabled)
 	{
-		if (!dependentModule->GenerateSound(durationSeconds, samplesPerSecond, waveForm, this, error))
+		if (!dependentModule->GenerateSound(durationSeconds, samplesPerSecond, waveForm, this))
 			return false;
 
 		this->moreSoundAvailable = dependentModule->MoreSoundAvailable();
@@ -61,7 +61,7 @@ ReverbModule::ReverbModule(uint8_t variation)
 	}
 
 	WaveForm originalWaveForm;
-	if (!dependentModule->GenerateSound(durationSeconds, samplesPerSecond, originalWaveForm, this, error))
+	if (!dependentModule->GenerateSound(durationSeconds, samplesPerSecond, originalWaveForm, this))
 		return false;
 
 	originalWaveForm.PadWithSilence(durationSeconds, samplesPerSecond);

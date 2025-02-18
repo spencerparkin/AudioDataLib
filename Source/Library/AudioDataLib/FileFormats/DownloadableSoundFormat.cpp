@@ -1,7 +1,7 @@
 #include "AudioDataLib/FileFormats/DownloadableSoundFormat.h"
 #include "AudioDataLib/FileDatas/WaveTableData.h"
 #include "AudioDataLib/FileFormats/WaveFileFormat.h"
-#include "AudioDataLib/Error.h"
+#include "AudioDataLib/ErrorSystem.h"
 
 using namespace AudioDataLib;
 
@@ -15,39 +15,39 @@ DownloadableSoundFormat::DownloadableSoundFormat()
 {
 }
 
-/*virtual*/ bool DownloadableSoundFormat::ReadFromStream(ByteStream& inputStream, FileData*& fileData, Error& error)
+/*virtual*/ bool DownloadableSoundFormat::ReadFromStream(ByteStream& inputStream, FileData*& fileData)
 {
 	fileData = nullptr;
 
 	ChunkParser parser;
 	parser.RegisterSubChunks("RIFF");
 	parser.RegisterSubChunks("LIST");
-	if (!parser.ParseStream(inputStream, error))
+	if (!parser.ParseStream(inputStream))
 		return false;
 
 	const ChunkParser::Chunk* chunk = parser.FindChunk("RIFF");
 	if (!chunk)
 	{
-		error.Add("No RIFF chunk found!");
+		ErrorSystem::Get()->Add("No RIFF chunk found!");
 		return false;
 	}
 
 	if (chunk->GetFormType() != "DLS ")
 	{
-		error.Add("RIFF file does not appear to be a DLS file.");
+		ErrorSystem::Get()->Add("RIFF file does not appear to be a DLS file.");
 		return false;
 	}
 
 	const ChunkParser::Chunk* headerChunk = parser.FindChunk("colh");
 	if (!headerChunk)
 	{
-		error.Add("Did not find a header chunk.");
+		ErrorSystem::Get()->Add("Did not find a header chunk.");
 		return false;
 	}
 
 	if (headerChunk->GetBufferSize() != sizeof(uint32_t))
 	{
-		error.Add("Header size was not 4 bytes.");
+		ErrorSystem::Get()->Add("Header size was not 4 bytes.");
 		return false;
 	}
 
@@ -56,20 +56,20 @@ DownloadableSoundFormat::DownloadableSoundFormat()
 	const ChunkParser::Chunk* instrumentListChunk = chunk->FindChunk("LIST", "lins", true);
 	if (!instrumentListChunk)
 	{
-		error.Add("Did not find instrument list chunk.");
+		ErrorSystem::Get()->Add("Did not find instrument list chunk.");
 		return false;
 	}
 
 	if (instrumentListChunk->GetNumSubChunks() != numInstruments)
 	{
-		error.Add(FormatString("Header says there are %d instruments, but instrument list chunk has %d sub-chunks", numInstruments, instrumentListChunk->GetNumSubChunks()));
+		ErrorSystem::Get()->Add(std::format("Header says there are {} instruments, but instrument list chunk has {} sub-chunks", numInstruments, instrumentListChunk->GetNumSubChunks()));
 		return false;
 	}
 
 	const ChunkParser::Chunk* wavePoolChunk = chunk->FindChunk("LIST", "wvpl", true);
 	if (!wavePoolChunk)
 	{
-		error.Add("Could not find wave-pool chunk.");
+		ErrorSystem::Get()->Add("Could not find wave-pool chunk.");
 		return false;
 	}
 
@@ -78,14 +78,14 @@ DownloadableSoundFormat::DownloadableSoundFormat()
 	for (uint32_t i = 0; i < numInstruments; i++)
 	{
 		const ChunkParser::Chunk* instrumentChunk = instrumentListChunk->GetSubChunkArray()[i];
-		if (!this->LoadInstrument(instrumentChunk, wavePoolChunk, waveTableData, error))
+		if (!this->LoadInstrument(instrumentChunk, wavePoolChunk, waveTableData))
 		{
 			delete waveTableData;
 			break;
 		}
 	}
 
-	if (error)
+	if (ErrorSystem::Get()->Errors())
 		return false;
 
 	fileData = waveTableData;
@@ -95,13 +95,12 @@ DownloadableSoundFormat::DownloadableSoundFormat()
 bool DownloadableSoundFormat::LoadInstrument(
 				const ChunkParser::Chunk* instrumentChunk,
 				const ChunkParser::Chunk* wavePoolChunk,
-				WaveTableData* waveTableData,
-				Error& error)
+				WaveTableData* waveTableData)
 {
 	const ChunkParser::Chunk* instrumentHeaderChunk = instrumentChunk->FindChunk("insh", "", true);
 	if (!instrumentHeaderChunk)
 	{
-		error.Add("Failed to find instrument header chunk.");
+		ErrorSystem::Get()->Add("Failed to find instrument header chunk.");
 		return false;
 	}
 
@@ -109,7 +108,7 @@ bool DownloadableSoundFormat::LoadInstrument(
 
 	if (instrumentHeaderChunk->GetBufferSize() != sizeof(instrumentHeader))
 	{
-		error.Add(FormatString("Instrument header chunk size was %d, but expected %d.", instrumentHeaderChunk->GetBufferSize(), sizeof(instrumentHeader)));
+		ErrorSystem::Get()->Add(std::format("Instrument header chunk size was {}, but expected {}.", instrumentHeaderChunk->GetBufferSize(), sizeof(instrumentHeader)));
 		return false;
 	}
 
@@ -123,13 +122,13 @@ bool DownloadableSoundFormat::LoadInstrument(
 	const ChunkParser::Chunk* regionListChunk = instrumentChunk->FindChunk("LIST", "lrgn", true);
 	if (!regionListChunk)
 	{
-		error.Add("Did not find region list chunk.");
+		ErrorSystem::Get()->Add("Did not find region list chunk.");
 		return false;
 	}
 
 	if (regionListChunk->GetNumSubChunks() != instrumentHeader.numRegions)
 	{
-		error.Add(FormatString("Instrument header says there are %d region, but there are %d sub-chunks of the region list chunk.", instrumentHeader.numRegions, regionListChunk->GetNumSubChunks()));
+		ErrorSystem::Get()->Add(std::format("Instrument header says there are {} region, but there are {} sub-chunks of the region list chunk.", instrumentHeader.numRegions, regionListChunk->GetNumSubChunks()));
 		return false;
 	}
 
@@ -140,7 +139,7 @@ bool DownloadableSoundFormat::LoadInstrument(
 		const ChunkParser::Chunk* regionHeaderChunk = regionChunk->FindChunk("rgnh", "", true);
 		if (!regionHeaderChunk)
 		{
-			error.Add("Failed to find region header chunk.");
+			ErrorSystem::Get()->Add("Failed to find region header chunk.");
 			return false;
 		}
 
@@ -148,7 +147,7 @@ bool DownloadableSoundFormat::LoadInstrument(
 
 		if (regionHeaderChunk->GetBufferSize() != sizeof(regionHeader))
 		{
-			error.Add(FormatString("Expected region header size to be %d, but region header chunk size is %d.", sizeof(regionHeader), regionHeaderChunk->GetBufferSize()));
+			ErrorSystem::Get()->Add(std::format("Expected region header size to be {}, but region header chunk size is {}.", sizeof(regionHeader), regionHeaderChunk->GetBufferSize()));
 			return false;
 		}
 
@@ -157,7 +156,7 @@ bool DownloadableSoundFormat::LoadInstrument(
 		const ChunkParser::Chunk* waveSampleChunk = regionChunk->FindChunk("wsmp", "", true);
 		if (!waveSampleChunk)
 		{
-			error.Add("Failed to find wave-sample chunk.");
+			ErrorSystem::Get()->Add("Failed to find wave-sample chunk.");
 			return false;
 		}
 
@@ -165,7 +164,7 @@ bool DownloadableSoundFormat::LoadInstrument(
 
 		if (waveSampleChunk->GetBufferSize() < sizeof(waveSample))
 		{
-			error.Add(FormatString("Sizeof wave sample structure (%d) is bigger than the buffer size (%d).", sizeof(waveSample), waveSampleChunk->GetBufferSize()));
+			ErrorSystem::Get()->Add(std::format("Sizeof wave sample structure ({}) is bigger than the buffer size ({}).", sizeof(waveSample), waveSampleChunk->GetBufferSize()));
 			return false;
 		}
 
@@ -173,13 +172,13 @@ bool DownloadableSoundFormat::LoadInstrument(
 
 		if (waveSampleChunk->GetBufferSize() != sizeof(waveSample) + waveSample.numSampleLoops * sizeof(DSL_WaveSampleLoop))
 		{
-			error.Add(FormatString("Wave sample chunk has a size (%d) inconsistent with how many loops (%d) it claims to have.", waveSampleChunk->GetBufferSize(), waveSample.numSampleLoops));
+			ErrorSystem::Get()->Add(std::format("Wave sample chunk has a size ({}) inconsistent with how many loops ({}) it claims to have.", waveSampleChunk->GetBufferSize(), waveSample.numSampleLoops));
 			return false;
 		}
 
 		if (waveSample.numSampleLoops != 0 && waveSample.numSampleLoops != 1)
 		{
-			error.Add(FormatString("Can't yet handle wave samples with %d loops.  Only zero or one is understood for now.", waveSample.numSampleLoops));
+			ErrorSystem::Get()->Add(std::format("Can't yet handle wave samples with {} loops.  Only zero or one is understood for now.", waveSample.numSampleLoops));
 			return false;
 		}
 
@@ -188,7 +187,7 @@ bool DownloadableSoundFormat::LoadInstrument(
 		const ChunkParser::Chunk* waveLinkChunk = regionChunk->FindChunk("wlnk", "", true);
 		if (!waveLinkChunk)
 		{
-			error.Add("Failed to find wave-link chunk.");
+			ErrorSystem::Get()->Add("Failed to find wave-link chunk.");
 			return false;
 		}
 
@@ -196,7 +195,7 @@ bool DownloadableSoundFormat::LoadInstrument(
 
 		if (waveLinkChunk->GetBufferSize() != sizeof(waveLink))
 		{
-			error.Add(FormatString("Expected wave-link chunk to be of size %d, but it is of size %d.", sizeof(waveLink), waveLinkChunk->GetBufferSize()));
+			ErrorSystem::Get()->Add(std::format("Expected wave-link chunk to be of size {}, but it is of size {}.", sizeof(waveLink), waveLinkChunk->GetBufferSize()));
 			return false;
 		}
 
@@ -231,15 +230,15 @@ bool DownloadableSoundFormat::LoadInstrument(
 
 		if (waveLink.tableIndex >= wavePoolChunk->GetNumSubChunks())
 		{
-			error.Add(FormatString("Cue index (%d) is out of range (0 -- %d).", waveLink.tableIndex, wavePoolChunk->GetNumSubChunks()));
+			ErrorSystem::Get()->Add(std::format("Cue index ({}) is out of range (0 -- {}).", waveLink.tableIndex, wavePoolChunk->GetNumSubChunks()));
 			return false;
 		}
 
 		const ChunkParser::Chunk* waveChunk = wavePoolChunk->GetSubChunkArray()[waveLink.tableIndex];
 
-		if (!WaveFileFormat::LoadWaveData(audioSampleData.get(), waveChunk, error))
+		if (!WaveFileFormat::LoadWaveData(audioSampleData.get(), waveChunk))
 		{
-			error.Add(FormatString("Failed to load wave data for instrument %d.", audioSampleData->GetCharacter().instrument));
+			ErrorSystem::Get()->Add(std::format("Failed to load wave data for instrument {}.", audioSampleData->GetCharacter().instrument));
 			return false;
 		}
 
@@ -253,8 +252,8 @@ bool DownloadableSoundFormat::LoadInstrument(
 	return true;
 }
 
-/*virtual*/ bool DownloadableSoundFormat::WriteToStream(ByteStream& outputStream, const FileData* fileData, Error& error)
+/*virtual*/ bool DownloadableSoundFormat::WriteToStream(ByteStream& outputStream, const FileData* fileData)
 {
-	error.Add("Not yet implimented.");
+	ErrorSystem::Get()->Add("Not yet implimented.");
 	return false;
 }

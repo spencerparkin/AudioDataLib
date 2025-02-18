@@ -1,5 +1,5 @@
 #include "AudioDataLib/Math/ComplexNumber.h"
-#include "AudioDataLib/Error.h"
+#include "AudioDataLib/ErrorSystem.h"
 
 using namespace AudioDataLib;
 
@@ -91,12 +91,12 @@ ComplexNumber::operator std::string() const
 		return std::string("0.0");
 
 	if (this->imagPart == 0.0)
-		return FormatString("%1.4f", this->realPart);
+		return std::format("{:1.4f}", this->realPart);
 
 	if (this->realPart == 0.0)
-		return FormatString("%1.4f", this->imagPart);
+		return std::format("{:1.4f}", this->imagPart);
 
-	return FormatString("%1.4f + %1.4f*i", this->realPart, this->imagPart);
+	return std::format("{:1.4f} + {:1.4f}*i", this->realPart, this->imagPart);
 }
 
 void ComplexNumber::Exp(const ComplexNumber& complexNumber)

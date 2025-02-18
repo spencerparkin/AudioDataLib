@@ -10,7 +10,6 @@ namespace AudioDataLib
 {
 	class MidiData;
 	class Mutex;
-	class Error;
 	class Timer;
 
 	/**
@@ -33,9 +32,9 @@ namespace AudioDataLib
 		MidiPlayer(Timer* timer);
 		virtual ~MidiPlayer();
 
-		virtual bool Setup(Error& error) override;
-		virtual bool Shutdown(Error& error) override;
-		virtual bool Process(Error& error) override;
+		virtual bool Setup() override;
+		virtual bool Shutdown() override;
+		virtual bool Process() override;
 
 		/**
 		 * Set the MidiData class instance containing the MIDI data that will be played back by this player.
@@ -75,7 +74,7 @@ namespace AudioDataLib
 
 	protected:
 		void Clear();
-		bool SilenceAllChannels(Error& error);
+		bool SilenceAllChannels();
 
 		class TrackPlayer
 		{
@@ -83,11 +82,11 @@ namespace AudioDataLib
 			TrackPlayer(uint32_t trackOffset, const MidiData::MetaEvent::Tempo& tempo);
 			virtual ~TrackPlayer();
 
-			bool Advance(double deltaTimeSeconds, MidiPlayer* midiPlayer, Error& error);
+			bool Advance(double deltaTimeSeconds, MidiPlayer* midiPlayer);
 			bool MoreToPlay(MidiPlayer* midiPlayer);
 
 		private:
-			bool ProcessEvent(const MidiData::Event* event, MidiPlayer* midiPlayer, Error& error);
+			bool ProcessEvent(const MidiData::Event* event, MidiPlayer* midiPlayer);
 
 			uint32_t trackOffset;
 			uint32_t nextTrackEventOffset;

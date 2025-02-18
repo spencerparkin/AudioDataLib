@@ -8,7 +8,7 @@
 #include "AudioDataLib/FileDatas/MidiData.h"
 #include "AudioDataLib/SynthModules/MixerModule.h"
 #include "AudioDataLib/Math/Function.h"
-#include "AudioDataLib/Error.h"
+#include "AudioDataLib/ErrorSystem.h"
 
 using namespace AudioDataLib;
 
@@ -36,7 +36,7 @@ SampleBasedSynth::SampleBasedSynth()
 	delete this->rightEarRootModule;
 }
 
-/*virtual*/ bool SampleBasedSynth::Process(Error& error)
+/*virtual*/ bool SampleBasedSynth::Process()
 {
 	MixerModule* leftMixerModule = (*this->leftEarRootModule)->FindModule<MixerModule>();
 	leftMixerModule->PruneDeadBranches();
@@ -44,20 +44,20 @@ SampleBasedSynth::SampleBasedSynth()
 	MixerModule* rightMixerModule = (*this->rightEarRootModule)->FindModule<MixerModule>();
 	rightMixerModule->PruneDeadBranches();
 
-	return MidiSynth::Process(error);
+	return MidiSynth::Process();
 }
 
-/*virtual*/ bool SampleBasedSynth::ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize, Error& error)
+/*virtual*/ bool SampleBasedSynth::ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize)
 {
 	if (!this->waveTableData->get())
 	{
-		error.Add("No wave-table set!");
+		ErrorSystem::Get()->Add("No wave-table set!");
 		return false;
 	}
 
 	MidiData::ChannelEvent channelEvent;
 	ReadOnlyBufferStream bufferStream(message, messageSize);
-	if (!channelEvent.Decode(bufferStream, error))
+	if (!channelEvent.Decode(bufferStream))
 	{
 		// TODO: For now we only handle channel events.  Handle other events too.
 		return true;
@@ -66,7 +66,7 @@ SampleBasedSynth::SampleBasedSynth()
 	uint8_t instrument = 0;
 	if (!this->GetChannelInstrument(channelEvent.channel + 1, instrument))
 	{
-		error.Add(FormatString("Could not get instrument for channel %d.", channelEvent.channel));
+		ErrorSystem::Get()->Add(std::format("Could not get instrument for channel {}.", channelEvent.channel));
 		return false;
 	}
 
@@ -75,7 +75,7 @@ SampleBasedSynth::SampleBasedSynth()
 		case MidiData::ChannelEvent::PROGRAM_CHANGE:
 		{
 			uint16_t instrument = channelEvent.param1;
-			if (!this->SetChannelInstrument(channelEvent.channel + 1, instrument + 1, error))
+			if (!this->SetChannelInstrument(channelEvent.channel + 1, instrument + 1))
 				return false;
 			break;
 		}
@@ -89,7 +89,7 @@ SampleBasedSynth::SampleBasedSynth()
 			{
 				// TODO: For a single pitch value, is it possible to get a NOTE_ON message twice without a NOTE_OFF message inbetween?
 				//       If so, then rather than treat this as an error, we should just cancel the existing note?
-				error.Add("Pitch value already in note map?");
+				ErrorSystem::Get()->Add("Pitch value already in note map?");
 				return false;
 			}
 
@@ -99,17 +99,17 @@ SampleBasedSynth::SampleBasedSynth()
 			const WaveTableData::AudioSampleData* audioSampleData = (*this->waveTableData)->FindAudioSample(instrument, pitchValue, velocityValue);
 			if (!audioSampleData)
 			{
-				error.Add(FormatString("Failed to find audio sample for pitch %d (%f) and volume %d (%f).", pitchValue, noteFrequency, velocityValue, noteVolume));
+				ErrorSystem::Get()->Add(std::format("Failed to find audio sample for pitch {} ({}) and volume {} ({}).", pitchValue, noteFrequency, velocityValue, noteVolume));
 				return false;
 			}
 
 			Note note;
 
-			if (!this->GenerateModuleGraph(audioSampleData, noteFrequency, note.leftEarModule, error))
+			if (!this->GenerateModuleGraph(audioSampleData, noteFrequency, note.leftEarModule))
 				return false;
 
 			if(!this->reverbEnabled)
-				if (!this->GenerateModuleGraph(audioSampleData, noteFrequency, note.rightEarModule, error))
+				if (!this->GenerateModuleGraph(audioSampleData, noteFrequency, note.rightEarModule))
 					return false;
 
 			this->noteMap->insert(std::pair<uint8_t, Note>(pitchValue, note));
@@ -124,7 +124,7 @@ SampleBasedSynth::SampleBasedSynth()
 			{
 				if (rightMixerModule != leftMixerModule)
 				{
-					error.Add("Expected only one mixer module in the reverb case!");
+					ErrorSystem::Get()->Add("Expected only one mixer module in the reverb case!");
 					return false;
 				}
 			}
@@ -172,10 +172,10 @@ SampleBasedSynth::SampleBasedSynth()
 	return true;
 }
 
-bool SampleBasedSynth::GenerateModuleGraph(const WaveTableData::AudioSampleData* audioSampleData, double noteFrequency, std::shared_ptr<SynthModule>& synthModule, Error& error)
+bool SampleBasedSynth::GenerateModuleGraph(const WaveTableData::AudioSampleData* audioSampleData, double noteFrequency, std::shared_ptr<SynthModule>& synthModule)
 {
 	auto loopedAudioModule = new LoopedAudioModule();
-	if (!loopedAudioModule->UseLoopedAudioData(audioSampleData, 0, error))
+	if (!loopedAudioModule->UseLoopedAudioData(audioSampleData, 0))
 	{
 		delete loopedAudioModule;
 		return false;
@@ -241,11 +241,11 @@ void SampleBasedSynth::SetReverbEnabled(bool reverbEnabled)
 	}
 }
 
-/*virtual*/ bool SampleBasedSynth::Initialize(Error& error)
+/*virtual*/ bool SampleBasedSynth::Initialize()
 {
 	if (!this->waveTableData->get())
 	{
-		error.Add("No wave-table set!");
+		ErrorSystem::Get()->Add("No wave-table set!");
 		return false;
 	}
 
@@ -265,7 +265,7 @@ void SampleBasedSynth::SetReverbEnabled(bool reverbEnabled)
 			// the high upper or very low pitch ranges.
 			printf("Analyzing %s... ", audioSampleData->GetName().c_str());
 
-			if (!audioSampleData->CalcMetaData(error))
+			if (!audioSampleData->CalcMetaData())
 				return false;
 
 			printf("Estimated Pitch: %f Hz\n", audioSampleData->GetMetaData().pitch);
@@ -280,17 +280,17 @@ void SampleBasedSynth::SetReverbEnabled(bool reverbEnabled)
 			audioSampleData->SetMetaData(metaData);
 		}
 
-		audioSampleData->GetCachedWaveForm(0, error);
+		audioSampleData->GetCachedWaveForm(0);
 	}
 
 	return true;
 }
 
-bool SampleBasedSynth::SetChannelInstrument(uint8_t channel, uint8_t instrument, Error& error)
+bool SampleBasedSynth::SetChannelInstrument(uint8_t channel, uint8_t instrument)
 {
 	if (!(1 <= channel && channel <= 16))
 	{
-		error.Add(FormatString("Channel number (%d) out of range [1,16].", channel));
+		ErrorSystem::Get()->Add(std::format("Channel number ({}) out of range [1,16].", channel));
 		return false;
 	}
 

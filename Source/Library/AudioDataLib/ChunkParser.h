@@ -5,8 +5,6 @@
 
 namespace AudioDataLib
 {
-	class Error;
-
 	/**
 	 * @brief This class provides commong RIFF-based parsing support.
 	 */
@@ -18,11 +16,11 @@ namespace AudioDataLib
 		ChunkParser();
 		virtual ~ChunkParser();
 
-		virtual bool ParseChunkData(ReadOnlyBufferStream& inputStream, Chunk* chunk, Error& error);
+		virtual bool ParseChunkData(ReadOnlyBufferStream& inputStream, Chunk* chunk);
 
 		void Clear();
 		void RegisterSubChunks(const std::string& chunkName);
-		bool ParseStream(ByteStream& inputStream, Error& error);
+		bool ParseStream(ByteStream& inputStream);
 		const Chunk* FindChunk(const std::string& chunkName, const std::string& formType = "", bool caseSensative = true) const;
 		void FindAllChunks(const std::string& chunkName, std::vector<const Chunk*>& chunkArray, bool caseSensative = true) const;
 		const Chunk* GetRootChunk() const { return this->rootChunk; }
@@ -35,8 +33,8 @@ namespace AudioDataLib
 			Chunk();
 			virtual ~Chunk();
 
-			bool ParseStream(ReadOnlyBufferStream& inputStream, ChunkParser* chunkParser, Error& error);
-			bool ParseSubChunks(ReadOnlyBufferStream& inputStream, ChunkParser* chunkParser, Error& error);
+			bool ParseStream(ReadOnlyBufferStream& inputStream, ChunkParser* chunkParser);
+			bool ParseSubChunks(ReadOnlyBufferStream& inputStream, ChunkParser* chunkParser);
 
 			const Chunk* FindChunk(const std::string& chunkName, const std::string& formType, bool caseSensative) const;
 			void FindAllChunks(const std::string& chunkName, std::vector<const Chunk*>& chunkArray, bool caseSensative) const;

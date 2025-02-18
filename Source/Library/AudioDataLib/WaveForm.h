@@ -50,10 +50,9 @@ namespace AudioDataLib
 		 * @param[in] audioBuffer This is a buffer containing the raw audio data, presumably in the given format.
 		 * @param[in] audioBufferSize This is the size in bytes of the given audio buffer.
 		 * @param[in] channel This is which channel of the audio buffer to read as this wave-form.
-		 * @param[out] error This will contain detailed error information if false is returned.
 		 * @return True is returned on success; false otherwise.
 		 */
-		bool ConvertFromAudioBuffer(const AudioData::Format& format, const uint8_t* audioBuffer, uint64_t audioBufferSize, uint16_t channel, Error& error);
+		bool ConvertFromAudioBuffer(const AudioData::Format& format, const uint8_t* audioBuffer, uint64_t audioBufferSize, uint16_t channel);
 
 		/**
 		 * Write this wave-form into the given audio buffer in the given format.
@@ -62,10 +61,9 @@ namespace AudioDataLib
 		 * @param[out] audioBuffer This is where to write the raw audio data in the given format.
 		 * @param[in] audioBufferSize This is the size of the given audio buffer in bytes.
 		 * @param[in] channel This is the channel of the audio buffer to write as this wave-form.
-		 * @param[out] error This will contain detailed error information if false is returned.
 		 * @return True is returned on success; false otherwise.
 		 */
-		bool ConvertToAudioBuffer(const AudioData::Format& format, uint8_t* audioBuffer, uint64_t audioBufferSize, uint16_t channel, Error& error) const;
+		bool ConvertToAudioBuffer(const AudioData::Format& format, uint8_t* audioBuffer, uint64_t audioBufferSize, uint16_t channel) const;
 
 		/**
 		 * @brief A wave-form is simply a list of samples.
@@ -156,10 +154,9 @@ namespace AudioDataLib
 		 * @param[in] startTimeSeconds Remove everything up to this time.
 		 * @param[in] stopTimeSeconds Remove everything after this time.
 		 * @param[in] rebaseTime If true, once the trim has occurred, shift the wave-form back so that it starts at origin.
-		 * @param[out] error This will contain detailed error information if false is returned.
 		 * @return False is returned if an error occurrs; true otherwise.
 		 */
-		bool Trim(double startTimeSeconds, double stopTimeSeconds, bool rebaseTime, Error& error);
+		bool Trim(double startTimeSeconds, double stopTimeSeconds, bool rebaseTime);
 
 		/**
 		 * Try to perform a trim that's sometimes faster than that perfomed by the Trim function.

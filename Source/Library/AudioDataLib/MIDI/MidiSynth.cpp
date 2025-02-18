@@ -1,5 +1,5 @@
 #include "AudioDataLib/MIDI/MidiSynth.h"
-#include "AudioDataLib/Error.h"
+#include "AudioDataLib/ErrorSystem.h"
 #include "AudioDataLib/SynthModules/SynthModule.h"
 #include "AudioDataLib/WaveForm.h"
 #include "AudioDataLib/FileFormats/WaveFileFormat.h"
@@ -35,14 +35,14 @@ void MidiSynth::GetMinMaxLatency(double& minLatencySeconds, double& maxLatencySe
 	maxLatencySeconds = this->maxLatencySeconds;
 }
 
-/*virtual*/ bool MidiSynth::Process(Error& error)
+/*virtual*/ bool MidiSynth::Process()
 {
 	if (!this->audioStream)
 		return true;
 
 	if (this->maxLatencySeconds <= this->minLatencySeconds || this->minLatencySeconds <= 0.0)
 	{
-		error.Add("Min/max latency parameters are not set correctly.");
+		ErrorSystem::Get()->Add("Min/max latency parameters are not set correctly.");
 		return false;
 	}
 
@@ -65,25 +65,25 @@ void MidiSynth::GetMinMaxLatency(double& minLatencySeconds, double& maxLatencySe
 			continue;
 
 		WaveForm waveForm;
-		if (!synthModule->GenerateSound(timeNeededSeconds, format.SamplesPerSecondPerChannel(), waveForm, nullptr, error))
+		if (!synthModule->GenerateSound(timeNeededSeconds, format.SamplesPerSecondPerChannel(), waveForm, nullptr))
 		{
-			error.Add(FormatString("Failed to generate wave-form for channel %d.", i));
+			ErrorSystem::Get()->Add(std::format("Failed to generate wave-form for channel {}.", i));
 			break;
 		}
 
-		if (!waveForm.ConvertToAudioBuffer(format, audioBuffer, audioBufferSize, i, error))
+		if (!waveForm.ConvertToAudioBuffer(format, audioBuffer, audioBufferSize, i))
 		{
-			error.Add(FormatString("Failed to generate audio for channel %d.", i));
+			ErrorSystem::Get()->Add(std::format("Failed to generate audio for channel {}.", i));
 			break;
 		}
 	}
 
-	if (!error)
+	if (!ErrorSystem::Get()->Errors())
 		(*this->audioStream)->WriteBytesToStream(audioBuffer, audioBufferSize);
 
 	delete[] audioBuffer;
 
-	return !error;
+	return !ErrorSystem::Get()->Errors();
 }
 
 /*static*/ double MidiSynth::MidiPitchToFrequency(uint8_t pitchValue)

@@ -1,5 +1,5 @@
 #include "AudioDataLib/SynthModules/InterpolationModule.h"
-#include "AudioDataLib/Error.h"
+#include "AudioDataLib/ErrorSystem.h"
 
 using namespace AudioDataLib;
 
@@ -11,15 +11,15 @@ InterpolationModule::InterpolationModule()
 {
 }
 
-/*virtual*/ bool InterpolationModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, SynthModule* callingModule, Error& error)
+/*virtual*/ bool InterpolationModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, SynthModule* callingModule)
 {
 	if (this->GetNumDependentModules() != 2)
 	{
-		error.Add("Interpolation module needs exactly two dependent modules.");
+		ErrorSystem::Get()->Add("Interpolation module needs exactly two dependent modules.");
 		return false;
 	}
 
 	// TODO: Write this.
-	error.Add("Not yet implemented.");
+	ErrorSystem::Get()->Add("Not yet implemented.");
 	return false;
 }

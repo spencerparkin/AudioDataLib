@@ -1,7 +1,7 @@
 #include "AudioDataLib/FrequencyGraph.h"
 #include "AudioDataLib/WaveForm.h"
 #include "AudioDataLib/Math/ComplexVector.h"
-#include "AudioDataLib/Error.h"
+#include "AudioDataLib/ErrorSystem.h"
 
 using namespace AudioDataLib;
 
@@ -20,7 +20,7 @@ void FrequencyGraph::Clear()
 	this->plotArray->clear();
 }
 
-bool FrequencyGraph::FromWaveForm(const WaveForm& waveForm, uint32_t numSamples, Error& error)
+bool FrequencyGraph::FromWaveForm(const WaveForm& waveForm, uint32_t numSamples)
 {
 	this->Clear();
 
@@ -32,7 +32,7 @@ bool FrequencyGraph::FromWaveForm(const WaveForm& waveForm, uint32_t numSamples,
 
 	if ((numSamples & (numSamples - 1)) != 0)
 	{
-		error.Add("The given number of samples must be a power of 2.");
+		ErrorSystem::Get()->Add("The given number of samples must be a power of 2.");
 		return false;
 	}
 
@@ -44,7 +44,7 @@ bool FrequencyGraph::FromWaveForm(const WaveForm& waveForm, uint32_t numSamples,
 	}
 
 	ComplexVector complexVector;
-	if (!complexVector.FFT(sampleVector, false, error))
+	if (!complexVector.FFT(sampleVector, false))
 		return false;
 
 	for (uint32_t i = 0; i < complexVector.Size(); i++)
@@ -60,9 +60,9 @@ bool FrequencyGraph::FromWaveForm(const WaveForm& waveForm, uint32_t numSamples,
 	return true;
 }
 
-bool FrequencyGraph::ToWaveForm(WaveForm& waveForm, Error& error) const
+bool FrequencyGraph::ToWaveForm(WaveForm& waveForm) const
 {
-	error.Add("Not yet implimented.");
+	ErrorSystem::Get()->Add("Not yet implimented.");
 	return false;
 }
 

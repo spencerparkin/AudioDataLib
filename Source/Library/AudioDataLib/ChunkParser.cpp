@@ -1,5 +1,5 @@
 #include "AudioDataLib/ChunkParser.h"
-#include "AudioDataLib/Error.h"
+#include "AudioDataLib/ErrorSystem.h"
 
 using namespace AudioDataLib;
 
@@ -30,14 +30,14 @@ void ChunkParser::Clear()
 	this->bufferSize = 0;
 }
 
-bool ChunkParser::ParseStream(ByteStream& inputStream, Error& error)
+bool ChunkParser::ParseStream(ByteStream& inputStream)
 {
 	this->Clear();
 
 	this->bufferSize = (uint32_t)inputStream.GetSize();
 	if (this->bufferSize == 0)
 	{
-		error.Add("No bytes to read.");
+		ErrorSystem::Get()->Add("No bytes to read.");
 		return false;
 	}
 
@@ -45,7 +45,7 @@ bool ChunkParser::ParseStream(ByteStream& inputStream, Error& error)
 	uint64_t numBytesRead = inputStream.ReadBytesFromStream(this->buffer, this->bufferSize);
 	if (numBytesRead != this->bufferSize)
 	{
-		error.Add("Couldn't read the entire stream.");
+		ErrorSystem::Get()->Add("Couldn't read the entire stream.");
 		return false;
 	}
 
@@ -53,13 +53,13 @@ bool ChunkParser::ParseStream(ByteStream& inputStream, Error& error)
 
 	this->rootChunk = new Chunk();
 	*this->rootChunk->name = "root";
-	if (!this->rootChunk->ParseSubChunks(bufferStream, this, error))
+	if (!this->rootChunk->ParseSubChunks(bufferStream, this))
 		return false;
 
 	return true;
 }
 
-/*virtual*/ bool ChunkParser::ParseChunkData(ReadOnlyBufferStream& inputStream, Chunk* chunk, Error& error)
+/*virtual*/ bool ChunkParser::ParseChunkData(ReadOnlyBufferStream& inputStream, Chunk* chunk)
 {
 	std::set<std::string>::iterator iter = this->subChunkSet->find(chunk->GetName());
 	if (iter != this->subChunkSet->end())
@@ -67,7 +67,7 @@ bool ChunkParser::ParseStream(ByteStream& inputStream, Error& error)
 		char formType[5];
 		if (4 != inputStream.ReadBytesFromStream((uint8_t*)formType, 4))
 		{
-			error.Add(FormatString("Could not read form type of %s chunk.", chunk->GetName().c_str()));
+			ErrorSystem::Get()->Add(std::format("Could not read form type of {} chunk.", chunk->GetName().c_str()));
 			return false;
 		}
 
@@ -80,14 +80,14 @@ bool ChunkParser::ParseStream(ByteStream& inputStream, Error& error)
 			b++;
 		}
 
-		if (!chunk->ParseSubChunks(inputStream, this, error))
+		if (!chunk->ParseSubChunks(inputStream, this))
 			return false;
 	}
 	else
 	{
 		if (!inputStream.SetReadOffset(inputStream.GetReadOffset() + chunk->GetBufferSize()))
 		{
-			error.Add(FormatString("Could not skip over %s chunk data.", chunk->GetName().c_str()));
+			ErrorSystem::Get()->Add(std::format("Could not skip over {} chunk data.", chunk->GetName().c_str()));
 			return false;
 		}
 	}
@@ -180,12 +180,12 @@ bool ChunkParser::Chunk::MatchesFormType(const std::string& formType, bool caseS
 	return 0 == ::_stricmp(this->formType->c_str(), formType.c_str());
 }
 
-bool ChunkParser::Chunk::ParseStream(ReadOnlyBufferStream& inputStream, ChunkParser* chunkParser, Error& error)
+bool ChunkParser::Chunk::ParseStream(ReadOnlyBufferStream& inputStream, ChunkParser* chunkParser)
 {
 	char nameBuf[5];
 	if (4 != inputStream.ReadBytesFromStream((uint8_t*)&nameBuf, 4))
 	{
-		error.Add("Failed to read chunk name.");
+		ErrorSystem::Get()->Add("Failed to read chunk name.");
 		return false;
 	}
 
@@ -194,7 +194,7 @@ bool ChunkParser::Chunk::ParseStream(ReadOnlyBufferStream& inputStream, ChunkPar
 
 	if (4 != inputStream.ReadBytesFromStream((uint8_t*)&this->bufferSize, sizeof(uint32_t)))
 	{
-		error.Add("Could not read chunk size.");
+		ErrorSystem::Get()->Add("Could not read chunk size.");
 		return false;
 	}
 
@@ -203,12 +203,12 @@ bool ChunkParser::Chunk::ParseStream(ReadOnlyBufferStream& inputStream, ChunkPar
 
 	ReadOnlyBufferStream subInputStream(this->buffer, this->bufferSize);
 
-	if (!chunkParser->ParseChunkData(subInputStream, this, error))
+	if (!chunkParser->ParseChunkData(subInputStream, this))
 		return false;
 
 	if (!inputStream.SetReadOffset(inputStream.GetReadOffset() + this->bufferSize))
 	{
-		error.Add("Could not walk over data section of chunk.");
+		ErrorSystem::Get()->Add("Could not walk over data section of chunk.");
 		return false;
 	}
 
@@ -225,13 +225,13 @@ bool ChunkParser::Chunk::ParseStream(ReadOnlyBufferStream& inputStream, ChunkPar
 	return true;
 }
 
-bool ChunkParser::Chunk::ParseSubChunks(ReadOnlyBufferStream& inputStream, ChunkParser* chunkParser, Error& error)
+bool ChunkParser::Chunk::ParseSubChunks(ReadOnlyBufferStream& inputStream, ChunkParser* chunkParser)
 {
 	while (inputStream.CanRead())
 	{
 		Chunk* chunk = new Chunk();
 		this->subChunkArray->push_back(chunk);
-		if (!chunk->ParseStream(inputStream, chunkParser, error))
+		if (!chunk->ParseStream(inputStream, chunkParser))
 			return false;
 	}
 

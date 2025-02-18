@@ -1,6 +1,6 @@
 #include "AudioDataLib/SynthModules/MixerModule.h"
 #include "AudioDataLib/WaveForm.h"
-#include "AudioDataLib/Error.h"
+#include "AudioDataLib/ErrorSystem.h"
 
 using namespace AudioDataLib;
 
@@ -12,7 +12,7 @@ MixerModule::MixerModule()
 {
 }
 
-/*virtual*/ bool MixerModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, SynthModule* callingModule, Error& error)
+/*virtual*/ bool MixerModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, SynthModule* callingModule)
 {
 	std::list<WaveForm*> waveFormList;
 
@@ -21,7 +21,7 @@ MixerModule::MixerModule()
 		if (synthModule->MoreSoundAvailable())
 		{
 			WaveForm* waveFormComponent = new WaveForm;
-			if (synthModule->GenerateSound(durationSeconds, samplesPerSecond, *waveFormComponent, this, error))
+			if (synthModule->GenerateSound(durationSeconds, samplesPerSecond, *waveFormComponent, this))
 				waveFormList.push_back(waveFormComponent);
 			else
 				delete waveFormComponent;
@@ -34,5 +34,5 @@ MixerModule::MixerModule()
 	for (WaveForm* waveFormComponent : waveFormList)
 		delete waveFormComponent;
 
-	return !error;
+	return !ErrorSystem::Get()->Errors();
 }

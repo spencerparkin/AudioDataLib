@@ -4,8 +4,6 @@
 
 namespace AudioDataLib
 {
-	class Error;
-
 	/**
 	 * @brief Derivatives of this class are those that do something (anything) with MIDI messages.
 	 * 
@@ -27,34 +25,30 @@ namespace AudioDataLib
 		 * @param[in] deltaTimeSeconds This is typically, but not always, set to the amount of time (in seconds) between now and the last time the function was called.
 		 * @param[in] message This is the payload of the message, which can be decoded using a derivative of the MidiData::Event class.
 		 * @param[in] messageSize This is the size of the payload in bytes.
-		 * @param[out] error This should be populated with error information if false is returned.
 		 * @return True should be returned on success; false otherwise.
 		 */
-		virtual bool ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize, Error& error);
+		virtual bool ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize);
 
 		/**
 		 * This method will get called by the MidiMsgSource class during its own initialization.
 		 * 
-		 * @param[out] error This should be populated with error information if false is returned.
 		 * @return True should be returned on success; false otherwise.
 		 */
-		virtual bool Initialize(Error& error);
+		virtual bool Initialize();
 
 		/**
 		 * This method will get called by the MidiMsgSource class during its own finalization.
 		 *
-		 * @param[out] error This should be populated with error information if false is returned.
 		 * @return True should be returned on success; false otherwise.
 		 */
-		virtual bool Finalize(Error& error);
+		virtual bool Finalize();
 
 		/**
 		 * This method will get called by the MidiMsgSource class during it's own processing, which
 		 * should get get periodically a program's main loop, or perhaps a thread.
 		 *
-		 * @param[out] error This should be populated with error information if false is returned.
 		 * @return True should be returned on success; false otherwise.
 		 */
-		virtual bool Process(Error& error);
+		virtual bool Process();
 	};
 }

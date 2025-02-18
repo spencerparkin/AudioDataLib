@@ -5,7 +5,6 @@
 namespace AudioDataLib
 {
 	class AudioData;
-	class Error;
 	class ByteStream;
 	class ByteSwapper;
 
@@ -27,20 +26,18 @@ namespace AudioDataLib
 		 * 
 		 * @param inputStream This is a stream from which the compressed audio is to be read.
 		 * @param audioOut This is the destination for the decompressed audio.  Note that the format of the audio is sometimes an input parameter.
-		 * @param error This contains an error message if false is returned.
 		 * @return True is returned on success; false otherwise.
 		 */
-		virtual bool Decode(ByteStream& inputStream, AudioData& audioOut, Error& error) = 0;
+		virtual bool Decode(ByteStream& inputStream, AudioData& audioOut) = 0;
 
 		/**
 		 * Compress the data in the given AudioData into the given output stream.
 		 * 
 		 * @param outputStream This is the stream into which the compressed audio is to be written.
 		 * @param audioIn This is the source of the decompressed audio.
-		 * @param error This contains an error message if false is returned.
 		 * @param True is returned on success; false otherwise.
 		 */
-		virtual bool Encode(ByteStream& outputStream, const AudioData& audioIn, Error& error) = 0;
+		virtual bool Encode(ByteStream& outputStream, const AudioData& audioIn) = 0;
 	};
 
 	/**
@@ -52,8 +49,8 @@ namespace AudioDataLib
 		RawAudioCodec();
 		virtual ~RawAudioCodec();
 
-		virtual bool Decode(ByteStream& inputStream, AudioData& audioOut, Error& error) override;
-		virtual bool Encode(ByteStream& outputStream, const AudioData& audioIn, Error& error) override;
+		virtual bool Decode(ByteStream& inputStream, AudioData& audioOut) override;
+		virtual bool Encode(ByteStream& outputStream, const AudioData& audioIn) override;
 	};
 
 	/**
@@ -65,8 +62,8 @@ namespace AudioDataLib
 		ByteSwappedAudioCodec(ByteSwapper* byteSwapper);
 		virtual ~ByteSwappedAudioCodec();
 
-		virtual bool Decode(ByteStream& inputStream, AudioData& audioOut, Error& error) override;
-		virtual bool Encode(ByteStream& outputStream, const AudioData& audioIn, Error& error) override;
+		virtual bool Decode(ByteStream& inputStream, AudioData& audioOut) override;
+		virtual bool Encode(ByteStream& outputStream, const AudioData& audioIn) override;
 
 	private:
 		ByteSwapper* byteSwapper;

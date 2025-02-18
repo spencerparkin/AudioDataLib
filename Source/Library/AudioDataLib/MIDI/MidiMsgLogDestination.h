@@ -17,7 +17,7 @@ namespace AudioDataLib
 		/**
 		 * This will call the LogMessage method with an appropriately formatted log message string.
 		 */
-		virtual bool ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize, Error& error) override;
+		virtual bool ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize) override;
 
 		/**
 		 * The user should override this to provide a place for the log output to go.

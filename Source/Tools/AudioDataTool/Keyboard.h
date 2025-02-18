@@ -16,9 +16,9 @@ public:
 
 	static Keyboard* Create();
 
-	virtual bool Setup(std::string& error) = 0;
-	virtual bool Shutdown(std::string& error) = 0;
-	virtual bool Process(std::string& error) = 0;
+	virtual bool Setup() = 0;
+	virtual bool Shutdown() = 0;
+	virtual bool Process() = 0;
 
 	// These are platform-independent key-codes.
 	// These are meant to miss the standard ASCII characters.
@@ -89,9 +89,9 @@ public:
 	WindowsKeyboard();
 	virtual ~WindowsKeyboard();
 
-	virtual bool Setup(std::string& error) override;
-	virtual bool Shutdown(std::string& error) override;
-	virtual bool Process(std::string& error) override;
+	virtual bool Setup() override;
+	virtual bool Shutdown() override;
+	virtual bool Process() override;
 
 private:
 	bool TranslateEvent(const KEY_EVENT_RECORD& keyEventRecord, Event& event);

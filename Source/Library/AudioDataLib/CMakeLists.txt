@@ -89,8 +89,8 @@ set(LIBRARY_SOURCES
     ChunkParser.cpp
     ChunkParser.h
     Common.h
-    Error.cpp
-    Error.h
+    ErrorSystem.cpp
+    ErrorSystem.h
     FrequencyGraph.cpp
     FrequencyGraph.h
     Mutex.cpp

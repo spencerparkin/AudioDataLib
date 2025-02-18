@@ -35,7 +35,7 @@ void App::Clear()
 	this->audioArray.clear();
 }
 
-void App::AddAudio(std::shared_ptr<Audio>& audio)
+void App::AddAudio(std::shared_ptr<Audio> audio)
 {
 	this->audioArray.push_back(audio);
 }

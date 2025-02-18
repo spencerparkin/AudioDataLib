@@ -2,7 +2,7 @@
 #include "Keyboard.h"
 #include "AudioDataLib/FileDatas/MidiData.h"
 #include "AudioDataLib/ByteStream.h"
-#include "AudioDataLib/Error.h"
+#include "AudioDataLib/ErrorSystem.h"
 
 using namespace AudioDataLib;
 
@@ -16,11 +16,11 @@ MidiDebugSource::MidiDebugSource()
 	delete this->keyboard;
 }
 
-/*virtua*/ bool MidiDebugSource::Setup(AudioDataLib::Error& error)
+/*virtua*/ bool MidiDebugSource::Setup()
 {
 	if (this->keyboard)
 	{
-		error.Add("Keyboard already setup!");
+		ErrorSystem::Get()->Add("Keyboard already setup!");
 		return false;
 	}
 
@@ -28,33 +28,30 @@ MidiDebugSource::MidiDebugSource()
 
 	if (!this->keyboard)
 	{
-		error.Add("Failed to create keyboard interface.");
+		ErrorSystem::Get()->Add("Failed to create keyboard interface.");
 		return false;
 	}
 
-	std::string keyboardError;
-	if (!this->keyboard->Setup(keyboardError))
+	if (!this->keyboard->Setup())
 	{
-		error.Add(FormatString("Failed to setup keyboard: %s", keyboardError.c_str()));
 		delete this->keyboard;
 		this->keyboard = nullptr;
 		return false;
 	}
 
-	if (!MidiMsgSource::Setup(error))
+	if (!MidiMsgSource::Setup())
 		return false;
 
 	return true;
 }
 
-/*virtua*/ bool MidiDebugSource::Shutdown(AudioDataLib::Error& error)
+/*virtua*/ bool MidiDebugSource::Shutdown()
 {
-	MidiMsgSource::Shutdown(error);
+	MidiMsgSource::Shutdown();
 
 	if (this->keyboard)
 	{
-		std::string keyboardError;
-		this->keyboard->Shutdown(keyboardError);
+		this->keyboard->Shutdown();
 		delete this->keyboard;
 		this->keyboard = nullptr;
 	}
@@ -62,12 +59,11 @@ MidiDebugSource::MidiDebugSource()
 	return true;
 }
 
-/*virtua*/ bool MidiDebugSource::Process(AudioDataLib::Error& error)
+/*virtua*/ bool MidiDebugSource::Process()
 {
 	if (this->keyboard)
 	{
-		std::string keyboardError;
-		if (!this->keyboard->Process(keyboardError))
+		if (!this->keyboard->Process())
 			return false;
 
 		Keyboard::Event event;
@@ -80,14 +76,14 @@ MidiDebugSource::MidiDebugSource()
 					// TODO: This won't work, because we're getting key-press repeats.  I'm giving up for now, because I just
 					//       don't care enough about being able to use the computer keyboard instead of a MIDI keyboard.
 
-					if (!this->SendNoteMessage(event.keyCode, true, error))
+					if (!this->SendNoteMessage(event.keyCode, true))
 						return false;
 
 					break;
 				}
 				case Keyboard::Event::Type::KEY_RELEASED:
 				{
-					if (!this->SendNoteMessage(event.keyCode, false, error))
+					if (!this->SendNoteMessage(event.keyCode, false))
 						return false;
 
 					break;
@@ -96,13 +92,13 @@ MidiDebugSource::MidiDebugSource()
 		}
 	}
 
-	if (!MidiMsgSource::Process(error))
+	if (!MidiMsgSource::Process())
 		return false;
 
 	return true;
 }
 
-bool MidiDebugSource::SendNoteMessage(uint32_t note, bool onOff, Error& error)
+bool MidiDebugSource::SendNoteMessage(uint32_t note, bool onOff)
 {
 	if ('a' <= note && note <= 'g')
 		note = ::toupper(note);
@@ -121,20 +117,20 @@ bool MidiDebugSource::SendNoteMessage(uint32_t note, bool onOff, Error& error)
 	channelEvent.param2 = velocityValue;
 
 	MemoryStream stream;
-	if (!channelEvent.Encode(stream, error))
+	if (!channelEvent.Encode(stream))
 		return false;
 	
 	uint32_t messageSize = (uint32_t)stream.GetSize();
 	if (messageSize == 0)
 	{
-		error.Add("Message size is zero.");
+		ErrorSystem::Get()->Add("Message size is zero.");
 		return false;
 	}
 
 	uint8_t* messageBuffer = new uint8_t[messageSize];
 	stream.ReadBytesFromStream(messageBuffer, messageSize);
-	this->BroadcastMidiMessage(0.0, messageBuffer, messageSize, error);	// TODO: Again, probably need to keep track of time between keypresses.
+	this->BroadcastMidiMessage(0.0, messageBuffer, messageSize);	// TODO: Again, probably need to keep track of time between keypresses.
 	delete[] messageBuffer;
 
-	return !error;
+	return !ErrorSystem::Get()->Errors();
 }

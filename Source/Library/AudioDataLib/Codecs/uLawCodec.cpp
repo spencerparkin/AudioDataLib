@@ -1,6 +1,6 @@
 #include "AudioDataLib/Codecs/uLawCodec.h"
 #include "AudioDataLib/ByteStream.h"
-#include "AudioDataLib/Error.h"
+#include "AudioDataLib/ErrorSystem.h"
 
 using namespace AudioDataLib;
 
@@ -32,17 +32,17 @@ uLawCodec::uLawCodec()
 	delete this->ulawTableArray;
 }
 
-/*virtual*/ bool uLawCodec::Decode(ByteStream& inputStream, AudioData& audioOut, Error& error)
+/*virtual*/ bool uLawCodec::Decode(ByteStream& inputStream, AudioData& audioOut)
 {
 	if (audioOut.GetFormat().bitsPerSample != 16)
 	{
-		error.Add("Expected audio format to be 16-bit.");
+		ErrorSystem::Get()->Add("Expected audio format to be 16-bit.");
 		return false;
 	}
 
 	if (audioOut.GetFormat().sampleType != AudioData::Format::SIGNED_INTEGER)
 	{
-		error.Add("Expected audio format to be signed-integer.");
+		ErrorSystem::Get()->Add("Expected audio format to be signed-integer.");
 		return false;
 	}
 
@@ -55,7 +55,7 @@ uLawCodec::uLawCodec()
 		uint8_t sample = 0;
 		if (1 != inputStream.ReadBytesFromStream(&sample, 1))
 		{
-			error.Add("Failed to read compressed sample from the given input stream.");
+			ErrorSystem::Get()->Add("Failed to read compressed sample from the given input stream.");
 			return false;
 		}
 
@@ -84,7 +84,7 @@ uLawCodec::uLawCodec()
 
 			if (!foundRangeCode)
 			{
-				error.Add(FormatString("Failed to find range code %d in u-law table.", rangeCode));
+				ErrorSystem::Get()->Add(std::format("Failed to find range code {} in u-law table.", rangeCode));
 				return false;
 			}
 
@@ -103,23 +103,23 @@ uLawCodec::uLawCodec()
 	return true;
 }
 
-/*virtual*/ bool uLawCodec::Encode(ByteStream& outputStream, const AudioData& audioIn, Error& error)
+/*virtual*/ bool uLawCodec::Encode(ByteStream& outputStream, const AudioData& audioIn)
 {
 	if (audioIn.GetFormat().bitsPerSample != 16)
 	{
-		error.Add("Expected audio format to be 16-bit.");
+		ErrorSystem::Get()->Add("Expected audio format to be 16-bit.");
 		return false;
 	}
 
 	if (audioIn.GetFormat().sampleType != AudioData::Format::SIGNED_INTEGER)
 	{
-		error.Add("Expected audio format to be signed-integer.");
+		ErrorSystem::Get()->Add("Expected audio format to be signed-integer.");
 		return false;
 	}
 
 	if (audioIn.GetAudioBufferSize() % 2 != 0)
 	{
-		error.Add(FormatString("Expected audio buffer size %d to be divisible by two.", audioIn.GetAudioBufferSize()));
+		ErrorSystem::Get()->Add(std::format("Expected audio buffer size {} to be divisible by two.", audioIn.GetAudioBufferSize()));
 		return false;
 	}
 
@@ -151,14 +151,14 @@ uLawCodec::uLawCodec()
 
 			if (compressedSample == 0xFF)
 			{
-				error.Add("Failed to located sample in u-law table.");
+				ErrorSystem::Get()->Add("Failed to located sample in u-law table.");
 				return false;
 			}
 		}
 
 		if (1 != outputStream.WriteBytesToStream(&compressedSample, 1))
 		{
-			error.Add("Failed to write compressed audio byte to output stream.");
+			ErrorSystem::Get()->Add("Failed to write compressed audio byte to output stream.");
 			return false;
 		}
 	}

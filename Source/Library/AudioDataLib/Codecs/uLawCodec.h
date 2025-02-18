@@ -11,8 +11,8 @@ namespace AudioDataLib
 		uLawCodec();
 		virtual ~uLawCodec();
 
-		virtual bool Decode(ByteStream& inputStream, AudioData& audioOut, Error& error) override;
-		virtual bool Encode(ByteStream& outputStream, const AudioData& audioIn, Error& error) override;
+		virtual bool Decode(ByteStream& inputStream, AudioData& audioOut) override;
+		virtual bool Encode(ByteStream& outputStream, const AudioData& audioIn) override;
 
 	private:
 		struct ULawTableEntry

@@ -2,7 +2,7 @@
 #include "AudioDataLib/AudioSink.h"
 #include "AudioDataLib/SynthModules/OscillatorModule.h"
 #include "AudioDataLib/FileDatas/MidiData.h"
-#include "AudioDataLib/Error.h"
+#include "AudioDataLib/ErrorSystem.h"
 
 using namespace AudioDataLib;
 
@@ -26,11 +26,11 @@ SimpleSynth::SimpleSynth()
 	return nullptr;
 }
 
-/*virtual*/ bool SimpleSynth::ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize, Error& error)
+/*virtual*/ bool SimpleSynth::ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize)
 {
 	MidiData::ChannelEvent channelEvent;
 	ReadOnlyBufferStream bufferStream(message, messageSize);
-	if (!channelEvent.Decode(bufferStream, error))
+	if (!channelEvent.Decode(bufferStream))
 	{
 		// This is not really an error.  I'm just not yet responding to anything except channel events.
 		return true;
@@ -94,7 +94,7 @@ SimpleSynth::SimpleSynth()
 		}
 		default:
 		{
-			error.Add(FormatString("Unrecognized channel event type: %d", channelEvent.type));
+			ErrorSystem::Get()->Add(std::format("Unrecognized channel event type: {}", channelEvent.type));
 			return false;
 		}
 	}

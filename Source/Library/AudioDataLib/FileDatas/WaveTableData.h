@@ -85,7 +85,7 @@ namespace AudioDataLib
 				int16_t fineTuneCents;		///< This is a pitch correction of the recorded sample.
 			};
 
-			std::shared_ptr<WaveForm> GetCachedWaveForm(uint16_t channel, Error& error) const;
+			std::shared_ptr<WaveForm> GetCachedWaveForm(uint16_t channel) const;
 
 			void SetName(const std::string& name) { *this->name = name; }
 			const std::string& GetName() const { return *this->name; }

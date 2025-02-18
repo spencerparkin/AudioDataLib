@@ -1,6 +1,6 @@
 #include "AudioDataLib/WaveForm.h"
 #include "AudioDataLib/Math/ComplexNumber.h"
-#include "AudioDataLib/Error.h"
+#include "AudioDataLib/ErrorSystem.h"
 
 using namespace AudioDataLib;
 
@@ -55,11 +55,11 @@ uint64_t WaveForm::GetSizeBytes(const AudioData::Format& format, bool allChannel
 	return numBytes;
 }
 
-bool WaveForm::ConvertFromAudioBuffer(const AudioData::Format& format, const uint8_t* audioBuffer, uint64_t audioBufferSize, uint16_t channel, Error& error)
+bool WaveForm::ConvertFromAudioBuffer(const AudioData::Format& format, const uint8_t* audioBuffer, uint64_t audioBufferSize, uint16_t channel)
 {
 	if (channel >= format.numChannels)
 	{
-		error.Add(FormatString("Invalid channel: %d.", channel));
+		ErrorSystem::Get()->Add(std::format("Invalid channel: {}.", channel));
 		return false;
 	}
 
@@ -100,7 +100,7 @@ bool WaveForm::ConvertFromAudioBuffer(const AudioData::Format& format, const uin
 				}
 				default:
 				{
-					error.Add(FormatString("Bad bit-depth (%d) for signed integers.", format.bitsPerSample));
+					ErrorSystem::Get()->Add(std::format("Bad bit-depth ({}) for signed integers.", format.bitsPerSample));
 					break;
 				}
 			}
@@ -126,7 +126,7 @@ bool WaveForm::ConvertFromAudioBuffer(const AudioData::Format& format, const uin
 				}
 				default:
 				{
-					error.Add(FormatString("Bad bit-depth (%d) for unsigned integers.", format.bitsPerSample));
+					ErrorSystem::Get()->Add(std::format("Bad bit-depth ({}) for unsigned integers.", format.bitsPerSample));
 					break;
 				}
 			}
@@ -147,14 +147,14 @@ bool WaveForm::ConvertFromAudioBuffer(const AudioData::Format& format, const uin
 				}
 				default:
 				{
-					error.Add(FormatString("Bad bit-depth (%d) for floats.", format.bitsPerSample));
+					ErrorSystem::Get()->Add(std::format("Bad bit-depth ({}) for floats.", format.bitsPerSample));
 					break;
 				}
 			}
 		}
 		else
 		{
-			error.Add(FormatString("Unknown sample type (%d) encountered.", format.sampleType));
+			ErrorSystem::Get()->Add(std::format("Unknown sample type ({}) encountered.", int(format.sampleType)));
 			return false;
 		}
 
@@ -165,11 +165,11 @@ bool WaveForm::ConvertFromAudioBuffer(const AudioData::Format& format, const uin
 	return true;
 }
 
-bool WaveForm::ConvertToAudioBuffer(const AudioData::Format& format, uint8_t* audioBuffer, uint64_t audioBufferSize, uint16_t channel, Error& error) const
+bool WaveForm::ConvertToAudioBuffer(const AudioData::Format& format, uint8_t* audioBuffer, uint64_t audioBufferSize, uint16_t channel) const
 {
 	if (channel >= format.numChannels)
 	{
-		error.Add(FormatString("Invalid channel: %d", channel));
+		ErrorSystem::Get()->Add(std::format("Invalid channel: {}", channel));
 		return false;
 	}
 
@@ -208,7 +208,7 @@ bool WaveForm::ConvertToAudioBuffer(const AudioData::Format& format, uint8_t* au
 				}
 				default:
 				{
-					error.Add(FormatString("Bad bit-depth (%d) for signed integers.", format.bitsPerSample));
+					ErrorSystem::Get()->Add(std::format("Bad bit-depth ({}) for signed integers.", format.bitsPerSample));
 					return false;
 				}
 			}
@@ -234,7 +234,7 @@ bool WaveForm::ConvertToAudioBuffer(const AudioData::Format& format, uint8_t* au
 				}
 				default:
 				{
-					error.Add(FormatString("Bad bit-depth (%d) for unsigned integers.", format.bitsPerSample));
+					ErrorSystem::Get()->Add(std::format("Bad bit-depth ({}) for unsigned integers.", format.bitsPerSample));
 					break;
 				}
 			}
@@ -255,14 +255,14 @@ bool WaveForm::ConvertToAudioBuffer(const AudioData::Format& format, uint8_t* au
 				}
 				default:
 				{
-					error.Add(FormatString("Bad bit-depth (%d) for floats.", format.bitsPerSample));
+					ErrorSystem::Get()->Add(std::format("Bad bit-depth ({}) for floats.", format.bitsPerSample));
 					return false;
 				}
 			}
 		}
 		else
 		{
-			error.Add(FormatString("Unknown sample type (%d) encountered.", format.sampleType));
+			ErrorSystem::Get()->Add(std::format("Unknown sample type ({}) encountered.", int(format.sampleType)));
 			return false;
 		}
 
@@ -394,17 +394,17 @@ uint64_t WaveForm::PadWithSilence(double desiredDurationSeconds, double sampleRa
 	return numSamplesAdded;
 }
 
-bool WaveForm::Trim(double startTimeSeconds, double stopTimeSeconds, bool rebaseTime, Error& error)
+bool WaveForm::Trim(double startTimeSeconds, double stopTimeSeconds, bool rebaseTime)
 {
 	if (this->sampleArray->size() == 0)
 	{
-		error.Add("Nothing to trim.");
+		ErrorSystem::Get()->Add("Nothing to trim.");
 		return false;
 	}
 
 	if (startTimeSeconds > stopTimeSeconds)
 	{
-		error.Add(FormatString("Given time bounds ([%f, %f]) doesn't make sense.", startTimeSeconds, stopTimeSeconds));
+		ErrorSystem::Get()->Add(std::format("Given time bounds ([{}, {}]) doesn't make sense.", startTimeSeconds, stopTimeSeconds));
 		return false;
 	}
 

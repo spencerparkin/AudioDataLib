@@ -1,6 +1,6 @@
 #include "AudioDataLib/SynthModules/LoopedAudioModule.h"
 #include "AudioDataLib/WaveForm.h"
-#include "AudioDataLib/Error.h"
+#include "AudioDataLib/ErrorSystem.h"
 
 using namespace AudioDataLib;
 
@@ -19,11 +19,11 @@ LoopedAudioModule::LoopedAudioModule()
 	delete this->loopedWaveForm;
 }
 
-/*virtual*/ bool LoopedAudioModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, SynthModule* callingModule, Error& error)
+/*virtual*/ bool LoopedAudioModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, SynthModule* callingModule)
 {
 	if (!this->loopedWaveForm)
 	{
-		error.Add("No looped wave-form we can use to generate audio.");
+		ErrorSystem::Get()->Add("No looped wave-form we can use to generate audio.");
 		return false;
 	}
 
@@ -85,10 +85,10 @@ void LoopedAudioModule::Release()
 	this->loopEnabled = false;
 }
 
-bool LoopedAudioModule::UseNonLoopedAudioData(const AudioData* audioData, uint16_t channel, Error& error)
+bool LoopedAudioModule::UseNonLoopedAudioData(const AudioData* audioData, uint16_t channel)
 {
 	std::shared_ptr<WaveForm> waveForm(new WaveForm());
-	if (!waveForm->ConvertFromAudioBuffer(audioData->GetFormat(), audioData->GetAudioBuffer(), audioData->GetAudioBufferSize(), channel, error))
+	if (!waveForm->ConvertFromAudioBuffer(audioData->GetFormat(), audioData->GetAudioBuffer(), audioData->GetAudioBufferSize(), channel))
 		return false;
 
 	*this->loopedWaveForm = waveForm;
@@ -103,9 +103,9 @@ bool LoopedAudioModule::UseNonLoopedAudioData(const AudioData* audioData, uint16
 	return true;
 }
 
-bool LoopedAudioModule::UseLoopedAudioData(const WaveTableData::AudioSampleData* audioSampleData, uint16_t channel, Error& error)
+bool LoopedAudioModule::UseLoopedAudioData(const WaveTableData::AudioSampleData* audioSampleData, uint16_t channel)
 {
-	*this->loopedWaveForm = audioSampleData->GetCachedWaveForm(channel, error);
+	*this->loopedWaveForm = audioSampleData->GetCachedWaveForm(channel);
 	if (!this->loopedWaveForm->get())
 		return false;
 
@@ -118,13 +118,13 @@ bool LoopedAudioModule::UseLoopedAudioData(const WaveTableData::AudioSampleData*
 
 	if (this->startTimeSeconds >= this->endTimeSeconds || this->startTimeSeconds < 0.0 || this->endTimeSeconds < 0.0)
 	{
-		error.Add(FormatString("Start time (%f) and end time (%f) don't make sense.", this->startTimeSeconds, this->endTimeSeconds));
+		ErrorSystem::Get()->Add(std::format("Start time ({}) and end time ({}) don't make sense.", this->startTimeSeconds, this->endTimeSeconds));
 		return false;
 	}
 
 	if (this->endTimeSeconds > this->totalTimeSeconds)
 	{
-		error.Add(FormatString("End time (%f) is greater than total time (%f) in looped audio sample.", this->endTimeSeconds, this->totalTimeSeconds));
+		ErrorSystem::Get()->Add(std::format("End time ({}) is greater than total time ({}) in looped audio sample.", this->endTimeSeconds, this->totalTimeSeconds));
 		return false;
 	}
 

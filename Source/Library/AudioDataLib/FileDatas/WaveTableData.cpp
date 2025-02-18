@@ -1,5 +1,5 @@
 #include "AudioDataLib/FileDatas/WaveTableData.h"
-#include "AudioDataLib/Error.h"
+#include "AudioDataLib/ErrorSystem.h"
 #include "AudioDataLib/MIDI/MidiSynth.h"
 #include "AudioDataLib/WaveForm.h"
 
@@ -34,8 +34,7 @@ WaveTableData::WaveTableData()
 		const AudioSampleData::MetaData& metaData = sampleData->GetMetaData();
 		const AudioSampleData::Range& range = sampleData->GetRange();
 		
-		Error error;
-		audioData->CalcMetaData(error);
+		audioData->CalcMetaData();
 
 		double minFreq = MidiSynth::MidiPitchToFrequency(range.minKey);
 		double maxFreq = MidiSynth::MidiPitchToFrequency(range.maxKey);
@@ -138,15 +137,15 @@ WaveTableData::AudioSampleData::AudioSampleData()
 	return nullptr;
 }
 
-std::shared_ptr<WaveForm> WaveTableData::AudioSampleData::GetCachedWaveForm(uint16_t channel, Error& error) const
+std::shared_ptr<WaveForm> WaveTableData::AudioSampleData::GetCachedWaveForm(uint16_t channel) const
 {
 	if (!this->cachedWaveForm->get())
 	{
 		this->cachedWaveForm->reset(new WaveForm());
 
-		if (!(*this->cachedWaveForm)->ConvertFromAudioBuffer(this->GetFormat(), this->GetAudioBuffer(), this->GetAudioBufferSize(), channel, error))
+		if (!(*this->cachedWaveForm)->ConvertFromAudioBuffer(this->GetFormat(), this->GetAudioBuffer(), this->GetAudioBufferSize(), channel))
 		{
-			error.Add("Failed to convert sample audio buffer into a wave-form.");
+			ErrorSystem::Get()->Add("Failed to convert sample audio buffer into a wave-form.");
 			this->cachedWaveForm->reset();
 		}
 	}

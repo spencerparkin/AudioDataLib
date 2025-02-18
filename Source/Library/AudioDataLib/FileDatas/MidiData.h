@@ -5,8 +5,6 @@
 
 namespace AudioDataLib
 {
-	class Error;
-
 	/**
 	 * @brief This data representing the contents of a MIDI file.
 	 * 
@@ -36,10 +34,9 @@ namespace AudioDataLib
 		 * 
 		 * @param[in] i This is the zero-based track number.  Use GetNumTracks to know how many tracks there are.
 		 * @param[out] totalTimeSeconds The playback length of the track measured in seconds.
-		 * @param[out] error An Error object instance containing error information if something went wrong.
 		 * @return True is returned on success, otherwise false, and the error parameter should have reasons for the failure.
 		 */
-		bool CalculateTrackLengthInSeconds(uint32_t i, double& totalTimeSeconds, Error& error) const;
+		bool CalculateTrackLengthInSeconds(uint32_t i, double& totalTimeSeconds) const;
 
 		static MidiData* Create();
 		static void Destroy(MidiData* midiData);
@@ -183,10 +180,9 @@ namespace AudioDataLib
 			 * of the derived class type.
 			 * 
 			 * @param[in,out] inputStream The byte stream from which to read bytes.
-			 * @param[out] error An error object containing reasons for failure if false is returned.
 			 * @return True is returned on success; false on failure.
 			 */
-			virtual bool Decode(ByteStream& inputStream, Error& error) = 0;
+			virtual bool Decode(ByteStream& inputStream) = 0;
 
 			/**
 			 * Try to write this MIDI message (of the derived class type) as a sequence
@@ -195,10 +191,9 @@ namespace AudioDataLib
 			 * MIDI device.
 			 * 
 			 * @param[in,out] outputStream The byte stream to which bytes are to be written.
-			 * @param[out] error An error object containing reasons for failure if false is returned.
 			 * @return True is returned on success; false on failure.
 			 */
-			virtual bool Encode(ByteStream& outputStream, Error& error) const = 0;
+			virtual bool Encode(ByteStream& outputStream) const = 0;
 
 			/**
 			 * Return a one-line, human-readable message for logging purposes.
@@ -214,8 +209,8 @@ namespace AudioDataLib
 			SystemExclusiveEvent();
 			virtual ~SystemExclusiveEvent();
 
-			virtual bool Decode(ByteStream& inputStream, Error& error) override;
-			virtual bool Encode(ByteStream& outputStream, Error& error) const override;
+			virtual bool Decode(ByteStream& inputStream) override;
+			virtual bool Encode(ByteStream& outputStream) const override;
 
 			virtual std::string LogMessage() const override;
 		};
@@ -226,8 +221,8 @@ namespace AudioDataLib
 			MetaEvent();
 			virtual ~MetaEvent();
 
-			virtual bool Decode(ByteStream& inputStream, Error& error) override;
-			virtual bool Encode(ByteStream& outputStream, Error& error) const override;
+			virtual bool Decode(ByteStream& inputStream) override;
+			virtual bool Encode(ByteStream& outputStream) const override;
 
 			virtual std::string LogMessage() const override;
 
@@ -386,8 +381,8 @@ namespace AudioDataLib
 			ChannelEvent();
 			virtual ~ChannelEvent();
 
-			virtual bool Decode(ByteStream& inputStream, Error& error) override;
-			virtual bool Encode(ByteStream& outputStream, Error& error) const override;
+			virtual bool Decode(ByteStream& inputStream) override;
+			virtual bool Encode(ByteStream& outputStream) const override;
 
 			virtual std::string LogMessage() const override;
 

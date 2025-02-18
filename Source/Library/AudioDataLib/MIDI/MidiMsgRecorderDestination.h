@@ -24,12 +24,12 @@ namespace AudioDataLib
 		/**
 		 * This method caches the given MIDI message for later processing in the Finalize method.
 		 */
-		virtual bool ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize, Error& error) override;
+		virtual bool ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize) override;
 
 		/**
 		 * Compile all cached MIDI messages into the MidiData instance owned by this class.
 		 */
-		virtual bool Finalize(Error& error) override;
+		virtual bool Finalize() override;
 
 		/**
 		 * Set the MidiData instance that this class will populate.  Ownership of the memory is not taken here.

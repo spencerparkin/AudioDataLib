@@ -16,8 +16,8 @@ namespace AudioDataLib
 		AiffFileFormat();
 		virtual ~AiffFileFormat();
 
-		virtual bool ReadFromStream(ByteStream& inputStream, FileData*& fileData, Error& error) override;
-		virtual bool WriteToStream(ByteStream& outputStream, const FileData* fileData, Error& error) override;
+		virtual bool ReadFromStream(ByteStream& inputStream, FileData*& fileData) override;
+		virtual bool WriteToStream(ByteStream& outputStream, const FileData* fileData) override;
 
 	protected:
 		class AiffChunkParser : public ChunkParser
@@ -26,7 +26,7 @@ namespace AudioDataLib
 			AiffChunkParser();
 			virtual ~AiffChunkParser();
 
-			virtual bool ParseChunkData(ReadOnlyBufferStream& inputStream, Chunk* chunk, Error& error) override;
+			virtual bool ParseChunkData(ReadOnlyBufferStream& inputStream, Chunk* chunk) override;
 		};
 	};
 }

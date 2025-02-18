@@ -21,8 +21,6 @@
 
 namespace AudioDataLib
 {
-	class Error;
-
 	/**
 	 * @brief This class knows how to read (and one day write) sound-font files.
 	 * 
@@ -41,8 +39,8 @@ namespace AudioDataLib
 		SoundFontFormat();
 		virtual ~SoundFontFormat();
 
-		virtual bool ReadFromStream(ByteStream& inputStream, FileData*& fileData, Error& error) override;
-		virtual bool WriteToStream(ByteStream& outputStream, const FileData* fileData, Error& error) override;
+		virtual bool ReadFromStream(ByteStream& inputStream, FileData*& fileData) override;
+		virtual bool WriteToStream(ByteStream& outputStream, const FileData* fileData) override;
 
 	private:
 		class SoundFontChunkParser : public ChunkParser
@@ -51,7 +49,7 @@ namespace AudioDataLib
 			SoundFontChunkParser();
 			virtual ~SoundFontChunkParser();
 
-			virtual bool ParseChunkData(ReadOnlyBufferStream& inputStream, Chunk* chunk, Error& error) override;
+			virtual bool ParseChunkData(ReadOnlyBufferStream& inputStream, Chunk* chunk) override;
 		};
 
 #pragma pack(push, 1)
@@ -122,8 +120,7 @@ namespace AudioDataLib
 			const std::vector<SF_SampleHeader>& audioSampleHeaderArray,
 			const std::vector<uint32_t>& sampleIDArray,
 			const ChunkParser::Chunk* smplChunk,
-			const ChunkParser::Chunk* sm24Chunk,
-			Error& error);
+			const ChunkParser::Chunk* sm24Chunk);
 
 		typedef std::map<uint32_t, std::shared_ptr<SoundFontData::AudioSampleData>> SampleMap;
 		SampleMap* sampleMap;

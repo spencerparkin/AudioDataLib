@@ -1,5 +1,5 @@
 #include "AudioDataLib/FileFormats/SoundFontFormat.h"
-#include "AudioDataLib/Error.h"
+#include "AudioDataLib/ErrorSystem.h"
 
 using namespace AudioDataLib;
 
@@ -13,10 +13,10 @@ SoundFontFormat::SoundFontFormat()
 	delete this->sampleMap;
 }
 
-/*virtual*/ bool SoundFontFormat::ReadFromStream(ByteStream& inputStream, FileData*& fileData, Error& error)
+/*virtual*/ bool SoundFontFormat::ReadFromStream(ByteStream& inputStream, FileData*& fileData)
 {
 	SoundFontChunkParser parser;
-	if (!parser.ParseStream(inputStream, error))
+	if (!parser.ParseStream(inputStream))
 		return false;
 
 	SoundFontData* soundFontData = new SoundFontData();
@@ -30,13 +30,13 @@ SoundFontFormat::SoundFontFormat()
 		const ChunkParser::Chunk* ifilChunk = parser.FindChunk("ifil", "", false);
 		if (!ifilChunk)
 		{
-			error.Add("No \"ifil\" chunk found.");
+			ErrorSystem::Get()->Add("No \"ifil\" chunk found.");
 			break;
 		}
 
 		if (ifilChunk->GetBufferSize() != sizeof(SoundFontData::VersionTag))
 		{
-			error.Add("The \"ifil\" chunk is the wrong size.");
+			ErrorSystem::Get()->Add("The \"ifil\" chunk is the wrong size.");
 			break;
 		}
 
@@ -49,7 +49,7 @@ SoundFontFormat::SoundFontFormat()
 		const ChunkParser::Chunk* inamChunk = parser.FindChunk("INAM", "", false);
 		if (!inamChunk)
 		{
-			error.Add("No \"inam\" chunk found.");
+			ErrorSystem::Get()->Add("No \"inam\" chunk found.");
 			break;
 		}
 
@@ -64,7 +64,7 @@ SoundFontFormat::SoundFontFormat()
 		{
 			if (iverChunk->GetBufferSize() != sizeof(SoundFontData::VersionTag))
 			{
-				error.Add("The \"iver\" chunk size is wrong.");
+				ErrorSystem::Get()->Add("The \"iver\" chunk size is wrong.");
 				break;
 			}
 
@@ -103,7 +103,7 @@ SoundFontFormat::SoundFontFormat()
 			const ChunkParser::Chunk* shdrChunk = parser.FindChunk("shdr", "", false);
 			if (!shdrChunk)
 			{
-				error.Add("Cannot parse the sample chunk if there is no SHDR chunk.");
+				ErrorSystem::Get()->Add("Cannot parse the sample chunk if there is no SHDR chunk.");
 				break;
 			}
 
@@ -115,7 +115,7 @@ SoundFontFormat::SoundFontFormat()
 				SF_SampleHeader header;
 				if (!sampleHeaderStream.ReadBytesFromStream((uint8_t*)&header, sizeof(SF_SampleHeader)))
 				{
-					error.Add("Failed to read sample header!");
+					ErrorSystem::Get()->Add("Failed to read sample header!");
 					break;
 				}
 
@@ -125,7 +125,7 @@ SoundFontFormat::SoundFontFormat()
 				sampleHeaderArray.push_back(header);
 			}
 
-			if (error)
+			if (ErrorSystem::Get()->Errors())
 				break;
 
 			std::set<uint32_t> processedHeaderSet;
@@ -149,7 +149,7 @@ SoundFontFormat::SoundFontFormat()
 						uint32_t j = header->sampleLink;
 						if (j >= sampleHeaderArray.size())
 						{
-							error.Add("Bad link index.");
+							ErrorSystem::Get()->Add("Bad link index.");
 							break;
 						}
 
@@ -161,32 +161,32 @@ SoundFontFormat::SoundFontFormat()
 						header = &sampleHeaderArray[j];
 					}
 
-					if (error)
+					if (ErrorSystem::Get()->Errors())
 						break;
 				}
 
 				// We could associate this sub-group of samples, but I'm not currently doing that, and I'm not sure I ever will.
-				if (!this->ConstructAudioSamples(soundFontData, sampleHeaderArray, audioSampleIDArray, smplChunk, sm24Chunk, error))
+				if (!this->ConstructAudioSamples(soundFontData, sampleHeaderArray, audioSampleIDArray, smplChunk, sm24Chunk))
 					break;
 			}
 
-			if (error)
+			if (ErrorSystem::Get()->Errors())
 				break;
 		}
 
-		if (error)
+		if (ErrorSystem::Get()->Errors())
 			break;
 
 		const ChunkParser::Chunk* igenChunk = parser.FindChunk("igen", "", false);
 		if (!igenChunk)
 		{
-			error.Add("No \"igen\" chunk found.");
+			ErrorSystem::Get()->Add("No \"igen\" chunk found.");
 			return false;
 		}
 
 		if (igenChunk->GetBufferSize() % sizeof(SF_Generator) != 0)
 		{
-			error.Add("The \"igen\" chunk is not a multiple in size of the generator structure.");
+			ErrorSystem::Get()->Add("The \"igen\" chunk is not a multiple in size of the generator structure.");
 			return false;
 		}
 
@@ -239,7 +239,7 @@ SoundFontFormat::SoundFontFormat()
 					auto iter = this->sampleMap->find(sampleID);
 					if(iter == this->sampleMap->end())
 					{
-						error.Add(FormatString("Failed to find audio data with sample ID %d", sampleID));
+						ErrorSystem::Get()->Add(std::format("Failed to find audio data with sample ID {}.", sampleID));
 						break;
 					}
 
@@ -258,11 +258,11 @@ SoundFontFormat::SoundFontFormat()
 				}
 			}
 
-			if (error)
+			if (ErrorSystem::Get()->Errors())
 				break;
 		}
 
-		if (error)
+		if (ErrorSystem::Get()->Errors())
 			break;
 
 		success = true;
@@ -283,12 +283,11 @@ bool SoundFontFormat::ConstructAudioSamples(
 								const std::vector<SF_SampleHeader>& audioSampleHeaderArray,
 								const std::vector<uint32_t>& sampleIDArray,
 								const ChunkParser::Chunk* smplChunk,
-								const ChunkParser::Chunk* sm24Chunk,
-								Error& error)
+								const ChunkParser::Chunk* sm24Chunk)
 {
 	if (sampleIDArray.size() == 0)
 	{
-		error.Add("Was given empty sample ID array.");
+		ErrorSystem::Get()->Add("Was given empty sample ID array.");
 		return false;
 	}
 
@@ -299,15 +298,15 @@ bool SoundFontFormat::ConstructAudioSamples(
 
 		if (!(header.sampleStart <= header.sampleEnd && header.sampleEnd <= smplChunk->GetBufferSize() / sizeof(uint16_t)))
 		{
-			error.Add("Header boundaries not in range of the chunk.");
-			return nullptr;
+			ErrorSystem::Get()->Add("Header boundaries not in range of the chunk.");
+			return false;
 		}
 
 		if (!(header.sampleStart <= header.sampleLoopStart && header.sampleLoopStart <= header.sampleEnd) ||
 			!(header.sampleStart <= header.sampleLoopEnd && header.sampleLoopEnd <= header.sampleEnd))
 		{
-			error.Add("Loop boundaries not contained within sample boundaries.");
-			return nullptr;
+			ErrorSystem::Get()->Add("Loop boundaries not contained within sample boundaries.");
+			return false;
 		}
 	}
 
@@ -319,8 +318,8 @@ bool SoundFontFormat::ConstructAudioSamples(
 
 	if (sampleBuffer8 && sampleBuffer8Size != sampleBuffer16Size)
 	{
-		error.Add("The supplementary buffer is no the same size as the main buffer.");
-		return nullptr;
+		ErrorSystem::Get()->Add("The supplementary buffer is no the same size as the main buffer.");
+		return false;
 	}
 
 	auto audioSampleData = new SoundFontData::AudioSampleData();
@@ -371,7 +370,7 @@ bool SoundFontFormat::ConstructAudioSamples(
 		}
 		else
 		{
-			error.Add("Not yet implimented.  Until I get a sound-font file that has this case, I can't test it.");
+			ErrorSystem::Get()->Add("Not yet implimented.  Until I get a sound-font file that has this case, I can't test it.");
 			break;
 		}
 	}
@@ -379,9 +378,9 @@ bool SoundFontFormat::ConstructAudioSamples(
 	return true;
 }
 
-/*virtual*/ bool SoundFontFormat::WriteToStream(ByteStream& outputStream, const FileData* fileData, Error& error)
+/*virtual*/ bool SoundFontFormat::WriteToStream(ByteStream& outputStream, const FileData* fileData)
 {
-	error.Add("Not yet implimented.  (Probably never will be since SF files are insane.");
+	ErrorSystem::Get()->Add("Not yet implimented.  (Probably never will be since SF files are insane.");
 	return false;
 }
 
@@ -393,14 +392,14 @@ SoundFontFormat::SoundFontChunkParser::SoundFontChunkParser()
 {
 }
 
-/*virtual*/ bool SoundFontFormat::SoundFontChunkParser::ParseChunkData(ReadOnlyBufferStream& inputStream, Chunk* chunk, Error& error)
+/*virtual*/ bool SoundFontFormat::SoundFontChunkParser::ParseChunkData(ReadOnlyBufferStream& inputStream, Chunk* chunk)
 {
 	if (chunk->GetName() == "RIFF")
 	{
 		char formType[5];
 		if (4 != inputStream.ReadBytesFromStream((uint8_t*)formType, 4))
 		{
-			error.Add("Could not read form type of RIFF chunk.");
+			ErrorSystem::Get()->Add("Could not read form type of RIFF chunk.");
 			return false;
 		}
 
@@ -408,11 +407,11 @@ SoundFontFormat::SoundFontChunkParser::SoundFontChunkParser()
 
 		if (0 != strcmp(formType, "sfbk"))
 		{
-			error.Add("RIFF file does not appears to be a sound-font bank file.");
+			ErrorSystem::Get()->Add("RIFF file does not appears to be a sound-font bank file.");
 			return false;
 		}
 
-		if (!chunk->ParseSubChunks(inputStream, this, error))
+		if (!chunk->ParseSubChunks(inputStream, this))
 			return false;
 	}
 	else if (chunk->GetName() == "LIST")
@@ -420,7 +419,7 @@ SoundFontFormat::SoundFontChunkParser::SoundFontChunkParser()
 		char formType[5];
 		if (4 != inputStream.ReadBytesFromStream((uint8_t*)formType, 4))
 		{
-			error.Add("Could not read form type of LIST chunk.");
+			ErrorSystem::Get()->Add("Could not read form type of LIST chunk.");
 			return false;
 		}
 
@@ -428,18 +427,18 @@ SoundFontFormat::SoundFontChunkParser::SoundFontChunkParser()
 
 		if (0 != strcmp(formType, "INFO") && 0 != strcmp(formType, "sdta") && 0 != strcmp(formType, "pdta"))
 		{
-			error.Add("Expected form type of LIST chunk to be INFO, \"stda\" or \"pdta\".");
+			ErrorSystem::Get()->Add("Expected form type of LIST chunk to be INFO, \"stda\" or \"pdta\".");
 			return false;
 		}
 
-		if (!chunk->ParseSubChunks(inputStream, this, error))
+		if (!chunk->ParseSubChunks(inputStream, this))
 			return false;
 	}
 	else
 	{
 		if (!inputStream.SetReadOffset(inputStream.GetReadOffset() + chunk->GetBufferSize()))
 		{
-			error.Add("Could not skip over chunk data.");
+			ErrorSystem::Get()->Add("Could not skip over chunk data.");
 			return false;
 		}
 	}

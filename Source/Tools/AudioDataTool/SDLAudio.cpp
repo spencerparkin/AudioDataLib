@@ -16,18 +16,18 @@ SDLAudio::SDLAudio(AudioDirection audioDirection)
 {
 }
 
-bool SDLAudio::Setup(const std::string& deviceSubStr, Error& error)
+bool SDLAudio::Setup(const std::string& deviceSubStr)
 {
 	if (!this->audioStream)
 	{
-		error.Add("No audio stream set.");
+		ErrorSystem::Get()->Add("No audio stream set.");
 		return false;
 	}
 
 	int result = SDL_Init(SDL_INIT_AUDIO);
 	if (result != 0)
 	{
-		error.Add(FormatString("Failed to initialized SDL audio subsystem: %s", SDL_GetError()));
+		ErrorSystem::Get()->Add(std::format("Failed to initialized SDL audio subsystem: {}", SDL_GetError()));
 		return false;
 	}
 
@@ -35,7 +35,7 @@ bool SDLAudio::Setup(const std::string& deviceSubStr, Error& error)
 	int numAudioDevices = SDL_GetNumAudioDevices(isCapture);
 	if (numAudioDevices == 0)
 	{
-		error.Add("SDL did not detect any audio output devices.");
+		ErrorSystem::Get()->Add("SDL did not detect any audio output devices.");
 		return false;
 	}
 
@@ -67,7 +67,7 @@ bool SDLAudio::Setup(const std::string& deviceSubStr, Error& error)
 	this->audioDeviceID = SDL_OpenAudioDevice(chosenAudioDeviceName.c_str(), 0, &this->audioSpec, &this->audioSpec, SDL_AUDIO_ALLOW_ANY_CHANGE);
 	if (this->audioDeviceID == 0)
 	{
-		error.Add(FormatString("Failed to open audio device: %s", SDL_GetError()));
+		ErrorSystem::Get()->Add(std::format("Failed to open audio device: {}", SDL_GetError()));
 		return false;
 	}
 
@@ -95,7 +95,7 @@ bool SDLAudio::Setup(const std::string& deviceSubStr, Error& error)
 	return true;
 }
 
-bool SDLAudio::Shutdown(Error& error)
+bool SDLAudio::Shutdown()
 {
 	if (this->audioDeviceID != 0)
 	{

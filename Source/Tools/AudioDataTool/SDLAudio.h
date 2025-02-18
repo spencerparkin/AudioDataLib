@@ -1,7 +1,7 @@
 #pragma once
 
 #include "AudioDataLib/FileDatas/AudioData.h"
-#include "AudioDataLib/Error.h"
+#include "AudioDataLib/ErrorSystem.h"
 #include "SDL.h"
 #undef main
 #include "AudioDataLib/ByteStream.h"
@@ -18,8 +18,8 @@ public:
 	SDLAudio(AudioDirection audioDirection);
 	virtual ~SDLAudio();
 
-	virtual bool Setup(const std::string& deviceSubStr, AudioDataLib::Error& error);
-	virtual bool Shutdown(AudioDataLib::Error& error);
+	virtual bool Setup(const std::string& deviceSubStr);
+	virtual bool Shutdown();
 
 	void SetAudioStream(std::shared_ptr<AudioDataLib::AudioStream> audioStream) { this->audioStream = audioStream; }
 	std::shared_ptr<AudioDataLib::AudioStream> GetAudioStream() { return this->audioStream; }

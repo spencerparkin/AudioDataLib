@@ -2,7 +2,7 @@
 #include "AudioDataLib/ByteStream.h"
 #include "AudioDataLib/FileDAtas/AudioData.h"
 #include "AudioDataLib/ByteSwapper.h"
-#include "AudioDataLib/Error.h"
+#include "AudioDataLib/ErrorSystem.h"
 
 using namespace AudioDataLib;
 
@@ -26,27 +26,27 @@ RawAudioCodec::RawAudioCodec()
 {
 }
 
-/*virtual*/ bool RawAudioCodec::Decode(ByteStream& inputStream, AudioData& audioOut, Error& error)
+/*virtual*/ bool RawAudioCodec::Decode(ByteStream& inputStream, AudioData& audioOut)
 {
 	uint64_t audioBufferSizeBytes = inputStream.GetSize();
 	audioOut.SetAudioBufferSize(audioBufferSizeBytes);
 
 	if (audioBufferSizeBytes != inputStream.ReadBytesFromStream(audioOut.GetAudioBuffer(), audioBufferSizeBytes))
 	{
-		error.Add(FormatString("Failed to read %d bytes of audio data from the stream.", audioBufferSizeBytes));
+		ErrorSystem::Get()->Add(std::format("Failed to read {} bytes of audio data from the stream.", audioBufferSizeBytes));
 		return false;
 	}
 
 	return true;
 }
 
-/*virtual*/ bool RawAudioCodec::Encode(ByteStream& outputStream, const AudioData& audioIn, Error& error)
+/*virtual*/ bool RawAudioCodec::Encode(ByteStream& outputStream, const AudioData& audioIn)
 {
 	uint64_t audioBufferSizeBytes = audioIn.GetAudioBufferSize();
 
 	if (audioBufferSizeBytes != outputStream.WriteBytesToStream(audioIn.GetAudioBuffer(), audioBufferSizeBytes))
 	{
-		error.Add(FormatString("Failed to write %d bytes of audio data to the stream.", audioBufferSizeBytes));
+		ErrorSystem::Get()->Add(std::format("Failed to write {} bytes of audio data to the stream.", audioBufferSizeBytes));
 		return false;
 	}
 
@@ -64,7 +64,7 @@ ByteSwappedAudioCodec::ByteSwappedAudioCodec(ByteSwapper* byteSwapper)
 {
 }
 
-/*virtual*/ bool ByteSwappedAudioCodec::Decode(ByteStream& inputStream, AudioData& audioOut, Error& error)
+/*virtual*/ bool ByteSwappedAudioCodec::Decode(ByteStream& inputStream, AudioData& audioOut)
 {
 	uint64_t sampleSizeBytes = audioOut.GetFormat().BytesPerSample();
 
@@ -80,7 +80,7 @@ ByteSwappedAudioCodec::ByteSwappedAudioCodec(ByteSwapper* byteSwapper)
 	{
 		if (sampleSizeBytes != inputStream.ReadBytesFromStream(sampleBuffer, sampleSizeBytes))
 		{
-			error.Add(FormatString("Failed to read sample of size %d bytes from the stream.", sampleSizeBytes));
+			ErrorSystem::Get()->Add(std::format("Failed to read sample of size {} bytes from the stream.", sampleSizeBytes));
 			return false;
 		}
 
@@ -92,8 +92,8 @@ ByteSwappedAudioCodec::ByteSwappedAudioCodec(ByteSwapper* byteSwapper)
 	return true;
 }
 
-/*virtual*/ bool ByteSwappedAudioCodec::Encode(ByteStream& outputStream, const AudioData& audioIn, Error& error)
+/*virtual*/ bool ByteSwappedAudioCodec::Encode(ByteStream& outputStream, const AudioData& audioIn)
 {
-	error.Add("Not written yet.");
+	ErrorSystem::Get()->Add("Not written yet.");
 	return false;
 }

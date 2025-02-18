@@ -3,7 +3,7 @@
 #include "AudioDataLib/Mutex.h"
 #include "AudioDataLib/Timer.h"
 #include "AudioDataLib/ByteStream.h"
-#include "AudioDataLib/Error.h"
+#include "AudioDataLib/ErrorSystem.h"
 
 using namespace AudioDataLib;
 
@@ -49,36 +49,36 @@ void MidiPlayer::ConfigureToPlayAllTracks() const
     }
 }
 
-/*virtual*/ bool MidiPlayer::Setup(Error& error)
+/*virtual*/ bool MidiPlayer::Setup()
 {
 	this->Clear();
 
-	if (!MidiMsgSource::Setup(error))
+	if (!MidiMsgSource::Setup())
 		return false;
 
 	if (!this->midiData)
 	{
-		error.Add("No MIDI data set on player.  Can't play.");
+		ErrorSystem::Get()->Add("No MIDI data set on player.  Can't play.");
 		return false;
 	}
 
 	if (this->tracksToPlaySet->size() == 0)
 	{
-		error.Add("Given tracks-to-play set is empty.");
+		ErrorSystem::Get()->Add("Given tracks-to-play set is empty.");
 		return false;
 	}
 
 	if (this->midiData->GetFormatType() != MidiData::FormatType::MULTI_TRACK &&
 		this->midiData->GetFormatType() != MidiData::FormatType::SINGLE_TRACK)
 	{
-		error.Add(FormatString("MIDI type (%d) not yet supported.", uint32_t(this->midiData->GetFormatType())));
+		ErrorSystem::Get()->Add(std::format("MIDI type ({}) not yet supported.", uint32_t(this->midiData->GetFormatType())));
 		return false;
 	}
 
 	const MidiData::Track* infoTrack = this->midiData->GetTrack(0);
 	if (!infoTrack)
 	{
-		error.Add("Could not get info track from MIDI data.");
+		ErrorSystem::Get()->Add("Could not get info track from MIDI data.");
 		return false;
 	}
 
@@ -95,7 +95,7 @@ void MidiPlayer::ConfigureToPlayAllTracks() const
 
 	if (!this->timer)
 	{
-		error.Add("No timer set.");
+		ErrorSystem::Get()->Add("No timer set.");
 		return false;
 	}
 
@@ -105,33 +105,33 @@ void MidiPlayer::ConfigureToPlayAllTracks() const
 	return true;
 }
 
-/*virtual*/ bool MidiPlayer::Shutdown(Error& error)
+/*virtual*/ bool MidiPlayer::Shutdown()
 {
-	this->SilenceAllChannels(error);
+	this->SilenceAllChannels();
 
-	MidiMsgSource::Shutdown(error);
+	MidiMsgSource::Shutdown();
 	
 	this->Clear();
 
-	return !error;
+	return !ErrorSystem::Get()->Errors();
 }
 
-/*virtual*/ bool MidiPlayer::Process(Error& error)
+/*virtual*/ bool MidiPlayer::Process()
 {
-	if (!MidiMsgSource::Process(error))
+	if (!MidiMsgSource::Process())
 		return false;
 
 	double deltaTimeSeconds = this->timer->GetDeltaTimeSeconds();
 
 	// Synchronization between the tracks here is called into question in my mind.  Hmmmmm.
 	for (TrackPlayer* trackPlayer : *this->trackPlayerArray)
-		if (!trackPlayer->Advance(deltaTimeSeconds, this, error))
+		if (!trackPlayer->Advance(deltaTimeSeconds, this))
 			return false;
 
 	return true;
 }
 
-bool MidiPlayer::SilenceAllChannels(Error& error)
+bool MidiPlayer::SilenceAllChannels()
 {
 	for (uint8_t channel = 0; channel < 16; channel++)
 	{
@@ -146,8 +146,8 @@ bool MidiPlayer::SilenceAllChannels(Error& error)
 			channelEvent.param1 = pitchValue;
 			uint8_t messageBuffer[128];
 			WriteOnlyBufferStream messageStream(messageBuffer, sizeof(messageBuffer));
-			channelEvent.Encode(messageStream, error);
-			this->BroadcastMidiMessage(0.0, messageStream.GetBuffer(), messageStream.GetSize(), error);
+			channelEvent.Encode(messageStream);
+			this->BroadcastMidiMessage(0.0, messageStream.GetBuffer(), messageStream.GetSize());
 		}
 	}
 
@@ -187,18 +187,18 @@ bool MidiPlayer::TrackPlayer::MoreToPlay(MidiPlayer* midiPlayer)
 	return this->nextTrackEventOffset < track->GetEventArray().size();
 }
 
-bool MidiPlayer::TrackPlayer::Advance(double deltaTimeSeconds, MidiPlayer* midiPlayer, Error& error)
+bool MidiPlayer::TrackPlayer::Advance(double deltaTimeSeconds, MidiPlayer* midiPlayer)
 {
 	const MidiData::Track* track = midiPlayer->midiData->GetTrack(this->trackOffset);
 	if (!track)
 	{
-		error.Add(FormatString("Failed to get track %d.", this->trackOffset));
+		ErrorSystem::Get()->Add(std::format("Failed to get track {}.", this->trackOffset));
 		return false;
 	}
 
 	if (midiPlayer->midiData->GetTiming().type != MidiData::Timing::Type::TICKS_PER_QUARTER_NOTE)
 	{
-		error.Add(FormatString("Timing type (%d) not yet supported.", midiPlayer->midiData->GetTiming().type));
+		ErrorSystem::Get()->Add(std::format("Timing type ({}) not yet supported.", int(midiPlayer->midiData->GetTiming().type)));
 		return false;
 	}
 
@@ -221,7 +221,7 @@ bool MidiPlayer::TrackPlayer::Advance(double deltaTimeSeconds, MidiPlayer* midiP
 		{
 			this->timeSinceLastEventSeconds -= timeBeforeNextEventSeconds;
 
-			if (!this->ProcessEvent(event, midiPlayer, error))
+			if (!this->ProcessEvent(event, midiPlayer))
 				return false;
 
 			this->nextTrackEventOffset++;
@@ -231,7 +231,7 @@ bool MidiPlayer::TrackPlayer::Advance(double deltaTimeSeconds, MidiPlayer* midiP
 	return true;
 }
 
-bool MidiPlayer::TrackPlayer::ProcessEvent(const MidiData::Event* event, MidiPlayer* midiPlayer, Error& error)
+bool MidiPlayer::TrackPlayer::ProcessEvent(const MidiData::Event* event, MidiPlayer* midiPlayer)
 {
 	const MidiData::MetaEvent* metaEvent = dynamic_cast<const MidiData::MetaEvent*>(event);
 	const MidiData::ChannelEvent* channelEvent = dynamic_cast<const MidiData::ChannelEvent*>(event);
@@ -251,12 +251,12 @@ bool MidiPlayer::TrackPlayer::ProcessEvent(const MidiData::Event* event, MidiPla
 	{
 		WriteOnlyBufferStream bufferStream(this->messageBuffer, ADL_MIDI_MESSAGE_BUFFER_SIZE);
 
-		if (!channelEvent->Encode(bufferStream, error))
+		if (!channelEvent->Encode(bufferStream))
 			return false;
 
-		midiPlayer->BroadcastMidiMessage(0.0, bufferStream.GetBuffer(), bufferStream.GetSize(), error);
+		midiPlayer->BroadcastMidiMessage(0.0, bufferStream.GetBuffer(), bufferStream.GetSize());
 
-		if (error)
+		if (ErrorSystem::Get()->Errors())
 			return false;
 	}
 

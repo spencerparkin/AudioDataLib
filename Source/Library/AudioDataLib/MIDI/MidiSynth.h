@@ -6,7 +6,6 @@
 
 namespace AudioDataLib
 {
-	class Error;
 	class SynthModule;
 	
 	/**
@@ -32,7 +31,7 @@ namespace AudioDataLib
 		 * A derived class might override this to do its own processing, but should call this
 		 * base-class method as well.
 		 */
-		virtual bool Process(Error& error) override;
+		virtual bool Process() override;
 
 		/**
 		 * A derived class must impliment this method to provide a SynthModule that can

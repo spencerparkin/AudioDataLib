@@ -1,5 +1,5 @@
 #include "AudioDataLib/SynthModules/AttenuationModule.h"
-#include "AudioDataLib/Error.h"
+#include "AudioDataLib/ErrorSystem.h"
 #include "AudioDataLib/WaveForm.h"
 #include "AudioDataLib/Math/Function.h"
 
@@ -17,17 +17,17 @@ AttenuationModule::AttenuationModule()
 	this->SetAttenuationFunction(nullptr);
 }
 
-/*virtual*/ bool AttenuationModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, SynthModule* callingModule, Error& error)
+/*virtual*/ bool AttenuationModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, SynthModule* callingModule)
 {
 	if (this->GetNumDependentModules() != 1)
 	{
-		error.Add("Attenuation module needs exactly one dependent module.");
+		ErrorSystem::Get()->Add("Attenuation module needs exactly one dependent module.");
 		return false;
 	}
 
 	SynthModule* dependentModule = (*this->dependentModulesArray)[0].get();
 
-	if (!dependentModule->GenerateSound(durationSeconds, samplesPerSecond, waveForm, this, error))
+	if (!dependentModule->GenerateSound(durationSeconds, samplesPerSecond, waveForm, this))
 		return false;
 
 	if (!this->fallOff)
@@ -35,7 +35,7 @@ AttenuationModule::AttenuationModule()
 
 	if (!this->attenuationFunction)
 	{
-		error.Add("No attenuation function set!");
+		ErrorSystem::Get()->Add("No attenuation function set!");
 		return false;
 	}
 

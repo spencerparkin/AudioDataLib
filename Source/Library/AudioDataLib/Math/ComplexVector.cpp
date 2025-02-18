@@ -1,5 +1,5 @@
 #include "AudioDataLib/Math/ComplexVector.h"
-#include "AudioDataLib/Error.h"
+#include "AudioDataLib/ErrorSystem.h"
 
 using namespace AudioDataLib;
 
@@ -52,13 +52,13 @@ ComplexNumber& ComplexVector::operator[](uint32_t i)
 }
 
 // See: Intro to Algorithms by Cormen, Leiserson & Rivest, page 787.
-bool ComplexVector::FFT(const ComplexVector& complexVector, bool inverse, Error& error)
+bool ComplexVector::FFT(const ComplexVector& complexVector, bool inverse)
 {
 	this->complexNumberArray->clear();
 
 	if (complexVector.Size() <= 0)
 	{
-		error.Add("Nothing to transform.");
+		ErrorSystem::Get()->Add("Nothing to transform.");
 		return false;
 	}
 
@@ -70,7 +70,7 @@ bool ComplexVector::FFT(const ComplexVector& complexVector, bool inverse, Error&
 
 	if (complexVector.Size() % 2 != 0)
 	{
-		error.Add("Complex vector size not even.  (They should always be a power of 2.)");
+		ErrorSystem::Get()->Add("Complex vector size not even.  (They should always be a power of 2.)");
 		return false;
 	}
 
@@ -87,10 +87,10 @@ bool ComplexVector::FFT(const ComplexVector& complexVector, bool inverse, Error&
 
 	ComplexVector evenFFT, oddFFT;
 
-	if (!evenFFT.FFT(evenVector, inverse, error))
+	if (!evenFFT.FFT(evenVector, inverse))
 		return false;
 
-	if (!oddFFT.FFT(oddVector, inverse, error))
+	if (!oddFFT.FFT(oddVector, inverse))
 		return false;
 
 	for (uint32_t i = 0; i < complexVector.Size(); i++)

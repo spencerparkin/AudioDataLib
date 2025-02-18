@@ -1,5 +1,5 @@
 #include "AudioDataLib/SynthModules/DuplicationModule.h"
-#include "AudioDataLib/Error.h"
+#include "AudioDataLib/ErrorSystem.h"
 
 using namespace AudioDataLib;
 
@@ -12,11 +12,11 @@ DuplicationModule::DuplicationModule()
 {
 }
 
-/*virtual*/ bool DuplicationModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, SynthModule* callingModule, Error& error)
+/*virtual*/ bool DuplicationModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, SynthModule* callingModule)
 {
 	if (this->GetNumDependentModules() != 1)
 	{
-		error.Add("Duplication module needs exactly one dependent module.");
+		ErrorSystem::Get()->Add("Duplication module needs exactly one dependent module.");
 		return false;
 	}
 
@@ -26,7 +26,7 @@ DuplicationModule::DuplicationModule()
 		this->masterModule = callingModule;
 
 	if (callingModule == this->masterModule)
-		if (!dependentModule->GenerateSound(durationSeconds, samplesPerSecond, this->cachedWaveForm, this, error))
+		if (!dependentModule->GenerateSound(durationSeconds, samplesPerSecond, this->cachedWaveForm, this))
 			return false;
 
 	// The main assumptions we're working with here are that...

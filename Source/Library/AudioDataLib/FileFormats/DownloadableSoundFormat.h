@@ -21,8 +21,8 @@ namespace AudioDataLib
 		DownloadableSoundFormat();
 		virtual ~DownloadableSoundFormat();
 
-		virtual bool ReadFromStream(ByteStream& inputStream, FileData*& fileData, Error& error) override;
-		virtual bool WriteToStream(ByteStream& outputStream, const FileData* fileData, Error& error) override;
+		virtual bool ReadFromStream(ByteStream& inputStream, FileData*& fileData) override;
+		virtual bool WriteToStream(ByteStream& outputStream, const FileData* fileData) override;
 
 	private:
 
@@ -89,7 +89,6 @@ namespace AudioDataLib
 		bool LoadInstrument(
 					const ChunkParser::Chunk* instrumentChunk,
 					const ChunkParser::Chunk* wavePoolChunk,
-					WaveTableData* waveTableData,
-					Error& error);
+					WaveTableData* waveTableData);
 	};
 }
