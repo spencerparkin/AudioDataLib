@@ -1,6 +1,6 @@
 #include "MidiPortSource.h"
-#include "ByteStream.h"
-#include "Error.h"
+#include "AudioDataLib/ByteStream.h"
+#include "AudioDataLib/Error.h"
 
 using namespace AudioDataLib;
 

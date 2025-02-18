@@ -1,6 +1,6 @@
 #pragma once
 
-#include "MidiMsgDestination.h"
+#include "AudioDataLib/MIDI/MidiMsgDestination.h"
 #include "RtMidi.h"
 
 class MidiPortDestination : public AudioDataLib::MidiMsgDestination

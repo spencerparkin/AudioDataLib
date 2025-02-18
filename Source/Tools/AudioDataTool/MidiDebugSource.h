@@ -1,7 +1,7 @@
 #pragma once
 
-#include "MidiMsgSource.h"
-#include "Error.h"
+#include "AudioDataLib/MIDI/MidiMsgSource.h"
+#include "AudioDataLib/Error.h"
 #include "Keyboard.h"
 
 class MidiDebugSource : public AudioDataLib::MidiMsgSource

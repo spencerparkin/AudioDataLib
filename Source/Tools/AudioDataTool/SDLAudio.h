@@ -1,10 +1,10 @@
 #pragma once
 
-#include "AudioData.h"
-#include "Error.h"
+#include "AudioDataLib/FileDatas/AudioData.h"
+#include "AudioDataLib/Error.h"
 #include "SDL.h"
 #undef main
-#include "ByteStream.h"
+#include "AudioDataLib/ByteStream.h"
 
 class SDLAudio
 {

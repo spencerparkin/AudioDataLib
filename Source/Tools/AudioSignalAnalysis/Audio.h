@@ -1,8 +1,8 @@
 #pragma once
 
-#include "AudioData.h"
-#include "WaveForm.h"
-#include "FrequencyGraph.h"
+#include "AudioDataLib/FileDatas/AudioData.h"
+#include "AudioDataLib/WaveForm.h"
+#include "AudioDataLib/FrequencyGraph.h"
 #include "Math2D.h"
 #include "Color.h"
 #include <wx/string.h>

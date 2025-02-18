@@ -1,11 +1,11 @@
 #include "Frame.h"
 #include "Canvas.h"
-#include "FileFormat.h"
-#include "ByteStream.h"
-#include "Error.h"
+#include "AudioDataLib/FileFormats/FileFormat.h"
+#include "AudioDataLib/ByteStream.h"
+#include "AudioDataLib/Error.h"
 #include "App.h"
 #include "Audio.h"
-#include "WaveTableData.h"
+#include "AudioDataLib/FileDatas/WaveTableData.h"
 #include "AudioListControl.h"
 #include <wx/aboutdlg.h>
 #include <wx/sizer.h>

@@ -1,12 +1,12 @@
 #pragma once
 
-#include "MidiFileFormat.h"
-#include "WaveFileFormat.h"
+#include "AudioDataLib/FileFormats/MidiFileFormat.h"
+#include "AudioDataLib/FileFormats/WaveFileFormat.h"
 #include "SDLAudio.h"
-#include "Error.h"
-#include "Timer.h"
+#include "AudioDataLib/Error.h"
+#include "AudioDataLib/Timer.h"
 #include "CmdLineParser.h"
-#include "MidiMsgLogDestination.h"
+#include "AudioDataLib/MIDI/MidiMsgLogDestination.h"
 
 bool PlayMidiData(AudioDataLib::MidiData* midiData, bool logMidiMessages, AudioDataLib::Error& error);
 bool PlayAudioData(AudioDataLib::AudioData* audioData, CmdLineParser& parser, AudioDataLib::Error& error);

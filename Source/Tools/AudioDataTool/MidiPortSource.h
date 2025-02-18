@@ -1,8 +1,8 @@
 #pragma once
 
-#include "MidiMsgSource.h"
+#include "AudioDataLib/MIDI/MidiMsgSource.h"
 #include "RtMidi.h"
-#include "Error.h"
+#include "AudioDataLib/Error.h"
 #include "Keyboard.h"
 
 class MidiPortSource : public AudioDataLib::MidiMsgSource
