@@ -16,11 +16,7 @@ SampleBasedSynth::SampleBasedSynth()
 {
 	this->reverbEnabled = false;
 	this->estimateFrequencies = false;
-	this->waveTableData = new std::shared_ptr<WaveTableData>();
-	this->channelMap = new ChannelMap();
-	this->noteMap = new NoteMap();
-	this->leftEarRootModule = new std::shared_ptr<SynthModule>();
-	this->rightEarRootModule = new std::shared_ptr<SynthModule>();
+	this->waveTableData = nullptr;
 
 	this->SetReverbEnabled(false);
 }
@@ -28,20 +24,29 @@ SampleBasedSynth::SampleBasedSynth()
 /*virtual*/ SampleBasedSynth::~SampleBasedSynth()
 {
 	this->Clear();
+}
 
-	delete this->waveTableData;
-	delete this->channelMap;
-	delete this->noteMap;
-	delete this->leftEarRootModule;
-	delete this->rightEarRootModule;
+bool SampleBasedSynth::SetWaveTableData(std::shared_ptr<FileData> fileData)
+{
+	this->waveTableData = dynamic_cast<WaveTableData*>(fileData.get());
+	if (!this->waveTableData)
+		return false;
+
+	this->waveTableFileData = fileData;
+	return true;
+}
+
+WaveTableData* SampleBasedSynth::GetWaveTableData()
+{
+	return this->waveTableData;
 }
 
 /*virtual*/ bool SampleBasedSynth::Process()
 {
-	MixerModule* leftMixerModule = (*this->leftEarRootModule)->FindModule<MixerModule>();
+	MixerModule* leftMixerModule = this->leftEarRootModule->FindModule<MixerModule>();
 	leftMixerModule->PruneDeadBranches();
 
-	MixerModule* rightMixerModule = (*this->rightEarRootModule)->FindModule<MixerModule>();
+	MixerModule* rightMixerModule = this->rightEarRootModule->FindModule<MixerModule>();
 	rightMixerModule->PruneDeadBranches();
 
 	return MidiSynth::Process();
@@ -49,7 +54,7 @@ SampleBasedSynth::SampleBasedSynth()
 
 /*virtual*/ bool SampleBasedSynth::ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize)
 {
-	if (!this->waveTableData->get())
+	if (!this->waveTableData)
 	{
 		ErrorSystem::Get()->Add("No wave-table set!");
 		return false;
@@ -84,8 +89,8 @@ SampleBasedSynth::SampleBasedSynth()
 			uint8_t pitchValue = channelEvent.param1;
 			uint8_t velocityValue = channelEvent.param2;
 
-			NoteMap::iterator iter = this->noteMap->find(pitchValue);
-			if (iter != this->noteMap->end())
+			NoteMap::iterator iter = this->noteMap.find(pitchValue);
+			if (iter != this->noteMap.end())
 			{
 				// TODO: For a single pitch value, is it possible to get a NOTE_ON message twice without a NOTE_OFF message inbetween?
 				//       If so, then rather than treat this as an error, we should just cancel the existing note?
@@ -96,7 +101,7 @@ SampleBasedSynth::SampleBasedSynth()
 			double noteFrequency = this->MidiPitchToFrequency(pitchValue);
 			double noteVolume = this->MidiVelocityToAmplitude(velocityValue);
 
-			const WaveTableData::AudioSampleData* audioSampleData = (*this->waveTableData)->FindAudioSample(instrument, pitchValue, velocityValue);
+			const WaveTableData::AudioSampleData* audioSampleData = this->waveTableData->FindAudioSample(instrument, pitchValue, velocityValue);
 			if (!audioSampleData)
 			{
 				ErrorSystem::Get()->Add(std::format("Failed to find audio sample for pitch {} ({}) and volume {} ({}).", pitchValue, noteFrequency, velocityValue, noteVolume));
@@ -112,12 +117,12 @@ SampleBasedSynth::SampleBasedSynth()
 				if (!this->GenerateModuleGraph(audioSampleData, noteFrequency, note.rightEarModule))
 					return false;
 
-			this->noteMap->insert(std::pair<uint8_t, Note>(pitchValue, note));
+			this->noteMap.insert(std::pair<uint8_t, Note>(pitchValue, note));
 
-			MixerModule* leftMixerModule = (*this->leftEarRootModule)->FindModule<MixerModule>();
+			MixerModule* leftMixerModule = this->leftEarRootModule->FindModule<MixerModule>();
 			leftMixerModule->AddDependentModule(note.leftEarModule);
 
-			MixerModule* rightMixerModule = (*this->rightEarRootModule)->FindModule<MixerModule>();
+			MixerModule* rightMixerModule = this->rightEarRootModule->FindModule<MixerModule>();
 			if(!this->reverbEnabled)
 				rightMixerModule->AddDependentModule(note.rightEarModule);
 			else
@@ -135,8 +140,8 @@ SampleBasedSynth::SampleBasedSynth()
 		{
 			uint8_t pitchValue = channelEvent.param1;
 
-			NoteMap::iterator iter = this->noteMap->find(pitchValue);
-			if (iter != this->noteMap->end())
+			NoteMap::iterator iter = this->noteMap.find(pitchValue);
+			if (iter != this->noteMap.end())
 			{
 				const Note& note = iter->second;
 
@@ -162,7 +167,7 @@ SampleBasedSynth::SampleBasedSynth()
 					}
 				}
 
-				this->noteMap->erase(iter);
+				this->noteMap.erase(iter);
 			}
 
 			break;
@@ -197,9 +202,9 @@ bool SampleBasedSynth::GenerateModuleGraph(const WaveTableData::AudioSampleData*
 	switch (channel)
 	{
 	case 0:
-		return this->leftEarRootModule->get();
+		return this->leftEarRootModule.get();
 	case 1:
-		return this->rightEarRootModule->get();
+		return this->rightEarRootModule.get();
 	default:
 		return nullptr;
 	}
@@ -209,8 +214,8 @@ void SampleBasedSynth::SetReverbEnabled(bool reverbEnabled)
 {
 	this->reverbEnabled = reverbEnabled;
 
-	this->leftEarRootModule->reset();
-	this->rightEarRootModule->reset();
+	this->leftEarRootModule.reset();
+	this->rightEarRootModule.reset();
 
 	if (this->reverbEnabled)
 	{
@@ -220,8 +225,8 @@ void SampleBasedSynth::SetReverbEnabled(bool reverbEnabled)
 		leftDelayModule->SetDelay(0.0);
 		rightDelayModule->SetDelay(12.0 / 1000.0);
 
-		this->leftEarRootModule->reset(leftDelayModule);
-		this->rightEarRootModule->reset(rightDelayModule);
+		this->leftEarRootModule.reset(leftDelayModule);
+		this->rightEarRootModule.reset(rightDelayModule);
 
 		auto mixerModule = new MixerModule();
 
@@ -236,22 +241,22 @@ void SampleBasedSynth::SetReverbEnabled(bool reverbEnabled)
 	}
 	else
 	{
-		this->leftEarRootModule->reset(new MixerModule());
-		this->rightEarRootModule->reset(new MixerModule());
+		this->leftEarRootModule.reset(new MixerModule());
+		this->rightEarRootModule.reset(new MixerModule());
 	}
 }
 
 /*virtual*/ bool SampleBasedSynth::Initialize()
 {
-	if (!this->waveTableData->get())
+	if (!this->waveTableData)
 	{
 		ErrorSystem::Get()->Add("No wave-table set!");
 		return false;
 	}
 
-	for (uint32_t i = 0; i < (*this->waveTableData)->GetNumAudioSamples(); i++)
+	for (uint32_t i = 0; i < this->waveTableData->GetNumAudioSamples(); i++)
 	{
-		auto audioSampleData = dynamic_cast<const WaveTableData::AudioSampleData*>((*this->waveTableData)->GetAudioSample(i));
+		auto audioSampleData = dynamic_cast<const WaveTableData::AudioSampleData*>(this->waveTableData->GetAudioSample(i));
 		if (!audioSampleData)
 			continue;
 
@@ -294,11 +299,11 @@ bool SampleBasedSynth::SetChannelInstrument(uint8_t channel, uint8_t instrument)
 		return false;
 	}
 
-	ChannelMap::iterator iter = this->channelMap->find(channel);
-	if (iter != this->channelMap->end())
-		this->channelMap->erase(iter);
+	ChannelMap::iterator iter = this->channelMap.find(channel);
+	if (iter != this->channelMap.end())
+		this->channelMap.erase(iter);
 
-	this->channelMap->insert(std::pair<uint8_t, uint8_t>(channel, instrument));
+	this->channelMap.insert(std::pair<uint8_t, uint8_t>(channel, instrument));
 	return true;
 }
 
@@ -306,8 +311,8 @@ bool SampleBasedSynth::GetChannelInstrument(uint8_t channel, uint8_t& instrument
 {
 	instrument = 0;
 
-	ChannelMap::iterator iter = this->channelMap->find(channel);
-	if (iter == this->channelMap->end())
+	auto iter = this->channelMap.find(channel);
+	if (iter == this->channelMap.end())
 		return false;
 
 	instrument = iter->second;
@@ -316,7 +321,7 @@ bool SampleBasedSynth::GetChannelInstrument(uint8_t channel, uint8_t& instrument
 
 void SampleBasedSynth::Clear()
 {
-	this->waveTableData->reset();
-	this->channelMap->clear();
-	this->noteMap->clear();
+	this->channelMap.clear();
+	this->noteMap.clear();
+	this->waveTableFileData.reset();
 }

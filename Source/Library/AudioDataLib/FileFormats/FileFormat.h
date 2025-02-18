@@ -25,7 +25,7 @@ namespace AudioDataLib
 		 * @param[out] fileData On success, this pointer is assigned a heap allocation the user is reponsible for freeing.
 		 * @return True is returned on success; false otherwise.
 		 */
-		virtual bool ReadFromStream(ByteStream& inputStream, FileData*& fileData) = 0;
+		virtual bool ReadFromStream(ByteStream& inputStream, std::shared_ptr<FileData>& fileData) = 0;
 
 		/**
 		 * The given file data is written to the given stream.

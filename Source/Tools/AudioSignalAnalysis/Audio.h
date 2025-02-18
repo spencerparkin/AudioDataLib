@@ -44,13 +44,14 @@ public:
 	virtual Box2D CalcBoundingBox() const override;
 	virtual wxString GetColumnInfo(long column) const override;
 
-	void SetAudioData(std::shared_ptr<AudioDataLib::AudioData>& audioData);
+	bool SetAudioData(std::shared_ptr<AudioDataLib::FileData> fileData);
 
 	void SetWaveForm(std::shared_ptr<AudioDataLib::WaveForm>& waveForm);
 	const AudioDataLib::WaveForm* GetWaveForm() const;
 
 private:
-	std::shared_ptr<AudioDataLib::AudioData> audioData;
+	std::shared_ptr<AudioDataLib::FileData> audioFileData;
+	AudioDataLib::AudioData* audioData;
 	mutable std::shared_ptr<AudioDataLib::WaveForm> waveForm;
 };
 

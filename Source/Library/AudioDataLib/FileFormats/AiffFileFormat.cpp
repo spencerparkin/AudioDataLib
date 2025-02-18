@@ -17,7 +17,7 @@ AiffFileFormat::AiffFileFormat()
 {
 }
 
-/*virtual*/ bool AiffFileFormat::ReadFromStream(ByteStream& inputStream, FileData*& fileData)
+/*virtual*/ bool AiffFileFormat::ReadFromStream(ByteStream& inputStream, std::shared_ptr<FileData>& fileData)
 {
 	// https://paulbourke.net/dataformats/audio/
 
@@ -188,18 +188,18 @@ AiffFileFormat::AiffFileFormat()
 		}
 	}
 
-	AudioData* audioData = nullptr;
+	std::unique_ptr<AudioData> audioData;
 
 	const ChunkParser::Chunk* instrumentChunk = parser.FindChunk("INST", "", false);
 	if (!instrumentChunk)
-		audioData = new AudioData();
+		audioData.reset(new AudioData());
 	else
 	{
 		WaveTableData::AudioSampleData* audioSampleData = new WaveTableData::AudioSampleData();
 		
 		// TODO: Fill-out looping information here.
 
-		audioData = audioSampleData;
+		audioData.reset(audioSampleData);
 	}
 
 	AudioData::Format format;
@@ -210,12 +210,9 @@ AiffFileFormat::AiffFileFormat()
 	audioData->SetFormat(format);
 
 	if(!codec->Decode(soundStream, *audioData))
-	{
-		delete audioData;
 		return false;
-	}
 
-	fileData = audioData;
+	fileData.reset(audioData.release());
 	return true;
 }
 

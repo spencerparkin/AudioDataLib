@@ -125,7 +125,7 @@ int main(int argc, char** argv)
 			return -1;
 		}
 
-		FileData* fileData = nullptr;
+		std::shared_ptr<FileData> fileData;
 		if (!fileFormat->ReadFromStream(inputStream, fileData))
 		{
 			fprintf(stderr, ("Error: " + ErrorSystem::Get()->GetErrorMessage()).c_str());
@@ -134,23 +134,22 @@ int main(int argc, char** argv)
 
 		int retCode = 0;
 
-		std::shared_ptr<MidiData> midiData(dynamic_cast<MidiData*>(fileData));
-		std::shared_ptr<AudioData> audioData(dynamic_cast<AudioData*>(fileData));
+		MidiData* midiData(dynamic_cast<MidiData*>(fileData.get()));
+		AudioData* audioData(dynamic_cast<AudioData*>(fileData.get()));
 
-		if (midiData.get())
+		if (midiData)
 		{
-			if (!PlayMidiData(midiData.get(), parser.ArgGiven("log_midi")))
+			if (!PlayMidiData(midiData, parser.ArgGiven("log_midi")))
 				retCode = -1;
 		}
-		else if (audioData.get())
+		else if (audioData)
 		{
-			if (!PlayAudioData(audioData.get(), parser))
+			if (!PlayAudioData(audioData, parser))
 				retCode = -1;
 		}
 		else
 		{
 			ErrorSystem::Get()->Add("Failed to cast file data!");
-			delete fileData;
 			retCode = -1;
 		}
 
@@ -207,18 +206,17 @@ bool AddReverb(const std::string& inFilePath, const std::string& outFilePath)
 		return false;
 	}
 
-	FileData* fileData = nullptr;
+	std::shared_ptr<FileData> fileData;
 	if (!fileFormat->ReadFromStream(inputStream, fileData))
 	{
 		ErrorSystem::Get()->Add("Failed to read file: " + inFilePath);
 		return false;
 	}
 
-	std::shared_ptr<AudioData> audioData(dynamic_cast<AudioData*>(fileData));
-	if (!audioData.get())
+	AudioData* audioData(dynamic_cast<AudioData*>(fileData.get()));
+	if (!audioData)
 	{
 		ErrorSystem::Get()->Add("Expected to get audio data from file (" + inFilePath + "), but didn't");
-		delete fileData;
 		return false;
 	}
 
@@ -237,7 +235,7 @@ bool AddReverb(const std::string& inFilePath, const std::string& outFilePath)
 		reverbModule->SetEnabled(true);
 		reverbModule->AddDependentModule(std::shared_ptr<SynthModule>(loopedAudioModule));
 		synthModuleArray.push_back(std::shared_ptr<SynthModule>(reverbModule));
-		if (!loopedAudioModule->UseNonLoopedAudioData(audioData.get(), i))
+		if (!loopedAudioModule->UseNonLoopedAudioData(audioData, i))
 			return false;
 	}
 
@@ -402,22 +400,18 @@ bool PlayWithKeyboard(CmdLineParser& parser)
 					break;
 				}
 
-				FileData* fileData = nullptr;
+				std::shared_ptr<FileData> fileData;
 				if (!fileFormat->ReadFromStream(inputStream, fileData))
 				{
 					ErrorSystem::Get()->Add("Failed to read file: " + waveTableFile);
 					break;
 				}
 
-				std::shared_ptr<WaveTableData> waveTableData(dynamic_cast<WaveTableData*>(fileData));
-				if (!waveTableData)
+				if (!sampleBasedSynth->SetWaveTableData(fileData))
 				{
-					ErrorSystem::Get()->Add("Expected wave-table data; got something else!");
-					delete fileData;
+					ErrorSystem::Get()->Add("Failed to set wave-table data from file: " + waveTableFile);
 					break;
 				}
-
-				sampleBasedSynth->SetWaveTableData(waveTableData);
 
 				// TODO: May want to expose this mapping to the command-line, but do this for now.
 				for(uint8_t i = 1; i <= 16; i++)
@@ -741,7 +735,7 @@ bool PlayAudioData(AudioDataLib::AudioData* audioData, CmdLineParser& parser)
 bool MixAudio(const std::vector<std::string>& sourceFileArray, const std::string& destinationFile)
 {
 	std::vector<std::shared_ptr<FileFormat>> fileFormatArray;
-	std::vector<std::shared_ptr<AudioData>> audioDataArray;
+	std::vector<std::shared_ptr<FileData>> audioDataArray;
 
 	for (const std::string& sourceFile : sourceFileArray)
 	{
@@ -773,22 +767,21 @@ bool MixAudio(const std::vector<std::string>& sourceFileArray, const std::string
 			return false;
 		}
 
-		FileData* fileData = nullptr;
+		std::shared_ptr<FileData> fileData;
 		if (!fileFormat->ReadFromStream(inputStream, fileData))
 		{
 			ErrorSystem::Get()->Add("Failed to read file: " + sourceFile);
 			return false;
 		}
 
-		std::shared_ptr<AudioData> audioData(dynamic_cast<AudioData*>(fileData));
-		if (!audioData.get())
+		auto audioData = dynamic_cast<AudioData*>(fileData.get());
+		if (!audioData)
 		{
 			ErrorSystem::Get()->Add(std::format("File data for file {} is not audio data.", sourceFile.c_str()));
-			delete fileData;
 			return false;
 		}
 
-		audioDataArray.push_back(audioData);
+		audioDataArray.push_back(fileData);
 	}
 
 	if (audioDataArray.size() != sourceFileArray.size())
@@ -803,13 +796,15 @@ bool MixAudio(const std::vector<std::string>& sourceFileArray, const std::string
 	format.bitsPerSample = 0;
 
 	double maxTimeSeconds = 0.0;
-	for (std::shared_ptr<AudioData>& audioData : audioDataArray)
+	for (std::shared_ptr<FileData>& fileData : audioDataArray)
 	{
+		auto audioData = (AudioData*)fileData.get();
+
 		double timeSeconds = audioData->GetTimeSeconds();
 		if (maxTimeSeconds < timeSeconds)
 			maxTimeSeconds = timeSeconds;
 
-		std::shared_ptr<AudioStream> audioStreamIn(new AudioStream(audioData.get()));
+		std::shared_ptr<AudioStream> audioStreamIn(new AudioStream(audioData));
 		audioSink.AddAudioInput(audioStreamIn);
 
 		if (format.bitsPerSample == 0)
@@ -867,7 +862,7 @@ bool DumpInfo(const std::string& filePath, bool csv)
 		return false;
 	}
 
-	FileData* fileData = nullptr;
+	std::shared_ptr<FileData> fileData;
 	if (!fileFormat->ReadFromStream(inputStream, fileData))
 	{
 		ErrorSystem::Get()->Add("Failed to read file: " + filePath);
@@ -878,8 +873,6 @@ bool DumpInfo(const std::string& filePath, bool csv)
 		fileData->DumpCSV(stdout);
 	else
 		fileData->DumpInfo(stdout);
-
-	delete fileData;
 
 	return true;
 }
@@ -902,15 +895,15 @@ bool Unpack(const std::string& filePath)
 		return false;
 	}
 
-	FileData* fileData = nullptr;
+	std::shared_ptr<FileData> fileData;
 	if (!fileFormat->ReadFromStream(inputStream, fileData))
 	{
 		ErrorSystem::Get()->Add("Failed to read file: " + filePath);
 		return false;
 	}
 
-	std::shared_ptr<WaveTableData> waveTableData(dynamic_cast<WaveTableData*>(fileData));
-	if (!waveTableData.get())
+	auto waveTableData = dynamic_cast<WaveTableData*>(fileData.get());
+	if (!waveTableData)
 	{
 		ErrorSystem::Get()->Add("Didn't get sound font data!");
 		return false;

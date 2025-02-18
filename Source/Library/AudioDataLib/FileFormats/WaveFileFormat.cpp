@@ -13,20 +13,17 @@ WaveFileFormat::WaveFileFormat()
 {
 }
 
-/*virtual*/ bool WaveFileFormat::ReadFromStream(ByteStream& inputStream, FileData*& fileData)
+/*virtual*/ bool WaveFileFormat::ReadFromStream(ByteStream& inputStream, std::shared_ptr<FileData>& fileData)
 {
 	WaveChunkParser parser;
 	if (!parser.ParseStream(inputStream))
 		return false;
 
-	auto audioData = new AudioData();
-	if (!this->LoadWaveData(audioData, parser.GetRootChunk()))
-	{
-		delete audioData;
+	std::unique_ptr<AudioData> audioData(new AudioData());
+	if (!this->LoadWaveData(audioData.get(), parser.GetRootChunk()))
 		return false;
-	}
 	
-	fileData = audioData;
+	fileData.reset(audioData.release());
 	return true;
 }
 

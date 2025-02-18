@@ -36,13 +36,13 @@ is the library, then it *should* build just fine as it only depends on the C++ s
 
 ## Usage
 
-You can do a lot of things with the library, but here's a quick example of just loading WAV file and then printing some info about it.
+You can do a lot of things with the library, but here's a quick example of just loading a WAV file and then printing some info about it.
 
 ```C++
-#include <WaveFileFormat.h>
-#include <AudioData.h>
-#include <ByteStream.h>
-#include <Error.h>
+#include <AudioDataLib/FileFormats/WaveFileFormat.h>
+#include <AudioDataLib/FileDatas/AudioData.h>
+#include <AudioDataLib/ByteStream.h>
+#include <AudioDataLib/ErrorSystem.h>
 #include <stdio.h>
 
 using namespace AudioDataLib;
@@ -50,20 +50,18 @@ using namespace AudioDataLib;
 int main(int argc, char** argv)
 {
     const char* filePath = "path/to/my_file.wav";
-    FileData* fileData = nullptr;
+    std::shared_ptr<FileData> fileData;
     FileInputStream inputStream(filePath);
     WaveFileFormat fileFormat;
-    Error error;
 
-    if(fileFormat.ReadFromStream(inputStream, fileData, error))
+    if(fileFormat.ReadFromStream(inputStream, fileData))
         fileData->DumpInfo(stdout);
     else
     {
         fprintf(stderr, "Failed read file: %s\n", filePath);
-        fprintf(stderr, "Error: %s\n", error.GetErrorMessage());
+        fprintf(stderr, "Error: %s\n", ErrorSystem::Get()->GetErrorMessage().c_str());
     }
 
-    delete fileData;
     return 0;
 }
 ```

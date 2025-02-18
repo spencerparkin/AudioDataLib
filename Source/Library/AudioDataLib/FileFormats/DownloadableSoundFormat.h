@@ -21,7 +21,7 @@ namespace AudioDataLib
 		DownloadableSoundFormat();
 		virtual ~DownloadableSoundFormat();
 
-		virtual bool ReadFromStream(ByteStream& inputStream, FileData*& fileData) override;
+		virtual bool ReadFromStream(ByteStream& inputStream, std::shared_ptr<FileData>& fileData) override;
 		virtual bool WriteToStream(ByteStream& outputStream, const FileData* fileData) override;
 
 	private:

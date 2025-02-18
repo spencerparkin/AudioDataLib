@@ -158,22 +158,22 @@ void Frame::OnImportAudio(wxCommandEvent& event)
 		FileInputStream inputStream(audioFile.c_str());
 		if (inputStream.IsOpen())
 		{
-			FileData* fileData = nullptr;
+			std::shared_ptr<FileData> fileData;
 			if (!fileFormat->ReadFromStream(inputStream, fileData))
 				wxMessageBox(ErrorSystem::Get()->GetErrorMessage(), "Error!", wxICON_ERROR | wxOK, this);
 			else
 			{
-				std::shared_ptr<AudioData> audioData(dynamic_cast<AudioData*>(fileData));
-				std::shared_ptr<WaveTableData> waveTableData(dynamic_cast<WaveTableData*>(fileData));
+				auto audioData = dynamic_cast<AudioData*>(fileData.get());
+				auto waveTableData = dynamic_cast<WaveTableData*>(fileData.get());
 
-				if (audioData.get())
+				if (audioData)
 				{
 					std::shared_ptr<WaveFormAudio> audio(new WaveFormAudio());
-					audio->SetAudioData(audioData);
+					audio->SetAudioData(fileData);
 					audio->SetName(wxFileName(audioFile).GetName());
 					wxGetApp().AddAudio(audio);
 				}
-				else if (waveTableData.get())
+				else if (waveTableData)
 				{
 					for (uint32_t i = 0; i < waveTableData->GetNumAudioSamples(); i++)
 					{

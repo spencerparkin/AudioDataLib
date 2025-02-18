@@ -25,8 +25,8 @@ namespace AudioDataLib
 		bool SetChannelInstrument(uint8_t channel, uint8_t instrument);
 		bool GetChannelInstrument(uint8_t channel, uint8_t& instrument) const;
 
-		void SetWaveTableData(std::shared_ptr<WaveTableData>& waveTableData) { *this->waveTableData = waveTableData; }
-		std::shared_ptr<WaveTableData> GetWaveTableData() { return *this->waveTableData; }
+		bool SetWaveTableData(std::shared_ptr<FileData> fileData);
+		WaveTableData* GetWaveTableData();
 
 		void Clear();
 		void SetReverbEnabled(bool reverbEnabled);
@@ -38,9 +38,10 @@ namespace AudioDataLib
 
 		// This maps channel to instrument number.
 		typedef std::map<uint8_t, uint8_t> ChannelMap;
-		ChannelMap* channelMap;
+		ChannelMap channelMap;
 
-		std::shared_ptr<WaveTableData>* waveTableData;
+		std::shared_ptr<FileData> waveTableFileData;
+		WaveTableData* waveTableData;
 
 		struct Note
 		{
@@ -49,13 +50,13 @@ namespace AudioDataLib
 		};
 
 		typedef std::map<uint8_t, Note> NoteMap;
-		NoteMap* noteMap;
+		NoteMap noteMap;
 
 		bool GenerateModuleGraph(
 				const WaveTableData::AudioSampleData* audioSample,
 				double noteFrequency, std::shared_ptr<SynthModule>& synthModule);
 
-		std::shared_ptr<SynthModule>* leftEarRootModule;
-		std::shared_ptr<SynthModule>* rightEarRootModule;
+		std::shared_ptr<SynthModule> leftEarRootModule;
+		std::shared_ptr<SynthModule> rightEarRootModule;
 	};
 }

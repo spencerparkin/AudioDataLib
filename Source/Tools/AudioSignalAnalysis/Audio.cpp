@@ -37,6 +37,7 @@ Audio::Audio()
 
 WaveFormAudio::WaveFormAudio()
 {
+	this->audioData = nullptr;
 }
 
 /*virtual*/ WaveFormAudio::~WaveFormAudio()
@@ -112,9 +113,14 @@ WaveFormAudio::WaveFormAudio()
 	return "?";
 }
 
-void WaveFormAudio::SetAudioData(std::shared_ptr<AudioDataLib::AudioData>& audioData)
+bool WaveFormAudio::SetAudioData(std::shared_ptr<AudioDataLib::FileData> fileData)
 {
-	this->audioData = audioData;
+	this->audioData = dynamic_cast<AudioDataLib::AudioData*>(fileData.get());
+	if (!this->audioData)
+		return false;
+
+	this->audioFileData = fileData;
+	return true;
 }
 
 void WaveFormAudio::SetWaveForm(std::shared_ptr<AudioDataLib::WaveForm>& waveForm)

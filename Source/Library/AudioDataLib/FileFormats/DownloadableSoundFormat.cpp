@@ -15,7 +15,7 @@ DownloadableSoundFormat::DownloadableSoundFormat()
 {
 }
 
-/*virtual*/ bool DownloadableSoundFormat::ReadFromStream(ByteStream& inputStream, FileData*& fileData)
+/*virtual*/ bool DownloadableSoundFormat::ReadFromStream(ByteStream& inputStream, std::shared_ptr<FileData>& fileData)
 {
 	fileData = nullptr;
 
@@ -73,16 +73,13 @@ DownloadableSoundFormat::DownloadableSoundFormat()
 		return false;
 	}
 
-	WaveTableData* waveTableData = new WaveTableData();
+	std::shared_ptr<WaveTableData> waveTableData(new WaveTableData());
 
 	for (uint32_t i = 0; i < numInstruments; i++)
 	{
 		const ChunkParser::Chunk* instrumentChunk = instrumentListChunk->GetSubChunkArray()[i];
-		if (!this->LoadInstrument(instrumentChunk, wavePoolChunk, waveTableData))
-		{
-			delete waveTableData;
+		if (!this->LoadInstrument(instrumentChunk, wavePoolChunk, waveTableData.get()))
 			break;
-		}
 	}
 
 	if (ErrorSystem::Get()->Errors())
