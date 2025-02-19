@@ -25,8 +25,9 @@ namespace AudioDataLib
 		bool SetChannelInstrument(uint8_t channel, uint8_t instrument);
 		bool GetChannelInstrument(uint8_t channel, uint8_t& instrument) const;
 
-		bool SetWaveTableData(std::shared_ptr<FileData> fileData);
-		WaveTableData* GetWaveTableData();
+		bool SetWaveTableData(std::unique_ptr<FileData>& fileData);
+		void SetWaveTableData(std::shared_ptr<WaveTableData> waveTableData);
+		std::shared_ptr<WaveTableData> GetWaveTableData();
 
 		void Clear();
 		void SetReverbEnabled(bool reverbEnabled);
@@ -40,8 +41,7 @@ namespace AudioDataLib
 		typedef std::map<uint8_t, uint8_t> ChannelMap;
 		ChannelMap channelMap;
 
-		std::shared_ptr<FileData> waveTableFileData;
-		WaveTableData* waveTableData;
+		std::shared_ptr<WaveTableData> waveTableData;
 
 		struct Note
 		{

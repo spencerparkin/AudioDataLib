@@ -125,7 +125,7 @@ int main(int argc, char** argv)
 			return -1;
 		}
 
-		std::shared_ptr<FileData> fileData;
+		std::unique_ptr<FileData> fileData;
 		if (!fileFormat->ReadFromStream(inputStream, fileData))
 		{
 			fprintf(stderr, ("Error: " + ErrorSystem::Get()->GetErrorMessage()).c_str());
@@ -206,7 +206,7 @@ bool AddReverb(const std::string& inFilePath, const std::string& outFilePath)
 		return false;
 	}
 
-	std::shared_ptr<FileData> fileData;
+	std::unique_ptr<FileData> fileData;
 	if (!fileFormat->ReadFromStream(inputStream, fileData))
 	{
 		ErrorSystem::Get()->Add("Failed to read file: " + inFilePath);
@@ -400,13 +400,14 @@ bool PlayWithKeyboard(CmdLineParser& parser)
 					break;
 				}
 
-				std::shared_ptr<FileData> fileData;
+				std::unique_ptr<FileData> fileData;
 				if (!fileFormat->ReadFromStream(inputStream, fileData))
 				{
 					ErrorSystem::Get()->Add("Failed to read file: " + waveTableFile);
 					break;
 				}
 
+				
 				if (!sampleBasedSynth->SetWaveTableData(fileData))
 				{
 					ErrorSystem::Get()->Add("Failed to set wave-table data from file: " + waveTableFile);
@@ -735,7 +736,7 @@ bool PlayAudioData(AudioDataLib::AudioData* audioData, CmdLineParser& parser)
 bool MixAudio(const std::vector<std::string>& sourceFileArray, const std::string& destinationFile)
 {
 	std::vector<std::shared_ptr<FileFormat>> fileFormatArray;
-	std::vector<std::shared_ptr<FileData>> audioDataArray;
+	std::vector<std::shared_ptr<AudioData>> audioDataArray;
 
 	for (const std::string& sourceFile : sourceFileArray)
 	{
@@ -767,21 +768,22 @@ bool MixAudio(const std::vector<std::string>& sourceFileArray, const std::string
 			return false;
 		}
 
-		std::shared_ptr<FileData> fileData;
+		std::unique_ptr<FileData> fileData;
 		if (!fileFormat->ReadFromStream(inputStream, fileData))
 		{
 			ErrorSystem::Get()->Add("Failed to read file: " + sourceFile);
 			return false;
 		}
 
-		auto audioData = dynamic_cast<AudioData*>(fileData.get());
-		if (!audioData)
+		std::shared_ptr<AudioData> audioData(dynamic_cast<AudioData*>(fileData.get()));
+		if (!audioData.get())
 		{
 			ErrorSystem::Get()->Add(std::format("File data for file {} is not audio data.", sourceFile.c_str()));
 			return false;
 		}
 
-		audioDataArray.push_back(fileData);
+		fileData.release();
+		audioDataArray.push_back(audioData);
 	}
 
 	if (audioDataArray.size() != sourceFileArray.size())
@@ -796,15 +798,13 @@ bool MixAudio(const std::vector<std::string>& sourceFileArray, const std::string
 	format.bitsPerSample = 0;
 
 	double maxTimeSeconds = 0.0;
-	for (std::shared_ptr<FileData>& fileData : audioDataArray)
+	for (std::shared_ptr<AudioData>& audioData : audioDataArray)
 	{
-		auto audioData = (AudioData*)fileData.get();
-
 		double timeSeconds = audioData->GetTimeSeconds();
 		if (maxTimeSeconds < timeSeconds)
 			maxTimeSeconds = timeSeconds;
 
-		std::shared_ptr<AudioStream> audioStreamIn(new AudioStream(audioData));
+		std::shared_ptr<AudioStream> audioStreamIn(new AudioStream(audioData.get()));
 		audioSink.AddAudioInput(audioStreamIn);
 
 		if (format.bitsPerSample == 0)
@@ -862,7 +862,7 @@ bool DumpInfo(const std::string& filePath, bool csv)
 		return false;
 	}
 
-	std::shared_ptr<FileData> fileData;
+	std::unique_ptr<FileData> fileData;
 	if (!fileFormat->ReadFromStream(inputStream, fileData))
 	{
 		ErrorSystem::Get()->Add("Failed to read file: " + filePath);
@@ -895,7 +895,7 @@ bool Unpack(const std::string& filePath)
 		return false;
 	}
 
-	std::shared_ptr<FileData> fileData;
+	std::unique_ptr<FileData> fileData;
 	if (!fileFormat->ReadFromStream(inputStream, fileData))
 	{
 		ErrorSystem::Get()->Add("Failed to read file: " + filePath);

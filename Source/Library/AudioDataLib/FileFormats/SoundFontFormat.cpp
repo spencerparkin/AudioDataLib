@@ -13,7 +13,7 @@ SoundFontFormat::SoundFontFormat()
 	delete this->sampleMap;
 }
 
-/*virtual*/ bool SoundFontFormat::ReadFromStream(ByteStream& inputStream, std::shared_ptr<FileData>& fileData)
+/*virtual*/ bool SoundFontFormat::ReadFromStream(ByteStream& inputStream, std::unique_ptr<FileData>& fileData)
 {
 	SoundFontChunkParser parser;
 	if (!parser.ParseStream(inputStream))

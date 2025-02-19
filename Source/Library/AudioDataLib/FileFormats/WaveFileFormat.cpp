@@ -13,7 +13,7 @@ WaveFileFormat::WaveFileFormat()
 {
 }
 
-/*virtual*/ bool WaveFileFormat::ReadFromStream(ByteStream& inputStream, std::shared_ptr<FileData>& fileData)
+/*virtual*/ bool WaveFileFormat::ReadFromStream(ByteStream& inputStream, std::unique_ptr<FileData>& fileData)
 {
 	WaveChunkParser parser;
 	if (!parser.ParseStream(inputStream))

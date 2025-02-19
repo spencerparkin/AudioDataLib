@@ -17,7 +17,7 @@ AiffFileFormat::AiffFileFormat()
 {
 }
 
-/*virtual*/ bool AiffFileFormat::ReadFromStream(ByteStream& inputStream, std::shared_ptr<FileData>& fileData)
+/*virtual*/ bool AiffFileFormat::ReadFromStream(ByteStream& inputStream, std::unique_ptr<FileData>& fileData)
 {
 	// https://paulbourke.net/dataformats/audio/
 

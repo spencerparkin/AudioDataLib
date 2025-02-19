@@ -15,7 +15,7 @@ DownloadableSoundFormat::DownloadableSoundFormat()
 {
 }
 
-/*virtual*/ bool DownloadableSoundFormat::ReadFromStream(ByteStream& inputStream, std::shared_ptr<FileData>& fileData)
+/*virtual*/ bool DownloadableSoundFormat::ReadFromStream(ByteStream& inputStream, std::unique_ptr<FileData>& fileData)
 {
 	fileData = nullptr;
 
@@ -73,7 +73,7 @@ DownloadableSoundFormat::DownloadableSoundFormat()
 		return false;
 	}
 
-	std::shared_ptr<WaveTableData> waveTableData(new WaveTableData());
+	std::unique_ptr<WaveTableData> waveTableData(new WaveTableData());
 
 	for (uint32_t i = 0; i < numInstruments; i++)
 	{
@@ -85,7 +85,7 @@ DownloadableSoundFormat::DownloadableSoundFormat()
 	if (ErrorSystem::Get()->Errors())
 		return false;
 
-	fileData = waveTableData;
+	fileData.reset(waveTableData.release());
 	return true;
 }
 

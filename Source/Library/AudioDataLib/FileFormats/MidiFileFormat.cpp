@@ -12,7 +12,7 @@ MidiFileFormat::MidiFileFormat()
 {
 }
 
-/*virtual*/ bool MidiFileFormat::ReadFromStream(ByteStream& inputStream, std::shared_ptr<FileData>& fileData)
+/*virtual*/ bool MidiFileFormat::ReadFromStream(ByteStream& inputStream, std::unique_ptr<FileData>& fileData)
 {
 	// See: https://github.com/colxi/midi-parser-js/wiki/MIDI-File-Format-Specifications
 	//      https://majicdesigns.github.io/MD_MIDIFile/page_timing.html

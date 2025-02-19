@@ -26,17 +26,22 @@ SampleBasedSynth::SampleBasedSynth()
 	this->Clear();
 }
 
-bool SampleBasedSynth::SetWaveTableData(std::shared_ptr<FileData> fileData)
+bool SampleBasedSynth::SetWaveTableData(std::unique_ptr<FileData>& fileData)
 {
-	this->waveTableData = dynamic_cast<WaveTableData*>(fileData.get());
-	if (!this->waveTableData)
+	this->waveTableData.reset(dynamic_cast<WaveTableData*>(fileData.get()));
+	if (!this->waveTableData.get())
 		return false;
 
-	this->waveTableFileData = fileData;
+	fileData.release();
 	return true;
 }
 
-WaveTableData* SampleBasedSynth::GetWaveTableData()
+void SampleBasedSynth::SetWaveTableData(std::shared_ptr<WaveTableData> waveTableData)
+{
+	this->waveTableData = waveTableData;
+}
+
+std::shared_ptr<WaveTableData> SampleBasedSynth::GetWaveTableData()
 {
 	return this->waveTableData;
 }
@@ -323,5 +328,5 @@ void SampleBasedSynth::Clear()
 {
 	this->channelMap.clear();
 	this->noteMap.clear();
-	this->waveTableFileData.reset();
+	this->waveTableData.reset();
 }
