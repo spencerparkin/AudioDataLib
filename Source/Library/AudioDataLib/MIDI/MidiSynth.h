@@ -53,7 +53,7 @@ namespace AudioDataLib
 		/**
 		 * Return a shared pointer to the AudioStream we're trying to continuously feed.
 		 */
-		std::shared_ptr<AudioStream> GetAudioStream() { return *this->audioStream; }
+		std::shared_ptr<AudioStream> GetAudioStream() { return this->audioStream; }
 
 		/**
 		 * Convert the given MIDI pitch key into a frequency.
@@ -94,7 +94,7 @@ namespace AudioDataLib
 
 	protected:
 
-		std::shared_ptr<AudioStream>* audioStream;
+		std::shared_ptr<AudioStream> audioStream;
 
 		double minLatencySeconds;		///< This is the minimum amount of audio (measured in seconds) that should always be buffered at any given time.
 		double maxLatencySeconds;		///< This is the maximum amount of audio (measured in seconds) that should always be buffered at any given time.

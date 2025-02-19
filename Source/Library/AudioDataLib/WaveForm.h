@@ -240,12 +240,12 @@ namespace AudioDataLib
 		/**
 		 * Get read-only access to this wave-form's sample array.
 		 */
-		const std::vector<Sample>& GetSampleArray() const { return *this->sampleArray; }
+		const std::vector<Sample>& GetSampleArray() const { return this->sampleArray; }
 
 		/**
 		 * Get read/write access to this wave-form's sample array.
 		 */
-		std::vector<Sample>& GetSampleArray() { return *this->sampleArray; }
+		std::vector<Sample>& GetSampleArray() { return this->sampleArray; }
 
 		/**
 		 * Evaluate this wave-form at the given time, between the two given samples, using the set interpolation method.
@@ -341,7 +341,7 @@ namespace AudioDataLib
 		}
 
 		// We assume the samples are all in order according to time.
-		std::vector<Sample>* sampleArray;
+		std::vector<Sample> sampleArray;
 		InterpolationMethod interpMethod;
 	};
 
@@ -368,6 +368,6 @@ namespace AudioDataLib
 		
 		uint32_t maxWaveForms;
 		double maxWaveFormSizeSeconds;
-		std::list<WaveForm*>* waveFormList;
+		std::list<WaveForm*> waveFormList;
 	};
 }

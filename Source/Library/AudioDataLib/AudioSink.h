@@ -38,13 +38,13 @@ namespace AudioDataLib
 		 */
 		void AddAudioInput(std::shared_ptr<AudioStream> audioStream);
 
-		std::shared_ptr<AudioStream> GetAudioOutput() { return *this->audioStreamOut; }
+		std::shared_ptr<AudioStream> GetAudioOutput() { return this->audioStreamOut; }
 		void SetAudioOutput(std::shared_ptr<AudioStream> audioStreamOut);
 
 		/**
 		 * Return the current number of simulatneously playing audio stream.
 		 */
-		uint32_t GetAudioInputCount() const { return (uint32_t)this->audioStreamInArray->size(); }
+		uint32_t GetAudioInputCount() const { return (uint32_t)this->audioStreamInArray.size(); }
 
 	protected:
 
@@ -56,7 +56,7 @@ namespace AudioDataLib
 			{
 				int64_t netSampleWide = 0;
 
-				for (auto& audioStreamIn : *this->audioStreamInArray)
+				for (auto& audioStreamIn : this->audioStreamInArray)
 				{
 					T sampleNarrow = 0;
 					if (audioStreamIn->ReadType<T>(&sampleNarrow))
@@ -81,7 +81,7 @@ namespace AudioDataLib
 				int64_t netSampleSignedWide = 0;
 				constexpr int64_t delta = (1 << (sizeof(T) * 8 - 1)) - 1;
 
-				for (auto& audioStreamIn : *this->audioStreamInArray)
+				for (auto& audioStreamIn : this->audioStreamInArray)
 				{
 					T sampleUnsignedNarrow = 0;
 					if (audioStreamIn->ReadType<T>(&sampleUnsignedNarrow))
@@ -111,7 +111,7 @@ namespace AudioDataLib
 		{
 			double netSampleWide = 0.0;
 
-			for (auto& audioStreamIn : *this->audioStreamInArray)
+			for (auto& audioStreamIn : this->audioStreamInArray)
 			{
 				float sampleNarrow = 0.0f;
 				if (audioStreamIn->ReadType<float>(&sampleNarrow))
@@ -129,7 +129,7 @@ namespace AudioDataLib
 		{
 			double netSample = 0.0;
 			double sample = 0.0;
-			for(auto& audioStreamIn : *this->audioStreamInArray)
+			for(auto& audioStreamIn : this->audioStreamInArray)
 				if (audioStreamIn->ReadType<double>(&sample))
 					netSample += sample;
 
@@ -137,7 +137,7 @@ namespace AudioDataLib
 			return netSample;
 		}
 
-		std::vector<std::shared_ptr<AudioStream>>* audioStreamInArray;
-		std::shared_ptr<AudioStream>* audioStreamOut;
+		std::vector<std::shared_ptr<AudioStream>> audioStreamInArray;
+		std::shared_ptr<AudioStream> audioStreamOut;
 	};
 }

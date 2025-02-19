@@ -9,12 +9,10 @@ using namespace AudioDataLib;
 
 WaveTableData::WaveTableData()
 {
-	this->audioSampleArray = new std::vector<std::shared_ptr<AudioData>>();
 }
 
 /*virtual*/ WaveTableData::~WaveTableData()
 {
-	delete this->audioSampleArray;
 }
 
 /*virtual*/ void WaveTableData::DumpInfo(FILE* fp) const
@@ -25,7 +23,7 @@ WaveTableData::WaveTableData()
 {
 	fprintf(fp, "Sample Name, Orig. Key, Orig. Freq., Est. Freq., Min. Freq., Max. Freq., Est. Vol., Min. Vol., Max. Vol.\n");
 
-	for (std::shared_ptr<AudioData>& audioData : *this->audioSampleArray)
+	for (std::shared_ptr<AudioData> audioData : this->audioSampleArray)
 	{
 		AudioSampleData* sampleData = dynamic_cast<AudioSampleData*>(audioData.get());
 		if (!sampleData)
@@ -58,12 +56,12 @@ WaveTableData::WaveTableData()
 
 void WaveTableData::Clear()
 {
-	this->audioSampleArray->clear();
+	this->audioSampleArray.clear();
 }
 
 void WaveTableData::AddSample(std::shared_ptr<AudioSampleData> audioSampleData)
 {
-	this->audioSampleArray->push_back(audioSampleData);
+	this->audioSampleArray.push_back(audioSampleData);
 }
 
 void WaveTableData::Merge(const std::vector<const WaveTableData*>& waveTableDataArray)
@@ -72,22 +70,22 @@ void WaveTableData::Merge(const std::vector<const WaveTableData*>& waveTableData
 
 const AudioData* WaveTableData::GetAudioSample(uint32_t i) const
 {
-	if (0 <= i && i < this->audioSampleArray->size())
-		return (*this->audioSampleArray)[i].get();
+	if (0 <= i && i < this->audioSampleArray.size())
+		return this->audioSampleArray[i].get();
 
 	return nullptr;
 }
 
 std::shared_ptr<AudioData> WaveTableData::GetAudioData(uint32_t i) const
 {
-	return (*this->audioSampleArray)[i];
+	return this->audioSampleArray[i];
 }
 
 const WaveTableData::AudioSampleData* WaveTableData::FindAudioSample(uint8_t instrument, uint16_t midiKey, uint16_t midiVelocity) const
 {
 	// TODO: Speed this up with an index?
 
-	for (auto audioData : *this->audioSampleArray)
+	for (auto audioData : this->audioSampleArray)
 	{
 		AudioSampleData* audioSampleData = dynamic_cast<AudioSampleData*>(audioData.get());
 		if (!audioSampleData)
@@ -115,14 +113,12 @@ WaveTableData::AudioSampleData::AudioSampleData()
 	this->loop.endFrame = 0;
 	this->channelType = ChannelType::MONO;
 	this->mode = Mode::GETS_TRAPPED_IN_LOOP;
-	this->cachedWaveForm = new std::shared_ptr<WaveForm>();
 	::memset(&this->range, 0, sizeof(range));
 }
 
 /*virtual*/ WaveTableData::AudioSampleData::~AudioSampleData()
 {
 	delete this->name;
-	delete this->cachedWaveForm;
 }
 
 /*virtual*/ void WaveTableData::AudioSampleData::DumpInfo(FILE* fp) const
@@ -139,18 +135,18 @@ WaveTableData::AudioSampleData::AudioSampleData()
 
 std::shared_ptr<WaveForm> WaveTableData::AudioSampleData::GetCachedWaveForm(uint16_t channel) const
 {
-	if (!this->cachedWaveForm->get())
+	if (!this->cachedWaveForm.get())
 	{
-		this->cachedWaveForm->reset(new WaveForm());
+		this->cachedWaveForm.reset(new WaveForm());
 
-		if (!(*this->cachedWaveForm)->ConvertFromAudioBuffer(this->GetFormat(), this->GetAudioBuffer(), this->GetAudioBufferSize(), channel))
+		if (!this->cachedWaveForm->ConvertFromAudioBuffer(this->GetFormat(), this->GetAudioBuffer(), this->GetAudioBufferSize(), channel))
 		{
 			ErrorSystem::Get()->Add("Failed to convert sample audio buffer into a wave-form.");
-			this->cachedWaveForm->reset();
+			this->cachedWaveForm.reset();
 		}
 	}
 
-	return *this->cachedWaveForm;
+	return this->cachedWaveForm;
 }
 
 bool WaveTableData::AudioSampleData::Range::Contains(uint16_t key, uint16_t vel) const

@@ -22,6 +22,6 @@ namespace AudioDataLib
 			int16_t intervalSize;
 		};
 
-		std::vector<ULawTableEntry>* ulawTableArray;
+		std::vector<ULawTableEntry> ulawTableArray;
 	};
 }

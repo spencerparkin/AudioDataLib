@@ -10,14 +10,11 @@ ChunkParser::ChunkParser()
 	this->rootChunk = nullptr;
 	this->buffer = nullptr;
 	this->bufferSize = 0;
-	this->subChunkSet = new std::set<std::string>();
 }
 
 /*virtual*/ ChunkParser::~ChunkParser()
 {
 	this->Clear();
-
-	delete this->subChunkSet;
 }
 
 void ChunkParser::Clear()
@@ -61,8 +58,8 @@ bool ChunkParser::ParseStream(ByteStream& inputStream)
 
 /*virtual*/ bool ChunkParser::ParseChunkData(ReadOnlyBufferStream& inputStream, Chunk* chunk)
 {
-	std::set<std::string>::iterator iter = this->subChunkSet->find(chunk->GetName());
-	if (iter != this->subChunkSet->end())
+	std::set<std::string>::iterator iter = this->subChunkSet.find(chunk->GetName());
+	if (iter != this->subChunkSet.end())
 	{
 		char formType[5];
 		if (4 != inputStream.ReadBytesFromStream((uint8_t*)formType, 4))
@@ -97,7 +94,7 @@ bool ChunkParser::ParseStream(ByteStream& inputStream)
 
 void ChunkParser::RegisterSubChunks(const std::string& chunkName)
 {
-	this->subChunkSet->insert(chunkName);
+	this->subChunkSet.insert(chunkName);
 }
 
 const ChunkParser::Chunk* ChunkParser::FindChunk(const std::string& chunkName, const std::string& formType /*= ""*/, bool caseSensative /*= true*/) const
@@ -125,7 +122,6 @@ ChunkParser::Chunk::Chunk()
 	this->formType = new std::string();
 	this->buffer = nullptr;
 	this->bufferSize = 0;
-	this->subChunkArray = new std::vector<Chunk*>();
 }
 
 /*virtual*/ ChunkParser::Chunk::~Chunk()
@@ -133,10 +129,8 @@ ChunkParser::Chunk::Chunk()
 	delete this->name;
 	delete this->formType;
 
-	for (Chunk* chunk : *this->subChunkArray)
+	for (Chunk* chunk : this->subChunkArray)
 		delete chunk;
-
-	delete this->subChunkArray;
 }
 
 const ChunkParser::Chunk* ChunkParser::Chunk::FindChunk(const std::string& chunkName, const std::string& formType, bool caseSensative) const
@@ -145,7 +139,7 @@ const ChunkParser::Chunk* ChunkParser::Chunk::FindChunk(const std::string& chunk
 		if (formType.length() == 0 || this->MatchesFormType(formType, caseSensative))
 			return this;
 
-	for (const Chunk* subChunk : *this->subChunkArray)
+	for (const Chunk* subChunk : this->subChunkArray)
 	{
 		const Chunk* foundChunk = subChunk->FindChunk(chunkName, formType, caseSensative);
 		if (foundChunk)
@@ -160,7 +154,7 @@ void ChunkParser::Chunk::FindAllChunks(const std::string& chunkName, std::vector
 	if (this->MatchesName(chunkName, caseSensative))
 		chunkArray.push_back(this);
 
-	for (const Chunk* subChunk : *this->subChunkArray)
+	for (const Chunk* subChunk : this->subChunkArray)
 		subChunk->FindAllChunks(chunkName, chunkArray, caseSensative);
 }
 
@@ -230,7 +224,7 @@ bool ChunkParser::Chunk::ParseSubChunks(ReadOnlyBufferStream& inputStream, Chunk
 	while (inputStream.CanRead())
 	{
 		Chunk* chunk = new Chunk();
-		this->subChunkArray->push_back(chunk);
+		this->subChunkArray.push_back(chunk);
 		if (!chunk->ParseStream(inputStream, chunkParser))
 			return false;
 	}

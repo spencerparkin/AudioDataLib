@@ -6,7 +6,6 @@ using namespace AudioDataLib;
 
 LoopedAudioModule::LoopedAudioModule()
 {
-	this->loopedWaveForm = new std::shared_ptr<WaveForm>();
 	this->startTimeSeconds = 0.0;
 	this->endTimeSeconds = 0.0;
 	this->localTimeSeconds = 0.0;
@@ -16,7 +15,6 @@ LoopedAudioModule::LoopedAudioModule()
 
 /*virtual*/ LoopedAudioModule::~LoopedAudioModule()
 {
-	delete this->loopedWaveForm;
 }
 
 /*virtual*/ bool LoopedAudioModule::GenerateSound(double durationSeconds, double samplesPerSecond, WaveForm& waveForm, SynthModule* callingModule)
@@ -36,7 +34,7 @@ LoopedAudioModule::LoopedAudioModule()
 	{
 		WaveForm::Sample sample;
 		sample.timeSeconds = generatedSoundTimeSeconds;
-		sample.amplitude = (*this->loopedWaveForm)->EvaluateAt(this->localTimeSeconds);
+		sample.amplitude = this->loopedWaveForm->EvaluateAt(this->localTimeSeconds);
 		waveForm.AddSample(sample);
 
 		if (generatedSoundTimeSeconds == durationSeconds)
@@ -91,7 +89,7 @@ bool LoopedAudioModule::UseNonLoopedAudioData(const AudioData* audioData, uint16
 	if (!waveForm->ConvertFromAudioBuffer(audioData->GetFormat(), audioData->GetAudioBuffer(), audioData->GetAudioBufferSize(), channel))
 		return false;
 
-	*this->loopedWaveForm = waveForm;
+	this->loopedWaveForm = waveForm;
 
 	this->startTimeSeconds = 0.0;
 	this->endTimeSeconds = audioData->GetTimeSeconds();
@@ -105,8 +103,8 @@ bool LoopedAudioModule::UseNonLoopedAudioData(const AudioData* audioData, uint16
 
 bool LoopedAudioModule::UseLoopedAudioData(const WaveTableData::AudioSampleData* audioSampleData, uint16_t channel)
 {
-	*this->loopedWaveForm = audioSampleData->GetCachedWaveForm(channel);
-	if (!this->loopedWaveForm->get())
+	this->loopedWaveForm = audioSampleData->GetCachedWaveForm(channel);
+	if (!this->loopedWaveForm.get())
 		return false;
 
 	const AudioData::Format& format = audioSampleData->GetFormat();

@@ -85,7 +85,7 @@ MidiFileFormat::MidiFileFormat()
 	for (const ChunkParser::Chunk* chunk : trackChunkArray)
 	{
 		auto track = new MidiData::Track();
-		midiData->trackArray->push_back(track);
+		midiData->trackArray.push_back(track);
 
 		ReadOnlyBufferStream bufferStream(chunk->GetBuffer(), chunk->GetBufferSize());
 		while (bufferStream.CanRead())

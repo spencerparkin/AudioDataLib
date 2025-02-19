@@ -6,30 +6,27 @@ using namespace AudioDataLib;
 
 uLawCodec::uLawCodec()
 {
-	this->ulawTableArray = new std::vector<ULawTableEntry>();
-
 	// See: https://en.wikipedia.org/wiki/M-law_algorithm
-	this->ulawTableArray->push_back({ 0x80, 4063, 8158, 256 });
-	this->ulawTableArray->push_back({ 0x90, 2015, 4062, 128 });
-	this->ulawTableArray->push_back({ 0xA0, 991, 2014, 64 });
-	this->ulawTableArray->push_back({ 0xB0, 479, 990, 32 });
-	this->ulawTableArray->push_back({ 0xC0, 223, 478, 16 });
-	this->ulawTableArray->push_back({ 0xD0, 95, 222, 8 });
-	this->ulawTableArray->push_back({ 0xE0, 31, 94, 4 });
-	this->ulawTableArray->push_back({ 0xF0, 1, 31, 2 });
-	this->ulawTableArray->push_back({ 0x70, -31, -2, 2 });
-	this->ulawTableArray->push_back({ 0x60, -95, -32, 4 });
-	this->ulawTableArray->push_back({ 0x50, -223, -96, 8 });
-	this->ulawTableArray->push_back({ 0x40, -479, -224, 16 });
-	this->ulawTableArray->push_back({ 0x30, -991, -480, 32 });
-	this->ulawTableArray->push_back({ 0x20, -2015, -992, 64 });
-	this->ulawTableArray->push_back({ 0x10, -4063, -2016, 128 });
-	this->ulawTableArray->push_back({ 0x00, -8159, -4064, 256 });
+	this->ulawTableArray.push_back({ 0x80, 4063, 8158, 256 });
+	this->ulawTableArray.push_back({ 0x90, 2015, 4062, 128 });
+	this->ulawTableArray.push_back({ 0xA0, 991, 2014, 64 });
+	this->ulawTableArray.push_back({ 0xB0, 479, 990, 32 });
+	this->ulawTableArray.push_back({ 0xC0, 223, 478, 16 });
+	this->ulawTableArray.push_back({ 0xD0, 95, 222, 8 });
+	this->ulawTableArray.push_back({ 0xE0, 31, 94, 4 });
+	this->ulawTableArray.push_back({ 0xF0, 1, 31, 2 });
+	this->ulawTableArray.push_back({ 0x70, -31, -2, 2 });
+	this->ulawTableArray.push_back({ 0x60, -95, -32, 4 });
+	this->ulawTableArray.push_back({ 0x50, -223, -96, 8 });
+	this->ulawTableArray.push_back({ 0x40, -479, -224, 16 });
+	this->ulawTableArray.push_back({ 0x30, -991, -480, 32 });
+	this->ulawTableArray.push_back({ 0x20, -2015, -992, 64 });
+	this->ulawTableArray.push_back({ 0x10, -4063, -2016, 128 });
+	this->ulawTableArray.push_back({ 0x00, -8159, -4064, 256 });
 }
 
 /*virtual*/ uLawCodec::~uLawCodec()
 {
-	delete this->ulawTableArray;
 }
 
 /*virtual*/ bool uLawCodec::Decode(ByteStream& inputStream, AudioData& audioOut)
@@ -72,7 +69,7 @@ uLawCodec::uLawCodec()
 
 			bool foundRangeCode = false;
 			double sampleResult = 0.0;
-			for (const ULawTableEntry& entry : *this->ulawTableArray)
+			for (const ULawTableEntry& entry : this->ulawTableArray)
 			{
 				if (entry.rangeCode == rangeCode)
 				{
@@ -139,7 +136,7 @@ uLawCodec::uLawCodec()
 		{
 			compressedSample = 0xFF;
 
-			for (const ULawTableEntry& entry : *this->ulawTableArray)
+			for (const ULawTableEntry& entry : this->ulawTableArray)
 			{
 				if (entry.minSample <= sample && sample <= entry.maxSample)
 				{

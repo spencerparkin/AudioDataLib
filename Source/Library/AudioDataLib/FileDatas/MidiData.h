@@ -111,7 +111,7 @@ namespace AudioDataLib
 			template<typename T>
 			const T* FindEvent(std::function<bool(T*)> matchFunc) const
 			{
-				for (Event* event : *this->eventArray)
+				for (Event* event : this->eventArray)
 				{
 					T* eventT = dynamic_cast<T*>(event);
 					if (eventT && matchFunc(eventT))
@@ -143,17 +143,17 @@ namespace AudioDataLib
 			/**
 			 * For convenient, get a reference to the event array owned by the Track class.
 			 */
-			const std::vector<Event*>& GetEventArray() const { return *this->eventArray; }
+			const std::vector<Event*>& GetEventArray() const { return this->eventArray; }
 
 			/**
 			 * Append the given event object to this track's event array.  Note that this
 			 * class takes ownership of the event memory, and it is expected that the given
 			 * event is allocated on the heap.
 			 */
-			void AddEvent(Event* event) { this->eventArray->push_back(event); }
+			void AddEvent(Event* event) { this->eventArray.push_back(event); }
 
 		private:
-			std::vector<Event*>* eventArray;
+			std::vector<Event*> eventArray;
 		};
 
 		/**
@@ -411,11 +411,11 @@ namespace AudioDataLib
 		Track* GetTrack(uint32_t i);
 		void AddTrack(Track* track);
 		bool RemoveTrack(uint32_t i);
-		uint32_t GetNumTracks() const { return (uint32_t)this->trackArray->size(); }
+		uint32_t GetNumTracks() const { return (uint32_t)this->trackArray.size(); }
 
 	protected:
 		FormatType formatType;
 		Timing timing;
-		std::vector<Track*>* trackArray;
+		std::vector<Track*> trackArray;
 	};
 }

@@ -22,7 +22,7 @@ PitchShiftModule::PitchShiftModule()
 		return false;
 	}
 
-	SynthModule* dependentModule = (*this->dependentModulesArray)[0].get();
+	SynthModule* dependentModule = this->dependentModulesArray[0].get();
 
 	if (this->targetFrequency == this->sourceFrequency)
 	{
@@ -61,10 +61,10 @@ PitchShiftModule::PitchShiftModule()
 
 /*virtual*/ bool PitchShiftModule::MoreSoundAvailable()
 {
-	if (this->dependentModulesArray->size() == 0)
+	if (this->dependentModulesArray.size() == 0)
 		return false;
 
-	SynthModule* dependentModule = (*this->dependentModulesArray)[0].get();
+	SynthModule* dependentModule = this->dependentModulesArray[0].get();
 	return dependentModule->MoreSoundAvailable();
 }
 

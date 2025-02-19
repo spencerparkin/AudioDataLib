@@ -8,22 +8,19 @@ using namespace AudioDataLib;
 MidiMsgRecorderDestination::MidiMsgRecorderDestination()
 {
 	this->midiData = nullptr;
-	this->messageDataArray = new std::vector<MessageData*>();
 }
 
 /*virtual*/ MidiMsgRecorderDestination::~MidiMsgRecorderDestination()
 {
 	this->Clear();
-
-	delete this->messageDataArray;
 }
 
 void MidiMsgRecorderDestination::Clear()
 {
-	for (MessageData* messageData : *this->messageDataArray)
+	for (MessageData* messageData : this->messageDataArray)
 		delete messageData;
 
-	this->messageDataArray->clear();
+	this->messageDataArray.clear();
 }
 
 /*virtual*/ bool MidiMsgRecorderDestination::ReceiveMessage(double deltaTimeSeconds, const uint8_t* message, uint64_t messageSize)
@@ -42,7 +39,7 @@ void MidiMsgRecorderDestination::Clear()
 	messageData->deltaTimeSeconds = deltaTimeSeconds;
 	messageData->messageBuffer.resize(messageSize);
 	::memcpy(messageData->messageBuffer.data(), message, messageSize);
-	this->messageDataArray->push_back(messageData);
+	this->messageDataArray.push_back(messageData);
 
 	return true;
 }
@@ -58,7 +55,7 @@ void MidiMsgRecorderDestination::Clear()
 		return false;
 	}
 
-	if (this->messageDataArray->size() == 0)
+	if (this->messageDataArray.size() == 0)
 	{
 		ErrorSystem::Get()->Add("MIDI message array is empty.  Can't populate MIDI data object without a non-empty array.");
 		return false;
@@ -101,7 +98,7 @@ void MidiMsgRecorderDestination::Clear()
 
 	double ticksPerMicrosecond = double(timing.ticksPerQuarterNote) / double(tempo->microsecondsPerQuarterNote);
 
-	for (const MessageData* messageData : *this->messageDataArray)
+	for (const MessageData* messageData : this->messageDataArray)
 	{
 		ReadOnlyBufferStream bufferStream(messageData->messageBuffer.data(), messageData->messageBuffer.size());
 

@@ -5,56 +5,53 @@ using namespace AudioDataLib;
 
 ComplexVector::ComplexVector()
 {
-	this->complexNumberArray = new std::vector<ComplexNumber>();
 }
 
 ComplexVector::ComplexVector(const ComplexVector& complexVector)
 {
-	this->complexNumberArray = new std::vector<ComplexNumber>();
 	*this = complexVector;
 }
 
 /*virtual*/ ComplexVector::~ComplexVector()
 {
-	delete this->complexNumberArray;
 }
 
 void ComplexVector::Clear()
 {
-	this->complexNumberArray->clear();
+	this->complexNumberArray.clear();
 }
 
 void ComplexVector::Add(const ComplexNumber& complexNumber)
 {
-	this->complexNumberArray->push_back(complexNumber);
+	this->complexNumberArray.push_back(complexNumber);
 }
 
 uint32_t ComplexVector::Size() const
 {
-	return this->complexNumberArray->size();
+	return (uint32_t)this->complexNumberArray.size();
 }
 
 void ComplexVector::operator=(const ComplexVector& complexVector)
 {
-	this->complexNumberArray->clear();
-	for (const ComplexNumber& complexNumber : *complexVector.complexNumberArray)
-		this->complexNumberArray->push_back(complexNumber);
+	this->complexNumberArray.clear();
+	for (const ComplexNumber& complexNumber : complexVector.complexNumberArray)
+		this->complexNumberArray.push_back(complexNumber);
 }
 
 const ComplexNumber& ComplexVector::operator[](uint32_t i) const
 {
-	return (*this->complexNumberArray)[i];
+	return this->complexNumberArray[i];
 }
 
 ComplexNumber& ComplexVector::operator[](uint32_t i)
 {
-	return (*this->complexNumberArray)[i];
+	return this->complexNumberArray[i];
 }
 
 // See: Intro to Algorithms by Cormen, Leiserson & Rivest, page 787.
 bool ComplexVector::FFT(const ComplexVector& complexVector, bool inverse)
 {
-	this->complexNumberArray->clear();
+	this->complexNumberArray.clear();
 
 	if (complexVector.Size() <= 0)
 	{
@@ -64,7 +61,7 @@ bool ComplexVector::FFT(const ComplexVector& complexVector, bool inverse)
 
 	if (complexVector.Size() == 1)
 	{
-		this->complexNumberArray->push_back(complexVector[0]);
+		this->complexNumberArray.push_back(complexVector[0]);
 		return true;
 	}
 

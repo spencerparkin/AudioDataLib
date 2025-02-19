@@ -67,7 +67,7 @@ namespace AudioDataLib
 		template<typename T>
 		T* FindDestination()
 		{
-			for (auto& destination : *this->destinationArray)
+			for (auto& destination : this->destinationArray)
 			{
 				T* foundDestination = dynamic_cast<T*>(destination.get());
 				if (foundDestination)
@@ -85,6 +85,6 @@ namespace AudioDataLib
 		 */
 		bool BroadcastMidiMessage(double deltaTimeSeconds, const uint8_t* messageBuffer, uint64_t messageBufferSize);
 
-		std::vector<std::shared_ptr<MidiMsgDestination>>* destinationArray;
+		std::vector<std::shared_ptr<MidiMsgDestination>> destinationArray;
 	};
 }

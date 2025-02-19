@@ -10,7 +10,6 @@ MidiSynth::MidiSynth()
 {
 	this->minLatencySeconds = 0.05;
 	this->maxLatencySeconds = 0.10;
-	this->audioStream = new std::shared_ptr<AudioStream>();
 }
 
 /*virtual*/ MidiSynth::~MidiSynth()
@@ -20,7 +19,7 @@ MidiSynth::MidiSynth()
 
 void MidiSynth::SetAudioStream(std::shared_ptr<AudioStream> audioStream)
 {
-	*this->audioStream = audioStream;
+	this->audioStream = audioStream;
 }
 
 void MidiSynth::SetMinMaxLatency(double minLatencySeconds, double maxLatencySeconds)
@@ -46,8 +45,8 @@ void MidiSynth::GetMinMaxLatency(double& minLatencySeconds, double& maxLatencySe
 		return false;
 	}
 
-	const AudioData::Format& format = (*this->audioStream)->GetFormat();
-	uint64_t currentStreamSizeBytes = (*this->audioStream)->GetSize();
+	const AudioData::Format& format = this->audioStream->GetFormat();
+	uint64_t currentStreamSizeBytes = this->audioStream->GetSize();
 	double currentBufferedTimeSeconds = format.BytesToSeconds(currentStreamSizeBytes);
 	if (currentBufferedTimeSeconds >= this->minLatencySeconds)
 		return true;
@@ -79,7 +78,7 @@ void MidiSynth::GetMinMaxLatency(double& minLatencySeconds, double& maxLatencySe
 	}
 
 	if (!ErrorSystem::Get()->Errors())
-		(*this->audioStream)->WriteBytesToStream(audioBuffer, audioBufferSize);
+		this->audioStream->WriteBytesToStream(audioBuffer, audioBufferSize);
 
 	delete[] audioBuffer;
 

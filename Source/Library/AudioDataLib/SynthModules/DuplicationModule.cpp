@@ -20,7 +20,7 @@ DuplicationModule::DuplicationModule()
 		return false;
 	}
 
-	SynthModule* dependentModule = (*this->dependentModulesArray)[0].get();
+	SynthModule* dependentModule = this->dependentModulesArray[0].get();
 
 	if (!this->masterModule)
 		this->masterModule = callingModule;
@@ -41,9 +41,9 @@ DuplicationModule::DuplicationModule()
 
 /*virtual*/ bool DuplicationModule::MoreSoundAvailable()
 {
-	if (this->dependentModulesArray->size() != 1)
+	if (this->dependentModulesArray.size() != 1)
 		return false;
 
-	SynthModule* dependentModule = (*this->dependentModulesArray)[0].get();
+	SynthModule* dependentModule = this->dependentModulesArray[0].get();
 	return dependentModule->MoreSoundAvailable();
 }

@@ -258,8 +258,7 @@ namespace AudioDataLib
 		virtual bool CanWrite() override;
 
 	protected:
-		// I would prefer not to own a pointer to a shared pointer here, but it doesn't work when trying to make a DLL.
-		std::shared_ptr<Mutex>* mutex;
+		std::shared_ptr<Mutex> mutex;
 	};
 
 	/**
@@ -299,7 +298,7 @@ namespace AudioDataLib
 			uint64_t endOffset;
 		};
 
-		std::list<Chunk*>* chunkList;
+		std::list<Chunk*> chunkList;
 		uint64_t chunkSize;
 	};
 }

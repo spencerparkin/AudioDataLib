@@ -8,23 +8,21 @@ using namespace AudioDataLib;
 
 WaveForm::WaveForm()
 {
-	this->sampleArray = new std::vector<Sample>();
 	this->interpMethod = InterpolationMethod::LINEAR;
 }
 
 /*virtual*/ WaveForm::~WaveForm()
 {
-	delete this->sampleArray;
 }
 
 void WaveForm::Clear()
 {
-	this->sampleArray->clear();
+	this->sampleArray.clear();
 }
 
 void WaveForm::AddSample(const Sample& sample)
 {
-	this->sampleArray->push_back(sample);
+	this->sampleArray.push_back(sample);
 }
 
 void WaveForm::MakeSilence(double samplesPerSecond, double totalSeconds)
@@ -37,13 +35,13 @@ void WaveForm::MakeSilence(double samplesPerSecond, double totalSeconds)
 		Sample sample;
 		sample.amplitude = 0.0;
 		sample.timeSeconds = (double(i) / double(numSamples - 1)) * totalSeconds;
-		this->sampleArray->push_back(sample);
+		this->sampleArray.push_back(sample);
 	}
 }
 
 uint64_t WaveForm::GetSizeBytes(const AudioData::Format& format, bool allChannels) const
 {
-	if (this->sampleArray->size() == 0)
+	if (this->sampleArray.size() == 0)
 		return 0;
 
 	uint64_t numBytes = format.BytesPerChannelFromSeconds(this->GetTimespan());
@@ -158,7 +156,7 @@ bool WaveForm::ConvertFromAudioBuffer(const AudioData::Format& format, const uin
 			return false;
 		}
 
-		this->sampleArray->push_back(sample);
+		this->sampleArray.push_back(sample);
 		i += bytesPerFrame;
 	}
 
@@ -292,8 +290,8 @@ void WaveForm::Interpolate(const SampleBounds& sampleBounds, double timeSeconds,
 		}
 		case InterpolationMethod::CUBIC:
 		{
-			uint64_t i = sampleBounds.minSample - this->sampleArray->data();
-			uint64_t j = sampleBounds.maxSample - this->sampleArray->data();
+			uint64_t i = sampleBounds.minSample - this->sampleArray.data();
+			uint64_t j = sampleBounds.maxSample - this->sampleArray.data();
 
 			// TODO: Write this.  Extend given sample bounds left/right until we have 4 samples across which we can interpolate.  Invert Vandermonde matrix.
 			break;
@@ -320,14 +318,14 @@ bool WaveForm::SampleBounds::ContainsTime(double timeSeconds) const
 
 bool WaveForm::FindTightestSampleBounds(double timeSeconds, SampleBounds& sampleBounds) const
 {
-	if (this->sampleArray->size() == 0)
+	if (this->sampleArray.size() == 0)
 		return false;
 
 	uint32_t i = 0;
-	uint32_t j = (uint32_t)this->sampleArray->size() - 1;
+	uint32_t j = (uint32_t)this->sampleArray.size() - 1;
 
-	sampleBounds.minSample = &(*this->sampleArray)[i];
-	sampleBounds.maxSample = &(*this->sampleArray)[j];
+	sampleBounds.minSample = &this->sampleArray[i];
+	sampleBounds.maxSample = &this->sampleArray[j];
 
 	if (!sampleBounds.ContainsTime(timeSeconds))
 		return false;
@@ -337,8 +335,8 @@ bool WaveForm::FindTightestSampleBounds(double timeSeconds, SampleBounds& sample
 		uint32_t k = (i + j) / 2;
 		assert(i < k && k < j);
 
-		SampleBounds leftSampleBounds{ sampleBounds.minSample, &(*this->sampleArray)[k] };
-		SampleBounds rightSampleBounds{ &(*this->sampleArray)[k], sampleBounds.maxSample };
+		SampleBounds leftSampleBounds{ sampleBounds.minSample, &this->sampleArray[k] };
+		SampleBounds rightSampleBounds{ &this->sampleArray[k], sampleBounds.maxSample };
 
 		if (leftSampleBounds.ContainsTime(timeSeconds))
 		{
@@ -360,8 +358,8 @@ void WaveForm::Copy(const WaveForm* waveForm)
 {
 	this->Clear();
 
-	for (const Sample& sample : *waveForm->sampleArray)
-		this->sampleArray->push_back(sample);
+	for (const Sample& sample : waveForm->sampleArray)
+		this->sampleArray.push_back(sample);
 }
 
 uint64_t WaveForm::PadWithSilence(double desiredDurationSeconds, double sampleRate)
@@ -375,18 +373,18 @@ uint64_t WaveForm::PadWithSilence(double desiredDurationSeconds, double sampleRa
 			Sample sample;
 			sample.amplitude = 0.0;
 
-			if (this->sampleArray->size() == 0)
+			if (this->sampleArray.size() == 0)
 				sample.timeSeconds = 0.0;
 			else
-				sample.timeSeconds = (*this->sampleArray)[this->sampleArray->size() - 1].timeSeconds + 1.0 / sampleRate;
+				sample.timeSeconds = this->sampleArray[this->sampleArray.size() - 1].timeSeconds + 1.0 / sampleRate;
 
-			this->sampleArray->push_back(sample);
+			this->sampleArray.push_back(sample);
 			numSamplesAdded++;
 		}
 
-		if (this->GetTimespan() > desiredDurationSeconds && this->sampleArray->size() > 0)
+		if (this->GetTimespan() > desiredDurationSeconds && this->sampleArray.size() > 0)
 		{
-			Sample& sample = (*this->sampleArray)[this->sampleArray->size() - 1];
+			Sample& sample = this->sampleArray[this->sampleArray.size() - 1];
 			sample.timeSeconds -= this->GetTimespan() - desiredDurationSeconds;
 		}
 	}
@@ -396,7 +394,7 @@ uint64_t WaveForm::PadWithSilence(double desiredDurationSeconds, double sampleRa
 
 bool WaveForm::Trim(double startTimeSeconds, double stopTimeSeconds, bool rebaseTime)
 {
-	if (this->sampleArray->size() == 0)
+	if (this->sampleArray.size() == 0)
 	{
 		ErrorSystem::Get()->Add("Nothing to trim.");
 		return false;
@@ -408,18 +406,17 @@ bool WaveForm::Trim(double startTimeSeconds, double stopTimeSeconds, bool rebase
 		return false;
 	}
 
-	std::vector<Sample>* newSampleArray = new std::vector<Sample>();
-	for (const Sample& sample : *this->sampleArray)
+	std::vector<Sample> newSampleArray;
+	for (const Sample& sample : this->sampleArray)
 		if (startTimeSeconds <= sample.timeSeconds && sample.timeSeconds <= stopTimeSeconds)
-			newSampleArray->push_back(sample);
+			newSampleArray.push_back(sample);
 
-	delete this->sampleArray;
 	this->sampleArray = newSampleArray;
 
-	if (rebaseTime && this->sampleArray->size() > 0)
+	if (rebaseTime && this->sampleArray.size() > 0)
 	{
-		double deltaTime = -(*this->sampleArray)[0].timeSeconds;
-		for (Sample& sample : *this->sampleArray)
+		double deltaTime = -this->sampleArray[0].timeSeconds;
+		for (Sample& sample : this->sampleArray)
 			sample.timeSeconds += deltaTime;
 	}
 
@@ -428,14 +425,14 @@ bool WaveForm::Trim(double startTimeSeconds, double stopTimeSeconds, bool rebase
 
 void WaveForm::QuickTrim(double timeSeconds, TrimSection trimSection)
 {
-	if (this->sampleArray->size() == 0)
+	if (this->sampleArray.size() == 0)
 		return;
 
 	SampleBounds sampleBounds;
 	if (!this->FindTightestSampleBounds(timeSeconds, sampleBounds))
 	{
-		if ((timeSeconds < (*this->sampleArray)[0].timeSeconds && trimSection == TrimSection::AFTER) ||
-			(timeSeconds > (*this->sampleArray)[this->sampleArray->size() - 1].timeSeconds && trimSection == TrimSection::BEFORE))
+		if ((timeSeconds < this->sampleArray[0].timeSeconds && trimSection == TrimSection::AFTER) ||
+			(timeSeconds > this->sampleArray[this->sampleArray.size() - 1].timeSeconds && trimSection == TrimSection::BEFORE))
 		{
 			this->Clear();
 		}
@@ -445,28 +442,28 @@ void WaveForm::QuickTrim(double timeSeconds, TrimSection trimSection)
 		Sample interpolatedSample;
 		this->Interpolate(sampleBounds, timeSeconds, interpolatedSample);
 
-		uint64_t i = sampleBounds.minSample - this->sampleArray->data();
-		uint64_t j = sampleBounds.maxSample - this->sampleArray->data();
+		uint64_t i = sampleBounds.minSample - this->sampleArray.data();
+		uint64_t j = sampleBounds.maxSample - this->sampleArray.data();
 
 		if (trimSection == TrimSection::AFTER)
 		{
-			this->sampleArray->resize(i);
-			this->sampleArray->push_back(interpolatedSample);
+			this->sampleArray.resize(i);
+			this->sampleArray.push_back(interpolatedSample);
 		}
 		else if (trimSection == TrimSection::BEFORE)
 		{
 			// This doesn't necessarily have any better time complexity than the regular Trim routine does.
-			(*this->sampleArray)[0] = interpolatedSample;
-			for (uint64_t k = j; k < this->sampleArray->size(); k++)
-				(*this->sampleArray)[k - j + 1] = (*sampleArray)[k];
-			this->sampleArray->resize(this->sampleArray->size() - j + 1);
+			this->sampleArray[0] = interpolatedSample;
+			for (uint64_t k = j; k < this->sampleArray.size(); k++)
+				this->sampleArray[k - j + 1] = sampleArray[k];
+			this->sampleArray.resize(this->sampleArray.size() - j + 1);
 		}
 	}
 }
 
 void WaveForm::SortSamples()
 {
-	std::sort(this->sampleArray->begin(), this->sampleArray->end(), [](const Sample& sampleA, const Sample& sampleB) -> bool {
+	std::sort(this->sampleArray.begin(), this->sampleArray.end(), [](const Sample& sampleA, const Sample& sampleB) -> bool {
 		return sampleA.timeSeconds < sampleB.timeSeconds;
 	});
 }
@@ -511,13 +508,13 @@ void WaveForm::SumTogether(const std::list<WaveForm*>& waveFormList)
 		sample.amplitude = 0.0;
 		for (const WaveForm* waveForm : waveFormList)
 			sample.amplitude += waveForm->EvaluateAt(sample.timeSeconds);
-		this->sampleArray->push_back(sample);
+		this->sampleArray.push_back(sample);
 	}
 }
 
 void WaveForm::Clamp(double minAmplitude, double maxAmplitude)
 {
-	for (Sample& sample : *this->sampleArray)
+	for (Sample& sample : this->sampleArray)
 	{
 		if (sample.amplitude < minAmplitude)
 			sample.amplitude = minAmplitude;
@@ -532,7 +529,7 @@ double WaveForm::AverageSampleRate() const
 	if (timeSpanSeconds == 0.0)
 		return 0.0;
 
-	double averageSamplesPerSeconds = double(this->sampleArray->size()) / timeSpanSeconds;
+	double averageSamplesPerSeconds = double(this->sampleArray.size()) / timeSpanSeconds;
 	return averageSamplesPerSeconds;
 }
 
@@ -541,11 +538,11 @@ double WaveForm::CalcAverageVolume() const
 	double averageVolume = 0.0;
 	double numPeaksAndVallies = 0.0;
 
-	for (uint32_t i = 1; i < this->sampleArray->size() - 1; i++)
+	for (uint32_t i = 1; i < this->sampleArray.size() - 1; i++)
 	{
-		const Sample& sampleA = (*this->sampleArray)[i - 1];
-		const Sample& sampleB = (*this->sampleArray)[i];
-		const Sample& sampleC = (*this->sampleArray)[i + 1];
+		const Sample& sampleA = this->sampleArray[i - 1];
+		const Sample& sampleB = this->sampleArray[i];
+		const Sample& sampleC = this->sampleArray[i + 1];
 
 		double slopeA = (sampleB.amplitude - sampleA.amplitude) / (sampleB.timeSeconds - sampleA.timeSeconds);
 		double slopeB = (sampleC.amplitude - sampleB.amplitude) / (sampleC.timeSeconds - sampleB.timeSeconds);
@@ -565,18 +562,18 @@ double WaveForm::CalcAverageVolume() const
 
 double WaveForm::GetStartTime() const
 {
-	if (this->sampleArray->size() == 0)
+	if (this->sampleArray.size() == 0)
 		return 0.0;
 
-	return (*this->sampleArray)[0].timeSeconds;
+	return this->sampleArray[0].timeSeconds;
 }
 
 double WaveForm::GetEndTime() const
 {
-	if (this->sampleArray->size() == 0)
+	if (this->sampleArray.size() == 0)
 		return 0.0;
 
-	return (*this->sampleArray)[this->sampleArray->size() - 1].timeSeconds;
+	return this->sampleArray[this->sampleArray.size() - 1].timeSeconds;
 }
 
 double WaveForm::GetTimespan() const
@@ -586,13 +583,13 @@ double WaveForm::GetTimespan() const
 
 uint64_t WaveForm::GetNumSamples() const
 {
-	return this->sampleArray->size();
+	return this->sampleArray.size();
 }
 
 double WaveForm::GetMaxAmplitude() const
 {
 	double maxAmplitude = std::numeric_limits<double>::min();
-	for (const Sample& sample : *this->sampleArray)
+	for (const Sample& sample : this->sampleArray)
 		if (sample.amplitude > maxAmplitude)
 			maxAmplitude = sample.amplitude;
 
@@ -602,7 +599,7 @@ double WaveForm::GetMaxAmplitude() const
 double WaveForm::GetMinAmplitude() const
 {
 	double minAmplitude = std::numeric_limits<double>::max();
-	for (const Sample& sample : *this->sampleArray)
+	for (const Sample& sample : this->sampleArray)
 		if (sample.amplitude < minAmplitude)
 			minAmplitude = sample.amplitude;
 
@@ -627,7 +624,7 @@ bool WaveForm::Renormalize()
 
 void WaveForm::Scale(double scale)
 {
-	for (Sample& sample : *this->sampleArray)
+	for (Sample& sample : this->sampleArray)
 		sample.amplitude *= scale;
 }
 
@@ -645,28 +642,25 @@ WaveFormStream::WaveFormStream(uint32_t maxWaveForms, double maxWaveFormSizeSeco
 {
 	this->maxWaveForms = maxWaveForms;
 	this->maxWaveFormSizeSeconds = maxWaveFormSizeSeconds;
-	this->waveFormList = new std::list<WaveForm*>();
 }
 
 /*virtual*/ WaveFormStream::~WaveFormStream()
 {
 	this->Clear();
-
-	delete this->waveFormList;
 }
 
 void WaveFormStream::Clear()
 {
-	for (WaveForm* waveForm : *this->waveFormList)
+	for (WaveForm* waveForm : this->waveFormList)
 		delete waveForm;
 
-	this->waveFormList->clear();
+	this->waveFormList.clear();
 }
 
 /*virtual*/ double WaveFormStream::EvaluateAt(double timeSeconds) const
 {
 	// This is effectively an O(log N) operation if this->maxWaveForms is set to 2.
-	for (const WaveForm* waveForm : *this->waveFormList)
+	for (const WaveForm* waveForm : this->waveFormList)
 		if (waveForm->ContainsTime(timeSeconds))
 			return waveForm->EvaluateAt(timeSeconds);	// This is O(log N).
 
@@ -675,15 +669,15 @@ void WaveFormStream::Clear()
 
 void WaveFormStream::AddSample(const WaveForm::Sample& sample)
 {
-	if (this->waveFormList->size() == 0)
+	if (this->waveFormList.size() == 0)
 	{
 		auto waveForm = new WaveForm();
 		waveForm->AddSample(sample);
-		this->waveFormList->push_back(waveForm);
+		this->waveFormList.push_back(waveForm);
 		return;
 	}
 
-	WaveForm* waveForm = this->waveFormList->back();
+	WaveForm* waveForm = this->waveFormList.back();
 	if (waveForm->GetTimespan() < this->maxWaveFormSizeSeconds)
 	{
 		waveForm->AddSample(sample);
@@ -695,13 +689,13 @@ void WaveFormStream::AddSample(const WaveForm::Sample& sample)
 	waveForm = new WaveForm();
 	waveForm->AddSample(lastSample);		// Adjacent wave-forms need to share a sample where they meet.
 	waveForm->AddSample(sample);
-	this->waveFormList->push_back(waveForm);
+	this->waveFormList.push_back(waveForm);
 
-	if (this->waveFormList->size() > this->maxWaveForms)
+	if (this->waveFormList.size() > this->maxWaveForms)
 	{
-		waveForm = *this->waveFormList->begin();
+		waveForm = *this->waveFormList.begin();
 		delete waveForm;
-		this->waveFormList->pop_front();
+		this->waveFormList.pop_front();
 	}
 }
 
@@ -712,10 +706,10 @@ double WaveFormStream::GetDurationSeconds() const
 
 double WaveFormStream::GetStartTimeSeconds() const
 {
-	if (this->waveFormList->size() == 0)
+	if (this->waveFormList.size() == 0)
 		return 0.0;
 
-	const WaveForm* firstWaveForm = *this->waveFormList->begin();
+	const WaveForm* firstWaveForm = *this->waveFormList.begin();
 	if (firstWaveForm->GetSampleArray().size() == 0)
 		return 0.0;
 
@@ -725,10 +719,10 @@ double WaveFormStream::GetStartTimeSeconds() const
 
 double WaveFormStream::GetEndTimeSeconds() const
 {
-	if (this->waveFormList->size() == 0)
+	if (this->waveFormList.size() == 0)
 		return 0.0;
 
-	const WaveForm* lastWaveForm = this->waveFormList->back();
+	const WaveForm* lastWaveForm = this->waveFormList.back();
 	if (lastWaveForm->GetSampleArray().size() == 0)
 		return 0.0;
 
@@ -738,7 +732,7 @@ double WaveFormStream::GetEndTimeSeconds() const
 
 bool WaveFormStream::AnyAudibleSampleFound() const
 {
-	for (const WaveForm* waveForm : *this->waveFormList)
+	for (const WaveForm* waveForm : this->waveFormList)
 	{
 		for (const WaveForm::Sample& sample : waveForm->GetSampleArray())
 		{

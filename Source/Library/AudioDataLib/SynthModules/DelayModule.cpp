@@ -21,7 +21,7 @@ DelayModule::DelayModule() : waveFormStream(2, 0.5)
 		return false;
 	}
 
-	SynthModule* dependentModule = (*this->dependentModulesArray)[0].get();
+	SynthModule* dependentModule = this->dependentModulesArray[0].get();
 
 	WaveForm dependentWaveForm;
 	if (!dependentModule->GenerateSound(durationSeconds, samplesPerSecond, dependentWaveForm, this))
@@ -62,10 +62,10 @@ DelayModule::DelayModule() : waveFormStream(2, 0.5)
 
 /*virtual*/ bool DelayModule::MoreSoundAvailable()
 {
-	if (this->dependentModulesArray->size() == 0)
+	if (this->dependentModulesArray.size() == 0)
 		return false;
 
-	SynthModule* dependentModule = (*this->dependentModulesArray)[0].get();
+	SynthModule* dependentModule = this->dependentModulesArray[0].get();
 	if (dependentModule->MoreSoundAvailable())
 		return true;
 

@@ -25,7 +25,7 @@ AttenuationModule::AttenuationModule()
 		return false;
 	}
 
-	SynthModule* dependentModule = (*this->dependentModulesArray)[0].get();
+	SynthModule* dependentModule = this->dependentModulesArray[0].get();
 
 	if (!dependentModule->GenerateSound(durationSeconds, samplesPerSecond, waveForm, this))
 		return false;
@@ -57,7 +57,7 @@ AttenuationModule::AttenuationModule()
 	if (this->GetNumDependentModules() == 0)
 		return false;
 
-	SynthModule* dependentModule = (*this->dependentModulesArray)[0].get();
+	SynthModule* dependentModule = this->dependentModulesArray[0].get();
 	if (!dependentModule->MoreSoundAvailable())
 		return false;
 

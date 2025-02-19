@@ -34,7 +34,7 @@ namespace AudioDataLib
 			if (foundModule)
 				return foundModule;
 
-			for (std::shared_ptr<SynthModule>& synthModule : *this->dependentModulesArray)
+			for (std::shared_ptr<SynthModule>& synthModule : this->dependentModulesArray)
 			{
 				foundModule = synthModule->FindModule<T>();
 				if (foundModule)
@@ -52,6 +52,6 @@ namespace AudioDataLib
 		// still reverberating.  Further, shared pointers can also make it
 		// possible to cross-pollinate between channels, e.g., for the purpose
 		// of implementing pan.
-		std::vector<std::shared_ptr<SynthModule>>* dependentModulesArray;
+		std::vector<std::shared_ptr<SynthModule>> dependentModulesArray;
 	};
 }

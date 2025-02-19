@@ -64,7 +64,7 @@ namespace AudioDataLib
 		 * The caller can then modify this set as they see fit before playback begins.
 		 * Once playback begins, this doing so does nothing.
 		 */
-		std::set<uint32_t>& GetTracksConfiguredToPlay() { return *this->tracksToPlaySet; }
+		std::set<uint32_t>& GetTracksConfiguredToPlay() { return this->tracksToPlaySet; }
 
 		/**
 		 * Return a pointer to the Timer instance keeping time during playback.
@@ -97,7 +97,7 @@ namespace AudioDataLib
 
 		const MidiData* midiData;
 		Timer* timer;
-		std::vector<TrackPlayer*>* trackPlayerArray;
-		std::set<uint32_t>* tracksToPlaySet;
+		std::vector<TrackPlayer*> trackPlayerArray;
+		mutable std::set<uint32_t> tracksToPlaySet;
 	};
 }

@@ -16,7 +16,7 @@ MixerModule::MixerModule()
 {
 	std::list<WaveForm*> waveFormList;
 
-	for (std::shared_ptr<SynthModule>& synthModule : *this->dependentModulesArray)
+	for (std::shared_ptr<SynthModule>& synthModule : this->dependentModulesArray)
 	{
 		if (synthModule->MoreSoundAvailable())
 		{

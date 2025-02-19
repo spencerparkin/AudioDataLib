@@ -68,6 +68,6 @@ namespace AudioDataLib
 		bool FFT(const ComplexVector& complexVector, bool inverse);
 
 	protected:
-		std::vector<ComplexNumber>* complexNumberArray;
+		std::vector<ComplexNumber> complexNumberArray;
 	};
 }

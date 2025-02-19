@@ -13,39 +13,34 @@ MidiPlayer::MidiPlayer(Timer* timer)
 {
 	this->timer = timer;
 	this->midiData = nullptr;
-	this->trackPlayerArray = new std::vector<TrackPlayer*>();
-	this->tracksToPlaySet = new std::set<uint32_t>();
 }
 
 /*virtual*/ MidiPlayer::~MidiPlayer()
 {
 	this->Clear();
-
-	delete this->trackPlayerArray;
-	delete this->tracksToPlaySet;
 }
 
 void MidiPlayer::Clear()
 {
-	for (TrackPlayer* trackPlayer : *this->trackPlayerArray)
+	for (TrackPlayer* trackPlayer : this->trackPlayerArray)
 		delete trackPlayer;
 
-	this->trackPlayerArray->clear();
+	this->trackPlayerArray.clear();
 }
 
 void MidiPlayer::ConfigureToPlayAllTracks() const
 {
-    this->tracksToPlaySet->clear();
+    this->tracksToPlaySet.clear();
 
     if(this->midiData->GetFormatType() == MidiData::FormatType::SINGLE_TRACK)
     {
         if(this->midiData->GetNumTracks() == 1)
-			this->tracksToPlaySet->insert(0);
+			this->tracksToPlaySet.insert(0);
     }
     else if(this->midiData->GetFormatType() == MidiData::FormatType::MULTI_TRACK)
     {
         for(uint32_t i = 1; i < this->midiData->GetNumTracks(); i++)
-			this->tracksToPlaySet->insert(i);
+			this->tracksToPlaySet.insert(i);
     }
 }
 
@@ -62,7 +57,7 @@ void MidiPlayer::ConfigureToPlayAllTracks() const
 		return false;
 	}
 
-	if (this->tracksToPlaySet->size() == 0)
+	if (this->tracksToPlaySet.size() == 0)
 	{
 		ErrorSystem::Get()->Add("Given tracks-to-play set is empty.");
 		return false;
@@ -87,10 +82,10 @@ void MidiPlayer::ConfigureToPlayAllTracks() const
 	if (tempoEvent)
 		initialTempo = *tempoEvent->GetData<MidiData::MetaEvent::Tempo>();
 
-	for (uint32_t trackOffset : *this->tracksToPlaySet)
+	for (uint32_t trackOffset : this->tracksToPlaySet)
 	{
 		auto trackPlayer = new TrackPlayer(trackOffset, initialTempo);
-		this->trackPlayerArray->push_back(trackPlayer);
+		this->trackPlayerArray.push_back(trackPlayer);
 	}
 
 	if (!this->timer)
@@ -124,7 +119,7 @@ void MidiPlayer::ConfigureToPlayAllTracks() const
 	double deltaTimeSeconds = this->timer->GetDeltaTimeSeconds();
 
 	// Synchronization between the tracks here is called into question in my mind.  Hmmmmm.
-	for (TrackPlayer* trackPlayer : *this->trackPlayerArray)
+	for (TrackPlayer* trackPlayer : this->trackPlayerArray)
 		if (!trackPlayer->Advance(deltaTimeSeconds, this))
 			return false;
 
@@ -156,7 +151,7 @@ bool MidiPlayer::SilenceAllChannels()
 
 bool MidiPlayer::NoMoreToPlay()
 {
-	for (TrackPlayer* trackPlayer : *this->trackPlayerArray)
+	for (TrackPlayer* trackPlayer : this->trackPlayerArray)
 		if (trackPlayer->MoreToPlay(this))
 			return false;
 	

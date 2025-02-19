@@ -60,6 +60,6 @@ namespace AudioDataLib
 			std::vector<uint8_t> messageBuffer;
 		};
 
-		std::vector<MessageData*>* messageDataArray;
+		std::vector<MessageData*> messageDataArray;
 	};
 }

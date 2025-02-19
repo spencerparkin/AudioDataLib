@@ -42,8 +42,8 @@ namespace AudioDataLib
 			bool MatchesName(const std::string& chunkName, bool caseSensative) const;
 			bool MatchesFormType(const std::string& formType, bool caseSensative) const;
 
-			uint32_t GetNumSubChunks() const { return (uint32_t)this->subChunkArray->size(); }
-			const std::vector<Chunk*>& GetSubChunkArray() const { return *this->subChunkArray; }
+			uint32_t GetNumSubChunks() const { return (uint32_t)this->subChunkArray.size(); }
+			const std::vector<Chunk*>& GetSubChunkArray() const { return this->subChunkArray; }
 
 			const uint8_t* GetBuffer() const { return this->buffer; }
 			uint32_t GetBufferSize() const { return this->bufferSize; }
@@ -57,7 +57,7 @@ namespace AudioDataLib
 			std::string* formType;
 			const uint8_t* buffer;
 			uint32_t bufferSize;
-			std::vector<Chunk*>* subChunkArray;
+			std::vector<Chunk*> subChunkArray;
 		};
 
 		ByteSwapper byteSwapper;
@@ -66,6 +66,6 @@ namespace AudioDataLib
 		uint8_t* buffer;
 		uint32_t bufferSize;
 		Chunk* rootChunk;
-		std::set<std::string>* subChunkSet;
+		std::set<std::string> subChunkSet;
 	};
 }

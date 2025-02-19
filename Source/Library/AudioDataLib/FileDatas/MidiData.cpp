@@ -11,14 +11,11 @@ MidiData::MidiData()
 	this->formatType = FormatType::MULTI_TRACK;
 	this->timing.ticksPerQuarterNote = 48;
 	this->timing.type = Timing::Type::TICKS_PER_QUARTER_NOTE;
-	this->trackArray = new std::vector<Track*>();
 }
 
 /*virtual*/ MidiData::~MidiData()
 {
 	this->Clear();
-
-	delete this->trackArray;
 }
 
 /*static*/ MidiData* MidiData::Create()
@@ -33,10 +30,10 @@ MidiData::MidiData()
 
 void MidiData::Clear()
 {
-	for (Track* track : *this->trackArray)
+	for (Track* track : this->trackArray)
 		delete track;
 
-	this->trackArray->clear();
+	this->trackArray.clear();
 }
 
 /*virtual*/ FileData* MidiData::Clone() const
@@ -105,7 +102,7 @@ void MidiData::Clear()
 	}
 
 	fprintf(fp, "Format type: %s\n", formatTypeStr);
-	fprintf(fp, "Num. tracks: %d\n", uint32_t(this->trackArray->size()));
+	fprintf(fp, "Num. tracks: %d\n", uint32_t(this->trackArray.size()));
 	fprintf(fp, "Timing type: %s\n", timingTypeStr);
 
 	if (this->timing.type == Timing::Type::FRAMES_PER_SECOND)
@@ -116,7 +113,7 @@ void MidiData::Clear()
 	else if (this->timing.type == Timing::Type::TICKS_PER_QUARTER_NOTE)
 		fprintf(fp, "Ticks-per-QN: %d\n", this->timing.ticksPerQuarterNote);
 
-	for (uint32_t i = 0; i < this->trackArray->size(); i++)
+	for (uint32_t i = 0; i < this->trackArray.size(); i++)
 	{
 		const Track* track = this->GetTrack(i);
 		fprintf(fp, "-----------------------------------\n");
@@ -147,25 +144,25 @@ const MidiData::Track* MidiData::GetTrack(uint32_t i) const
 MidiData::Track* MidiData::GetTrack(uint32_t i)
 {
 	if (0 <= i && i < this->GetNumTracks())
-		return (*this->trackArray)[i];
+		return this->trackArray[i];
 
 	return nullptr;
 }
 
 void MidiData::AddTrack(Track* track)
 {
-	this->trackArray->push_back(track);
+	this->trackArray.push_back(track);
 }
 
 bool MidiData::RemoveTrack(uint32_t i)
 {
 	if (0 <= i && i < this->GetNumTracks())
 	{
-		Track* track = (*this->trackArray)[i];
+		Track* track = this->trackArray[i];
 		delete track;
 		if (i != this->GetNumTracks() - 1)
-			(*this->trackArray)[i] = (*this->trackArray)[this->GetNumTracks() - 1];
-		this->trackArray->pop_back();
+			this->trackArray[i] = this->trackArray[this->GetNumTracks() - 1];
+		this->trackArray.pop_back();
 		return true;
 	}
 
@@ -269,30 +266,27 @@ bool MidiData::CalculateTrackLengthInSeconds(uint32_t i, double& totalTimeSecond
 
 MidiData::Track::Track()
 {
-	this->eventArray = new std::vector<Event*>();
 }
 
 /*virtual*/ MidiData::Track::~Track()
 {
 	this->Clear();
-
-	delete this->eventArray;
 }
 
 void MidiData::Track::Clear()
 {
-	for (Event* event : *this->eventArray)
+	for (Event* event : this->eventArray)
 		delete event;
 
-	this->eventArray->clear();
+	this->eventArray.clear();
 }
 
 const MidiData::Event* MidiData::Track::GetEvent(uint32_t i) const
 {
-	if (i >= this->eventArray->size())
+	if (i >= this->eventArray.size())
 		return nullptr;
 
-	return (*this->eventArray)[i];
+	return this->eventArray[i];
 }
 
 //------------------------------- MidiData::Event -------------------------------

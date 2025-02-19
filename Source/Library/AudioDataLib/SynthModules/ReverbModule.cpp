@@ -49,7 +49,7 @@ ReverbModule::ReverbModule(uint8_t variation)
 		return false;
 	}
 
-	SynthModule* dependentModule = (*this->dependentModulesArray)[0].get();
+	SynthModule* dependentModule = this->dependentModulesArray[0].get();
 
 	if (!this->enabled)
 	{

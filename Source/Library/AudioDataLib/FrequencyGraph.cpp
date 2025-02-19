@@ -7,17 +7,15 @@ using namespace AudioDataLib;
 
 FrequencyGraph::FrequencyGraph()
 {
-	this->plotArray = new std::vector<Plot>();
 }
 
 /*virtual*/ FrequencyGraph::~FrequencyGraph()
 {
-	delete this->plotArray;
 }
 
 void FrequencyGraph::Clear()
 {
-	this->plotArray->clear();
+	this->plotArray.clear();
 }
 
 bool FrequencyGraph::FromWaveForm(const WaveForm& waveForm, uint32_t numSamples)
@@ -54,7 +52,7 @@ bool FrequencyGraph::FromWaveForm(const WaveForm& waveForm, uint32_t numSamples)
 		plot.strength = complexNumber.Magnitude();
 		plot.phase = complexNumber.Angle();
 		plot.frequency = double(i) / durationTimeSeconds;
-		this->plotArray->push_back(plot);
+		this->plotArray.push_back(plot);
 	}
 
 	return true;
@@ -70,20 +68,20 @@ void FrequencyGraph::GenerateSmootherGraph(FrequencyGraph& smootherGraph, double
 {
 	smootherGraph.Clear();
 
-	for (uint32_t i = 0; i < this->plotArray->size(); i++)
+	for (uint32_t i = 0; i < this->plotArray.size(); i++)
 	{
-		const Plot& plot = (*this->plotArray)[i];
+		const Plot& plot = this->plotArray[i];
 
 		Plot smoothPlot = plot;
 		uint32_t count = 1;
 
-		for(uint32_t j = 1; j < this->plotArray->size(); j++)
+		for(uint32_t j = 1; j < this->plotArray.size(); j++)
 		{
 			bool countBumped = false;
 
 			if (i >= j)
 			{
-				const Plot& localPlot = (*this->plotArray)[i - j];
+				const Plot& localPlot = this->plotArray[i - j];
 				if (::abs(plot.frequency - localPlot.frequency) <= frequencyRadius)
 				{
 					smoothPlot.strength += localPlot.strength;
@@ -92,9 +90,9 @@ void FrequencyGraph::GenerateSmootherGraph(FrequencyGraph& smootherGraph, double
 				}
 			}
 
-			if (i + j < this->plotArray->size())
+			if (i + j < this->plotArray.size())
 			{
-				const Plot& localPlot = (*this->plotArray)[i + j];
+				const Plot& localPlot = this->plotArray[i + j];
 				if (::abs(plot.frequency - localPlot.frequency) <= frequencyRadius)
 				{
 					smoothPlot.strength += localPlot.strength;
@@ -108,7 +106,7 @@ void FrequencyGraph::GenerateSmootherGraph(FrequencyGraph& smootherGraph, double
 		}
 
 		smoothPlot.strength /= double(count);
-		smootherGraph.plotArray->push_back(smoothPlot);
+		smootherGraph.plotArray.push_back(smoothPlot);
 	}
 }
 
@@ -120,7 +118,7 @@ double FrequencyGraph::EstimateFundamentalFrequency(double strengthThreshold /*=
 
 	for (uint32_t i = 0; i < maxScaleUpAttempts; i++)
 	{
-		for (const Plot& plot : *this->plotArray)
+		for (const Plot& plot : this->plotArray)
 		{
 			Plot scaledPlot = plot;
 			scaledPlot.strength *= scale;

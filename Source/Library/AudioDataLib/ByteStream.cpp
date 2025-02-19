@@ -288,41 +288,40 @@ AudioStream::AudioStream(const AudioData* audioData)
 
 ThreadSafeAudioStream::ThreadSafeAudioStream(std::shared_ptr<Mutex> mutex)
 {
-	this->mutex = new std::shared_ptr<Mutex>(mutex);
+	this->mutex = mutex;
 }
 
 /*virtual*/ ThreadSafeAudioStream::~ThreadSafeAudioStream()
 {
-	delete this->mutex;
 }
 
 /*virtual*/ uint64_t ThreadSafeAudioStream::WriteBytesToStream(const uint8_t* buffer, uint64_t bufferSize)
 {
-	MutexScopeLock scopeLock(this->mutex->get());
+	MutexScopeLock scopeLock(this->mutex.get());
 	return AudioStream::WriteBytesToStream(buffer, bufferSize);
 }
 
 /*virtual*/ uint64_t ThreadSafeAudioStream::ReadBytesFromStream(uint8_t* buffer, uint64_t bufferSize)
 {
-	MutexScopeLock scopeLock(this->mutex->get());
+	MutexScopeLock scopeLock(this->mutex.get());
 	return AudioStream::ReadBytesFromStream(buffer, bufferSize);
 }
 
 /*virtual*/ uint64_t ThreadSafeAudioStream::GetSize() const
 {
-	MutexScopeLock scopeLock(this->mutex->get());
+	MutexScopeLock scopeLock(this->mutex.get());
 	return AudioStream::GetSize();
 }
 
 /*virtual*/ bool ThreadSafeAudioStream::CanRead()
 {
-	MutexScopeLock scopeLock(this->mutex->get());
+	MutexScopeLock scopeLock(this->mutex.get());
 	return AudioStream::CanRead();
 }
 
 /*virtual*/ bool ThreadSafeAudioStream::CanWrite()
 {
-	MutexScopeLock scopeLock(this->mutex->get());
+	MutexScopeLock scopeLock(this->mutex.get());
 	return AudioStream::CanWrite();
 }
 
@@ -331,23 +330,21 @@ ThreadSafeAudioStream::ThreadSafeAudioStream(std::shared_ptr<Mutex> mutex)
 MemoryStream::MemoryStream()
 {
 	this->chunkSize = 5 * 1024;
-	this->chunkList = new std::list<Chunk*>();
 }
 
 /*virtual*/ MemoryStream::~MemoryStream()
 {
 	this->Clear();
-	delete this->chunkList;
 }
 
 void MemoryStream::Clear()
 {
-	while (this->chunkList->size() > 0)
+	while (this->chunkList.size() > 0)
 	{
-		auto iter = this->chunkList->begin();
+		auto iter = this->chunkList.begin();
 		Chunk* chunk = *iter;
 		delete chunk;
-		this->chunkList->erase(iter);
+		this->chunkList.erase(iter);
 	}
 }
 
@@ -355,18 +352,18 @@ void MemoryStream::Clear()
 {
 	uint64_t numBytesWritten = 0;
 
-	if(this->chunkList->size() == 0)
-		this->chunkList->push_back(new Chunk(this->chunkSize));
+	if(this->chunkList.size() == 0)
+		this->chunkList.push_back(new Chunk(this->chunkSize));
 
 	while (numBytesWritten < bufferSize)
 	{
-		Chunk* chunk = this->chunkList->back();
+		Chunk* chunk = this->chunkList.back();
 		
 		uint64_t numChunkBytesWritten = chunk->WriteToChunk(&buffer[numBytesWritten], bufferSize - numBytesWritten);
 		if (numChunkBytesWritten > 0)
 			numBytesWritten += numChunkBytesWritten;
 		else
-			this->chunkList->push_back(new Chunk(this->chunkSize));
+			this->chunkList.push_back(new Chunk(this->chunkSize));
 	}
 
 	return numBytesWritten;
@@ -376,9 +373,9 @@ void MemoryStream::Clear()
 {
 	uint64_t numBytesRead = 0;
 
-	while (numBytesRead < bufferSize && this->chunkList->size() > 0)
+	while (numBytesRead < bufferSize && this->chunkList.size() > 0)
 	{
-		Chunk* chunk = *this->chunkList->begin();
+		Chunk* chunk = *this->chunkList.begin();
 
 		uint64_t numChunkBytesRead = chunk->ReadFromChunk(&buffer[numBytesRead], bufferSize - numBytesRead);
 		if (numChunkBytesRead > 0)
@@ -386,7 +383,7 @@ void MemoryStream::Clear()
 		else
 		{
 			delete chunk;
-			this->chunkList->erase(this->chunkList->begin());
+			this->chunkList.erase(this->chunkList.begin());
 		}
 	}
 
@@ -397,7 +394,7 @@ void MemoryStream::Clear()
 {
 	uint64_t totalSizeBytes = 0;
 
-	for (const Chunk* chunk : *this->chunkList)
+	for (const Chunk* chunk : this->chunkList)
 		totalSizeBytes += chunk->GetSize();
 
 	return totalSizeBytes;

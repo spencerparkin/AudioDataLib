@@ -4,12 +4,10 @@ using namespace AudioDataLib;
 
 SynthModule::SynthModule()
 {
-	this->dependentModulesArray = new std::vector<std::shared_ptr<SynthModule>>();
 }
 
 /*virtual*/ SynthModule::~SynthModule()
 {
-	delete this->dependentModulesArray;
 }
 
 /*virtual*/ bool SynthModule::MoreSoundAvailable()
@@ -23,38 +21,38 @@ SynthModule::SynthModule()
 void SynthModule::AddDependentModule(std::shared_ptr<SynthModule> synthModule)
 {
 	// TODO: Check for circular reference and, if found, return an error?
-	this->dependentModulesArray->push_back(synthModule);
+	this->dependentModulesArray.push_back(synthModule);
 }
 
 std::shared_ptr<SynthModule> SynthModule::GetDependentModule(uint32_t i)
 {
-	return (*this->dependentModulesArray)[i];
+	return this->dependentModulesArray[i];
 }
 
 uint32_t SynthModule::GetNumDependentModules() const
 {
-	return this->dependentModulesArray->size();
+	return this->dependentModulesArray.size();
 }
 
 void SynthModule::PruneDeadBranches()
 {
 	uint32_t i = 0;
-	while (i < this->dependentModulesArray->size())
+	while (i < this->dependentModulesArray.size())
 	{
-		SynthModule* synthModule = (*this->dependentModulesArray)[i].get();
+		SynthModule* synthModule = this->dependentModulesArray[i].get();
 		if (synthModule->MoreSoundAvailable())
 			i++;
 		else
 		{
-			if (i < this->dependentModulesArray->size() - 1)
-				(*this->dependentModulesArray)[i] = (*this->dependentModulesArray)[this->dependentModulesArray->size() - 1];
+			if (i < this->dependentModulesArray.size() - 1)
+				this->dependentModulesArray[i] = this->dependentModulesArray[this->dependentModulesArray.size() - 1];
 
-			this->dependentModulesArray->pop_back();
+			this->dependentModulesArray.pop_back();
 		}
 	}
 }
 
 void SynthModule::Clear()
 {
-	this->dependentModulesArray->clear();
+	this->dependentModulesArray.clear();
 }

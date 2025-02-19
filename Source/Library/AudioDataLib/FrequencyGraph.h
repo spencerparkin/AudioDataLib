@@ -56,7 +56,7 @@ namespace AudioDataLib
 		/**
 		 * Get read-only access to this graph's plot array.
 		 */
-		const std::vector<Plot>& GetPlotArray() const { return *this->plotArray; }
+		const std::vector<Plot>& GetPlotArray() const { return this->plotArray; }
 
 		/**
 		 * This creates a smoother-looking version of this frequency graph that might be easier to look at.
@@ -74,6 +74,6 @@ namespace AudioDataLib
 
 	protected:
 		
-		std::vector<Plot>* plotArray;
+		std::vector<Plot> plotArray;
 	};
 }
