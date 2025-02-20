@@ -180,9 +180,10 @@ namespace AudioDataLib
 			 * of the derived class type.
 			 * 
 			 * @param[in,out] inputStream The byte stream from which to read bytes.
+			 * @param[in] runningStatusByte If applicable, this is used rather than consuming the status byte from the given stream.
 			 * @return True is returned on success; false on failure.
 			 */
-			virtual bool Decode(ByteStream& inputStream) = 0;
+			virtual bool Decode(ByteStream& inputStream, uint8_t runningStatusByte = 0) = 0;
 
 			/**
 			 * Try to write this MIDI message (of the derived class type) as a sequence
@@ -209,7 +210,7 @@ namespace AudioDataLib
 			SystemExclusiveEvent();
 			virtual ~SystemExclusiveEvent();
 
-			virtual bool Decode(ByteStream& inputStream) override;
+			virtual bool Decode(ByteStream& inputStream, uint8_t runningStatusByte = 0) override;
 			virtual bool Encode(ByteStream& outputStream) const override;
 
 			virtual std::string LogMessage() const override;
@@ -221,7 +222,7 @@ namespace AudioDataLib
 			MetaEvent();
 			virtual ~MetaEvent();
 
-			virtual bool Decode(ByteStream& inputStream) override;
+			virtual bool Decode(ByteStream& inputStream, uint8_t runningStatusByte = 0) override;
 			virtual bool Encode(ByteStream& outputStream) const override;
 
 			virtual std::string LogMessage() const override;
@@ -381,7 +382,7 @@ namespace AudioDataLib
 			ChannelEvent();
 			virtual ~ChannelEvent();
 
-			virtual bool Decode(ByteStream& inputStream) override;
+			virtual bool Decode(ByteStream& inputStream, uint8_t runningStatusByte = 0) override;
 			virtual bool Encode(ByteStream& outputStream) const override;
 
 			virtual std::string LogMessage() const override;

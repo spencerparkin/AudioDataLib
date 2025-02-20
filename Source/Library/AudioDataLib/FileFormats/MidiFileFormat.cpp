@@ -16,6 +16,7 @@ MidiFileFormat::MidiFileFormat()
 {
 	// See: https://github.com/colxi/midi-parser-js/wiki/MIDI-File-Format-Specifications
 	//      https://majicdesigns.github.io/MD_MIDIFile/page_timing.html
+	//      http://midi.teragonaudio.com/tech/midispec/run.htm#:~:text=The%20MIDI%20spec%20allows%20for,referred%20to%20as%20running%20status.
 
 	bool success = false;
 	fileData = nullptr;
@@ -87,11 +88,13 @@ MidiFileFormat::MidiFileFormat()
 		auto track = new MidiData::Track();
 		midiData->trackArray.push_back(track);
 
+		uint8_t lastChannelStatusByte = 0;
+
 		ReadOnlyBufferStream bufferStream(chunk->GetBuffer(), chunk->GetBufferSize());
 		while (bufferStream.CanRead())
 		{
 			MidiData::Event* event = nullptr;
-			if (!DecodeEvent(bufferStream, event))
+			if (!this->DecodeEvent(bufferStream, event, &lastChannelStatusByte))
 			{
 				decodeFailureOccurred = true;
 				break;
@@ -135,7 +138,7 @@ MidiFileFormat::MidiFileFormat()
 	if (4 != outputStream.WriteBytesToStream((const uint8_t*)&chunkSize, 4))
 	{
 		ErrorSystem::Get()->Add("Failed to write header chunk size.");
-		
+		return false;
 	}
 
 	uint16_t formatType = byteSwapper.Resolve(uint16_t(midiData->GetFormatType()));
@@ -320,7 +323,7 @@ MidiFileFormat::MidiFileFormat()
 	return true;
 }
 
-/*static*/ bool MidiFileFormat::DecodeEvent(ByteStream& inputStream, MidiData::Event*& event)
+/*static*/ bool MidiFileFormat::DecodeEvent(ByteStream& inputStream, MidiData::Event*& event, uint8_t* lastChannelStatusByte /*= nullptr*/)
 {
 	uint64_t deltaTimeTicks = 0;
 	event = nullptr;
@@ -331,24 +334,44 @@ MidiFileFormat::MidiFileFormat()
 		return false;
 	}
 
-	uint8_t eventType = 0;
-	if (1 != inputStream.PeekBytesFromStream(&eventType, 1))
+	uint8_t statusByte = 0;
+	if (1 != inputStream.PeekBytesFromStream(&statusByte, 1))
 	{
 		ErrorSystem::Get()->Add("Could not peek event type.");
 		return false;
 	}
 	
-	eventType = (eventType & 0xF0) >> 4;
+	uint8_t eventType = (statusByte & 0xF0) >> 4;
+	uint8_t runningStatusByte = 0;
+
+	// Supposedly, data for an event should never be confused with a status byte in the case of "running status".
+	// The "running status" scheme was used to reduce the size of the MIDI stream back in the day when computers
+	// were slow and memory wasn't cheap.
+	if (0x0 <= eventType && eventType <= 0x7)
+	{
+		if (!lastChannelStatusByte || *lastChannelStatusByte == 0)
+		{
+			ErrorSystem::Get()->Add("Running status encountered, but no last channel status byte.");
+			return false;
+		}
+
+		statusByte = *lastChannelStatusByte;
+		eventType = (statusByte & 0xF0) >> 4;
+		runningStatusByte = statusByte;
+	}
 
 	if (0x8 <= eventType && eventType <= 0xE)
+	{
 		event = new MidiData::ChannelEvent();
+
+		if (lastChannelStatusByte)
+			*lastChannelStatusByte = statusByte;
+	}
 	else if (eventType == 0xF)
 	{
-		inputStream.PeekBytesFromStream(&eventType, 1);
-
-		if (eventType == 0xFF)
+		if (statusByte == 0xFF)
 			event = new MidiData::MetaEvent();
-		else if (eventType == 0xF0 || eventType == 0xF7)
+		else if (statusByte == 0xF0 || statusByte == 0xF7)
 			event = new MidiData::SystemExclusiveEvent();
 	}
 
@@ -358,7 +381,7 @@ MidiFileFormat::MidiFileFormat()
 		return false;
 	}
 
-	if (!event->Decode(inputStream))
+	if (!event->Decode(inputStream, runningStatusByte))
 	{
 		ErrorSystem::Get()->Add("Failed to decode event type.");
 		delete event;

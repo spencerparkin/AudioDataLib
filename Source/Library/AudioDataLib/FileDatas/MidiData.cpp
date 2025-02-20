@@ -310,7 +310,7 @@ MidiData::SystemExclusiveEvent::SystemExclusiveEvent()
 {
 }
 
-/*virtual*/ bool MidiData::SystemExclusiveEvent::Decode(ByteStream& inputStream)
+/*virtual*/ bool MidiData::SystemExclusiveEvent::Decode(ByteStream& inputStream, uint8_t runningStatusByte /*= 0*/)
 {
 	return false;
 }
@@ -433,7 +433,7 @@ MidiData::MetaEvent::TimeSignature::operator std::string() const
 	}
 }
 
-/*virtual*/ bool MidiData::MetaEvent::Decode(ByteStream& inputStream)
+/*virtual*/ bool MidiData::MetaEvent::Decode(ByteStream& inputStream, uint8_t runningStatusByte /*= 0*/)
 {
 	if (this->type != Type::UNKNOWN || this->data != nullptr)
 	{
@@ -890,7 +890,7 @@ MidiData::ChannelEvent::ChannelEvent()
 {
 }
 
-/*virtual*/ bool MidiData::ChannelEvent::Decode(ByteStream& inputStream)
+/*virtual*/ bool MidiData::ChannelEvent::Decode(ByteStream& inputStream, uint8_t runningStatusByte /*= 0*/)
 {
 	if (this->type != Type::UNKNOWN)
 	{
@@ -898,15 +898,16 @@ MidiData::ChannelEvent::ChannelEvent()
 		return false;
 	}
 
-	uint8_t eventType = 0;
-	if (1 != inputStream.ReadBytesFromStream(&eventType, 1))
+	uint8_t statusByte = runningStatusByte;
+	if (statusByte == 0 && 1 != inputStream.ReadBytesFromStream(&statusByte, 1))
 	{
 		ErrorSystem::Get()->Add("Could not read event-type/channel byte.");
 		return false;
 	}
 
-	this->type = Type(eventType >> 4);
-	this->channel = (eventType & 0x0F);
+	// Note that a NOTE_ON event with velocity zero is the same as a NOTE_OFF event.
+	this->type = Type(statusByte >> 4);
+	this->channel = (statusByte & 0x0F);
 
 	if (1 != inputStream.ReadBytesFromStream(&this->param1, 1))
 	{
@@ -934,8 +935,8 @@ MidiData::ChannelEvent::ChannelEvent()
 		return false;
 	}
 
-	uint8_t eventType = (uint8_t(this->type) << 4) | this->channel;
-	if (1 != outputStream.WriteBytesToStream((const uint8_t*)&eventType, 1))
+	uint8_t statusByte = (uint8_t(this->type) << 4) | this->channel;
+	if (1 != outputStream.WriteBytesToStream((const uint8_t*)&statusByte, 1))
 	{
 		ErrorSystem::Get()->Add("Couldn't write event-type/channel byte.");
 		return false;

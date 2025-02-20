@@ -20,7 +20,7 @@ namespace AudioDataLib
 		virtual bool ReadFromStream(ByteStream& inputStream, std::unique_ptr<FileData>& fileData) override;
 		virtual bool WriteToStream(ByteStream& outputStream, const FileData* fileData) override;
 
-		static bool DecodeEvent(ByteStream& inputStream, MidiData::Event*& event);
+		static bool DecodeEvent(ByteStream& inputStream, MidiData::Event*& event, uint8_t* lastChannelStatusByte = nullptr);
 		static bool EncodeEvent(ByteStream& outputStream, const MidiData::Event* event);
 
 		static bool DecodeVariableLengthValue(uint64_t& value, ByteStream& inputStream);
