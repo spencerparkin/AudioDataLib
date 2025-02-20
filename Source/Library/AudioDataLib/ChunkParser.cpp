@@ -186,6 +186,37 @@ bool ChunkParser::Chunk::ParseStream(ReadOnlyBufferStream& inputStream, ChunkPar
 	nameBuf[4] = '\0';
 	*this->name = nameBuf;
 
+	// Special case: Some software generate RIFF-type files with XML-style comments in them, which is dumb, but whatever.  Try to deal with it here.
+	if (0 == strcmp(nameBuf, "<!--"))
+	{
+		bool foundEndTag = false;
+		std::list<char> byteList;
+		while (inputStream.CanRead() && !foundEndTag)
+		{
+			uint8_t byte = 0;
+			inputStream.ReadBytesFromStream(&byte, 1);
+			byteList.push_back(byte);
+			if (byteList.size() > 3)
+				byteList.pop_front();
+
+			char endTag[4];
+			int i = 0;
+			for (char ch : byteList)
+				endTag[i++] = ch;
+			endTag[i] = '\0';
+			if (0 == strcmp(endTag, "-->"))
+				foundEndTag = true;
+		}
+
+		if (!foundEndTag)
+		{
+			ErrorSystem::Get()->Add("XML start tag encountered (as 4cc), but not end-tag found.");
+			return false;
+		}
+
+		return true;
+	}
+
 	if (4 != inputStream.ReadBytesFromStream((uint8_t*)&this->bufferSize, sizeof(uint32_t)))
 	{
 		ErrorSystem::Get()->Add("Could not read chunk size.");
@@ -195,12 +226,19 @@ bool ChunkParser::Chunk::ParseStream(ReadOnlyBufferStream& inputStream, ChunkPar
 	this->bufferSize = chunkParser->byteSwapper.Resolve(this->bufferSize);
 	this->buffer = inputStream.GetBuffer() + inputStream.GetReadOffset();
 
+	uint64_t nextReadOffset = inputStream.GetReadOffset() + this->bufferSize;
+	if (!inputStream.CanSetReadOffset(nextReadOffset))
+	{
+		ErrorSystem::Get()->Add("Chunk size goes beyond input stream.");
+		return false;
+	}
+
 	ReadOnlyBufferStream subInputStream(this->buffer, this->bufferSize);
 
 	if (!chunkParser->ParseChunkData(subInputStream, this))
 		return false;
 
-	if (!inputStream.SetReadOffset(inputStream.GetReadOffset() + this->bufferSize))
+	if (!inputStream.SetReadOffset(nextReadOffset))
 	{
 		ErrorSystem::Get()->Add("Could not walk over data section of chunk.");
 		return false;

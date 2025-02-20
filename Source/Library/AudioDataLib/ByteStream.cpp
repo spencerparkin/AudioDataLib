@@ -193,6 +193,11 @@ bool ReadOnlyBufferStream::SetReadOffset(uint64_t readOffset)
 	return true;
 }
 
+bool ReadOnlyBufferStream::CanSetReadOffset(uint64_t readOffset) const
+{
+	return readOffset <= this->readOnlyBufferSize;
+}
+
 //------------------------- WriteOnlyBufferStream -------------------------
 
 WriteOnlyBufferStream::WriteOnlyBufferStream(uint8_t* buffer, uint64_t bufferSize)

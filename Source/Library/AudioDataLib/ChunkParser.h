@@ -6,7 +6,7 @@
 namespace AudioDataLib
 {
 	/**
-	 * @brief This class provides commong RIFF-based parsing support.
+	 * @brief This class provides common RIFF-based parsing support.
 	 */
 	class AUDIO_DATA_LIB_API ChunkParser
 	{
