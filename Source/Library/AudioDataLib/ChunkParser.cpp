@@ -210,7 +210,7 @@ bool ChunkParser::Chunk::ParseStream(ReadOnlyBufferStream& inputStream, ChunkPar
 
 		if (!foundEndTag)
 		{
-			ErrorSystem::Get()->Add("XML start tag encountered (as 4cc), but not end-tag found.");
+			ErrorSystem::Get()->Add("XML start tag encountered (as 4cc), but no end-tag found.");
 			return false;
 		}
 
