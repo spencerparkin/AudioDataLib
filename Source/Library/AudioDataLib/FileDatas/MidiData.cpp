@@ -304,15 +304,67 @@ MidiData::Event::Event()
 
 MidiData::SystemExclusiveEvent::SystemExclusiveEvent()
 {
+	this->data = nullptr;
+	this->dataLength = 0;
+	this->type = Type::NORMAL;
+	this->endOfData = false;
 }
 
 /*virtual*/ MidiData::SystemExclusiveEvent::~SystemExclusiveEvent()
 {
+	delete[] this->data;
 }
 
 /*virtual*/ bool MidiData::SystemExclusiveEvent::Decode(ByteStream& inputStream, uint8_t runningStatusByte /*= 0*/)
 {
-	return false;
+	if (this->data != nullptr)
+		return false;
+
+	uint8_t eventType = 0;
+	if (1 != inputStream.ReadBytesFromStream(&eventType, 1))
+	{
+		ErrorSystem::Get()->Add("Could not read event type byte.");
+		return false;
+	}
+
+	this->type = Type(eventType & 0xF);
+	
+	if (this->type != Type::NORMAL && this->type != Type::DIVIDED)
+	{
+		ErrorSystem::Get()->Add(std::format("Did not recognize system exclusive event type %d.", int(this->type)));
+		return false;
+	}
+
+	if (!MidiFileFormat::DecodeVariableLengthValue(this->dataLength, inputStream))
+		return false;
+
+	if (this->dataLength == 0)
+	{
+		ErrorSystem::Get()->Add("Encountered zero-size system exclusive event.");
+		return false;
+	}
+
+	this->data = new uint8_t[this->dataLength];
+	if (!this->data)
+	{
+		ErrorSystem::Get()->Add(std::format("Failed to allocated {} bytes for system exclusive event.", this->dataLength));
+		return false;
+	}
+
+	if (dataLength != inputStream.ReadBytesFromStream(this->data, this->dataLength))
+	{
+		ErrorSystem::Get()->Add(std::format("Failed to read {} bytes for system exclusive event.", dataLength));
+		return false;
+	}
+
+	uint8_t terminatorByte = 0;
+	if (1 == inputStream.PeekBytesFromStream(&terminatorByte, 1) && terminatorByte == 0xF7)
+	{
+		this->endOfData = true;
+		inputStream.ReadBytesFromStream(&terminatorByte, 1);
+	}
+
+	return true;
 }
 
 /*virtual*/ bool MidiData::SystemExclusiveEvent::Encode(ByteStream& outputStream) const
@@ -354,16 +406,6 @@ MidiData::MetaEvent::KeySignature::operator std::string() const
 		keySigStr += " minor";
 
 	return keySigStr;
-}
-
-MidiData::MetaEvent::TimeSignature::operator std::string() const
-{
-	std::string timeSigStr;
-	uint32_t actualDenom = 1 << this->denominator;
-	char timeSigBuf[64];
-	sprintf(timeSigBuf, "%d / %d", this->numerator, actualDenom);
-	timeSigStr = timeSigBuf;
-	return timeSigStr;
 }
 
 /*virtual*/ MidiData::MetaEvent::~MetaEvent()
@@ -420,17 +462,27 @@ MidiData::MetaEvent::TimeSignature::operator std::string() const
 			break;
 		}
 		case Type::SEQUENCER_SPECIFIC:
+		default:
 		{
 			auto opaque = static_cast<Opaque*>(this->data);
-			delete[] opaque->buffer;
-			delete opaque;
+			if (opaque)
+			{
+				delete[] opaque->buffer;
+				delete opaque;
+			}
 			break;
 		}
-        default:
-        {
-            break;
-        }
 	}
+}
+
+MidiData::MetaEvent::TimeSignature::operator std::string() const
+{
+	std::string timeSigStr;
+	uint32_t actualDenom = 1 << this->denominator;
+	char timeSigBuf[64];
+	sprintf(timeSigBuf, "%d / %d", this->numerator, actualDenom);
+	timeSigStr = timeSigBuf;
+	return timeSigStr;
 }
 
 /*virtual*/ bool MidiData::MetaEvent::Decode(ByteStream& inputStream, uint8_t runningStatusByte /*= 0*/)

@@ -214,6 +214,17 @@ namespace AudioDataLib
 			virtual bool Encode(ByteStream& outputStream) const override;
 
 			virtual std::string LogMessage() const override;
+
+			enum Type : uint8_t
+			{
+				NORMAL,
+				DIVIDED
+			};
+
+			Type type;
+			uint8_t* data;
+			uint64_t dataLength;
+			bool endOfData;
 		};
 
 		class AUDIO_DATA_LIB_API MetaEvent : public Event
