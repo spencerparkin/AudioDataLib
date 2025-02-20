@@ -16,7 +16,7 @@ MidiFileFormat::MidiFileFormat()
 {
 	// See: https://github.com/colxi/midi-parser-js/wiki/MIDI-File-Format-Specifications
 	//      https://majicdesigns.github.io/MD_MIDIFile/page_timing.html
-	//      http://midi.teragonaudio.com/tech/midispec/run.htm#:~:text=The%20MIDI%20spec%20allows%20for,referred%20to%20as%20running%20status.
+	//      http://midi.teragonaudio.com/tech/midispec/run.htm
 
 	bool success = false;
 	fileData = nullptr;

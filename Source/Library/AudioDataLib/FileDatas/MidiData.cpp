@@ -633,6 +633,7 @@ MidiData::MetaEvent::TimeSignature::operator std::string() const
 			break;
 		}
 		case Type::SEQUENCER_SPECIFIC:
+		default:
 		{
 			if (dataLength == 0)
 			{
@@ -653,10 +654,6 @@ MidiData::MetaEvent::TimeSignature::operator std::string() const
 
 			break;
 		}
-        default:
-        {
-            break;
-        }
 	}
 
 	return true;
@@ -834,6 +831,7 @@ MidiData::MetaEvent::TimeSignature::operator std::string() const
 			break;
 		}
 		case Type::SEQUENCER_SPECIFIC:
+		default:
 		{
 			auto opaque = static_cast<const Opaque*>(this->data);
 
@@ -854,10 +852,6 @@ MidiData::MetaEvent::TimeSignature::operator std::string() const
 			}
 
 			successfulEncoding = true;
-			break;
-		}
-		default:
-		{
 			break;
 		}
 	}
