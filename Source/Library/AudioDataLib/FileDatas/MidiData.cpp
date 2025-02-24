@@ -304,64 +304,41 @@ MidiData::Event::Event()
 
 MidiData::SystemExclusiveEvent::SystemExclusiveEvent()
 {
-	this->data = nullptr;
-	this->dataLength = 0;
-	this->type = Type::NORMAL;
-	this->endOfData = false;
 }
 
 /*virtual*/ MidiData::SystemExclusiveEvent::~SystemExclusiveEvent()
 {
-	delete[] this->data;
 }
 
 /*virtual*/ bool MidiData::SystemExclusiveEvent::Decode(ByteStream& inputStream, uint8_t runningStatusByte /*= 0*/)
 {
-	if (this->data != nullptr)
-		return false;
-
-	uint8_t eventType = 0;
-	if (1 != inputStream.ReadBytesFromStream(&eventType, 1))
+	uint8_t statusByte = 0;
+	if (1 != inputStream.ReadBytesFromStream(&statusByte, 1))
 	{
 		ErrorSystem::Get()->Add("Could not read event type byte.");
 		return false;
 	}
 
-	this->type = Type(eventType & 0xF);
-	
-	if (this->type != Type::NORMAL && this->type != Type::DIVIDED)
+	if (statusByte != 0xF0)
 	{
-		ErrorSystem::Get()->Add(std::format("Did not recognize system exclusive event type %d.", int(this->type)));
+		ErrorSystem::Get()->Add(std::format("Expected 0xF0 as the start of the system exclusive message.  Got {:#x} instead.", statusByte));
 		return false;
 	}
 
-	if (!MidiFileFormat::DecodeVariableLengthValue(this->dataLength, inputStream))
-		return false;
-
-	if (this->dataLength == 0)
+	this->byteArray.clear();
+	while (true)
 	{
-		ErrorSystem::Get()->Add("Encountered zero-size system exclusive event.");
-		return false;
-	}
+		uint8_t dataByte = 0;
+		if (1 != inputStream.ReadBytesFromStream(&dataByte, 1))
+		{
+			ErrorSystem::Get()->Add("Failed to read data byte for system exclusive message.");
+			return false;
+		}
 
-	this->data = new uint8_t[this->dataLength];
-	if (!this->data)
-	{
-		ErrorSystem::Get()->Add(std::format("Failed to allocated {} bytes for system exclusive event.", this->dataLength));
-		return false;
-	}
+		if (dataByte == 0xF7)
+			break;
 
-	if (dataLength != inputStream.ReadBytesFromStream(this->data, this->dataLength))
-	{
-		ErrorSystem::Get()->Add(std::format("Failed to read {} bytes for system exclusive event.", dataLength));
-		return false;
-	}
-
-	uint8_t terminatorByte = 0;
-	if (1 == inputStream.PeekBytesFromStream(&terminatorByte, 1) && terminatorByte == 0xF7)
-	{
-		this->endOfData = true;
-		inputStream.ReadBytesFromStream(&terminatorByte, 1);
+		this->byteArray.push_back(dataByte);
 	}
 
 	return true;
@@ -369,12 +346,41 @@ MidiData::SystemExclusiveEvent::SystemExclusiveEvent()
 
 /*virtual*/ bool MidiData::SystemExclusiveEvent::Encode(ByteStream& outputStream) const
 {
-	return false;
+	uint8_t statusByte = 0xF0;
+	if (1 != outputStream.WriteBytesToStream(&statusByte, 1))
+		return false;
+
+	if (this->byteArray.size() != outputStream.WriteBytesToStream(this->byteArray.data(), this->byteArray.size()))
+		return false;
+
+	uint8_t terminatorByte = 0xF7;
+	if (1 != outputStream.WriteBytesToStream(&statusByte, 1))
+		return false;
+
+	return true;
 }
 
 /*virtual*/ std::string MidiData::SystemExclusiveEvent::LogMessage() const
 {
 	return "?";
+}
+
+void MidiData::SystemExclusiveEvent::SetAsMasterVolumeEvent(double volume)
+{
+	if (volume < 0.0)
+		volume = 0.0;
+	else if (volume > 1.0)
+		volume = 1.0;
+
+	uint16_t volumeQuantized = uint16_t(volume * 16383.0) & 0x3FFF;
+
+	this->byteArray.clear();
+	this->byteArray.push_back(0x7F);		// This is a universal real-time system exclusive message.
+	this->byteArray.push_back(0x7F);		// All devices should respond to this message.
+	this->byteArray.push_back(0x04);		// This is a device control message.
+	this->byteArray.push_back(0x01);		// This is a master volume message.
+	this->byteArray.push_back(uint8_t(volumeQuantized & 0x007F));			// Low 7-bit volume value.
+	this->byteArray.push_back(uint8_t((volumeQuantized & 0x7F00) >> 8));	// High 7-bit volume vlaue.
 }
 
 //------------------------------- MidiData::MetaEvent -------------------------------

@@ -73,7 +73,7 @@ namespace AudioDataLib
 		Timer* GetTimer() { return this->timer; }
 
 	protected:
-		void Clear();
+		void ClearTracks();
 		bool SilenceAllChannels();
 
 		class TrackPlayer

@@ -371,7 +371,7 @@ MidiFileFormat::MidiFileFormat()
 	{
 		if (statusByte == 0xFF)
 			event = new MidiData::MetaEvent();
-		else if (statusByte == 0xF0 || statusByte == 0xF7)
+		else if (statusByte == 0xF0)
 			event = new MidiData::SystemExclusiveEvent();
 	}
 

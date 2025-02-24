@@ -22,6 +22,7 @@ void Timer::Start()
 	this->running = true;
 	this->InitBaseTime();
 	this->startTimeSeconds = this->GetCurrentTimeSeconds();
+	this->lastTimeSeconds = 0.0;
 }
 
 void Timer::Stop()

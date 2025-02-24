@@ -17,10 +17,10 @@ MidiPlayer::MidiPlayer(Timer* timer)
 
 /*virtual*/ MidiPlayer::~MidiPlayer()
 {
-	this->Clear();
+	this->ClearTracks();
 }
 
-void MidiPlayer::Clear()
+void MidiPlayer::ClearTracks()
 {
 	for (TrackPlayer* trackPlayer : this->trackPlayerArray)
 		delete trackPlayer;
@@ -46,7 +46,7 @@ void MidiPlayer::ConfigureToPlayAllTracks() const
 
 /*virtual*/ bool MidiPlayer::Setup()
 {
-	this->Clear();
+	this->ClearTracks();
 
 	if (!MidiMsgSource::Setup())
 		return false;
@@ -106,7 +106,7 @@ void MidiPlayer::ConfigureToPlayAllTracks() const
 
 	MidiMsgSource::Shutdown();
 	
-	this->Clear();
+	this->ClearTracks();
 
 	return !ErrorSystem::Get()->Errors();
 }

@@ -215,16 +215,9 @@ namespace AudioDataLib
 
 			virtual std::string LogMessage() const override;
 
-			enum Type : uint8_t
-			{
-				NORMAL,
-				DIVIDED
-			};
+			void SetAsMasterVolumeEvent(double volume);
 
-			Type type;
-			uint8_t* data;
-			uint64_t dataLength;
-			bool endOfData;
+			std::vector<uint8_t> byteArray;
 		};
 
 		class AUDIO_DATA_LIB_API MetaEvent : public Event
