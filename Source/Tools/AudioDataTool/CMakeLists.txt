@@ -17,7 +17,7 @@ set(TOOL_SOURCES
     SDLAudio.h
 )
 
-set(SDL_ROOT "C:/ENG_DEV/driver/trunk/Main_8/apis/SDL2-2.28.5")
+set(SDL_ROOT "C:/SDL3-3.2.6")
 
 source_group("Sources" TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${TOOL_SOURCES})
 
@@ -25,7 +25,7 @@ add_executable(AudioDataTool ${TOOL_SOURCES})
 
 target_link_libraries(AudioDataTool PRIVATE
     AudioDataLib
-    SDL2
+    SDL3
     RtMidi
 )
 

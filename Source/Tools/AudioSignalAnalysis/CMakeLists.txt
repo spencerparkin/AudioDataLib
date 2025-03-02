@@ -19,7 +19,7 @@ set(APP_SOURCES
 
 source_group("Sources" TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${APP_SOURCES})
 
-set(WX_WIDGETS_ROOT "E:/wxWidgets")
+set(WX_WIDGETS_ROOT "C:/wxWidgets")
 
 if(WIN32)
     add_executable(AudioSignalAnalysis WIN32 ${APP_SOURCES})

@@ -31,8 +31,18 @@ bool SDLAudio::Setup(const std::string& deviceSubStr)
 		return false;
 	}
 
-	int isCapture = (this->audioDirection == AudioDirection::SOUND_IN) ? 1 : 0;
-	int numAudioDevices = SDL_GetNumAudioDevices(isCapture);
+	int numAudioDevices = 0;
+	SDL_AudioDeviceID* audioDeviceIDArray = nullptr;
+	switch (this->audioDirection)
+	{
+	case AudioDirection::SOUND_IN:
+		audioDeviceIDArray = SDL_GetAudioRecordingDevices(&numAudioDevices);
+		break;
+	case AudioDirection::SOUND_OUT:
+		audioDeviceIDArray = SDL_GetAudioPlaybackDevices(&numAudioDevices);
+		break;
+	}
+
 	if (numAudioDevices == 0)
 	{
 		ErrorSystem::Get()->Add("SDL did not detect any audio output devices.");
@@ -45,27 +55,31 @@ bool SDLAudio::Setup(const std::string& deviceSubStr)
 		printf("Configured to receive audio input.\n");
 
 	printf("Found %d audio device(s)...\n", numAudioDevices);
-	int j = 0;
+	this->audioDeviceID = 0;
 	for (int i = 0; i < numAudioDevices; i++)
 	{
-		std::string audioDeviceName = SDL_GetAudioDeviceName(i, isCapture);
-		printf("%d: %s\n", i + 1, audioDeviceName.c_str());
+		std::string audioDeviceName = SDL_GetAudioDeviceName(audioDeviceIDArray[i]);
+		printf("%d: %s\n", int(audioDeviceIDArray[i]), audioDeviceName.c_str());
 
 		if (deviceSubStr.length() > 0 && audioDeviceName.find(deviceSubStr) != std::string::npos)
-			j = i;
+			this->audioDeviceID = audioDeviceIDArray[i];
 	}
 
-	std::string chosenAudioDeviceName = SDL_GetAudioDeviceName(j, isCapture);
+	if (this->audioDeviceID == 0)
+	{
+		ErrorSystem::Get()->Add("Did not find desired audio device.");
+		return false;
+	}
+
+	std::string chosenAudioDeviceName = SDL_GetAudioDeviceName(this->audioDeviceID);
 	printf("\nChosen device: %s\n\n", chosenAudioDeviceName.c_str());
 
 	this->audioSpec.freq = 48000;
-	this->audioSpec.format = AUDIO_S16LSB;
+	this->audioSpec.format = SDL_AUDIO_S16LE;
 	this->audioSpec.channels = 1;
-	this->audioSpec.callback = &SDLAudio::AudioCallbackEntryPoint;
-	this->audioSpec.userdata = this;
 
-	this->audioDeviceID = SDL_OpenAudioDevice(chosenAudioDeviceName.c_str(), 0, &this->audioSpec, &this->audioSpec, SDL_AUDIO_ALLOW_ANY_CHANGE);
-	if (this->audioDeviceID == 0)
+	SDL_AudioStream* audioStream = SDL_OpenAudioDeviceStream(this->audioDeviceID, &this->audioSpec, &SDLAudio::AudioCallbackEntryPoint, this);
+	if (!audioStream)
 	{
 		ErrorSystem::Get()->Add(std::format("Failed to open audio device: {}", SDL_GetError()));
 		return false;
@@ -90,7 +104,7 @@ bool SDLAudio::Setup(const std::string& deviceSubStr)
 		this->recordedAudioStream->SetFormat(format);
 
 	// This will cause our callback to start getting called.
-	SDL_PauseAudioDevice(this->audioDeviceID, 0);
+	SDL_PauseAudioDevice(this->audioDeviceID);
 
 	return true;
 }
@@ -109,30 +123,37 @@ bool SDLAudio::Shutdown()
 	return true;
 }
 
-/*static*/ void SDLCALL SDLAudio::AudioCallbackEntryPoint(void* userData, Uint8* buffer, int length)
+//void* userData, Uint8* buffer, int length
+/*static*/ void SDLCALL SDLAudio::AudioCallbackEntryPoint(void* userData, SDL_AudioStream* stream, int additionalAmount, int totalAmount)
 {
 	auto player = static_cast<SDLAudio*>(userData);
-	player->AudioCallback(buffer, length);
+	player->AudioCallback(stream, additionalAmount, totalAmount);
 }
 
-/*virtual*/ void SDLAudio::AudioCallback(Uint8* buffer, int length)
+/*virtual*/ void SDLAudio::AudioCallback(SDL_AudioStream* stream, int additionalAmount, int totalAmount)
 {
+	this->audioBuffer.resize(additionalAmount);
+
 	switch (this->audioDirection)
 	{
 		case AudioDirection::SOUND_OUT:
 		{
-			uint64_t numBytesRead = this->audioStream->ReadBytesFromStream(buffer, uint64_t(length));
-			for (uint64_t i = numBytesRead; i < uint64_t(length); i++)
-				buffer[i] = this->audioSpec.silence;
+			uint64_t numBytesRead = this->audioStream->ReadBytesFromStream(this->audioBuffer.data(), uint64_t(this->audioBuffer.size()));
+			for (uint64_t i = numBytesRead; i < uint64_t(this->audioBuffer.size()); i++)
+				this->audioBuffer.data()[i] = 0; //this->audioSpec.silence;
+
+			bool succeeded = SDL_PutAudioStreamData(stream, this->audioBuffer.data(), int(this->audioBuffer.size()));
 
 			if (this->recordedAudioStream.get())
-				this->recordedAudioStream->WriteBytesToStream(buffer, length);
+				this->recordedAudioStream->WriteBytesToStream(this->audioBuffer.data(), uint64_t(this->audioBuffer.size()));
 
 			break;
 		}
 		case AudioDirection::SOUND_IN:
 		{
-			uint64_t numBytesWritten = this->audioStream->WriteBytesToStream(buffer, uint64_t(length));
+			bool succeeded = SDL_GetAudioStreamData(stream, this->audioBuffer.data(), int(this->audioBuffer.size()));
+
+			uint64_t numBytesWritten = this->audioStream->WriteBytesToStream(this->audioBuffer.data(), uint64_t(this->audioBuffer.size()));
 			break;
 		}
 	}

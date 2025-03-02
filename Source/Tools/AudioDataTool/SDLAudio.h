@@ -2,7 +2,7 @@
 
 #include "AudioDataLib/FileDatas/AudioData.h"
 #include "AudioDataLib/ErrorSystem.h"
-#include "SDL.h"
+#include "SDL3/SDL.h"
 #undef main
 #include "AudioDataLib/ByteStream.h"
 
@@ -29,8 +29,8 @@ public:
 
 protected:
 
-	static void SDLCALL AudioCallbackEntryPoint(void* userData, Uint8* buffer, int length);
-	virtual void AudioCallback(Uint8* buffer, int length);
+	static void SDLCALL AudioCallbackEntryPoint(void* userData, SDL_AudioStream* stream, int additionalAmount, int totalAmount);
+	virtual void AudioCallback(SDL_AudioStream* stream, int additionalAmount, int totalAmount);
 
 	std::shared_ptr<AudioDataLib::AudioStream> audioStream;
 	std::shared_ptr<AudioDataLib::AudioStream> recordedAudioStream;
@@ -39,4 +39,6 @@ protected:
 	SDL_AudioDeviceID audioDeviceID;
 
 	AudioDirection audioDirection;
+
+	std::vector<uint8_t> audioBuffer;
 };
