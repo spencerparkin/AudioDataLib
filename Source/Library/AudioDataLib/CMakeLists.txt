@@ -105,12 +105,15 @@ set(LIBRARY_SOURCES
 
 source_group("Sources" TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${LIBRARY_SOURCES})
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4251")
+
 add_library(AudioDataLib SHARED
     ${LIBRARY_SOURCES}
 )
 
 target_compile_definitions(AudioDataLib PRIVATE
     AUDIO_DATA_LIB_EXPORT
+    _CRT_SECURE_NO_WARNINGS
 )
 
 target_include_directories(AudioDataLib PUBLIC

@@ -117,7 +117,7 @@ namespace AudioDataLib
 			mutable std::shared_ptr<WaveForm> cachedWaveForm;
 		};
 
-		uint32_t GetNumAudioSamples() const { return this->audioSampleArray.size(); }
+		uint32_t GetNumAudioSamples() const { return (uint32_t)this->audioSampleArray.size(); }
 		const AudioData* GetAudioSample(uint32_t i) const;
 		std::shared_ptr<AudioData> GetAudioData(uint32_t i) const;
 
