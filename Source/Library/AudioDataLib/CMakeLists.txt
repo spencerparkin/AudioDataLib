@@ -107,14 +107,21 @@ source_group("Sources" TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${LIBRARY_SOURCES}
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4251")
 
-add_library(AudioDataLib SHARED
-    ${LIBRARY_SOURCES}
-)
+if(NOT DEFINED AUDIODATALIB_BUILD_SHARED)
+    set(AUDIODATALIB_BUILD_SHARED ON)
+endif()
 
-target_compile_definitions(AudioDataLib PRIVATE
-    AUDIO_DATA_LIB_EXPORT
-    _CRT_SECURE_NO_WARNINGS
-)
+if(AUDIODATALIB_BUILD_SHARED)
+    add_library(AudioDataLib SHARED ${LIBRARY_SOURCES})
+else()
+    add_library(AudioDataLib STATIC ${LIBRARY_SOURCES})
+endif()
+
+target_compile_definitions(AudioDataLib PRIVATE _CRT_SECURE_NO_WARNINGS)
+
+if(AUDIODATALIB_BUILD_SHARED)
+	target_compile_definitions(AudioDataLib PRIVATE AUDIO_DATA_LIB_EXPORT)
+endif()
 
 target_include_directories(AudioDataLib PUBLIC
     ".."
